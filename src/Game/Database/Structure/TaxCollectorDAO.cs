@@ -1,0 +1,104 @@
+﻿using Protocolo.Framework.Database;
+using PropertyChanged;
+
+namespace Game.Database.Structure
+{
+    /// <summary>
+    /// 
+    /// </summary>
+    [Table("taxcollector")]
+    [AddINotifyPropertyChangedInterface]
+    public sealed class TaxCollectorDAO : DataAccessObject<TaxCollectorDAO>
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        [Key]
+        public long Id
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public long GuildId
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public long OwnerId
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public int FirstName
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public int Name
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public int Skin
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public int SkinSize
+        { 
+            get; 
+            set; 
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public int MapId
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public int CellId
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public long Kamas
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public long Experience
+        {
+            get;
+            set;
+        }
+    }
+}
+

@@ -1,0 +1,19 @@
+﻿using Protocolo.Framework.Database;
+using Game.Database.Structure;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Game.Database.Repository
+{
+    public sealed class CharacterQuestRepository : Repository<CharacterQuestRepository, CharacterQuestDAO>
+    {
+        public override void OnObjectAdded(CharacterQuestDAO obj)
+        {
+            CharacterRepository.Instance.GetById(obj.Id).AddQuest(obj);
+        }
+    }
+}
+

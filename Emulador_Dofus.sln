@@ -1,0 +1,68 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 18
+VisualStudioVersion = 18.5.11723.231
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Login", "src\Login\Login.csproj", "{155DCABA-ACAE-48B6-8CFA-BF4A264770A3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game", "src\Game\Game.csproj", "{46EAE51D-7753-4B18-9E67-8D2768F57C87}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Protocolo", "src\Protocolo\Protocolo.csproj", "{B9C4E2BA-0D57-4EE0-9AF7-55FD9F114BEE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{155DCABA-ACAE-48B6-8CFA-BF4A264770A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{155DCABA-ACAE-48B6-8CFA-BF4A264770A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{155DCABA-ACAE-48B6-8CFA-BF4A264770A3}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{155DCABA-ACAE-48B6-8CFA-BF4A264770A3}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{155DCABA-ACAE-48B6-8CFA-BF4A264770A3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{155DCABA-ACAE-48B6-8CFA-BF4A264770A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{155DCABA-ACAE-48B6-8CFA-BF4A264770A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{155DCABA-ACAE-48B6-8CFA-BF4A264770A3}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{155DCABA-ACAE-48B6-8CFA-BF4A264770A3}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{155DCABA-ACAE-48B6-8CFA-BF4A264770A3}.Release|x86.ActiveCfg = Release|Any CPU
+		{46EAE51D-7753-4B18-9E67-8D2768F57C87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46EAE51D-7753-4B18-9E67-8D2768F57C87}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46EAE51D-7753-4B18-9E67-8D2768F57C87}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{46EAE51D-7753-4B18-9E67-8D2768F57C87}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{46EAE51D-7753-4B18-9E67-8D2768F57C87}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{46EAE51D-7753-4B18-9E67-8D2768F57C87}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46EAE51D-7753-4B18-9E67-8D2768F57C87}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46EAE51D-7753-4B18-9E67-8D2768F57C87}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{46EAE51D-7753-4B18-9E67-8D2768F57C87}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{46EAE51D-7753-4B18-9E67-8D2768F57C87}.Release|x86.ActiveCfg = Release|Any CPU
+		{B9C4E2BA-0D57-4EE0-9AF7-55FD9F114BEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9C4E2BA-0D57-4EE0-9AF7-55FD9F114BEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9C4E2BA-0D57-4EE0-9AF7-55FD9F114BEE}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{B9C4E2BA-0D57-4EE0-9AF7-55FD9F114BEE}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{B9C4E2BA-0D57-4EE0-9AF7-55FD9F114BEE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B9C4E2BA-0D57-4EE0-9AF7-55FD9F114BEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9C4E2BA-0D57-4EE0-9AF7-55FD9F114BEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9C4E2BA-0D57-4EE0-9AF7-55FD9F114BEE}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{B9C4E2BA-0D57-4EE0-9AF7-55FD9F114BEE}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{B9C4E2BA-0D57-4EE0-9AF7-55FD9F114BEE}.Release|x86.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {59EA47F1-25E5-4D99-8924-E36406A7C9E9}
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItems = $0
+		$0.Item = src\Game\Game.csproj
+		Policies = $1
+		$1.DotNetNamingPolicy = $2
+		$2.DirectoryNamespaceAssociation = None
+		$2.ResourceNamePolicy = FileFormatDefault
+	EndGlobalSection
+EndGlobal
+
