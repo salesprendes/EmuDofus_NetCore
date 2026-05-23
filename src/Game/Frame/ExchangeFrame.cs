@@ -324,6 +324,7 @@ namespace Game.Frame
         {
             var exchangeData = message.Substring(2).Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
             int exchangeTypeId = -1;
+
             if(!int.TryParse(exchangeData[0], out exchangeTypeId))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
@@ -331,13 +332,11 @@ namespace Game.Frame
             }
 
             var exchangeActorId = -1;
-            if(exchangeData.Length > 1)
-                if (!int.TryParse(exchangeData[1], out exchangeActorId))
-                {
-                    character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
-                    return;
-                }
-
+            if (exchangeData.Length > 1 && !int.TryParse(exchangeData[1], out exchangeActorId))
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
 
             if (!Enum.IsDefined(typeof(ExchangeTypeEnum), exchangeTypeId))
             {
@@ -359,9 +358,11 @@ namespace Game.Frame
                 var distantEntity = character.Map.GetEntity(exchangeActorId);
                 if (exchangeType == ExchangeTypeEnum.EXCHANGE_PERSONAL_SHOP_EDIT)
                     distantEntity = character;
+
                 if (distantEntity == null)
                 {
-                    Logger.Debug("ExchangeFrame::Request unknow distant entity id, cheat ? : " + character.Name);
+                    var entityIds = string.Join(", ", character.Map.Entities.Select(e => e.Id + "(" + e.Type + ")"));
+                    Logger.Debug("ExchangeFrame::Request unknow entity " + exchangeActorId + " map=" + character.Map.Id + " entities=[" + entityIds + "] player=" + character.Name);
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }

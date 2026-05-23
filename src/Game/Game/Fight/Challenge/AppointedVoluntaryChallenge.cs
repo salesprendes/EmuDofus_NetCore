@@ -25,7 +25,6 @@ namespace Game.Fight.Challenge
             TeamXpBonus = 60;
 
             ShowTarget = true;
-            TargetId = 0;
         }
 
         /// <summary>

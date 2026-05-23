@@ -12,7 +12,7 @@ using Game.Spell;
 using Game.Interactive.Type;
 using Game.Entity;
 using Game.Job;
-using log4net;
+using Protocolo.Framework.Generic.Logging;
 
 namespace Game.Map
 {
@@ -434,7 +434,7 @@ namespace Game.Map
     /// </summary>
     public static class Pathfinding
     {
-        private static ILog Logger = LogManager.GetLogger(typeof(Pathfinding));
+        private static ILogger Logger = LogManager.GetLogger(typeof(Pathfinding));
 
         public static double[] RUN_SPEEDS = { 1.700000E-001, 1.500000E-001, 1.500000E-001, 1.500000E-001, 1.700000E-001, 1.500000E-001, 1.500000E-001, 1.500000E-001 };
         public static double[] WALK_SPEEDS = { 7.000000E-002, 6.000000E-002, 6.000000E-002, 6.000000E-002, 7.000000E-002, 6.000000E-002, 6.000000E-002, 6.000000E-002 };

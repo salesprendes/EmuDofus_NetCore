@@ -31,7 +31,6 @@
     <PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="all" />
 
     <!-- Runtime dependencies (inherited transitively from Protocolo, but explicit for clarity) -->
-    <PackageReference Include="log4net" Version="3.3.1" />
     <PackageReference Include="MySql.Data" Version="9.2.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 
@@ -51,10 +50,5 @@
     <ProjectReference Include="..\Protocolo\Protocolo.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="log4net.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
 
 </Project>

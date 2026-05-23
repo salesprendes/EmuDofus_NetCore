@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using Protocolo.Framework.Network;
-using Game;
 using Game.Entity;
 using Game.Spell;
 using Game.Manager;
@@ -1086,9 +1084,13 @@ namespace Game.Frame
                 if (map == null)
                     return;
 
+                if (character.HasGameAction(GameActionTypeEnum.FIGHT))
+                    return;
+
                 int celda = map.RandomFreeCell;
                 if (celda == -1) return;
 
+                character.CloseCurrentInteraction();
                 character.Teleport(map.Id, celda);
             });
         }

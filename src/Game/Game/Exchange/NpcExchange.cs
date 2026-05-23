@@ -68,7 +68,7 @@ namespace Game.Exchange
                     Character.Inventory.RemoveItem(item.Key, item.Value);
                 Character.Inventory.AddKamas(m_reward.RewardedKamas);
                 foreach(var item in m_reward.RewardedItems)
-                    Character.Inventory.AddItem(item.Template.Create(item.Quantity));
+                    Character.Inventory.AddItem(item.Template.Create(Character.Id, (int)Character.Type, item.Quantity));
                 Character.CachedBuffer = false;
                 return true;
             }

@@ -886,8 +886,7 @@ namespace Game.Entity
         /// <param name="account"></param>
         /// <param name="characterDAO"></param>
         /// <param name="type"></param>
-        public CharacterEntity(AccountTicket account, CharacterDAO characterDAO, EntityTypeEnum type = EntityTypeEnum.TYPE_CHARACTER)
-            : base(type, characterDAO.Id)
+        public CharacterEntity(AccountTicket account, CharacterDAO characterDAO, EntityTypeEnum type = EntityTypeEnum.TYPE_CHARACTER) : base(type, characterDAO.Id)
         {
             m_lastRegenTime = -1;
             m_lastEmoteId = -1;
@@ -1789,6 +1788,12 @@ namespace Game.Entity
             StartAction(GameActionTypeEnum.WAYPOINT);
         }
 
+        public void PrismSubwayStart(Game.Conquest.ConquestTerritory territory)
+        {
+            CurrentAction = new GamePrismSubwayAction(this, territory);
+            StartAction(GameActionTypeEnum.PRISM_USE);
+        }
+
         public bool AddWaypoint(int mapId)
         {
             if (Waypoints.Contains(mapId))
@@ -1800,7 +1805,7 @@ namespace Game.Entity
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="npc"></param>
         public void NpcDialogStart(NonPlayerCharacterEntity npc)
@@ -1809,8 +1814,25 @@ namespace Game.Entity
             StartAction(GameActionTypeEnum.NPC_DIALOG);
         }
 
+        public void CloseCurrentInteraction()
+        {
+            if (CurrentAction == null || CurrentAction.IsFinished)
+                return;
+
+            switch (CurrentAction.Type)
+            {
+                case GameActionTypeEnum.NPC_DIALOG:
+                case GameActionTypeEnum.WAYPOINT:
+                case GameActionTypeEnum.EXCHANGE:
+                case GameActionTypeEnum.PRISM_USE:
+                case GameActionTypeEnum.MAP_MOVEMENT:
+                    AbortAction(CurrentAction.Type);
+                break;
+            }
+        }
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="resource"></param>
         public void HarvestStart(HarvestableResource resource, int duration)
@@ -1943,7 +1965,7 @@ namespace Game.Entity
             StartAction(GameActionTypeEnum.TAXCOLLECTOR_AGGRESSION);
         }
 
-        public void DefendConquest(Game.Fight.ConquestFight fight)
+        public void DefendConquest(ConquestFight fight)
         {
             CurrentAction = new GameConquestDefenderAction(this, fight);
             StartAction(GameActionTypeEnum.PRISM_AGGRESSION);
@@ -2068,7 +2090,14 @@ namespace Game.Entity
                     FrameManager.RemoveFrame(MapFrame.Instance);
                     FrameManager.AddFrame(WaypointFrame.Instance);
                     break;
-                    
+
+                case GameActionTypeEnum.PRISM_USE:
+                    FrameManager.RemoveFrame(GameActionFrame.Instance);
+                    FrameManager.RemoveFrame(InventoryFrame.Instance);
+                    FrameManager.RemoveFrame(MapFrame.Instance);
+                    FrameManager.AddFrame(PrismSubwayFrame.Instance);
+                    break;
+
                 case GameActionTypeEnum.NPC_DIALOG:                          
                     FrameManager.RemoveFrame(GameActionFrame.Instance);
                     FrameManager.RemoveFrame(InventoryFrame.Instance);
@@ -2129,7 +2158,14 @@ namespace Game.Entity
                     FrameManager.AddFrame(MapFrame.Instance);
                     FrameManager.RemoveFrame(WaypointFrame.Instance);
                     break;
-                    
+
+                case GameActionTypeEnum.PRISM_USE:
+                    FrameManager.AddFrame(GameActionFrame.Instance);
+                    FrameManager.AddFrame(InventoryFrame.Instance);
+                    FrameManager.AddFrame(MapFrame.Instance);
+                    FrameManager.RemoveFrame(PrismSubwayFrame.Instance);
+                    break;
+
                 case GameActionTypeEnum.NPC_DIALOG:
                     FrameManager.AddFrame(GameActionFrame.Instance);
                     FrameManager.AddFrame(InventoryFrame.Instance);
@@ -2171,7 +2207,14 @@ namespace Game.Entity
                     FrameManager.AddFrame(MapFrame.Instance);
                     FrameManager.RemoveFrame(WaypointFrame.Instance);
                     break;
-                    
+
+                case GameActionTypeEnum.PRISM_USE:
+                    FrameManager.AddFrame(GameActionFrame.Instance);
+                    FrameManager.AddFrame(InventoryFrame.Instance);
+                    FrameManager.AddFrame(MapFrame.Instance);
+                    FrameManager.RemoveFrame(PrismSubwayFrame.Instance);
+                    break;
+
                 case GameActionTypeEnum.NPC_DIALOG:
                     FrameManager.AddFrame(GameActionFrame.Instance);
                     FrameManager.AddFrame(InventoryFrame.Instance);

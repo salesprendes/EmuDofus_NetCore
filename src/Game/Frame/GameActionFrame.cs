@@ -271,9 +271,8 @@ namespace Game.Frame
             if (!victim.CanGameAction(GameActionTypeEnum.FIGHT))
                 victim.AbortAction(victim.CurrentAction.Type);
 
-            // Active l'alignement de force s'il ne l'est pas.
-            character.EnableAlignment();
 
+            character.EnableAlignment();
             character.Map.FightManager.StartAggression(character, victim);
         }
 
@@ -378,13 +377,30 @@ namespace Game.Frame
             }
 
             var prism = character.Map.GetEntity(prismId) as ConquestPrismEntity;
-            if (prism == null || prism.Territory == null || prism.Territory.AlignmentId != character.AlignmentId)
+            if (prism == null || prism.Territory == null)
             {
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
-            character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
+            var territory = prism.Territory;
+
+            // Solo prismas de tipo SubArea pueden usarse como subway
+            if (territory.PrismType != Game.Conquest.ConquestPrismType.SubArea)
+            {
+                character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
+            // El personaje debe estar alineado y tener el mismo alineamiento que el prisma
+            if (!character.AlignmentEnabled || character.AlignmentId <= 0
+                || territory.AlignmentId != character.AlignmentId)
+            {
+                character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
+            character.PrismSubwayStart(territory);
         }
 
         /// <summary>

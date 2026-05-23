@@ -1,16 +1,11 @@
 ﻿using Game.Spell;
-using log4net;
+using Protocolo.Framework.Generic.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.ActionEffect
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class ActionEntry
     {
         public EffectEnum Effect { get; }
@@ -36,12 +31,9 @@ namespace Game.ActionEffect
         }
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class ActionList : List<ActionEntry>
     {
-        private static ILog Logger = LogManager.GetLogger(typeof(ActionList));
+        private static ILogger Logger = LogManager.GetLogger(typeof(ActionList));
 
         public static ActionList Deserialize(string data)
         {

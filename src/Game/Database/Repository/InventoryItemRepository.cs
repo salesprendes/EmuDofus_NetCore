@@ -106,11 +106,12 @@ namespace Game.Database.Repository
             base.DeleteAll(connection, transaction);
         }
 
-        public ItemDAO Create(int templateId, long ownerId, int quantity, GenericStats statistics, ItemSlotEnum slot = ItemSlotEnum.SLOT_INVENTORY)
+        public ItemDAO Create(int templateId, long ownerId, int ownerType, int quantity, GenericStats statistics, ItemSlotEnum slot = ItemSlotEnum.SLOT_INVENTORY)
         {
-            var instance = new ItemDAO();
+            ItemDAO instance = new ItemDAO();
             instance.Id = NextItemId;
-            instance.OwnerId = -1;
+            instance.OwnerId = ownerId;
+            instance.OwnerType = ownerType;
             instance.TemplateId = templateId;
             instance.Quantity = quantity;
             instance.StringEffects = statistics.ToItemStats();

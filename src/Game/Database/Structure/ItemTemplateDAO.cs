@@ -617,9 +617,9 @@ namespace Game.Database.Structure
         /// <param name="slot"></param>
         /// <param name="maxJet"></param>
         /// <returns></returns>
-        public ItemDAO Create(int quantity = 1, ItemSlotEnum slot = ItemSlotEnum.SLOT_INVENTORY, bool maxJet = false)
+        public ItemDAO Create(long ownerId, int ownerType, int quantity = 1, ItemSlotEnum slot = ItemSlotEnum.SLOT_INVENTORY, bool maxJet = false)
         {
-            return InventoryItemRepository.Instance.Create(Id, -1, quantity, GenerateStats(maxJet), slot);
+            return InventoryItemRepository.Instance.Create(Id, ownerId, ownerType, quantity, GenerateStats(maxJet), slot);
         }
 
         /// <summary>

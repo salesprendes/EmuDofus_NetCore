@@ -319,7 +319,7 @@ namespace Game.Database.Structure
         /// <returns></returns>
         public ItemDAO Clone(int quantity)
         {
-            return InventoryItemRepository.Instance.Create(TemplateId, -1, quantity, Statistics);
+            return InventoryItemRepository.Instance.Create(TemplateId, OwnerId, OwnerType, quantity, Statistics, ItemSlotEnum.SLOT_INVENTORY);
         }
     }
 }

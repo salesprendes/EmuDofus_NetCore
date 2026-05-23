@@ -1,6 +1,6 @@
 ﻿using Game.Database.Structure;
 using Game.Quest.Impl;
-using log4net;
+using Protocolo.Framework.Generic.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +18,7 @@ namespace Game.Quest
 
     public abstract class AbstractQuestObjective
     {
-        protected static ILog Logger = LogManager.GetLogger(typeof(AbstractQuestObjective));
+        protected static ILogger Logger = LogManager.GetLogger(typeof(AbstractQuestObjective));
 
         public int Id => m_record.Id;
         public int StepId => m_record.StepId;

@@ -1,16 +1,8 @@
 ﻿using Game.Entity;
 using Game.Network;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.Exchange
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class ShopExchange : AbstractExchange
     {
         /// <summary>
@@ -31,9 +23,6 @@ namespace Game.Exchange
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         /// <param name="buyer"></param>
         /// <param name="shop"></param>
         public ShopExchange(CharacterEntity character, NonPlayerCharacterEntity npc)
@@ -93,7 +82,7 @@ namespace Game.Exchange
                 return;
             }
 
-            var instance = template.Create(quantity);
+            var instance = template.Create(Character.Id, (int)Character.Type, quantity);
             if (instance == null)
             {
                 Logger.Debug("ShopExchange error while creating object : " + entity.Name);

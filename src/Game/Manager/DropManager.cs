@@ -2,29 +2,20 @@
 using Game.Database.Structure;
 using Game.Entity;
 using Game.Fight;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.Manager
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class DropManager : Singleton<DropManager>
     {
-        /// <summary>
-        /// 
-        /// </summary>
         /// <param name="prospection"></param>
         /// <param name="monster"></param>
         /// <param name="rate"></param>
         /// <returns></returns>
         public List<ItemDAO> GetDrops(long prospection, MonsterEntity monster, double rate)
         {
-            var drops = new List<ItemDAO>();
+            List<ItemDAO> drops = new List<ItemDAO>();
             foreach(var drop in monster.Grade.Template.Drops)
             {
                 for (var i = 0; i < drop.Max; i++)
@@ -33,7 +24,7 @@ namespace Game.Manager
                     {
                         if(drop.ItemTemplate != null)
                         {
-                            drops.Add(drop.ItemTemplate.Create());
+                            drops.Add(drop.ItemTemplate.Create(-1, 0));
                         }
                     }
                 }

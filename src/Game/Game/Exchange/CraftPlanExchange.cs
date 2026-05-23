@@ -231,7 +231,7 @@ namespace Game.Exchange
 
                 if(success)
                 {
-                    var item = m_craftItem.Create();
+                    ItemDAO item = m_craftItem.Create(Character.Id, (int)Character.Type);
                     Character.Inventory.AddItem(item);
                     item = Character.Inventory.Items.Find(entry => entry.TemplateId == m_craftItem.Id);
 

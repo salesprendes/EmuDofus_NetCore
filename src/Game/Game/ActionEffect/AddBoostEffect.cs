@@ -86,7 +86,7 @@ namespace Game.ActionEffect
                 return false;
             }
 
-            var item = template.Create(1, slot);
+            var item = template.Create(character.Id, (int)character.Type, 1, slot);
 
             character.CachedBuffer = true;
             character.Statistics.Merge(StatsType.TYPE_BOOST, item.Statistics);

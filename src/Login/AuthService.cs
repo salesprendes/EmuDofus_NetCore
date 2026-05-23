@@ -41,13 +41,16 @@ namespace Login
         public static int AuthMaxConnectionsPerIp = 5;
 
         [Configurable("AuthMaxConnectionsPerSecond")]
-        public static int AuthMaxConnectionsPerSecond = 50;
+        public static int AuthMaxConnectionsPerSecond = 60;
 
         [Configurable("AuthMaxFailedAuthAttempts")]
         public static int AuthMaxFailedAuthAttempts = 10;
 
         [Configurable("AuthIpBanDurationSeconds")]
         public static int AuthIpBanDurationSeconds = 300;
+
+        [Configurable("LogDebugEnabled")]
+        public static bool LogDebugEnabled = true;
 
         public ConfigurationManager ConfigurationManager
         {
@@ -70,6 +73,7 @@ namespace Login
             ConfigurationManager.RegisterAttributes();
             ConfigurationManager.Add(new JsonConfigurationProvider(configPath), true);
             ConfigurationManager.Load();
+            AuthClient.DebugEnabled = AuthService.LogDebugEnabled;
             AuthDbMgr.Instance.Initialize();
             AuthRPCService.Instance.Start();
 
@@ -168,7 +172,7 @@ namespace Login
         /// <param name="client"></param>
         protected override void OnClientConnected(AuthClient client)
         {
-            if (Logger.IsDebugEnabled)
+            if (AuthService.LogDebugEnabled)
                 Logger.Debug("Connected : " + client.Ip);
 
             AddMessage(() =>
@@ -193,7 +197,7 @@ namespace Login
                     if (!client.IsWaitingAuthenticationQueue && m_activeAuthClientCount > 0)
                         m_activeAuthClientCount--;
 
-                    if (Logger.IsDebugEnabled)
+                    if (AuthService.LogDebugEnabled)
                         Logger.Debug("Disconnected : " + client.Ip);
 
                     if(client.AuthKey != null)
@@ -215,7 +219,7 @@ namespace Login
         {
             foreach (var message in client.Receive(buffer, offset, count))
             {
-                if (Logger.IsDebugEnabled)
+                if (AuthService.LogDebugEnabled)
                     Logger.Debug("Client : " + message);
 
                 client.FrameManager.ProcessMessage(message);

@@ -24,8 +24,6 @@ namespace Game.Fight.Challenge
             TeamDropBonus = 30;
             TeamXpBonus = 30;
 
-            ShowTarget = false;
-            TargetId = 0;
         }
         
         /// <summary>

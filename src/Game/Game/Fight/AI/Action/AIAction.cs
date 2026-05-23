@@ -1,6 +1,6 @@
 ﻿using Game.Map;
 using Game.Spell;
-using log4net;
+using Protocolo.Framework.Generic.Logging;
 using System;
 using System.Collections.Generic;
 
@@ -22,7 +22,7 @@ namespace Game.Fight.AI.Action
 
     public abstract class AIAction
     {
-        protected static ILog Logger = LogManager.GetLogger(typeof(AIAction));
+        protected static ILogger Logger = LogManager.GetLogger(typeof(AIAction));
 
         public bool Timedout => m_timeout <= Fighter.Fight.UpdateTime;
 

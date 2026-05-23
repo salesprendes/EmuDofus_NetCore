@@ -11,7 +11,7 @@
  Target Server Version : 80407 (8.4.7)
  File Encoding         : 65001
 
- Date: 22/05/2026 00:28:57
+ Date: 23/05/2026 13:24:40
 */
 
 SET NAMES utf8mb4;
@@ -40,7 +40,7 @@ CREATE TABLE `account`  (
 -- ----------------------------
 -- Records of account
 -- ----------------------------
-INSERT INTO `account` VALUES (1, 'test', 'AIdemu', 'test', 1000, '2026-05-08 19:30:10', '2026-05-22 00:08:01', '127.0.0.1', '2026-05-08 20:30:13', 0, 'test', 'test');
+INSERT INTO `account` VALUES (1, 'test', 'AIdemu', 'test', 1000, '2026-05-08 19:30:10', '2026-05-23 13:11:26', '127.0.0.1', '2026-05-08 20:30:13', 0, 'test', 'test');
 INSERT INTO `account` VALUES (2, 'test2', 'test', 'test', 1000, '2000-01-01 00:00:00', '2026-05-19 22:09:49', '127.0.0.1', '2000-01-01 00:00:00', 0, '', '');
 
 -- ----------------------------
@@ -94,7 +94,7 @@ CREATE TABLE `characterinstance`  (
   `AlignmentHonour` int NOT NULL DEFAULT 0,
   `AlignmentDishonour` int NOT NULL DEFAULT 0,
   `AlignmentEnabled` bit(1) NOT NULL DEFAULT b'0',
-  `SerializedWaypoints` text CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
+  `Zaaps` text CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
   PRIMARY KEY (`Id`) USING BTREE,
   INDEX `IX_characterinstance_account`(`AccountId` ASC, `ServerId` ASC) USING BTREE,
   INDEX `IX_characterinstance_server`(`ServerId` ASC) USING BTREE
@@ -103,8 +103,6 @@ CREATE TABLE `characterinstance`  (
 -- ----------------------------
 -- Records of characterinstance
 -- ----------------------------
-INSERT INTO `characterinstance` VALUES (10000, 1, 'Aidemu', 9, 14738701, 0, 0, 91, 100, 0, 0, 0, 0, 0, 0, 7, 3, 1050, 10000, 79, 995, 528, 186, 8192, 28915, 1, 0, 1, 0, 200, 1, 559675896, 10285, 219, b'0', 0, '', 1376255, 0, -1, 0, 0, 0, 0, 0, b'0', '7411,528');
-INSERT INTO `characterinstance` VALUES (10001, 1, 'Test', 12, -1, -1, -1, 121, 100, 0, 0, 0, 0, 0, 0, 7, 3, 650, 10000, 119, 595, 8594, 122, 8192, 0, 2, 0, 1, 0, 120, 1, 0, 10289, 249, b'0', 0, '', 1376255, 0, -1, 0, 0, 0, 0, 0, b'0', '');
 
 -- ----------------------------
 -- Table structure for gameservers
@@ -136,7 +134,6 @@ CREATE TRIGGER `characterinstance_after_insert` AFTER INSERT ON `characterinstan
 
 	CALL game_emudofus.character_generate_spells(characterId, breedId);
 
-	INSERT INTO game_emudofus.characteralignment VALUES (characterId, 0, 0, 0, 0, 0, 0);
 	INSERT INTO game_emudofus.characterguild VALUES (characterId, -1, 0, 0, 0, 0);
 END
 ;;

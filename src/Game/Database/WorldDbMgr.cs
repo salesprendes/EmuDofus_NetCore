@@ -4,15 +4,8 @@ using Game.Database.Structure;
 
 namespace Game.Database
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class WorldDbMgr : DbManager<WorldDbMgr>
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dbConnection"></param>
         public void Initialize(string dbConnection = "")
         {
             SqlMapperExtensions.SetTableName(typeof(CharacterDAO), WorldConfig.AUTH_DB_NAME + ".characterinstance");
@@ -61,6 +54,7 @@ namespace Game.Database
             AddRepository(QuestStepRepository.Instance);
             AddRepository(QuestObjectiveRepository.Instance);
             AddRepository(ConquestTerritoryRepository.Instance);
+            AddRepository(AccountGiftRepository.Instance);
 
             LoadAll(string.IsNullOrWhiteSpace(dbConnection) ? WorldConfig.WORLD_DB_CONNECTION : dbConnection);
         }

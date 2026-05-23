@@ -2,20 +2,11 @@
 using Game.Network;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.ActionEffect
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class AddItemEffect : AbstractActionEffect<AddItemEffect>
     {
-        /// <summary>
-        /// 
-        /// </summary>
         /// <param name="character"></param>
         /// <param name="item"></param>
         /// <param name="effect"></param>
@@ -27,9 +18,6 @@ namespace Game.ActionEffect
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         /// <param name="character"></param>
         /// <param name="parameters"></param>
         /// <returns></returns>
@@ -41,7 +29,7 @@ namespace Game.ActionEffect
                 return false;
 
             character.CachedBuffer = true;
-            character.Inventory.AddItem(template.Create());
+            character.Inventory.AddItem(template.Create(character.Id, (int)character.Type));
             character.Dispatch(WorldMessage.SERVER_INFO_MESSAGE("Item " + template.Name + " added in your inventory."));
             character.CachedBuffer = false;
 

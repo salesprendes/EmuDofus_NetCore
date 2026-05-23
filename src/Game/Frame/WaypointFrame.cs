@@ -74,6 +74,12 @@ namespace Game.Frame
                     character.Dispatch(WorldMessage.WAYPOINT_USE_ERROR());
                     return;
                 }
+
+                if (waypoint.Map.SubArea.Area.SuperAreaId != character.Map.SubArea.Area.SuperAreaId)
+                {
+                    character.Dispatch(WorldMessage.WAYPOINT_USE_ERROR());
+                    return;
+                }
                 
                 var price = 10 * (Math.Abs(waypoint.Map.X - character.Map.X) + Math.Abs(waypoint.Map.Y - character.Map.Y) - 1);
                 if(character.Inventory.Kamas < price)

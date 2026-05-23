@@ -474,12 +474,13 @@ namespace Game.Command
 
                     character.AddMessage(() =>
                     {
-                        if (!character.CanGameAction(Game.Action.GameActionTypeEnum.MAP_TELEPORT))
+                        if (character.HasGameAction(GameActionTypeEnum.FIGHT))
                         {
-                            context.Character.SafeDispatch(WorldMessage.BASIC_CONSOLE_MESSAGE("Unable to teleport remote player due to his actual state."));
+                            context.Character.SafeDispatch(WorldMessage.BASIC_CONSOLE_MESSAGE("Unable to teleport remote player: player is in a fight."));
                             return;
                         }
 
+                        character.CloseCurrentInteraction();
                         character.Teleport(mapId, cellId);
                         context.Character.SafeDispatch(WorldMessage.BASIC_CONSOLE_MESSAGE("Player teleported successfully."));
                     });
@@ -523,12 +524,13 @@ namespace Game.Command
 
                         context.Character.AddMessage(() =>
                             {
-                                if (!context.Character.CanGameAction(Game.Action.GameActionTypeEnum.MAP_TELEPORT))
+                                if (context.Character.HasGameAction(Game.Action.GameActionTypeEnum.FIGHT))
                                 {
-                                    context.Character.Dispatch(WorldMessage.BASIC_CONSOLE_MESSAGE("Unable to teleport yourself in your actual state."));
+                                    context.Character.Dispatch(WorldMessage.BASIC_CONSOLE_MESSAGE("Unable to teleport yourself: you are in a fight."));
                                     return;
                                 }
 
+                                context.Character.CloseCurrentInteraction();
                                 context.Character.Teleport(mapId, cellId);
                             });
                     });                
@@ -596,7 +598,7 @@ namespace Game.Command
             protected override void Process(WorldCommandContext context)
             {
                 int mapId;
-                if(Int32.TryParse(context.TextCommandArgument.NextWord(), out mapId))
+                if(int.TryParse(context.TextCommandArgument.NextWord(), out mapId))
                 {
                     var map = MapManager.Instance.GetById(mapId);
                     if (map != null)
@@ -837,13 +839,11 @@ namespace Game.Command
                         if (!int.TryParse(context.TextCommandArgument.NextWord(), out quantity) || quantity == templateId)                        
                             quantity = 1;                        
 
-                        var instance = itemTemplate.Create(quantity, ItemSlotEnum.SLOT_INVENTORY, true);
+                        var instance = itemTemplate.Create(context.Character.Id, (int)context.Character.Type, quantity, ItemSlotEnum.SLOT_INVENTORY, true);
                         if (instance != null)
                         {
                             context.Character.Inventory.AddItem(instance);
-                            context.Character.Dispatch(WorldMessage.BASIC_CONSOLE_MESSAGE(
-                                String.Format("Item {0} added in your inventory", itemTemplate.Name)
-                                ));
+                            context.Character.Dispatch(WorldMessage.BASIC_CONSOLE_MESSAGE(String.Format("Item {0} added in your inventory", itemTemplate.Name)));
                         }
                     }
                     else

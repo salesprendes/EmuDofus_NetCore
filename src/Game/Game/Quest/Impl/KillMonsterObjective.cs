@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Game.Database.Structure;
+﻿using Game.Database.Structure;
+using System;
 
 namespace Game.Quest.Impl
 {
@@ -25,10 +21,7 @@ namespace Game.Quest.Impl
             }
         }
 
-        public override bool Done(string value)
-        {
-            return int.Parse(value) >= Count;
-        }
+        public override bool Done(string value) => int.Parse(value) >= Count;
     }
 }
 

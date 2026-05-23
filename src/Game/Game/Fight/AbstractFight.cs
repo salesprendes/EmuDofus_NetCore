@@ -1361,7 +1361,16 @@ namespace Game.Fight
                         case EntityTypeEnum.TYPE_CHARACTER:
                             NextLoopState = FightLoopStateEnum.STATE_WAIT_TURN;
                             if (CurrentFighter.IsDisconnected)
+                            {
+                                CurrentFighter.DisconnectedTurnLeft--;
+                                if (CurrentFighter.DisconnectedTurnLeft <= 0)
+                                {
+                                    FightQuit((CharacterEntity)CurrentFighter, true);
+                                    return;
+                                }
+                                Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_FIGHTER_DISCONNECTED, CurrentFighter.Name, CurrentFighter.DisconnectedTurnLeft));
                                 CurrentFighter.TurnPass = true;
+                            }
                             break;
 
                         default:
@@ -2507,7 +2516,7 @@ namespace Game.Fight
                     var lostMP = fighter.MP;
 
                     if (lostMP < 0)
-                        lostMP = 1;
+                        lostMP = 0;
 
                     if (lostMP > fighter.MP)
                         lostMP = fighter.MP;

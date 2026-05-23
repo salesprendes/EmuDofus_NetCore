@@ -18,9 +18,6 @@ using Game.Conquest;
 
 namespace Game.Network
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public enum ChatChannelEnum
     {
         CHANNEL_GENERAL = '*',
@@ -35,9 +32,6 @@ namespace Game.Network
         CHANNEL_PRIVATE_RECEIVE = 'F',
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public enum InformationTypeEnum
     {
         INFO = 0,
@@ -488,7 +482,56 @@ namespace Game.Network
 
 
         /// <summary>
-        /// 
+        /// Envia un regalo pendiente al cliente para que elija en que personaje recibirlo.
+        /// Formato: Ag[type]|[id]|[title]|[desc]|[gfxurl]|[items]
+        /// Items: ;0~templateId_hex~qty_hex~~ por cada item (el cliente omite el indice 0).
+        /// </summary>
+        public static string GIFT_LIST(Database.Structure.AccountGiftDAO gift)
+        {
+            var items = new StringBuilder();
+            if (!string.IsNullOrEmpty(gift.Items))
+            {
+                foreach (var entry in gift.Items.Split('|'))
+                {
+                    var parts = entry.Split(':');
+                    if (parts.Length != 2) continue;
+                    int templateId, quantity;
+                    if (!int.TryParse(parts[0], out templateId) || !int.TryParse(parts[1], out quantity)) continue;
+                    items.Append(';')
+                         .Append(0).Append('~')
+                         .Append(templateId.ToString("x")).Append('~')
+                         .Append(quantity.ToString("x")).Append("~~");
+                }
+            }
+
+            return new StringBuilder("Ag")
+                .Append(gift.GiftType).Append('|')
+                .Append(gift.Id).Append('|')
+                .Append(Uri.EscapeDataString(gift.Title ?? string.Empty)).Append('|')
+                .Append(Uri.EscapeDataString(gift.Description ?? string.Empty)).Append('|')
+                .Append(Uri.EscapeDataString(gift.GfxUrl ?? string.Empty)).Append('|')
+                .Append(items)
+                .ToString();
+        }
+
+        /// <summary>
+        /// Confirmacion de regalo atribuido con exito.
+        /// </summary>
+        public static string GIFT_STORED_SUCCESS()
+        {
+            return "AG";
+        }
+
+        /// <summary>
+        /// Error al atribuir el regalo.
+        /// </summary>
+        public static string GIFT_STORED_ERROR()
+        {
+            return "AGE";
+        }
+
+        /// <summary>
+        ///
         /// </summary>
         /// <returns></returns>
         public static string CHARACTER_SELECTION_SUCCESS(CharacterEntity character)
@@ -2216,13 +2259,16 @@ namespace Game.Network
         /// 
         /// </summary>
         /// <returns></returns>
-        public static string WAYPOINT_CREATE(CharacterEntity character)
+        public static string WAYPOINT_CREATE(CharacterEntity character, int superAreaId)
         {
             var message = new StringBuilder("WC").Append(character.SavedMapId);
             foreach (var waypointMapId in character.Waypoints)
             {
                 var waypointMap = MapManager.Instance.GetById(waypointMapId);
                 if (waypointMap == null)
+                    continue;
+
+                if (waypointMap.SubArea.Area.SuperAreaId != superAreaId)
                     continue;
 
                 var price = 0;
@@ -2243,12 +2289,49 @@ namespace Game.Network
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <returns></returns>
         public static string WAYPOINT_USE_ERROR()
         {
             return "WUE";
+        }
+
+        /// <summary>
+        /// Abre el menu de subway de prismas para el personaje.
+        /// Formato: Wp[currentMapId]|[currentMapId]|[mapId];[cost][*]|...
+        /// El cliente omite el indice 1 (loop empieza en 2), por eso el mapa actual
+        /// aparece en ambos indices 0 y 1 para que no se muestre como destino.
+        /// Solo prismas de tipo SubArea y mismo alineamiento se incluyen.
+        /// </summary>
+        public static string PRISM_CREATE(CharacterEntity character)
+        {
+            var currentMapId = character.MapId;
+            var message = new StringBuilder("Wp").Append(currentMapId).Append('|').Append(currentMapId);
+
+            foreach (var territory in ConquestManager.Instance.Territories)
+            {
+                if (territory.PrismType != ConquestPrismType.SubArea)
+                    continue;
+                if (territory.AlignmentId != character.AlignmentId)
+                    continue;
+                if (territory.PrismMapId <= 0 || territory.PrismMapId == currentMapId)
+                    continue;
+
+                message.Append('|').Append(territory.PrismMapId).Append(";0");
+                if (territory.IsUnderAttack)
+                    message.Append('*');
+            }
+
+            return message.ToString();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        public static string PRISM_LEAVE()
+        {
+            return "Ww";
         }
 
         /// <summary>

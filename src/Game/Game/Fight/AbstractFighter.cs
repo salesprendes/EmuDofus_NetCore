@@ -270,7 +270,7 @@ namespace Game.Fight
         /// <summary>
         /// 
         /// </summary>
-        public int MPDodge => (int)Math.Floor((double)Statistics.GetTotal(EffectEnum.AddWisdom) / 4) + Statistics.GetTotal(EffectEnum.AddAPDodge);
+        public int MPDodge => (int)Math.Floor((double)Statistics.GetTotal(EffectEnum.AddWisdom) / 4) + Statistics.GetTotal(EffectEnum.AddMPDodge);
 
         /// <summary>
         /// 

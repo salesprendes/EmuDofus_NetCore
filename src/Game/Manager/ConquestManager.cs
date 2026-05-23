@@ -106,7 +106,7 @@ namespace Game.Manager
                 if (territory.IsNeutral || territory.IsUnderAttack || !territory.IsPersisted)
                     continue;
 
-                territory.SetPrismHonor(territory.PrismHonor + WorldConfig.PRISM_HONOR_GAIN_AMOUNT);
+                territory.SetPrismHonor(territory.PrismHonor);
             }
         }
 

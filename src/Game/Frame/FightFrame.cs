@@ -41,7 +41,10 @@ namespace Game.Frame
                 case 'f':
                     switch (message[1])
                     {
+                        case 'N':
                         case 'S':
+                        case 'P':
+                        case 'H':
                             return FightOption;
                     }
                     break;
@@ -66,7 +69,7 @@ namespace Game.Frame
                         return;
                     }
 
-                    character.Team.OptionLock(FightOptionTypeEnum.TYPE_SPECTATOR);
+                    character.Team.OptionLock((FightOptionTypeEnum)message[1]);
                 });
         }
 

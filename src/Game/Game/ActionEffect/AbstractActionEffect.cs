@@ -5,17 +5,10 @@ using Game.Stats;
 using System.Collections.Generic;
 
 namespace Game.ActionEffect
-{    
-    /// <summary>
-    /// 
-    /// </summary>
+{
     /// <typeparam name="T"></typeparam>
-    public abstract class AbstractActionEffect<T> : Singleton<T>, IActionEffect
-        where T : AbstractActionEffect<T>, new()
+    public abstract class AbstractActionEffect<T> : Singleton<T>, IActionEffect where T : AbstractActionEffect<T>, new()
     {
-        /// <summary>
-        /// 
-        /// </summary>
         /// <param name="character"></param>
         /// <param name="item"></param>
         /// <param name="effect"></param>

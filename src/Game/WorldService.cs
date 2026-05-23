@@ -1,15 +1,15 @@
-﻿using Protocolo.Framework.Command;
-using Protocolo.Framework.Configuration;
-using Protocolo.Framework.Configuration.Providers;
-using Protocolo.Framework.Network;
-using Protocolo.RPC.Protocol;
-using Game.Command;
+﻿using Game.Command;
 using Game.Database;
 using Game.Database.Repository;
 using Game.Frame;
 using Game.Manager;
 using Game.Network;
 using Game.RPC;
+using Protocolo.Framework.Command;
+using Protocolo.Framework.Configuration;
+using Protocolo.Framework.Configuration.Providers;
+using Protocolo.Framework.Network;
+using Protocolo.RPC.Protocol;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -42,6 +42,7 @@ namespace Game
             ConfigurationManager.RegisterAttributes();
             ConfigurationManager.Add(new JsonConfigurationProvider(archivo_configuracion), true);
             ConfigurationManager.Load();
+            WorldClient.DebugEnabled = WorldConfig.LOG_DEBUG_ENABLED;
 
             CommandManager = new CommandManager<WorldCommandContext>();
             CommandManager.RegisterCommands();
@@ -104,7 +105,7 @@ namespace Game
         {
             foreach (var message in client.Receive(buffer, offset, count))
             {
-                if (Logger.IsDebugEnabled)
+                if (WorldConfig.LOG_DEBUG_ENABLED)
                     Logger.Debug("Client : " + message);
                 
                 if (client.CurrentCharacter != null)

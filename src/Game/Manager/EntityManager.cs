@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Protocolo.Framework.Generic;
 using Game.Database.Structure;
 using Game.Action;
@@ -90,7 +89,6 @@ namespace Game.Manager
         /// <returns></returns>
         public CharacterEntity CreateCharacter(AccountTicket account, CharacterDAO characterDAO)
         {
-            // Uniquement 1 marchant par compte par serveur
             var merchant = GetMerchantByAccount(characterDAO.AccountId);
             if(merchant != null)            
                 RemoveMerchant(merchant);

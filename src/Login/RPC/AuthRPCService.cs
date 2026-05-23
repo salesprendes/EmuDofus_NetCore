@@ -48,7 +48,7 @@ namespace Login.RPC
 
         protected override void OnMessageReceived(AuthRPCServiceClient client, AbstractRcpMessage message)
         {
-            if (Logger.IsDebugEnabled)
+            if (AuthService.LogDebugEnabled)
                 Logger.Debug("AuthServiceRPC " + (MessageIdEnum)message.Id);
         }
 

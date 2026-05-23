@@ -522,8 +522,9 @@ namespace Game.Entity
                         && !HasEntityRestriction(EntityRestrictionEnum.RESTRICTION_CANT_BE_ASSAULT);
 
                 case GameActionTypeEnum.SKILL_USE:
-                    return ((CurrentAction == null || CurrentAction.IsFinished) 
+                    return ((CurrentAction == null || CurrentAction.IsFinished)
                         || CurrentAction.Type == GameActionTypeEnum.MAP_MOVEMENT)
+                        && !HasGameAction(GameActionTypeEnum.FIGHT)
                         && !HasPlayerRestriction(PlayerRestrictionEnum.RESTRICTION_CANT_USE_IO)
                         && !HasEntityRestriction(EntityRestrictionEnum.RESTRICTION_IS_TOMBESTONE);
                                         
@@ -545,6 +546,7 @@ namespace Game.Entity
 
                 case GameActionTypeEnum.EXCHANGE:
                     return (CurrentAction == null || CurrentAction.IsFinished)
+                        && !HasGameAction(GameActionTypeEnum.FIGHT)
                         && !HasEntityRestriction(EntityRestrictionEnum.RESTRICTION_CANT_EXCHANGE)
                         && !HasPlayerRestriction(PlayerRestrictionEnum.RESTRICTION_CANT_EXCHANGE)
                         && !HasEntityRestriction(EntityRestrictionEnum.RESTRICTION_IS_TOMBESTONE);
@@ -562,13 +564,15 @@ namespace Game.Entity
 
                 case GameActionTypeEnum.NPC_DIALOG:
                     return (CurrentAction == null || CurrentAction.IsFinished)
+                        && !HasGameAction(GameActionTypeEnum.FIGHT)
                         && !HasPlayerRestriction(PlayerRestrictionEnum.RESTRICTION_CANT_SPEAK_NPC);
 
                 case GameActionTypeEnum.FIGHT_JOIN:
                 case GameActionTypeEnum.FIGHT:
                     return (CurrentAction == null || CurrentAction.IsFinished)
-                         && !HasEntityRestriction(EntityRestrictionEnum.RESTRICTION_IS_TOMBESTONE)
-                         && !HasPlayerRestriction(PlayerRestrictionEnum.RESTRICTION_CANT_ASSAULT);
+                        && !HasGameAction(GameActionTypeEnum.FIGHT)
+                        && !HasEntityRestriction(EntityRestrictionEnum.RESTRICTION_IS_TOMBESTONE)
+                        && !HasPlayerRestriction(PlayerRestrictionEnum.RESTRICTION_CANT_ASSAULT);
 
                 case GameActionTypeEnum.TAXCOLLECTOR_AGGRESSION:
                     return (CurrentAction == null || CurrentAction.IsFinished)

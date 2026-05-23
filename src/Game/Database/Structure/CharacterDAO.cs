@@ -431,7 +431,7 @@ namespace Game.Database.Structure
             set;
         }
 
-        public string SerializedWaypoints
+        public string Zaaps
         {
             get;
             set;
@@ -496,17 +496,17 @@ namespace Game.Database.Structure
             get
             {
                 if (m_guild == null)
-                    m_guild = CharacterGuildRepository.Instance.GetById(Id);
+                    m_guild = CharacterGuildRepository.Instance.GetById(Id) ?? new CharacterGuildDAO { Id = Id, GuildId = -1 };
                 return m_guild;
             }
         }
 
         public List<int> GetWaypoints()
         {
-            if (string.IsNullOrWhiteSpace(SerializedWaypoints))
+            if (string.IsNullOrWhiteSpace(Zaaps))
                 return new List<int>();
 
-            return SerializedWaypoints
+            return Zaaps
                 .Split(',')
                 .Select(value => int.TryParse(value, out var mapId) ? mapId : -1)
                 .Where(mapId => mapId > 0)
@@ -516,7 +516,7 @@ namespace Game.Database.Structure
 
         public void SetWaypoints(IEnumerable<int> waypoints)
         {
-            SerializedWaypoints = string.Join(",", waypoints.Distinct());
+            Zaaps = string.Join(",", waypoints.Distinct());
         }
            
         private static int GetLivingEffectValue(ItemDAO item, EffectEnum effect, int defaultValue = 0)

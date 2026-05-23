@@ -1,42 +1,27 @@
-﻿using Protocolo.Framework.Network;
-using Game.Database.Structure;
+﻿using Game.Database.Structure;
 using Game.Entity;
-using System.Collections.Generic;
 using Game.Manager;
+using Protocolo.Framework.Network;
+using System.Collections.Generic;
 
 namespace Game.Network
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class WorldClient : AbstractDofusClient<WorldClient>
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public AccountTicket Account
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public List<CharacterDAO> Characters
         {
             get;
             set;
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
+
         private CharacterEntity m_currentCharacter;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public CharacterEntity CurrentCharacter
         {
             get
@@ -50,6 +35,7 @@ namespace Game.Network
                     m_currentCharacter.RemoveHandler(Send);
                     m_currentCharacter.KickEvent -= Disconnect;
                 }
+
                 m_currentCharacter = value;
                 if (m_currentCharacter != null)
                 {

@@ -38,12 +38,6 @@ namespace Game.Command
 
             protected override bool CanExecute(WorldCommandContext context)
             {
-                //if (context.Character.Power < 1)
-                //{
-                //    context.Character.Dispatch(WorldMessage.SERVER_ERROR_MESSAGE("You're not admin, your attempt was registered"));
-                //    return false;
-                //}
-
                 return true;
             }
 

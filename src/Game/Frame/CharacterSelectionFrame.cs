@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using Game.Network;
 using Game.RPC;
 using Protocolo.Framework.Database;
+using System.Linq;
 
 namespace Game.Frame
 {
@@ -52,6 +53,12 @@ namespace Game.Frame
 
                         case 'R': // reset ( dead char )
                             return HandleCharacterReset;
+
+                        case 'g': // request pending gifts
+                            return HandleGiftList;
+
+                        case 'G': // attribute gift to character
+                            return HandleGiftAttribute;
 
                         default:
                             return null;
@@ -97,6 +104,13 @@ namespace Game.Frame
 
                     client.Send(WorldMessage.CHARACTER_LIST(client.Characters));
                 });
+        }
+
+        private void SendPendingGifts(WorldClient client)
+        {
+            var gifts = AccountGiftRepository.Instance.GetByAccountId(client.Account.Id);
+            foreach (var gift in gifts)
+                client.Send(WorldMessage.GIFT_LIST(gift));
         }
         
         /// <summary>
@@ -250,13 +264,13 @@ namespace Game.Frame
                         AlignmentHonour = 0,
                         AlignmentDishonour = 0,
                         AlignmentEnabled = false,
-                        SerializedWaypoints = "",
+                        Zaaps = "",
                     };
 
                     WorldService.Instance.AddMessage(() =>
-                        {
-                            CharacterCreateExecute(client, character);
-                        });
+                    {
+                        CharacterCreateExecute(client, character);
+                    });
                 });
         }
 
@@ -280,10 +294,10 @@ namespace Game.Frame
             RPCManager.Instance.CharacterCountChanged();
 
             WorldService.Instance.AddMessage(() =>
-                {
-                    client.Send(WorldMessage.CHARACTER_CREATION_SUCCESS());
-                    client.Send(WorldMessage.CHARACTER_LIST(client.Characters));
-                });
+            {
+                client.Send(WorldMessage.CHARACTER_CREATION_SUCCESS());
+                client.Send(WorldMessage.CHARACTER_LIST(client.Characters));
+            });
         }
 
         /// <summary>
@@ -477,7 +491,7 @@ namespace Game.Frame
         /// <param name="character"></param>
         public void CharacterSelectExecute(WorldClient client, CharacterDAO character)
         {
-            client.FrameManager.RemoveFrame(CharacterSelectionFrame.Instance);
+            client.FrameManager.RemoveFrame(Instance);
 
             client.CurrentCharacter = EntityManager.Instance.CreateCharacter(client.Account, character);
 
@@ -494,6 +508,82 @@ namespace Game.Frame
                 client.Account.LastConnectionTime = DateTime.Now;
                 client.Account.LastConnectionIP = client.Ip;
             });
+        }
+
+        /// <summary>
+        /// Cliente solicita la lista de regalos pendientes (paquete "Ag[lang]").
+        /// </summary>
+        private void HandleGiftList(WorldClient client, string message)
+        {
+            WorldService.Instance.AddMessage(() => SendPendingGifts(client));
+        }
+
+        /// <summary>
+        /// Cliente atribuye un regalo a un personaje (paquete "AG[giftId]|[charId]").
+        /// Solo se pueden atribuir regalos de tipo 1 (items estandar).
+        /// </summary>
+        private void HandleGiftAttribute(WorldClient client, string message)
+        {
+            var data = message.Substring(2).Split('|');
+            if (data.Length < 2)
+            {
+                client.Send(WorldMessage.GIFT_STORED_ERROR());
+                return;
+            }
+
+            int giftId;
+            long characterId;
+            if (!int.TryParse(data[0], out giftId) || !long.TryParse(data[1], out characterId))
+            {
+                client.Send(WorldMessage.GIFT_STORED_ERROR());
+                return;
+            }
+
+            WorldService.Instance.AddMessage(() =>
+            {
+                var gift = AccountGiftRepository.Instance.GetByAccountId(client.Account.Id)
+                    .FirstOrDefault(g => g.Id == giftId);
+
+                if (gift == null || gift.GiftType != 1)
+                {
+                    client.Send(WorldMessage.GIFT_STORED_ERROR());
+                    return;
+                }
+
+                if (client.Characters == null)
+                    client.Characters = CharacterRepository.Instance.GetByAccount(client.Account.Id);
+
+                var target = client.Characters.FirstOrDefault(c => c.Id == characterId);
+                if (target == null)
+                {
+                    client.Send(WorldMessage.GIFT_STORED_ERROR());
+                    return;
+                }
+
+                AddGiftItemsToCharacter(gift, target);
+                AccountGiftRepository.Instance.Remove(gift);
+                client.Send(WorldMessage.GIFT_STORED_SUCCESS());
+            });
+        }
+
+        private void AddGiftItemsToCharacter(AccountGiftDAO gift, CharacterDAO character)
+        {
+            if (string.IsNullOrEmpty(gift.Items))
+                return;
+
+            foreach (var entry in gift.Items.Split('|'))
+            {
+                var parts = entry.Split(':');
+                if (parts.Length != 2) continue;
+
+                int templateId, quantity;
+                if (!int.TryParse(parts[0], out templateId) || !int.TryParse(parts[1], out quantity)) continue;
+
+                var template = ItemTemplateRepository.Instance.GetById(templateId);
+                if (template == null) continue;
+
+                InventoryItemRepository.Instance.Create(templateId, character.Id, (int)EntityTypeEnum.TYPE_CHARACTER, quantity, template.GenerateStats(false));
+            }
         }
 
         private void CharacterConnectSend(WorldClient client)

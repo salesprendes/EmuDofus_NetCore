@@ -54,7 +54,7 @@ namespace Game.Action
         /// </summary>
         public override void Start()
         {
-            Character.Dispatch(WorldMessage.WAYPOINT_CREATE(Character));
+            Character.Dispatch(WorldMessage.WAYPOINT_CREATE(Character, Waypoint.Map.SubArea.Area.SuperAreaId));
         }
 
         /// <summary>

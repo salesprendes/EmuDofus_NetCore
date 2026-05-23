@@ -664,7 +664,7 @@ namespace Game.Entity.Inventory
             associatedItem.RefreshTemporaryExchangeLock(now);
 
             var livingStats = CreateDetachedLivingStats(associatedItem);
-            var livingItem = InventoryItemRepository.Instance.Create(livingTemplateId, OwnerId, 1, livingStats);
+            var livingItem = InventoryItemRepository.Instance.Create(livingTemplateId, OwnerId, OwnerType, 1, livingStats, ItemSlotEnum.SLOT_INVENTORY);
 
             RemoveLivingEffects(associatedItem);
             associatedItem.SaveStats();

@@ -1,7 +1,7 @@
-﻿using Protocolo.Framework.Configuration;
-using Game.Database.Structure;
+﻿using Game.Database.Structure;
 using Game.Job;
 using Game.Network;
+using Protocolo.Framework.Configuration;
 using System;
 using System.Collections.Generic;
 
@@ -208,8 +208,6 @@ namespace Game
 
         [Configurable()]
         public static int PRISM_HONOR_GAIN_INTERVAL = 10 * 60 * 1000; // 10 minutes
-        [Configurable()]
-        public static int PRISM_HONOR_GAIN_AMOUNT = 10; // honor per tick
 
 
         public static int FIGHT_DISCONNECTION_TURN = 20;
@@ -238,6 +236,9 @@ namespace Game
 
         [Configurable()]
         public static int GAME_ID = 1;
+
+        [Configurable("LogDebugEnabled")]
+        public static bool LOG_DEBUG_ENABLED = true;
     }
 }
 

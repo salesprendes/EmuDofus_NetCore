@@ -576,9 +576,8 @@ namespace Game.Map
         /// </summary>
         private void InitNpcsSpawn()
         {
-            int nextNpcId = 1;
             foreach (var npc in NpcManager.Instance.GetByMapId(Id))
-                SpawnEntity(new NonPlayerCharacterEntity(npc, nextNpcId++));
+                SpawnEntity(new NonPlayerCharacterEntity(npc, npc.Id));
         }
 
         // True when this is a conquest-tagged subarea (CanConquest=1) inside a village
@@ -730,9 +729,13 @@ namespace Game.Map
             if (cellId < 1)
                 return;
 
+            // Finish the previous move first so CellId is up to date before queuing the next path
+            entity.StopAction(GameActionTypeEnum.MAP_MOVEMENT);
+
             Move(entity, entity.CellId, Pathmaker.FindPathAsString(entity.CellId, cellId, false));
 
-            entity.StopAction(GameActionTypeEnum.MAP_MOVEMENT);
+            // Clear the movement action right after the GA is dispatched so CanBeExchanged isn't blocked
+            AddMessage(() => entity.StopAction(GameActionTypeEnum.MAP_MOVEMENT));
         }
 
         /// <summary>
