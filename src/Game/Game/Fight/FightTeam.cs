@@ -552,7 +552,7 @@ namespace Game.Fight
             Fight = null;
             OpponentTeam = null;
                         
-            m_challenges.ForEach(challenge => challenge.Dispose());
+            foreach (var challenge in m_challenges) challenge.Dispose();
             m_challenges.Clear();
             m_challenges = null;
 

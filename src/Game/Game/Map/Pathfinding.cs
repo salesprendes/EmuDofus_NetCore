@@ -967,7 +967,7 @@ namespace Game.Map
         {
             var ennemies = Pathfinding.GetEnnemiesNear(fighter.Fight, fighter.Team, fighter.Cell.Id);
 
-            if (ennemies.Count() == 0 || ennemies.All(ennemy => ennemy.StateManager.HasState(FighterStateEnum.STATE_ROOTED)))
+            if (!ennemies.Any() || ennemies.All(ennemy => ennemy.StateManager.HasState(FighterStateEnum.STATE_ROOTED)))
                 return -1;
 
             return Pathfinding.TryTacle(fighter, ennemies);

@@ -287,21 +287,7 @@ namespace Protocolo.Framework.Network
             var socket = Interlocked.Exchange(ref m_socket, null);
             if (socket != null)
             {
-                try
-                {
-                    socket.Shutdown(SocketShutdown.Both);
-                }
-                catch
-                {
-                }
-
-                try
-                {
-                    socket.Close();
-                }
-                catch
-                {
-                }
+                socket.SafeDispose();
             }
 
             if (notify)
@@ -318,12 +304,7 @@ namespace Protocolo.Framework.Network
             m_connectSaea = null;
         }
 
-        private void ClearPendingSends()
-        {
-            while (m_pendingSends.TryDequeue(out _))
-            {
-            }
-        }
+        private void ClearPendingSends() => m_pendingSends.Clear();
 
         private bool TryEnterSendLoop()
         {
@@ -335,13 +316,7 @@ namespace Protocolo.Framework.Network
             Interlocked.Exchange(ref m_sendLoopState, 0);
         }
 
-        private static void ConfigureSocket(Socket socket)
-        {
-            socket.NoDelay = true;
-            socket.Blocking = false;
-            socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
-            socket.LingerState = new LingerOption(false, 0);
-        }
+        private static void ConfigureSocket(Socket socket) => socket.ConfigureBase();
 
         private static IPAddress ResolveHost(string host)
         {

@@ -481,7 +481,7 @@ namespace Game.Entity
                     return false;
                 }
 
-                var delay = WorldConfig.CHAT_RESTRICTED_DELAY.ContainsKey(channel) ? WorldConfig.CHAT_RESTRICTED_DELAY[channel] : 0;
+                var delay = WorldConfig.CHAT_RESTRICTED_DELAY.GetValueOrDefault(channel);
                 channelData.NextTime = UpdateTime + delay;
             }
 

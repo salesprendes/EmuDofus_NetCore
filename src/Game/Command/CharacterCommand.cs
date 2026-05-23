@@ -843,7 +843,7 @@ namespace Game.Command
                         if (instance != null)
                         {
                             context.Character.Inventory.AddItem(instance);
-                            context.Character.Dispatch(WorldMessage.BASIC_CONSOLE_MESSAGE(String.Format("Item {0} added in your inventory", itemTemplate.Name)));
+                            context.Character.Dispatch(WorldMessage.BASIC_CONSOLE_MESSAGE($"Item {itemTemplate.Name} added in your inventory"));
                         }
                     }
                     else

@@ -1,3 +1,4 @@
+using Protocolo.Framework.Generic;
 using Protocolo.Framework.Generic.Logging;
 using System;
 using System.Runtime;
@@ -17,13 +18,18 @@ namespace Login.App
             AuthService.Instance.Start("./config.json");
 
             var shutdown = new ManualResetEventSlim(false);
-            Console.CancelKeyPress += (_, e) =>
+            ConsoleShutdownHandler.Register(() =>
             {
-                e.Cancel = true; // evita que el proceso muera abruptamente
                 Logger.Info("Apagando servidor...");
-                AuthService.Instance.Stop();
-                shutdown.Set();
-            };
+                try
+                {
+                    AuthService.Instance.Stop();
+                }
+                finally
+                {
+                    shutdown.Set();
+                }
+            });
 
             shutdown.Wait();
             Logger.Info("Servidor detenido.");

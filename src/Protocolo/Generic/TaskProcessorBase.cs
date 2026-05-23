@@ -1,32 +1,21 @@
-﻿using log4net;
+﻿using Protocolo.Framework.Generic.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
+
 namespace Protocolo.Framework.Generic
 {
-	/// <summary>
-	/// 
-	/// </summary>
     public abstract class TaskProcessorBase
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(TaskProcessorBase));
+        private static readonly ILogger Logger = LogManager.GetLogger(typeof(TaskProcessorBase));
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int UpdateInterval
         {
             get;
             private set;
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
+        
         public long LastUpdate
         {
             get;
@@ -87,7 +76,7 @@ namespace Protocolo.Framework.Generic
             m_running = true;
             m_queueTimer.Start();
             
-            Task.Factory.StartNewDelayed(UpdateInterval, InternalUpdate);
+            Task.Delay(UpdateInterval).ContinueWith(_ => InternalUpdate(), TaskScheduler.Default);
         }
         /// <summary>
         /// 
@@ -256,7 +245,7 @@ namespace Protocolo.Framework.Generic
             var nextDelay = Math.Max(0, (int)((timeStart + UpdateInterval) - m_queueTimer.ElapsedMilliseconds));
 
             if (m_running)
-                Task.Factory.StartNewDelayed(nextDelay, InternalUpdate);
+                Task.Delay(nextDelay).ContinueWith(_ => InternalUpdate(), TaskScheduler.Default);
         }
     }
 }

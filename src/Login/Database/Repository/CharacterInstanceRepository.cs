@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using Protocolo.Framework.Database;
 using Login.Database.Structure;
@@ -44,7 +45,7 @@ namespace Login.Database.Repository
             m_countsByAccountAndServer = newIndex;
         }
 
-        private static readonly IReadOnlyDictionary<int, int> _emptyDict = new Dictionary<int, int>();
+        private static readonly IReadOnlyDictionary<int, int> _emptyDict = FrozenDictionary<int, int>.Empty;
 
         private sealed class CharacterCountRow
         {

@@ -1,5 +1,5 @@
+using Protocolo.Framework.Generic;
 using Protocolo.Framework.Generic.Logging;
-using System;
 using System.Runtime;
 using System.Threading;
 
@@ -17,14 +17,19 @@ namespace Game.App
             WorldService.Instance.Start("./config.json");
 
             ManualResetEventSlim shutdown = new ManualResetEventSlim(false);
-            Console.CancelKeyPress += (_, e) =>
+            ConsoleShutdownHandler.Register(() =>
             {
-                e.Cancel = true;
-                WorldService.Instance.SaveWorldSync();
                 Logger.Info("Apagando servidor...");
-                WorldService.Instance.Stop();
-                shutdown.Set();
-            };
+                try
+                {
+                    WorldService.Instance.SaveWorldSync();
+                    WorldService.Instance.Stop();
+                }
+                finally
+                {
+                    shutdown.Set();
+                }
+            });
 
             shutdown.Wait();
             Logger.Info("Servidor detenido.");

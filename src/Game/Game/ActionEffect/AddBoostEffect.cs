@@ -26,11 +26,10 @@ namespace Game.ActionEffect
         /// <returns></returns>
         public override bool ProcessItem(Entity.CharacterEntity character, Database.Structure.ItemDAO item, Stats.GenericEffect effect, long targetId, int targetCell)
         {
-            // Unknown
-            if (!WorldConfig.BOOST_ITEMS.ContainsKey(item.TemplateId))
+            if (!WorldConfig.BOOST_ITEMS.TryGetValue(item.TemplateId, out int boostItemId))
                 return false;
 
-            return Process(character, new Dictionary<string, string>() { { "itemId", WorldConfig.BOOST_ITEMS[item.TemplateId].ToString() } });
+            return Process(character, new Dictionary<string, string>() { { "itemId", boostItemId.ToString() } });
         }
 
         /// <summary>

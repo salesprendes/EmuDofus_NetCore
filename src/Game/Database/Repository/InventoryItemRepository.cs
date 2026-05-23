@@ -97,11 +97,9 @@ namespace Game.Database.Repository
         public override void DeleteAll(MySql.Data.MySqlClient.MySqlConnection connection, MySql.Data.MySqlClient.MySqlTransaction transaction)
         {
             lock (m_syncLock)
-                m_dataObjects.ForEach(item =>
-                {
+                foreach (var item in m_dataObjects)
                     if (item.OwnerId == -1)
                         item.IsDeleted = true;
-                });
 
             base.DeleteAll(connection, transaction);
         }

@@ -38,8 +38,7 @@ namespace Protocolo.RPC.Service
         {
             if (!m_handlers.TryGetValue(message.Id, out var handler))
             {
-                if (Logger.IsDebugEnabled)
-                    Logger.Debug(string.Format("RPCService::HandlerMessage unregistered handler for messageId={0}", message.Id));
+                Logger.Debug(string.Format("RPCService::HandlerMessage unregistered handler for messageId={0}", message.Id));
             }
             else
                 AddMessage(() => handler(client, message));

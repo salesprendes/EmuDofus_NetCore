@@ -3,6 +3,7 @@ using Game.Job;
 using Game.Network;
 using Protocolo.Framework.Configuration;
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 
 namespace Game
@@ -52,7 +53,7 @@ namespace Game
             }
         }
 
-        public static Dictionary<JobIdEnum, int[]> JOB_TOOLS = new Dictionary<JobIdEnum, int[]>()
+        public static readonly FrozenDictionary<JobIdEnum, int[]> JOB_TOOLS = new Dictionary<JobIdEnum, int[]>()
         { 
             { JobIdEnum.JOB_BUCHERON, new int[] { 454, 8539, 1378, 2608, 478, 2593, 2592, 2600, 2604, 456, 502, 675, 674, 923, 927, 515, 782, 673, 676, 771 } },
             { JobIdEnum.JOB_PAYSAN, new int[] { 577, 765, 8127, 8540, 8992, 12006 } },
@@ -76,20 +77,20 @@ namespace Game
             { JobIdEnum.JOB_CHASSEUR, new int[] { } },
             { JobIdEnum.JOB_BOUCHER, new int[] { 1945 } },
             { JobIdEnum.JOB_POISSONNIER, new int[] { 1946 } },
-        };
+        }.ToFrozenDictionary();
 
-        public static Dictionary<int, int> BOOST_ITEMS = new Dictionary<int, int>()
+        public static readonly FrozenDictionary<int, int> BOOST_ITEMS = new Dictionary<int, int>()
         {
             { 8950, 8943 } // Shigekax orange
-        };
+        }.ToFrozenDictionary();
 
         // Per-player isolated instances — one private copy per character entering these maps
-        public static int[] MULTIPLE_INSTANCE_MAP_ID = { 10276, 10279, 10283, 10285, 10289, 10294, 10296, 10298, 10299, 10300 };
+        public static readonly FrozenSet<int> MULTIPLE_INSTANCE_MAP_ID = new[] { 10276, 10279, 10283, 10285, 10289, 10294, 10296, 10298, 10299, 10300 }.ToFrozenSet();
 
         // Balanced fixed instances — N copies pre-created; players are routed to the least populated one
         // Key = map ID, Value = number of instances to pre-create
         // All Incarnam zone maps (Area 45, SubAreas 440-450) — 2 worlds each
-        public static Dictionary<int, int> BALANCED_INSTANCE_MAPS = new Dictionary<int, int>()
+        public static readonly FrozenDictionary<int, int> BALANCED_INSTANCE_MAPS = new Dictionary<int, int>()
         {
             // SubArea 440 - Pitons rocheux
             { 10325, 2 }, { 10326, 2 }, { 10327, 2 }, { 10328, 2 },
@@ -112,7 +113,7 @@ namespace Game
             { 10340, 2 }, { 10341, 2 }, { 10342, 2 },
             // SubArea 450 - Sortie du temple
             { 10344, 2 }, { 10345, 2 },
-        };
+        }.ToFrozenDictionary();
 
         [Configurable()]
         public static int SPAWN_MAX_GROUP_PER_MAP = 3;
@@ -221,7 +222,7 @@ namespace Game
         public static int FIGHT_AI_MOVE_DELAY = 120;
 
         // ChatRestriction
-        public static Dictionary<ChatChannelEnum, long> CHAT_RESTRICTED_DELAY = new Dictionary<ChatChannelEnum, long>()
+        public static readonly FrozenDictionary<ChatChannelEnum, long> CHAT_RESTRICTED_DELAY = new Dictionary<ChatChannelEnum, long>()
         {
             { ChatChannelEnum.CHANNEL_GENERAL, 100 },
             { ChatChannelEnum.CHANNEL_DEALING, 10000 },
@@ -229,7 +230,7 @@ namespace Game
             { ChatChannelEnum.CHANNEL_GUILD, 300 },
             { ChatChannelEnum.CHANNEL_GROUP, 300 },
             { ChatChannelEnum.CHANNEL_TEAM, 300 }
-        };
+        }.ToFrozenDictionary();
 
         [Configurable()]
         public static DateTime REFERENCE_DATE = new DateTime(1970, 1, 1);

@@ -407,7 +407,7 @@ namespace Game.Frame
                         break;
 
                     case EntityTypeEnum.TYPE_NPC:
-                        var npc = (NonPlayerCharacterEntity)distantEntity;
+                        NonPlayerCharacterEntity npc = (NonPlayerCharacterEntity)distantEntity;
                         switch(exchangeType)
                         {
                             case ExchangeTypeEnum.EXCHANGE_NPC:

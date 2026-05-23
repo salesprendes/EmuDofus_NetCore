@@ -1,4 +1,4 @@
-﻿using log4net;
+﻿using Protocolo.Framework.Generic.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +12,7 @@ namespace Protocolo.Framework.Generic
     /// </summary>
     public sealed class UpdatableTimer
     {
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(UpdatableTimer));
+        private static readonly ILogger Logger = LogManager.GetLogger(typeof(UpdatableTimer));
 
         /// <summary>
         /// 

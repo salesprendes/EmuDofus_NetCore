@@ -34,7 +34,7 @@ namespace Game.ActionEffect
         /// <returns></returns>
         public override bool Process(Entity.CharacterEntity character, Dictionary<string, string> parameters)
         {
-            character.SpellBook.Spells.ForEach(spell => spell.Level = 1);
+            foreach (var spell in character.SpellBook.Spells) spell.Level = 1;
             character.SpellPoint = character.Level - 1;
 
             character.CachedBuffer = true;

@@ -167,7 +167,53 @@ namespace Game.Fight.Effect
         }
 
         /// <summary>
-        /// 
+        /// Replays the GIE packet to a single target (used on reconnect).
+        /// </summary>
+        public void SendTo(Action<string> dispatch)
+        {
+            switch (CastInfos.EffectType)
+            {
+                case EffectEnum.ReflectSpell:
+                    dispatch(WorldMessage.FIGHT_EFFECT_INFORMATION(CastInfos.EffectType,
+                                                                   Target.Id,
+                                                                   CastInfos.Value2.ToString(),
+                                                                   CastInfos.Value2.ToString(),
+                                                                   "10",
+                                                                   CastInfos.Value2.ToString(),
+                                                                   Duration.ToString(),
+                                                                   CastInfos.SpellId.ToString()));
+                    break;
+
+                case EffectEnum.EcaflipChance:
+                case EffectEnum.AddChatiment:
+                    dispatch(WorldMessage.FIGHT_EFFECT_INFORMATION(CastInfos.EffectType,
+                                                               Target.Id,
+                                                               CastInfos.Value1.ToString(),
+                                                               CastInfos.Value2.ToString(),
+                                                               CastInfos.Value3.ToString(),
+                                                               "",
+                                                               Duration.ToString(),
+                                                               CastInfos.SpellId.ToString()));
+                    break;
+
+                case EffectEnum.PandaCarrier:
+                    break;
+
+                default:
+                    dispatch(WorldMessage.FIGHT_EFFECT_INFORMATION(CastInfos.EffectType,
+                                                                   Target.Id,
+                                                                   CastInfos.Value1.ToString(),
+                                                                   "",
+                                                                   "",
+                                                                   "",
+                                                                   Duration.ToString(),
+                                                                   CastInfos.SpellId.ToString()));
+                    break;
+            }
+        }
+
+        /// <summary>
+        ///
         /// </summary>
         /// <param name="ActiveType"></param>
         public virtual FightActionResultEnum ApplyEffect(ref int damageValue, CastInfos damageInfos = null)

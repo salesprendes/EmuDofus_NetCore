@@ -28,7 +28,6 @@
     <PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="all" />
 
     <!-- Runtime dependencies -->
-    <PackageReference Include="log4net" Version="3.3.1" />
     <PackageReference Include="MySql.Data" Version="9.2.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="BouncyCastle.Cryptography" Version="2.6.1" />

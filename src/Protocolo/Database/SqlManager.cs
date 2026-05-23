@@ -1,5 +1,5 @@
 ﻿using Protocolo.Framework.Generic;
-using log4net;
+using Protocolo.Framework.Generic.Logging;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -18,7 +18,7 @@ namespace Protocolo.Framework.Database
         /// <summary>
         /// 
         /// </summary>
-        public static ILog Logger = LogManager.GetLogger(typeof(SqlManager));
+        public static ILogger Logger = LogManager.GetLogger(typeof(SqlManager));
 
         /// <summary>
         /// 

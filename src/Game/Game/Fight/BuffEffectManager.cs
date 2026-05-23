@@ -282,6 +282,16 @@ namespace Game.Fight
         }
 
         /// <summary>
+        /// Returns all active buffs across every ActiveType bucket (no duplicates).
+        /// </summary>
+        public IEnumerable<AbstractSpellBuff> GetAllBuffs()
+        {
+            foreach (var buffList in ActiveBuffs.Values)
+                foreach (var buff in buffList)
+                    yield return buff;
+        }
+
+        /// <summary>
         /// Debuff le personnage de tous les effets
         /// </summary>
         /// <returns></returns>

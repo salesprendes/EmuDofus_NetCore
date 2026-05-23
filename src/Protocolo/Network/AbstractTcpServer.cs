@@ -116,21 +116,7 @@ namespace Protocolo.Framework.Network
 
             if (socket != null)
             {
-                try
-                {
-                    socket.Shutdown(SocketShutdown.Both);
-                }
-                catch
-                {
-                }
-
-                try
-                {
-                    socket.Close();
-                }
-                catch
-                {
-                }
+                socket.SafeDispose();
             }
 
             var clientId = client.Id;
@@ -495,12 +481,9 @@ namespace Protocolo.Framework.Network
 
         private static void ConfigureClientSocket(Socket socket)
         {
-            socket.NoDelay = true;
-            socket.Blocking = false;
-            socket.LingerState = new LingerOption(false, 0);
+            socket.ConfigureBase();
             socket.ReceiveBufferSize = 8192;
             socket.SendBufferSize = 32768;
-            socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
             SetAggressiveKeepAlive(socket);
         }
 
@@ -511,18 +494,13 @@ namespace Protocolo.Framework.Network
 
             try
             {
-                // 60s idle before first probe, 10s between probes
-                // Detects dead connections in ~60-160s instead of OS default ~2h
                 var inValue = new byte[12];
                 BitConverter.GetBytes(1u).CopyTo(inValue, 0);      // enable
                 BitConverter.GetBytes(60000u).CopyTo(inValue, 4);  // idle ms
                 BitConverter.GetBytes(10000u).CopyTo(inValue, 8);  // interval ms
                 socket.IOControl(IOControlCode.KeepAliveValues, inValue, null);
             }
-            catch
-            {
-                // IOControl not supported on all platforms — basic KeepAlive still active
-            }
+            catch {}
         }
 
         private static IPAddress ResolveHost(string host)

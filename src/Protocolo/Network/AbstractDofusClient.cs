@@ -8,8 +8,8 @@ namespace Protocolo.Framework.Network
 {
     public abstract class AbstractDofusClient<T> : AbstractTcpClient<T> where T : AbstractDofusClient<T>, new()
     {
+        public static bool DebugEnabled = false;
         private readonly BinaryQueue m_messageQueue;
-
         protected virtual int MaxMessageSize => 64 * 1024;
 
         public FrameManager<T, string> FrameManager
@@ -87,8 +87,9 @@ namespace Protocolo.Framework.Network
             if (message == null)
                 return;
 
-            if (Logger.IsDebugEnabled)
+            if (DebugEnabled)
                 Logger.Debug("Server : " + message);
+
             var byteCount = Encoding.UTF8.GetByteCount(message);
             var data = new byte[byteCount + 1];
             Encoding.UTF8.GetBytes(message, 0, message.Length, data, 0);

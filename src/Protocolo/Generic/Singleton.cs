@@ -1,4 +1,4 @@
-﻿using log4net;
+﻿using Protocolo.Framework.Generic.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,16 +7,16 @@ using System.Text;
 namespace Protocolo.Framework.Generic
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public abstract class Singleton<T>
         where T : class, new()
     {
         /// <summary>
-        /// 
+        ///
         /// </summary>
-        public static ILog Logger = LogManager.GetLogger(typeof(T));
+        public static ILogger Logger = LogManager.GetLogger(typeof(T));
 
         /// <summary>
         /// Returns the singleton instance.

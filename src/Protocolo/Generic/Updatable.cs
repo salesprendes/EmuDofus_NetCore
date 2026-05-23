@@ -1,4 +1,4 @@
-using log4net;
+using Protocolo.Framework.Generic.Logging;
 using System;
 using System.Collections.Generic;
 
@@ -9,7 +9,7 @@ namespace Protocolo.Framework.Generic
     /// </summary>
     public abstract class Updatable : IDisposable
     {
-        protected static ILog Logger = LogManager.GetLogger(typeof(Updatable));
+        protected static ILogger Logger = LogManager.GetLogger(typeof(Updatable));
 
         private LockFreeQueue<Action> m_messagesQueue;
         private List<Updatable> m_subUpdatableObjects;

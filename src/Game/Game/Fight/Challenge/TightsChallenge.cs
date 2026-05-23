@@ -33,7 +33,7 @@ namespace Game.Fight.Challenge
         public override void EndTurn(AbstractFighter fighter)
         {
             var nearestFighters = Pathfinding.GetFightersNear(fighter.Fight, fighter.Cell.Id);
-            if(nearestFighters.Where(f => f.Team == fighter.Team).Count() == 0)            
+            if (!nearestFighters.Any(f => f.Team == fighter.Team))
                 base.OnFailed(fighter.Name);            
         }
     }

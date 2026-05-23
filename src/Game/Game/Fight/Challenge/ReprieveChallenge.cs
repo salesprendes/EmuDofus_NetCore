@@ -34,8 +34,8 @@ namespace Game.Fight.Challenge
         {
             if (team.OpponentTeam.HasSomeoneAlive)
             {
-                var randomIndex = Util.Next(0, team.OpponentTeam.AliveFighters.Count());
-                var target = team.OpponentTeam.AliveFighters.ElementAt(randomIndex);
+                var aliveEnemies = team.OpponentTeam.AliveFighters.ToList();
+                var target = aliveEnemies[Util.Next(0, aliveEnemies.Count)];
 
                 Target = target;
                 TargetId = target.Id;
@@ -51,7 +51,7 @@ namespace Game.Fight.Challenge
         {
             if (fighter.Id == TargetId)
             {
-                if (fighter.Team.AliveFighters.Count() == 0)
+                if (!fighter.Team.AliveFighters.Any())
                 {
                     base.OnSuccess();
                 }

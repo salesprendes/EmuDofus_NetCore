@@ -2620,6 +2620,10 @@ namespace Game.Fight
                         fighter.Dispatch(WorldMessage.FIGHT_STARTS());
                         fighter.Dispatch(WorldMessage.FIGHT_TURN_LIST(TurnProcessor.FighterOrder));
                         fighter.Dispatch(WorldMessage.FIGHT_TURN_STARTS(CurrentFighter.Id, TurnTimeLeft));
+
+                        foreach (var aliveFighter in AliveFighters)
+                            foreach (var buff in aliveFighter.BuffManager.GetAllBuffs())
+                                buff.SendTo(fighter.Dispatch);
                         break;
                 }
                 fighter.CachedBuffer = false;

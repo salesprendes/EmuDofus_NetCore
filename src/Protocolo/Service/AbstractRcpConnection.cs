@@ -75,10 +75,7 @@ namespace Protocolo.RPC.Service
         protected abstract override void OnDisconnected();
         protected abstract void OnMessage(AbstractRcpMessage message);
 
-        private void ValidateMessageLength(int length)
-        {
-            if (length <= 0 || length > MaxMessageLength)
-                throw new InvalidOperationException("RPC message length out of bounds: " + length);
-        }
+        private void ValidateMessageLength(int length) =>
+            RpcFraming.ValidateMessageLength(length, MaxMessageLength);
     }
 }

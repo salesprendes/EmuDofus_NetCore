@@ -1,17 +1,13 @@
-using log4net;
+using Protocolo.Framework.Generic.Logging;
 using System.Net.Sockets;
 using System.Collections.Concurrent;
 using System.Threading;
 
 namespace Protocolo.Framework.Network
 {
-    /// <summary>
-    /// Base class for connected TCP clients owned by a server.
-    /// </summary>
-    public abstract class AbstractTcpClient<T>
-        where T : AbstractTcpClient<T>, new()
+    public abstract class AbstractTcpClient<T> where T : AbstractTcpClient<T>, new()
     {
-        protected static ILog Logger = LogManager.GetLogger(typeof(T));
+        protected static ILogger Logger = LogManager.GetLogger(typeof(T));
 
         private int m_disconnectState;
         private int m_sendLoopState;
@@ -97,11 +93,6 @@ namespace Protocolo.Framework.Network
             Interlocked.Exchange(ref m_sendLoopState, 0);
         }
 
-        private void ClearPendingSends()
-        {
-            while (m_pendingSends.TryDequeue(out _))
-            {
-            }
-        }
+        private void ClearPendingSends() => m_pendingSends.Clear();
     }
 }

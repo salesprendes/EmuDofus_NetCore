@@ -1,4 +1,4 @@
-﻿using log4net;
+﻿using Protocolo.Framework.Generic.Logging;
 using PropertyChanged;
 using System;
 using System.Collections.Generic;
@@ -19,7 +19,7 @@ namespace Protocolo.Framework.Database
         /// <summary>
         /// 
         /// </summary>
-        public static ILog Logger = LogManager.GetLogger(typeof(T));
+        public static ILogger Logger = LogManager.GetLogger(typeof(T));
 
         /// <summary>
         /// 
