@@ -216,8 +216,6 @@ namespace Game.Frame
                         MaxLevel = WorldConfig.CHARACTER_CREATION_LEVEL,
 
                         // stats
-                        Ap = 6,
-                        Mp = 3,
                         Chance = 0,
                         Intelligence = 0,
                         Agility = 0,
@@ -404,8 +402,6 @@ namespace Game.Frame
             character.Level = WorldConfig.CHARACTER_CREATION_LEVEL;
 
             // stats
-            character.Ap = 6;
-            character.Mp = 3;
             character.Chance = 0;
             character.Intelligence = 0;
             character.Agility = 0;

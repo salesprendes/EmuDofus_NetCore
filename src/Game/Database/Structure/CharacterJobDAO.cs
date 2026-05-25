@@ -3,16 +3,9 @@ using Game.Entity;
 using Game.Job;
 using Game.Manager;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.Database.Structure
 {
-    /// <summary>
-    /// 
-    /// </summary>
     [Table("characterjob")]
     public sealed class CharacterJobDAO : DataAccessObject<CharacterJobDAO>
     {

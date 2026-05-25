@@ -158,8 +158,7 @@ namespace Game.Entity
         public bool PregnancyTerminated => false;
 
         // TODO: fecondation.hours + 1
-        public string SerializedPregnancyTime =>
-            "-1";
+        public string SerializedPregnancyTime => "-1";
 
         public bool Fecondable =>
             !Pregnant &&

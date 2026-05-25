@@ -593,7 +593,12 @@ namespace Game.Database.Structure
             var generatedStats = new GenericStats();
             foreach (var effect in RandomEffects)
             {
-                if (Usable || IsWeaponEffect(effect.Type))
+                if (Ethereal && effect.Type == EffectEnum.EtherealResist)
+                {
+                    var durability = GetGeneratedEffectValue(effect, max);
+                    generatedStats.AddEffect(effect.Type, durability, durability, durability);
+                }
+                else if (Usable || IsWeaponEffect(effect.Type))
                     generatedStats.AddEffect(effect.Type, effect.Minimum, effect.Maximum);
                 else if (effect.Type == EffectEnum.AddBoost)
                     generatedStats.AddEffect(effect.Type, 0, 0, GetGeneratedEffectValue(effect, max));

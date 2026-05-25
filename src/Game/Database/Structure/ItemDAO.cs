@@ -72,9 +72,6 @@ namespace Game.Database.Structure
             set;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public string StringEffects
         {
             get;
@@ -106,18 +103,13 @@ namespace Game.Database.Structure
             {
                 if (m_template == null)
                     m_template = ItemTemplateRepository.Instance.GetById(TemplateId);
+
                 return m_template;
             }
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
+
         private GenericStats m_statistics;
 
-        /// <summary>
-        /// 
-        /// </summary>
         [Write(false)]
         [DoNotNotify]
         public GenericStats Statistics
@@ -126,15 +118,11 @@ namespace Game.Database.Structure
             {
                 if (m_statistics == null)
                     m_statistics = GenericStats.ParseFromString(StringEffects);
+                    
                 return m_statistics;
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="effect"></param>
-        /// <param name="value"></param>
         public void SaveStats()
         {
             Statistics.StatisticsChanged();
@@ -165,8 +153,75 @@ namespace Game.Database.Structure
         [DoNotNotify]
         public bool IsBoostEquiped => IsBoostSlot(Slot);
 
+        [Write(false)]
+        [DoNotNotify]
+        public bool IsEthereal => Template?.Ethereal ?? false;
+
+        private static bool NormalizeEtherealDurabilityStats(GenericStats stats)
+        {
+            if (stats == null || !stats.HasEffect(EffectEnum.EtherealResist))
+                return false;
+
+            var effect = stats.GetEffect(EffectEnum.EtherealResist);
+            if (effect.Value2 > 0 && effect.Value3 > 0)
+                return false;
+
+            var durability = Math.Max(effect.Value2, effect.Value3);
+            if (durability <= 0)
+                durability = effect.Value1;
+
+            if (durability <= 0)
+                return false;
+
+            if (effect.Value2 <= 0)
+                effect.Value2 = durability;
+            if (effect.Value3 <= 0)
+                effect.Value3 = durability;
+
+            stats.StatisticsChanged();
+            return true;
+        }
+
+        // Returns current durability charges, or -1 if the weapon has no durability effect.
+        [Write(false)]
+        [DoNotNotify]
+        public int Durability
+        {
+            get
+            {
+                if (!Statistics.HasEffect(EffectEnum.EtherealResist))
+                    return -1;
+                return Statistics.GetEffect(EffectEnum.EtherealResist).Value2;
+            }
+        }
+
+        // Returns maximum durability charges, or -1 if the weapon has no durability effect.
+        [Write(false)]
+        [DoNotNotify]
+        public int MaxDurability
+        {
+            get
+            {
+                if (!Statistics.HasEffect(EffectEnum.EtherealResist))
+                    return -1;
+                return Statistics.GetEffect(EffectEnum.EtherealResist).Value3;
+            }
+        }
+
+        public void DecreaseDurability()
+        {
+            if (!Statistics.HasEffect(EffectEnum.EtherealResist))
+                return;
+            var effect = Statistics.GetEffect(EffectEnum.EtherealResist);
+            // Only decrease when durability is explicitly tracked (Value3 > 0 = has a max).
+            if (effect.Value3 <= 0 || effect.Value2 <= 0)
+                return;
+            effect.Value2--;
+            SaveStats();
+        }
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="character"></param>
         /// <returns></returns>

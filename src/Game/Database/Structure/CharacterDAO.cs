@@ -168,25 +168,7 @@ namespace Game.Database.Structure
         }
 
         /// <summary>
-        /// 
-        /// </summary>
-        public int Ap
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public int Mp
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// 
+        ///
         /// </summary>
         public int Life
         {

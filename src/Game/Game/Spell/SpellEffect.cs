@@ -206,6 +206,7 @@ namespace Game.Spell
 
         /* Bonbons boosts combats */
         AddBoost = 811,
+        EtherealResist = 812,
 
         InvocationInformations = 628,
 

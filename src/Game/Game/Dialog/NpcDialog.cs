@@ -8,50 +8,33 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Game.ActionEffect;
 
 namespace Game.Dialog
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class NpcDialog 
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public const string BANK_COST = "%bankCost%";
         public const string NAME = "%name%";
 
-        /// <summary>
-        /// 
-        /// </summary>
         private CharacterEntity Character
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private NonPlayerCharacterEntity Npc
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public NpcQuestionDAO CurrentQuestion
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private IEnumerable<NpcResponseDAO> m_possibleResponses;
 
         /// <summary>
@@ -73,6 +56,7 @@ namespace Game.Dialog
         {
             CurrentQuestion = question;
             m_possibleResponses = CurrentQuestion.ResponseList;
+
             Character.Dispatch(WorldMessage.DIALOG_QUESTION(CurrentQuestion.Id, ApplyParameter(), m_possibleResponses.Select(response => response.Id)));
         }
 
@@ -82,14 +66,15 @@ namespace Game.Dialog
         /// <param name="responseId"></param>
         public void ProcessResponse(int responseId)
         {
-            var response = m_possibleResponses
-                .First(entry => entry.Id == responseId);
+            var response = m_possibleResponses.First(entry => entry.Id == responseId);
+
             if(response == null || !ConditionParser.Instance.Check(response.Conditions, Character))
             {
                 Character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
-            foreach(var action in response.ActionsList)
+
+            foreach(ActionEntry action in response.ActionsList)
                 ActionEffectManager.Instance.ApplyEffect(Character, action.Effect, action.Parameters);
         }
 

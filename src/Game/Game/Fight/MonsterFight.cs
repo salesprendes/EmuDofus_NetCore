@@ -40,21 +40,7 @@ namespace Game.Fight
         /// <summary>
         /// 
         /// </summary>
-        public MonsterFight(MapInstance map, long id, CharacterEntity character, MonsterGroupEntity monsterGroup)
-            : base(FightTypeEnum.TYPE_PVM, 
-                  map, 
-                  id, 
-                  character.Id,
-                  -1, 
-                  character.CellId, 
-                  monsterGroup.Id, 
-                  -1,
-                  monsterGroup.CellId, 
-                  WorldConfig.PVM_START_TIMEOUT, 
-                  WorldConfig.PVM_TURN_TIME, 
-                  false, 
-                  false, 
-                  new LootMonsterBehavior())
+        public MonsterFight(MapInstance map, long id, CharacterEntity character, MonsterGroupEntity monsterGroup) : base(FightTypeEnum.TYPE_PVM, map, id, character.Id, -1, character.CellId, monsterGroup.Id, -1, monsterGroup.CellId, WorldConfig.PVM_START_TIMEOUT, WorldConfig.PVM_TURN_TIME, false, false, new LootMonsterBehavior())
         {
             Character = character;
             MonsterGroup = monsterGroup;
@@ -141,7 +127,14 @@ namespace Game.Fight
             if (WinnerTeam == Team0)
                 Map.SpawnMonsters();
             else
-                Map.SpawnEntity(MonsterGroup);
+            {
+                MonsterGroupEntity group = MonsterGroup;
+                Map.AddMessage(() =>
+                {
+                    Map.DestroyEntity(group);
+                    Map.SpawnEntity(group);
+                });
+            }
             base.FightEnd();
         }
 

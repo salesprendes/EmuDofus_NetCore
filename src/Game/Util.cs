@@ -220,9 +220,8 @@ namespace Game
             var c = Math.Truncate(a / (double)playersTotalLevel * 100);
             var d = Math.Truncate(monstersExperience * WorldConfig.PVM_RATE_GROUP[0] * levelDeltaRate);
             var e = Math.Truncate(monstersExperience * WorldConfig.PVM_RATE_GROUP[Math.Min(WorldConfig.PVM_RATE_GROUP.Length - 1, dropperCount - 1)] * totalLevelDeltaRate);
-            var f = Math.Truncate(b / 100 * d);
             var g = Math.Truncate(c / 100 * e);
-            var i = Math.Max(1, ageBonus / 100.0) + challengeBonus;
+            var i = (1.0 + ageBonus / 100.0) * challengeBonus;
             var j = Math.Truncate((g * (100 + wisdom) / 100.0) * i);
 
             return (long)Math.Truncate(j * WorldConfig.RATE_XP);

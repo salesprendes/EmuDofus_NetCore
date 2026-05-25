@@ -13,6 +13,7 @@ using Game.Interactive;
 using Game.Interactive.Type;
 using System.Threading;
 using Game.Mount;
+using Game.Job;
 
 namespace Game.Map
 {
@@ -676,14 +677,11 @@ namespace Game.Map
 
         private void ProcessEntitiesMovements()
         {
-            // Dormant: no players watching — skip all entity ticking (Ankama-style idle suppression)
             if (m_playerCount == 0) return;
             for (int i = 0; i < m_moveableEntities.Count; i++)
                 MoveEntity(m_moveableEntities[i]);
         }
 
-        // Spread entity first-move times evenly across their interval window so they don't
-        // all fire at once when the first player enters a previously empty map.
         private void StaggerEntityMovements()
         {
             int count = m_moveableEntities.Count;
@@ -696,10 +694,7 @@ namespace Game.Map
                 entity.NextMovementTime = UpdateTime + (long)entity.MovementInterval * i / count;
             }
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
+
         public void MoveEntity(AbstractEntity entity)
         {
             if (entity.MovementInterval == 0)
@@ -713,7 +708,6 @@ namespace Game.Map
 
             entity.NextMovementTime = UpdateTime + entity.MovementInterval;
 
-            // Move only if there is a player on the map, else it is useless
             if (m_playerCount == 0)
                 return;
 
@@ -729,20 +723,12 @@ namespace Game.Map
             if (cellId < 1)
                 return;
 
-            // Finish the previous move first so CellId is up to date before queuing the next path
             entity.StopAction(GameActionTypeEnum.MAP_MOVEMENT);
 
             Move(entity, entity.CellId, Pathmaker.FindPathAsString(entity.CellId, cellId, false));
-
-            // Clear the movement action right after the GA is dispatched so CanBeExchanged isn't blocked
             AddMessage(() => entity.StopAction(GameActionTypeEnum.MAP_MOVEMENT));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
         public MapCell GetCell(int id)
         {
             if (id >= 0 && id < m_cellsArray.Length)
@@ -750,11 +736,6 @@ namespace Game.Map
             return null;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="cellId"></param>
-        /// <returns></returns>
         public int GetNearestCell(int cellId)
         {
             foreach(var nextCell in CellZone.GetAdjacentCells(this, cellId))
@@ -765,12 +746,7 @@ namespace Game.Map
             }
             return -1;
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="cellId"></param>
-        /// <returns></returns>
+
         public int GetNearestMovementCell(int cellId)
         {
             var rand = Util.Next(0, 101);
@@ -790,11 +766,6 @@ namespace Game.Map
             return -1;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="cellId"></param>
-        /// <returns></returns>
         public bool IsWalkable(int cellId)
         {
             MapCell cell = GetCell(cellId);
@@ -803,22 +774,12 @@ namespace Game.Map
             return false;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="cellId"></param>
-        /// <returns></returns>
         public bool IsAnimatedDoorOpen(int cellId)
         {
             AnimatedDoor door;
             return m_animatedDoorByCellId.TryGetValue(cellId, out door) && door.IsOpened;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="cellId"></param>
-        /// <param name="opened"></param>
         public void SendAnimatedDoorCellState(int cellId, bool opened)
         {
             var message = BuildDoorCellStateMessage(cellId, opened);
@@ -826,12 +787,6 @@ namespace Game.Map
                 Dispatch(message);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="cellId"></param>
-        /// <param name="opened"></param>
-        /// <returns></returns>
         private string BuildDoorCellStateMessage(int cellId, bool opened)
         {
             if (m_doorCellEncodings == null || !m_doorCellEncodings.TryGetValue(cellId, out var encodings))
@@ -840,11 +795,6 @@ namespace Game.Map
             return WorldMessage.GAME_DATA_CELL(cellId, data, CELL_MOVEMENT_MASK);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
         public AbstractEntity GetEntity(long id)
         {
             if (m_entityById.ContainsKey(id))
@@ -852,9 +802,6 @@ namespace Game.Map
             return null;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void SpawnMonsters()
         {
             if (m_monsters.Count > 0 && FightTeam1Cells.Count > 0)
@@ -870,9 +817,6 @@ namespace Game.Map
             m_spawnCounter--;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public void SpawnMonsters(IEnumerable<MonsterSpawnDAO> monsters)
         {
             if (IsConquestVillageWithoutTerritory())
@@ -1090,7 +1034,8 @@ namespace Game.Map
                 if(cell.InteractiveObject != null)
                 {
                     var skill = character.CharacterJobs.GetSkill(skillId);
-                    if (skill == null && !(cell.InteractiveObject is Pheonix))
+                    
+                    if (skill == null && !cell.InteractiveObject.CanUseWithoutJobSkill(skillId))
                     {
                         character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                         return;
@@ -1102,6 +1047,64 @@ namespace Game.Map
                 {
                     character.Dispatch(WorldMessage.SERVER_INFO_MESSAGE("Not implemented yet."));
                 }
+            }
+        }
+
+        public bool IsInInteractiveSkillRange(CharacterEntity character, int sourceCellId, int targetCellId, int skillId)
+        {
+            if (character == null || character.MapId != Id || !Pathfinding.IsValidCellId(this, sourceCellId) || GetCell(targetCellId) == null)
+                return false;
+
+            if (Pathfinding.GoalDistance(this, sourceCellId, targetCellId) <= 1)
+                return true;
+
+            return IsFishingSkillInRange(character, sourceCellId, targetCellId, skillId);
+        }
+
+        private bool IsFishingSkillInRange(CharacterEntity character, int sourceCellId, int targetCellId, int skillId)
+        {
+            var skill = character.CharacterJobs.GetSkill(skillId);
+            if (skill == null)
+                return false;
+
+            var job = character.CharacterJobs.GetJob(skill.Id);
+            if (job == null || job.JobId != (int)JobIdEnum.JOB_PECHEUR)
+                return false;
+
+            var weapon = character.Inventory?.Items.Find(item => item.Slot == ItemSlotEnum.SLOT_WEAPON);
+            var range = weapon == null ? 0 : GetFishingRodRange(weapon.TemplateId);
+
+            return range > 0 && Pathfinding.GoalDistance(this, sourceCellId, targetCellId) <= range;
+        }
+
+        private static int GetFishingRodRange(int templateId)
+        {
+            switch (templateId)
+            {
+                case 8541:
+                case 6661:
+                case 596:
+                    return 2;
+                case 1866:
+                    return 3;
+                case 1865:
+                case 1864:
+                    return 4;
+                case 1867:
+                case 2188:
+                    return 5;
+                case 1863:
+                case 1862:
+                    return 6;
+                case 1868:
+                    return 7;
+                case 1861:
+                case 1860:
+                    return 8;
+                case 2366:
+                    return 9;
+                default:
+                    return 0;
             }
         }
 
@@ -1117,56 +1120,79 @@ namespace Game.Map
             return Pathfinding.IsValidPath(entity, this, cellId, path);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="cellId"></param>
-        /// <param name="movementPath"></param>
         public void Move(AbstractEntity entity, int cellId, string movementPath)
         {
             AddMessage(() =>
                 {
+                    var decoded = Pathfinding.DecodePath(this, cellId, movementPath);
+                    var destCellId = decoded.TransitCells.Count > 0 ? decoded.EndCell : -1;
+                    var destCell = GetCell(destCellId);
                     var path = DecodeMovement(entity, cellId, movementPath);
+
                     if (path != null && path.MovementLength > 0)
                     {
                         entity.Move(path);
+
+                        if (entity is CharacterEntity character && character.CurrentAction is GameMapMovementAction action)
+                        {
+                            var skillAttached = false;
+                            if (character.TryGetPendingInteractiveSkill(Id, out var pendingCellId, out var pendingSkillId))
+                            {
+                                if (pendingCellId == destCellId || IsInInteractiveSkillRange(character, path.EndCell, pendingCellId, pendingSkillId))
+                                {
+                                    action.SkillCellId = pendingCellId;
+                                    action.SkillId = pendingSkillId;
+                                    action.SkillMapId = Id;
+                                    skillAttached = true;
+                                }
+
+                                character.ClearPendingInteractiveSkill();
+                            }
+
+                            if (!skillAttached)
+                            {
+                                var implicitSkillId = destCell?.InteractiveObject?.GetImplicitSkillId(character) ?? -1;
+                                if (implicitSkillId != -1)
+                                {
+                                    action.SkillCellId = destCellId;
+                                    action.SkillId = implicitSkillId;
+                                    action.SkillMapId = Id;
+                                }
+                            }
+                        }
                     }
                     else if (entity.Type == EntityTypeEnum.TYPE_CHARACTER)
                     {
                         var character = (CharacterEntity)entity;
+                        var implicitSkillId = destCell?.InteractiveObject?.GetImplicitSkillId(character) ?? -1;
 
-                        // Informar al cliente que el movimiento falló para que no quede bloqueado
-                        // esperando un GA de confirmación que nunca llegará.
-                        character.Dispatch(WorldMessage.GAME_ACTION_FAILED());
-
-                        // Si el path fue bloqueado por un IO adyacente (ej: Fénix a distancia 0),
-                        // ejecutar el skill automático inmediatamente en lugar de esperar el fin del movimiento.
-                        if (character.AutomaticSkillId != -1)
+                        if (implicitSkillId != -1)
                         {
-                            var skillId = character.AutomaticSkillId;
-                            var skillCellId = character.AutomaticSkillCellId;
-                            var skillMapId = character.AutomaticSkillMapId;
-                            character.AutomaticSkillId = -1;
-                            character.AutomaticSkillCellId = -1;
-                            character.AutomaticSkillMapId = -1;
-                            if (character.MapId == skillMapId)
-                                InteractiveExecute(character, skillCellId, skillId);
+                            character.Dispatch(WorldMessage.GAME_ACTION(0, character.Id));
+                            InteractiveExecute(character, destCellId, implicitSkillId);
                         }
+                        else if (destCell?.InteractiveObject != null && destCell.InteractiveObject.IsActive)
+                        {
+                            character.Dispatch(WorldMessage.GAME_ACTION(0, character.Id));
+                        }
+                        else
+                        {
+                            character.Dispatch(WorldMessage.GAME_ACTION_FAILED());
+                        }
+
+                        character.ClearPendingInteractiveSkill();
                     }
+
                 });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="cellId"></param>
-        /// <param name="monsters"></param>
-        /// <returns></returns>
-        public bool CanBeAggro(CharacterEntity character, int cellId, MonsterGroupEntity monsters) => Pathfinding.GoalDistance(this, cellId, monsters.CellId) <= monsters.AggressionRange
-                && ((character.AlignmentId == (int)ConquestManager.AlignmentTypeEnum.ALIGNMENT_NEUTRAL && monsters.AlignmentId == -1)
-                || (character.AlignmentId != (int)ConquestManager.AlignmentTypeEnum.ALIGNMENT_NEUTRAL && monsters.AlignmentId != character.AlignmentId));
+        public bool CanBeAggro(CharacterEntity character, int cellId, MonsterGroupEntity monsters)
+        {
+            if (character == null || monsters == null || character.IsGhost || character.IsTombestone)
+                return false;
+
+            return Pathfinding.GoalDistance(this, cellId, monsters.CellId) <= monsters.AggressionRange && ((character.AlignmentId == (int)ConquestManager.AlignmentTypeEnum.ALIGNMENT_NEUTRAL && monsters.AlignmentId == -1) || (character.AlignmentId != (int)ConquestManager.AlignmentTypeEnum.ALIGNMENT_NEUTRAL && monsters.AlignmentId != character.AlignmentId));
+        }
 
         public bool HasAggroNear(CharacterEntity character, int cellId)
         {

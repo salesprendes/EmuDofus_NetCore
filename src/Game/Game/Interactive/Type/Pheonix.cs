@@ -1,52 +1,42 @@
 ﻿using Game.Entity;
 using Game.Job;
 using Game.Map;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Game.Network;
 
 namespace Game.Interactive.Type
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class Pheonix : InteractiveObject
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="map"></param>
-        /// <param name="cellId"></param>
-        public Pheonix(MapInstance map, int cellId) 
-            : base(map, cellId)
+        public Pheonix(MapInstance map, int cellId) : base(map, cellId){}
+
+        public override int GetImplicitSkillId(CharacterEntity character)
         {
+            return character.IsGhost ? (int)SkillIdEnum.SKILL_USE_PHOENIX : -1;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="skill"></param>
+        public override bool CanUseWithoutJobSkill(int skillId)
+        {
+            return skillId == (int)SkillIdEnum.SKILL_USE_PHOENIX;
+        }
+
         public override void UseWithSkill(CharacterEntity character, JobSkill skill)
         {
-            if (character == null)
-                return;
-
             if (skill != null && skill.Id != SkillIdEnum.SKILL_USE_PHOENIX)
+            {
+                character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
+            }
 
             ReleasePlayer(character);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private void ReleasePlayer(CharacterEntity character)
         {
             if (!character.IsGhost)
+            {
+                character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
+            }
 
             character.Reborn();
         }

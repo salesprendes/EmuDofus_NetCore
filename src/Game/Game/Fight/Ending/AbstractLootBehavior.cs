@@ -20,6 +20,7 @@ namespace Game.Fight.Ending
         protected abstract IEnumerable<ItemDAO> GetTargetItems(EndingArguments<T> arguments, T fighter);
         protected abstract long GetExperienceWon(EndingArguments<T> arguments, AbstractFighter fighter);
         protected abstract long GetKamasWon(EndingArguments<T> arguments, AbstractFighter fighter);
+        protected virtual long GetLoserExperienceWon(EndingArguments<T> arguments, CharacterEntity fighter) => 0;
 
         public override void Execute(AbstractFight fight)
         {
@@ -113,6 +114,18 @@ namespace Game.Fight.Ending
                         .Select(g => new { TemplateId = g.Key, Count = g.Count() })
                         .ToDictionary(g => g.TemplateId, g => g.Count));
                 fighter.CachedBuffer = false;
+            }
+
+            foreach (var loserCharacter in fight.LoserTeam.Fighters
+                .OfType<CharacterEntity>()
+                .Where(f => f.Invocator == null))
+            {
+                var xpWon = GetLoserExperienceWon(arguments, loserCharacter);
+                if (xpWon <= 0) continue;
+                loserCharacter.CachedBuffer = true;
+                loserCharacter.AddExperience(xpWon);
+                fight.Result.AddResult(loserCharacter, FightEndTypeEnum.END_LOSER, false, 0, xpWon);
+                loserCharacter.CachedBuffer = false;
             }
         }
     }

@@ -88,8 +88,6 @@ namespace Game.Entity
         public override void JoinFight(AbstractFight fight, FightTeam team)
         {
             base.JoinFight(fight, team);
-
-            // The clone mirrors the summoner's life state at cast time instead of spawning full life.
             Life = m_source.Life;
         }
 

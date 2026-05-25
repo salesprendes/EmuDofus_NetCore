@@ -1744,15 +1744,6 @@ namespace Game.Fight
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
-        /// <param name="spellLevel"></param>
-        /// <param name="spellId"></param>
-        /// <param name="cellId"></param>
-        /// <param name="castCell"></param>
-        /// <returns></returns>
         public FightSpellLaunchResultEnum CanLaunchSpell(AbstractFighter fighter, SpellLevel spellLevel, int spellId, int cellId, int castCell)
         {
             if(LoopState != FightLoopStateEnum.STATE_WAIT_TURN && LoopState != FightLoopStateEnum.STATE_WAIT_AI)            
@@ -1852,6 +1843,14 @@ namespace Game.Fight
             if (fighter.AP < template.APCost)
             {
                 Logger.Debug("Fight::CanUseWeapon not enought AP : " + fighter.Name);
+                return false;
+            }
+
+            // Block only when durability IS tracked (MaxDurability > 0) and exhausted (Durability == 0).
+            // MaxDurability == 0 means the weapon has unlimited charges (no tracking).
+            if (weapon.IsEthereal && weapon.MaxDurability > 0 && weapon.Durability == 0)
+            {
+                Logger.Debug("Fight::CanUseWeapon ethereal weapon has no durability left : " + fighter.Name);
                 return false;
             }
 
@@ -2052,7 +2051,7 @@ namespace Game.Fight
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="fighter"></param>
         /// <param name="spellId"></param>

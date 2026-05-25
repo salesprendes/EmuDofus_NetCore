@@ -4,11 +4,6 @@ using Game.Interactive.Type;
 using Game.Map;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.Manager
 {
@@ -337,6 +332,7 @@ namespace Game.Manager
             AddInteractiveGfx(2319, InteractiveObjectIdEnum.INTERACTIVE_STATUE_DE_CLASSE);
 
             AddInteractiveGfx(4638, InteractiveObjectIdEnum.INTERACTIVE_PHOENIX);
+            AddInteractiveGfx(542, InteractiveObjectIdEnum.INTERACTIVE_PHOENIX);
         }
 
         /// <summary>

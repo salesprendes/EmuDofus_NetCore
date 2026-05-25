@@ -7,75 +7,28 @@ using System.Threading.Tasks;
 
 namespace Protocolo.Framework.Generic
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public static class TaskExtensions
     {
-        /// <summary>
-        /// Creates a continuation task using the specified TaskFactory.
-        /// </summary>
-        /// <param name = "task">The antecedent Task.</param>
-        /// <param name = "continuationAction">The continuation action.</param>
-        /// <param name = "factory">The TaskFactory.</param>
-        /// <returns>A continuation task.</returns>
-        public static Task ContinueWith(
-            this Task task, Action<Task> continuationAction, TaskFactory factory)
+        public static Task ContinueWith(this Task task, Action<Task> continuationAction, TaskFactory factory)
         {
-            return task.ContinueWith(continuationAction, factory.CancellationToken, factory.ContinuationOptions,
-                                     factory.Scheduler);
+            return task.ContinueWith(continuationAction, factory.CancellationToken, factory.ContinuationOptions, factory.Scheduler);
         }
 
-        /// <summary>
-        /// Creates a continuation task using the specified TaskFactory.
-        /// </summary>
-        /// <param name = "task">The antecedent Task.</param>
-        /// <param name = "continuationFunction">The continuation function.</param>
-        /// <param name = "factory">The TaskFactory.</param>
-        /// <returns>A continuation task.</returns>
-        public static Task<TResult> ContinueWith<TResult>(
-            this Task task, Func<Task, TResult> continuationFunction, TaskFactory factory)
+        public static Task<TResult> ContinueWith<TResult>(this Task task, Func<Task, TResult> continuationFunction, TaskFactory factory)
         {
-            return task.ContinueWith(continuationFunction, factory.CancellationToken, factory.ContinuationOptions,
-                                     factory.Scheduler);
+            return task.ContinueWith(continuationFunction, factory.CancellationToken, factory.ContinuationOptions, factory.Scheduler);
         }
 
-        /// <summary>
-        /// Creates a continuation task using the specified TaskFactory.
-        /// </summary>
-        /// <param name = "task">The antecedent Task.</param>
-        /// <param name = "continuationAction">The continuation action.</param>
-        /// <param name = "factory">The TaskFactory.</param>
-        /// <returns>A continuation task.</returns>
-        public static Task ContinueWith<TResult>(
-            this Task<TResult> task, Action<Task<TResult>> continuationAction, TaskFactory<TResult> factory)
+        public static Task ContinueWith<TResult>(this Task<TResult> task, Action<Task<TResult>> continuationAction, TaskFactory<TResult> factory)
         {
-            return task.ContinueWith(continuationAction, factory.CancellationToken, factory.ContinuationOptions,
-                                     factory.Scheduler);
+            return task.ContinueWith(continuationAction, factory.CancellationToken, factory.ContinuationOptions, factory.Scheduler);
         }
 
-        /// <summary>
-        /// Creates a continuation task using the specified TaskFactory.
-        /// </summary>
-        /// <param name = "task">The antecedent Task.</param>
-        /// <param name = "continuationFunction">The continuation function.</param>
-        /// <param name = "factory">The TaskFactory.</param>
-        /// <returns>A continuation task.</returns>
-        public static Task<TNewResult> ContinueWith<TResult, TNewResult>(
-            this Task<TResult> task, Func<Task<TResult>, TNewResult> continuationFunction, TaskFactory<TResult> factory)
+        public static Task<TNewResult> ContinueWith<TResult, TNewResult>(this Task<TResult> task, Func<Task<TResult>, TNewResult> continuationFunction, TaskFactory<TResult> factory)
         {
-            return task.ContinueWith(continuationFunction, factory.CancellationToken, factory.ContinuationOptions,
-                                     factory.Scheduler);
+            return task.ContinueWith(continuationFunction, factory.CancellationToken, factory.ContinuationOptions, factory.Scheduler);
         }
 
-        /// <summary>
-        /// Creates a Task that represents the completion of another Task, and
-        /// that schedules an AsyncCallback to run upon completion.
-        /// </summary>
-        /// <param name = "task">The antecedent Task.</param>
-        /// <param name = "callback">The AsyncCallback to run.</param>
-        /// <param name = "state">The object state to use with the AsyncCallback.</param>
-        /// <returns>The new task.</returns>
         public static Task ToAsync(this Task task, AsyncCallback callback, object state)
         {
             if (task == null) throw new ArgumentNullException("task");
@@ -89,14 +42,6 @@ namespace Protocolo.Framework.Generic
             return tcs.Task;
         }
 
-        /// <summary>
-        /// Creates a Task that represents the completion of another Task, and
-        /// that schedules an AsyncCallback to run upon completion.
-        /// </summary>
-        /// <param name = "task">The antecedent Task.</param>
-        /// <param name = "callback">The AsyncCallback to run.</param>
-        /// <param name = "state">The object state to use with the AsyncCallback.</param>
-        /// <returns>The new task.</returns>
         public static Task<TResult> ToAsync<TResult>(this Task<TResult> task, AsyncCallback callback, object state)
         {
             if (task == null) throw new ArgumentNullException("task");
@@ -110,67 +55,33 @@ namespace Protocolo.Framework.Generic
             return tcs.Task;
         }
 
-        /// <summary>
-        /// Suppresses default exception handling of a Task that would otherwise reraise the exception on the finalizer thread.
-        /// </summary>
-        /// <param name = "task">The Task to be monitored.</param>
-        /// <returns>The original Task.</returns>
         public static Task IgnoreExceptions(this Task task)
         {
-            return task.ContinueWith(t => { AggregateException ignored = t.Exception; },
-                                     CancellationToken.None,
-                                     TaskContinuationOptions.ExecuteSynchronously |
-                                     TaskContinuationOptions.OnlyOnFaulted,
-                                     TaskScheduler.Default);
+            return task.ContinueWith(t => { AggregateException ignored = t.Exception; }, CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously | TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
         }
 
-        /// <summary>
-        /// Suppresses default exception handling of a Task that would otherwise reraise the exception on the finalizer thread.
-        /// </summary>
-        /// <param name = "task">The Task to be monitored.</param>
-        /// <returns>The original Task.</returns>
         public static Task<T> IgnoreExceptions<T>(this Task<T> task)
         {
             return (Task<T>)((Task)task).IgnoreExceptions();
         }
 
-        /// <summary>
-        /// Fails immediately when an exception is encountered.
-        /// </summary>
-        /// <param name = "task">The Task to be monitored.</param>
-        /// <returns>The original Task.</returns>
         public static Task FailFastOnException(this Task task)
         {
-            task.ContinueWith(t => Environment.FailFast("A task faulted.", t.Exception),
-                              CancellationToken.None,
-                              TaskContinuationOptions.ExecuteSynchronously | TaskContinuationOptions.OnlyOnFaulted,
-                              TaskScheduler.Default);
+            task.ContinueWith(t => Environment.FailFast("A task faulted.", t.Exception), CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously | TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
             return task;
         }
 
-        /// <summary>
-        /// Fails immediately when an exception is encountered.
-        /// </summary>
-        /// <param name = "task">The Task to be monitored.</param>
-        /// <returns>The original Task.</returns>
         public static Task<T> FailFastOnException<T>(this Task<T> task)
         {
             return (Task<T>)((Task)task).FailFastOnException();
         }
 
-        /// <summary>
-        /// Propagates any exceptions that occurred on the specified task.
-        /// </summary>
-        /// <param name = "task">The Task whose exceptions are to be propagated.</param>
         public static void PropagateExceptions(this Task task)
         {
             if (!task.IsCompleted) throw new InvalidOperationException("The task has not completed.");
             if (task.IsFaulted) task.Wait();
         }
 
-        /// <summary>
-        /// Propagates any exceptions that occurred on the specified tasks.
-        /// </summary>
         public static void PropagateExceptions(this Task[] tasks)
         {
             if (tasks == null) throw new ArgumentNullException("tasks");
@@ -178,13 +89,7 @@ namespace Protocolo.Framework.Generic
             if (tasks.Any(t => !t.IsCompleted)) throw new InvalidOperationException("A task has not completed.");
             Task.WaitAll(tasks);
         }
-
-        /// <summary>
-        /// Ensures that a parent task can't transition into a completed state
-        /// until the specified task has also completed, even if it's not
-        /// already a child task.
-        /// </summary>
-        /// <param name = "task">The task to attach to the current task as a child.</param>
+        
         public static void AttachToParent(this Task task)
         {
             if (task == null) throw new ArgumentNullException("task");

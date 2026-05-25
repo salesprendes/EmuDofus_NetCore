@@ -279,7 +279,18 @@ namespace Game.Interactive
         /// <param name="skillId"></param>
         public virtual void UseWithSkill(CharacterEntity character, JobSkill skill)
         {
+            character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
             character.Dispatch(WorldMessage.SERVER_INFO_MESSAGE("Interactive object not yet implemented."));
+        }
+
+        public virtual int GetImplicitSkillId(CharacterEntity character)
+        {
+            return -1;
+        }
+
+        public virtual bool CanUseWithoutJobSkill(int skillId)
+        {
+            return false;
         }
     }
 }

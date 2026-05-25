@@ -4,9 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Protocolo.Framework.Utils;
-using Game.Network;
 using Game.Fight;
 using Game.Spell;
 using Game.Interactive.Type;
@@ -16,10 +14,6 @@ using Protocolo.Framework.Generic.Logging;
 
 namespace Game.Map
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
     public interface IPriorityQueue<T>
     {
         int Push(T item);
@@ -28,10 +22,6 @@ namespace Game.Map
         void Update(int i);
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
     public class PriorityQueueB<T> : IPriorityQueue<T>
     {
         #region "Variables Declaration"
@@ -70,141 +60,67 @@ namespace Game.Map
             return mComparer.Compare(InnerList[i], InnerList[j]);
         }
 
-        /// <summary>
-        /// Push an object onto the PQ
-        /// </summary>
-        /// <param name="O">The new object</param>
-        /// <returns>The index in the list where the object is _now_. This will change when objects are taken from or put onto the PQ.</returns>
         public int Push(T item)
         {
-            int p = InnerList.Count;
-            int p2 = 0;
+            int p = InnerList.Count, p2;
             InnerList.Add(item);
-            // E[p] = O
-            do
+
+            while (p > 0 && OnCompare(p, p2 = (p - 1) / 2) < 0)
             {
-                if (p == 0)
-                {
-                    break; // TODO: might not be correct. Was : Exit Do
-                }
-                p2 = (p - 1) / 2;
-                if (OnCompare(p, p2) < 0)
-                {
-                    SwitchElements(p, p2);
-                    p = p2;
-                }
-                else
-                {
-                    break; // TODO: might not be correct. Was : Exit Do
-                }
-            } while (true);
+                SwitchElements(p, p2);
+                p = p2;
+            }
+
             return p;
         }
 
-        /// <summary>
-        /// Get the smallest object and remove it.
-        /// </summary>
-        /// <returns>The smallest object</returns>
         public T Pop()
         {
             T result = InnerList[0];
-            int p = 0;
-            int p1 = 0;
-            int p2 = 0;
-            int pn = 0;
             InnerList[0] = InnerList[InnerList.Count - 1];
             InnerList.RemoveAt(InnerList.Count - 1);
+
+            int p = 0, pn;
+
             do
             {
                 pn = p;
-                p1 = 2 * p + 1;
-                p2 = 2 * p + 2;
-                if (InnerList.Count > p1 && OnCompare(p, p1) > 0)
-                {
-                    // links kleiner
-                    p = p1;
-                }
-                if (InnerList.Count > p2 && OnCompare(p, p2) > 0)
-                {
-                    // rechts noch kleiner
-                    p = p2;
-                }
-
-                if (p == pn)
-                {
-                    break; // TODO: might not be correct. Was : Exit Do
-                }
-                SwitchElements(p, pn);
-            } while (true);
+                int p1 = 2 * p + 1;
+                int p2 = 2 * p + 2;
+                if (InnerList.Count > p1 && OnCompare(p, p1) > 0) p = p1;
+                if (InnerList.Count > p2 && OnCompare(p, p2) > 0) p = p2;
+                if (p != pn) SwitchElements(p, pn);
+            }
+            while (p != pn);
 
             return result;
         }
 
-        /// <summary>
-        /// Notify the PQ that the object at position i has changed
-        /// and the PQ needs to restore order.
-        /// Since you dont have access to any indexes (except by using the
-        /// explicit IList.this) you should not call this function without knowing exactly
-        /// what you do.
-        /// </summary>
-        /// <param name="i">The index of the changed object.</param>
         public void Update(int i)
         {
-            int p = i;
-            int pn = 0;
-            int p1 = 0;
-            int p2 = 0;
-            do
-            {
-                // aufsteigen
-                if (p == 0)
-                {
-                    break; // TODO: might not be correct. Was : Exit Do
-                }
-                p2 = (p - 1) / 2;
-                if (OnCompare(p, p2) < 0)
-                {
-                    SwitchElements(p, p2);
-                    p = p2;
-                }
-                else
-                {
-                    break; // TODO: might not be correct. Was : Exit Do
-                }
-            } while (true);
-            if (p < i)
-            {
-                return;
-            }
-            do
-            {
-                // absteigen
-                pn = p;
-                p1 = 2 * p + 1;
-                p2 = 2 * p + 2;
-                if (InnerList.Count > p1 && OnCompare(p, p1) > 0)
-                {
-                    // links kleiner
-                    p = p1;
-                }
-                if (InnerList.Count > p2 && OnCompare(p, p2) > 0)
-                {
-                    // rechts noch kleiner
-                    p = p2;
-                }
+            int p = i, p2;
 
-                if (p == pn)
-                {
-                    break; // TODO: might not be correct. Was : Exit Do
-                }
-                SwitchElements(p, pn);
-            } while (true);
+            while (p > 0 && OnCompare(p, p2 = (p - 1) / 2) < 0)
+            {
+                SwitchElements(p, p2);
+                p = p2;
+            }
+
+            if (p < i) return;
+
+            int pn;
+            do
+            {
+                pn = p;
+                int p1 = 2 * p + 1;
+                p2 = 2 * p + 2;
+                if (InnerList.Count > p1 && OnCompare(p, p1) > 0) p = p1;
+                if (InnerList.Count > p2 && OnCompare(p, p2) > 0) p = p2;
+                if (p != pn) SwitchElements(p, pn);
+            }
+            while (p != pn);
         }
 
-        /// <summary>
-        /// Get the smallest object without removing it.
-        /// </summary>
-        /// <returns>The smallest object</returns>
         public T Peek()
         {
             if (InnerList.Count > 0)
@@ -251,56 +167,34 @@ namespace Game.Map
         #endregion
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public class MovementPath
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public List<int> TransitCells
         {
             get;
             private set;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public List<int> Directions
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// Cell count per straight segment, in segment order.
-        /// </summary>
         public List<int> SegmentLengths
         {
             get;
             private set;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public int BeginCell => TransitCells.FirstOrDefault();
 
-        /// <summary>
-        ///
-        /// </summary>
         public int MovementLength
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// Sum of per-segment times, each computed with its own direction and speed.
-        /// Walk speed is used for paths shorter than 4 cells; run speed for 4+.
-        /// </summary>
         public double MovementTime
         {
             get
@@ -318,9 +212,6 @@ namespace Game.Map
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int LastStep => TransitCells.Count == 0 ? -1 : TransitCells[TransitCells.Count < 2 ? 0 : TransitCells.Count - 2];
 
         /// <summary>
@@ -772,14 +663,17 @@ namespace Game.Map
         /// <returns></returns>
         public static MovementPath IsValidPath(AbstractEntity entity, MapInstance map, int currentCell, string encodedPath)
         {
-            var decodedPath = DecodePath(map, currentCell, encodedPath);
+            MovementPath decodedPath = DecodePath(map, currentCell, encodedPath);
+
             if(decodedPath.TransitCells.Count < 2)
                 return null;
+
             var finalPath = new MovementPath();
             var index = 0;
             int transitCell = 0;
             int nextTransitCell = 0;
             DirectionEnum direction = DirectionEnum.Noreste;
+
             do
             {
                 transitCell = decodedPath.TransitCells[index];
@@ -789,22 +683,10 @@ namespace Game.Map
                 if (length == -1)
                     return null;
                 else if (length == -2)
-                    break;                
+                    break;
                 index++;
             }
             while (transitCell != decodedPath.LastStep);
-
-            if(entity.Type == EntityTypeEnum.TYPE_CHARACTER)
-            {
-                var mapCell = map.GetCell(decodedPath.EndCell);
-                if(mapCell != null && mapCell.InteractiveObject != null && mapCell.InteractiveObject is Pheonix)
-                {
-                    var character = (CharacterEntity)entity;
-                    character.AutomaticSkillId = (int)SkillIdEnum.SKILL_USE_PHOENIX;
-                    character.AutomaticSkillCellId = decodedPath.EndCell;
-                    character.AutomaticSkillMapId = map.Id;
-                }
-            }
 
             return finalPath;
         }
@@ -857,51 +739,36 @@ namespace Game.Map
             if (map.GetCell(beginCell) == null || map.GetCell(endCell) == null)
                 return -1;
 
-            var length = -1;
+            var isCharacter = entity.Type == EntityTypeEnum.TYPE_CHARACTER;
+            var character = isCharacter ? (CharacterEntity)entity : null;
+
             var actualCell = beginCell;
             var lastCell = beginCell;
+            var length = -1;
 
-            finalPath.AddCell(actualCell, (int)direction);
+            finalPath.AddCell(beginCell, (int)direction);
 
-            const int MAX_LOOP = 100;
-            var time = 0;
+            bool blocked;
             do
             {
-                time++;
-                if(time > MAX_LOOP)
-                    return -1;
-
                 actualCell = Pathfinding.NextCell(map, actualCell, direction);
 
                 var mapCell = map.GetCell(actualCell);
-                if (mapCell == null)
-                {
-                    length = -2;
-                    break;
-                }
+                var io = mapCell?.InteractiveObject;
 
-                if (mapCell.InteractiveObject != null && (!mapCell.InteractiveObject.CanWalkThrough || (entity.Type == EntityTypeEnum.TYPE_CHARACTER && actualCell == finalCell && mapCell.InteractiveObject.IsActive)))
-                {
-                    length = -2;
-                    break;
-                }
+                blocked = mapCell == null || (io != null && (!io.CanWalkThrough || (isCharacter && actualCell == finalCell && io.IsActive))) || (!mapCell.Walkable && !map.IsAnimatedDoorOpen(actualCell)) || (isCharacter && map.HasAggroNear(character, lastCell));
 
-                if (!mapCell.Walkable && !map.IsAnimatedDoorOpen(actualCell))
+                if (!blocked)
                 {
-                    length = -2;
-                    break;
+                    length++;
+                    lastCell = actualCell;
+                    finalPath.MovementLength++;
                 }
+            }
+            while (!blocked && actualCell != endCell);
 
-                if (entity.Type == EntityTypeEnum.TYPE_CHARACTER && map.HasAggroNear((CharacterEntity)entity, lastCell))
-                {
-                    length = -2;
-                    break;
-                }
-
-                length++;
-                lastCell = actualCell;
-                finalPath.MovementLength++;
-            } while (actualCell != endCell);
+            if (blocked)
+                length = -2;
 
             finalPath.AddCell(lastCell, (int)direction);
 

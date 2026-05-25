@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using Game.Database.Structure;
 using Game.Entity;
 using Game.Spell;
@@ -85,6 +82,26 @@ namespace Game.Fight.Ending
         protected override long GetKamasWon(EndingArguments<MonsterEntity> arguments, AbstractFighter fighter)
         {
             return Util.CalculPVMKamas(arguments.KamasLoot, fighter.Prospection, arguments.DroppersTotalPP);
+        }
+
+        protected override long GetLoserExperienceWon(EndingArguments<MonsterEntity> arguments, CharacterEntity fighter)
+        {
+            if (arguments.Fight.WinnerTeam != arguments.Fight.Team1) return 0;
+            var monsterFight = arguments.Fight as MonsterFight;
+            var winnerMonsters = arguments.Fight.WinnerTeam.Fighters
+                .OfType<MonsterEntity>()
+                .Where(f => f.Invocator == null);
+            var loserFighters = arguments.Fight.LoserTeam.Fighters
+                .Where(f => f.Invocator == null);
+            var fullXp = Util.CalculPVMExperience(
+                winnerMonsters,
+                loserFighters,
+                fighter.Level,
+                fighter.Statistics.GetTotal(EffectEnum.AddWisdom),
+                1,
+                monsterFight?.MonsterGroup.AgeBonus ?? 0);
+
+            return (long)(fullXp * 0.1);
         }
     }
 }

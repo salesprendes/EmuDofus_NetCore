@@ -693,8 +693,8 @@ namespace Game.Stats
         /// <param name="character"></param>
         public GenericStats(CharacterDAO character)
         {
-            m_effects.Add(EffectEnum.AddAP, new GenericEffect(EffectEnum.AddAP, character.Ap));
-            m_effects.Add(EffectEnum.AddMP, new GenericEffect(EffectEnum.AddMP, character.Mp));
+            m_effects.Add(EffectEnum.AddAP, new GenericEffect(EffectEnum.AddAP, character.Level >= 100 ? 7 : 6));
+            m_effects.Add(EffectEnum.AddMP, new GenericEffect(EffectEnum.AddMP, 3));
             m_effects.Add(EffectEnum.AddProspection, new GenericEffect(EffectEnum.AddProspection, ((CharacterBreedEnum)character.Breed == CharacterBreedEnum.BREED_ENUTROF ? 120 : 100)));
             m_effects.Add(EffectEnum.AddPods, new GenericEffect(EffectEnum.AddPods, 1000));
             m_effects.Add(EffectEnum.AddInvocationMax, new GenericEffect(EffectEnum.AddInvocationMax, 1));
@@ -776,13 +776,15 @@ namespace Game.Stats
                 case EffectEnum.AddAPDodge:
                 case EffectEnum.AddMPDodge:
                     total += GetTotal(EffectEnum.AddWisdom) / 4;
-                    break;
+                break;
+
                 case EffectEnum.AddAP:
                     total += GetTotal(EffectEnum.AddAPBis);
-                    break;
+                break;
+
                 case EffectEnum.AddMP:
                     total += GetTotal(EffectEnum.MPBonus);
-                    break;
+                break;
             }
 
             if (OppositeStats.ContainsKey(effectType))            

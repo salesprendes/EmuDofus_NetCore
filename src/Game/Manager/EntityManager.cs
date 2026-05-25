@@ -9,9 +9,6 @@ using Game.Database.Repository;
 
 namespace Game.Manager
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class EntityManager : Singleton<EntityManager>
     {
         private readonly Dictionary<long, MerchantEntity> m_merchantById;
@@ -26,9 +23,6 @@ namespace Game.Manager
         private readonly Dictionary<long, TaxCollectorEntity> m_taxCollectorById;
         private readonly Dictionary<long, MountEntity> m_mountById;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public EntityManager()
         {
             m_merchantById = new Dictionary<long, MerchantEntity>();
@@ -45,9 +39,6 @@ namespace Game.Manager
             m_mountById = new Dictionary<long, MountEntity>();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void Initialize()
         {
             foreach(var character in CharacterRepository.Instance.All)
@@ -56,13 +47,7 @@ namespace Game.Manager
             foreach (var mount in MountRepository.Instance.All)
                 CreateMount(mount);
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="guild"></param>
-        /// <param name="taxCollectorDAO"></param>
-        /// <returns></returns>
+
         public TaxCollectorEntity CreateTaxCollector(GuildInstance guild, TaxCollectorDAO taxCollectorDAO)
         {
             var taxCollector = new TaxCollectorEntity(guild, taxCollectorDAO);
@@ -71,22 +56,12 @@ namespace Game.Manager
             m_taxCollectorById.Add(taxCollector.Id, taxCollector);
             return taxCollector;
         }
-       
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="taxCollector"></param>
+
         public void RemoveTaxCollector(TaxCollectorEntity taxCollector)
         {
             m_taxCollectorById.Remove(taxCollector.Id);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="account"></param>
-        /// <param name="characterDAO"></param>
-        /// <returns></returns>
         public CharacterEntity CreateCharacter(AccountTicket account, CharacterDAO characterDAO)
         {
             var merchant = GetMerchantByAccount(characterDAO.AccountId);
@@ -100,12 +75,7 @@ namespace Game.Manager
             m_characterByNickname.Add(account.Pseudo.ToLower(), character);        
             return character;
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="characterDAO"></param>
-        /// <returns></returns>
+
         public MerchantEntity CreateMerchant(CharacterDAO characterDAO)
         {
             var merchant = new MerchantEntity(characterDAO);
@@ -115,22 +85,13 @@ namespace Game.Manager
             return merchant;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="mountDAO"></param>
-        /// <returns></returns>
         public MountEntity CreateMount(MountDAO mountDAO)
         {
             var mount = new MountEntity(mountDAO);
             m_mountById.Add(mount.UniqueId, mount);
             return mount;
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
+
         public void CharacterDisconnected(CharacterEntity character)
         {
             if (character.PartyId != -1)
@@ -149,10 +110,6 @@ namespace Game.Manager
             });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="merchant"></param>
         public void RemoveMerchant(MerchantEntity merchant)
         {
             merchant.AddMessage(() =>
@@ -172,10 +129,6 @@ namespace Game.Manager
             });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
         public void RemoveCharacter(CharacterEntity character)
         {
             WorldService.Instance.AddMessage(() =>
@@ -187,11 +140,6 @@ namespace Game.Manager
                 });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
         public IEnumerable<CharacterEntity> OnlineCharacters => m_characterById.Values;
 
         public CharacterEntity GetCharacterById(long id)
@@ -201,11 +149,6 @@ namespace Game.Manager
             return null;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="accountId"></param>
-        /// <returns></returns>
         public CharacterEntity GetCharacterByAccount(long accountId)
         {
             if (m_characterByAccount.ContainsKey(accountId))
@@ -213,11 +156,6 @@ namespace Game.Manager
             return null;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="nickname"></param>
-        /// <returns></returns>
         public CharacterEntity GetCharacterByNickname(string nickname)
         {
             nickname = nickname.ToLower();
@@ -226,11 +164,6 @@ namespace Game.Manager
             return null;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
         public CharacterEntity GetCharacterByName(string name)
         {
             name = name.ToLower();
@@ -239,12 +172,6 @@ namespace Game.Manager
             return null;
         }
 
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
         public MerchantEntity GetMerchantById(long id)
         {
             if (m_merchantById.ContainsKey(id))
@@ -252,11 +179,6 @@ namespace Game.Manager
             return null;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="accountId"></param>
-        /// <returns></returns>
         public MerchantEntity GetMerchantByAccount(long accountId)
         {
             if (m_merchantByAccount.ContainsKey(accountId))
@@ -264,24 +186,14 @@ namespace Game.Manager
             return null;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
         public MerchantEntity GetMerchantByName(string name)
         {
             name = name.ToLower();
             if (m_merchantByName.ContainsKey(name))
                 return m_merchantByName[name];
             return null;
-        }    
+        }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
         public MountEntity GetMountById(long id)
         {
             if (m_mountById.ContainsKey(id))

@@ -73,6 +73,10 @@ namespace Game.Entity
         /// </summary>
         public event OnKick KickEvent;
 
+        private int m_pendingInteractiveSkillMapId = -1;
+        private int m_pendingInteractiveSkillCellId = -1;
+        private int m_pendingInteractiveSkillId = -1;
+
         /// <summary>
         /// 
         /// </summary>
@@ -155,6 +159,34 @@ namespace Game.Entity
             {
                 DatabaseRecord.CellId = value;
             }
+        }
+
+        public void QueuePendingInteractiveSkill(int mapId, int cellId, int skillId)
+        {
+            m_pendingInteractiveSkillMapId = mapId;
+            m_pendingInteractiveSkillCellId = cellId;
+            m_pendingInteractiveSkillId = skillId;
+        }
+
+        public bool TryGetPendingInteractiveSkill(int mapId, out int cellId, out int skillId)
+        {
+            if (m_pendingInteractiveSkillId == -1 || m_pendingInteractiveSkillMapId != mapId)
+            {
+                cellId = -1;
+                skillId = -1;
+                return false;
+            }
+
+            cellId = m_pendingInteractiveSkillCellId;
+            skillId = m_pendingInteractiveSkillId;
+            return true;
+        }
+
+        public void ClearPendingInteractiveSkill()
+        {
+            m_pendingInteractiveSkillMapId = -1;
+            m_pendingInteractiveSkillCellId = -1;
+            m_pendingInteractiveSkillId = -1;
         }
         
         /// <summary>
@@ -786,32 +818,6 @@ namespace Game.Entity
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public int AutomaticSkillId
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public int AutomaticSkillCellId
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public int AutomaticSkillMapId
-        {
-            get;
-            set;
-        }
 
         /// <summary>
         /// 
@@ -890,9 +896,6 @@ namespace Game.Entity
         {
             m_lastRegenTime = -1;
             m_lastEmoteId = -1;
-            AutomaticSkillId = -1;
-            AutomaticSkillCellId = -1;
-            AutomaticSkillMapId = -1;
 
             Away = false;
             DatabaseRecord = characterDAO;
@@ -991,6 +994,7 @@ namespace Game.Entity
                 SetEntityRestriction(EntityRestrictionEnum.RESTRICTION_FORCEWALK, true);
                 SetPlayerRestriction(PlayerRestrictionEnum.RESTRICTION_CANT_USE_IO, false);
                 SetPlayerRestriction(PlayerRestrictionEnum.RESTRICTION_CAN_MOVE_IN_ALL_DIRECTIONS, true);
+
                 SafeDispatch(WorldMessage.GAME_MESSAGE(GamePopupTypeEnum.TYPE_INSTANT, GameMessageEnum.MESSAGE_TRANSFORMED_TO_GHOST_NEED_PHEONIX));
             }
             SafeDispatch(WorldMessage.ACCOUNT_RESTRICTIONS(Restriction));
@@ -1101,25 +1105,14 @@ namespace Game.Entity
                 Dispatch(WorldMessage.GAME_MESSAGE(GamePopupTypeEnum.TYPE_INSTANT, GameMessageEnum.MESSAGE_ENERGY_LOW, Energy));
             }
         }
-               
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fight"></param>
-        /// <param name="team"></param>
+
         public override void JoinFight(AbstractFight fight, FightTeam team)
         {
             LifeBeforeFight = Life;
-            
             Dispatch(WorldMessage.INTERACTIVE_DATA_FRAME_FIGHT(Map.InteractiveObjects));
-
             base.JoinFight(fight, team);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fight"></param>
         public virtual void JoinSpectator(AbstractFight fight)
         {
             Fight = fight;
@@ -1204,6 +1197,7 @@ namespace Game.Entity
 
                     default:
                         CachedBuffer = true;
+                        var changedItems = new List<ItemDAO>();
                         var items = Inventory.Items.FindAll(item => item.IsBoostEquiped);
                         foreach (var item in items)
                         {
@@ -1212,15 +1206,26 @@ namespace Game.Entity
                                 var effect = item.Statistics.GetEffect(EffectEnum.AddBoost);
                                 effect.Value3--;
                                 item.SaveStats();
+                                changedItems.Add(item);
                                 if (effect.Value3 <= 0)
                                     Inventory.RemoveItem(item.Id);
                             }
                         }
-                        if (items.Count > 0)
+
+                        var etherealWeapon = Inventory.Items.Find(item => item.Slot == ItemSlotEnum.SLOT_WEAPON && item.IsEthereal && item.MaxDurability > 0 && item.Durability > 0);
+                        
+                        if (etherealWeapon != null)
                         {
-                            Dispatch(WorldMessage.OBJECT_CHANGE(items));
+                            etherealWeapon.DecreaseDurability();
+                            changedItems.Add(etherealWeapon);
+                        }
+
+                        if (changedItems.Count > 0)
+                        {
+                            Dispatch(WorldMessage.OBJECT_CHANGE(changedItems));
                             SendAccountStats();
                         }
+                        
                         CachedBuffer = false;
                         break;
                 }               
@@ -2007,7 +2012,6 @@ namespace Game.Entity
 
             if (Level == 100)
             {
-                DatabaseRecord.Ap += 1;
                 Statistics.AddBase(EffectEnum.AddAP, 1);
             }
 
@@ -2051,17 +2055,6 @@ namespace Game.Entity
             {
                 case GameActionTypeEnum.MAP_MOVEMENT:
                     StopEmote();
-                    if (AutomaticSkillId != -1 && HasGameAction(GameActionTypeEnum.MAP))
-                    {
-                        var movement = CurrentAction as GameMapMovementAction;
-                        movement.SkillId = AutomaticSkillId;
-                        movement.SkillCellId = AutomaticSkillCellId;
-                        movement.SkillMapId = AutomaticSkillMapId;
-
-                        AutomaticSkillId = -1;
-                        AutomaticSkillCellId = -1;
-                        AutomaticSkillMapId = -1;
-                    }
                     break;
 
                 case GameActionTypeEnum.MAP_TELEPORT:

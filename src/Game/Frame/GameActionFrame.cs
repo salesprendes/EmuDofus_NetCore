@@ -199,16 +199,34 @@ namespace Game.Frame
         private void GameSkillUse(CharacterEntity character, string message)
         {
             var skillData = message.Substring(5).Split(';');
-            var cellId = int.Parse(skillData[0]);
-            var skillId = int.Parse(skillData[1]);
+            if (skillData.Length < 2 || !int.TryParse(skillData[0], out var cellId) || !int.TryParse(skillData[1], out var skillId))
+            {
+                character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
 
-            character.Map.AddMessage(() => 
-                {
-                    if(!character.CharacterJobs.HasSkill(skillId))
+            character.Map.AddMessage(() =>
+            {
+                    // Reject if the character cannot perform interactive skill use right now
+                    // (e.g. in a fight, tombstoned, or carrying the CANT_USE_IO restriction).
+                    // This check must run inside the map message so CurrentAction is up-to-date.
+                    if (!character.CanGameAction(GameActionTypeEnum.SKILL_USE))
                     {
-                        // Phoenix no requiere skill de oficio - igual que la validación en InteractiveExecute
-                        var interactiveCell = character.Map.GetCell(cellId);
-                        if (interactiveCell == null || !(interactiveCell.InteractiveObject is Pheonix))
+                        character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                        return;
+                    }
+
+                    var interactiveCell = character.Map.GetCell(cellId);
+                    if (interactiveCell == null)
+                    {
+                        character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                        return;
+                    }
+
+                    if (!character.CharacterJobs.HasSkill(skillId))
+                    {
+                        // Some interactives provide their own skill without a job entry.
+                        if (interactiveCell.InteractiveObject == null || !interactiveCell.InteractiveObject.CanUseWithoutJobSkill(skillId))
                         {
                             Logger.Debug("GameActionFrame::SkillUse character dont have the skill : " + (SkillIdEnum)skillId);
                             character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
@@ -216,17 +234,23 @@ namespace Game.Frame
                         }
                     }
 
-                    var action = character.CurrentAction as GameMapMovementAction;
-                    if(action == null)
+                    if (character.CurrentAction is GameMapMovementAction action && !action.IsFinished)
                     {
+                        action.SkillCellId = cellId;
+                        action.SkillId = skillId;
+                        action.SkillMapId = character.MapId;
+                        return;
+                    }
+
+                    if (character.Map.IsInInteractiveSkillRange(character, character.CellId, cellId, skillId))
+                    {
+                        character.ClearPendingInteractiveSkill();
                         character.Map.InteractiveExecute(character, cellId, skillId);
                         return;
                     }
-                    
-                    action.SkillCellId = cellId;
-                    action.SkillId = skillId;
-                    action.SkillMapId = character.MapId;
-                });
+
+                    character.QueuePendingInteractiveSkill(character.MapId, cellId, skillId);
+            });
         }
 
         /// <summary>
@@ -648,23 +672,23 @@ namespace Game.Frame
             }
 
             character.AddMessage(() =>
+            {
+                var action = character.CurrentAction;
+                if (action == null)
                 {
-                    var action = character.CurrentAction;
-                    if (action == null)
-                    {
-                        character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
-                        return;
-                    }
-
-                    if ((int)action.Type != actionId)
-                    {
-                        Logger.Debug("GameActionFrame::GameActionFinish wrong action id : " + character.Name);
-                        character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
-                        return;
-                    }
-
-                    character.StopAction(action.Type);
-                });
+                    character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                    return;
+                }
+                
+                if ((int)action.Type != actionId)
+                {
+                    Logger.Debug("GameActionFrame::GameActionFinish wrong action id : " + character.Name);
+                    character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                    return;
+                }
+                
+                character.StopAction(action.Type);
+            });
         }
     }
 }

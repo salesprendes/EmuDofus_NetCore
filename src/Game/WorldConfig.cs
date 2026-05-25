@@ -8,9 +8,6 @@ using System.Collections.Generic;
 
 namespace Game
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public static class WorldConfig
     {
         public static int GetStartCell(CharacterBreedEnum breed)
@@ -117,6 +114,7 @@ namespace Game
 
         [Configurable()]
         public static int SPAWN_MAX_GROUP_PER_MAP = 3;
+
         [Configurable()]
         public static int SPAWN_CHECK_INTERVAL = 1 * 60 * 1000;
 
@@ -189,8 +187,10 @@ namespace Game
 
         [Configurable()]
         public static double RATE_XP = 5;
+
         [Configurable()]
         public static double RATE_DROP = 3;
+
         [Configurable()]
         public static double RATE_KAMAS = 2;
 

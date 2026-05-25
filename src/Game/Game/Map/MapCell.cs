@@ -2,6 +2,7 @@ using Game.Database.Structure;
 using Game.Entity;
 using Game.Interactive;
 using Game.Manager;
+using System;
 
 namespace Game.Map
 {
@@ -36,6 +37,7 @@ namespace Game.Map
                 int interactiveObjectId = ((data[0] & 2) << 12) + ((data[7] & 1) << 12) + (data[8] << 6) + data[9];
                 if (InteractiveObjectManager.Instance.Exists(interactiveObjectId))
                     InteractiveObject = InteractiveObjectManager.Instance.Generate(interactiveObjectId, map, Id);
+                    
 
                 Walkable = walkable && InteractiveObject != null && InteractiveObject.CanWalkThrough;
             }
