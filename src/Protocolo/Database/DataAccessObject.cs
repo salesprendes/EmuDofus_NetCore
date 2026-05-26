@@ -1,11 +1,5 @@
-﻿using Protocolo.Framework.Generic.Logging;
-using PropertyChanged;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
+using Protocolo.Framework.Generic.Logging;
 
 namespace Protocolo.Framework.Database
 {
@@ -14,7 +8,7 @@ namespace Protocolo.Framework.Database
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// 
-    public abstract class DataAccessObject<T> : INotifyPropertyChanged where T : DataAccessObject<T>, new()
+    public abstract class DataAccessObject<T> : ObservableObject where T : DataAccessObject<T>, new()
     {
         /// <summary>
         /// 
@@ -42,13 +36,7 @@ namespace Protocolo.Framework.Database
         /// <summary>
         /// 
         /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        /// <summary>
-        /// 
-        /// </summary>
         [Write(false)]
-        [DoNotNotify]
         public bool IsDirty
         {
             get;
@@ -59,7 +47,6 @@ namespace Protocolo.Framework.Database
         /// 
         /// </summary>
         [Write(false)]
-        [DoNotNotify]
         public bool IsNew
         {
             get;
@@ -70,7 +57,6 @@ namespace Protocolo.Framework.Database
         /// 
         /// </summary>
         [Write(false)]
-        [DoNotNotify]
         public bool IsDeleted
         {
             get;
@@ -92,21 +78,6 @@ namespace Protocolo.Framework.Database
         {
             IsDirty = false;
             IsNew = false;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="propertyName"></param>
-        private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, PropertyChangedEventArgs> s_argsCache
-            = new System.Collections.Concurrent.ConcurrentDictionary<string, PropertyChangedEventArgs>();
-
-        protected virtual void OnPropertyChanged(string propertyName = null)
-        {
-            var handler = PropertyChanged;
-            if (handler == null) return;
-            var args = s_argsCache.GetOrAdd(propertyName ?? string.Empty, name => new PropertyChangedEventArgs(name));
-            handler(this, args);
         }
 
         /// <summary>

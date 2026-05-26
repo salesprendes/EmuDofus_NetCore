@@ -452,7 +452,13 @@ namespace Game.Frame
         private void GameFightJoin(CharacterEntity character, string message)
         {
             var fightData = message.Substring(5).Split(';');
-            var fightId = int.Parse(fightData[0]);
+            int fightId = -1;
+            if (!int.TryParse(fightData[0], out fightId))
+            {
+                character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
             var fight = character.Map.FightManager.GetFight(fightId);
 
             if(fight == null)

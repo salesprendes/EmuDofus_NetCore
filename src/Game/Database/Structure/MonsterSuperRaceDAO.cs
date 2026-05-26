@@ -1,4 +1,4 @@
-﻿using Protocolo.Framework.Database;
+using Protocolo.Framework.Database;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,22 +13,26 @@ namespace Game.Database.Structure
     [Table("monstersuperrace")]
     public sealed class MonsterSuperRaceDAO : DataAccessObject<MonsterSuperRaceDAO>
     {
+        private int _id;
+        private string _name;
+
+
         /// <summary>
         /// 
         /// </summary>
         [Key]
         public int Id
         {
-            get;
-            set;
+            get => _id;
+            set => SetProperty(ref _id, value);
         }
         /// <summary>
         /// 
         /// </summary>
         public string Name
         {
-            get;
-            set;
+            get => _name;
+            set => SetProperty(ref _name, value);
         }
     }
 }

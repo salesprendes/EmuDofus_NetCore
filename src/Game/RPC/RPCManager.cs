@@ -151,10 +151,11 @@ namespace Game.RPC
                         Logger.Info("RPCManager authentification success.");
                         Send(new IdUpdateMessage(WorldConfig.GAME_ID));
                         Send(new StateUpdateMessage(GameStateEnum.ONLINE));
+
                         WorldService.Instance.AddMessage(() =>
-                            {
-                                Send(new AccountConnectedList(ClientManager.Instance.ConnectedAccounts));
-                            });
+                        {
+                            Send(new AccountConnectedList(ClientManager.Instance.ConnectedAccounts));
+                        });
                     }
                     else
                     {

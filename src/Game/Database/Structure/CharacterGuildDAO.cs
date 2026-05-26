@@ -1,6 +1,5 @@
-﻿using Protocolo.Framework.Database;
+using Protocolo.Framework.Database;
 using Game.Database.Repository;
-using PropertyChanged;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,17 +12,24 @@ namespace Game.Database.Structure
     /// 
     /// </summary>
     [Table("characterguild")]
-    [AddINotifyPropertyChangedInterface]
     public sealed class CharacterGuildDAO : DataAccessObject<CharacterGuildDAO>
     {
+        private long _id;
+        private long _guildId;
+        private int _rank;
+        private int _power;
+        private int _xpSharePercent;
+        private long _xpGiven;
+
+
         /// <summary>
         /// 
         /// </summary>
         [Key]
         public long Id
         {
-            get;
-            set;
+            get => _id;
+            set => SetProperty(ref _id, value);
         }
 
         /// <summary>
@@ -31,8 +37,8 @@ namespace Game.Database.Structure
         /// </summary>
         public long GuildId
         {
-            get;
-            set;
+            get => _guildId;
+            set => SetProperty(ref _guildId, value);
         }
 
         /// <summary>
@@ -40,8 +46,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int Rank
         {
-            get;
-            set;
+            get => _rank;
+            set => SetProperty(ref _rank, value);
         }
 
         /// <summary>
@@ -49,8 +55,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int Power
         {
-            get;
-            set;
+            get => _power;
+            set => SetProperty(ref _power, value);
         }
 
         /// <summary>
@@ -58,8 +64,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int XPSharePercent
         {
-            get;
-            set;
+            get => _xpSharePercent;
+            set => SetProperty(ref _xpSharePercent, value);
         }
 
         /// <summary>
@@ -67,8 +73,8 @@ namespace Game.Database.Structure
         /// </summary>
         public long XPGiven
         {
-            get;
-            set;
+            get => _xpGiven;
+            set => SetProperty(ref _xpGiven, value);
         }
     }
 }

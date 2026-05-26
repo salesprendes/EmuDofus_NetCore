@@ -1,6 +1,4 @@
 using Protocolo.Framework.Database;
-using PropertyChanged;
-
 namespace Game.Database.Structure
 {
     /// <summary>
@@ -8,27 +6,63 @@ namespace Game.Database.Structure
     /// Los items se almacenan como "templateId:quantity" separados por "|".
     /// Ejemplo: "12345:5|67890:1"
     /// </summary>
-    [AddINotifyPropertyChangedInterface]
     [Table("account_gift")]
     public class AccountGiftDAO : DataAccessObject<AccountGiftDAO>
     {
-        [Key]
-        public int Id { get; set; }
+        private int _id;
+        private long _accountId;
+        private int _giftType;
+        private string _title;
+        private string _description;
+        private string _gfxUrl;
+        private string _items;
 
-        public long AccountId { get; set; }
+
+        [Key]
+        public int Id
+        {
+            get => _id;
+            set => SetProperty(ref _id, value);
+        }
+
+        public long AccountId
+        {
+            get => _accountId;
+            set => SetProperty(ref _accountId, value);
+        }
 
         // Tipo de regalo (1 = items estandar)
-        public int GiftType { get; set; }
+        public int GiftType
+        {
+            get => _giftType;
+            set => SetProperty(ref _giftType, value);
+        }
 
         // Texto visible en la UI del cliente (URL-encoded)
-        public string Title { get; set; }
+        public string Title
+        {
+            get => _title;
+            set => SetProperty(ref _title, value);
+        }
 
-        public string Description { get; set; }
+        public string Description
+        {
+            get => _description;
+            set => SetProperty(ref _description, value);
+        }
 
         // URL de la imagen del regalo (URL-encoded)
-        public string GfxUrl { get; set; }
+        public string GfxUrl
+        {
+            get => _gfxUrl;
+            set => SetProperty(ref _gfxUrl, value);
+        }
 
         // Items en formato "templateId:quantity|templateId:quantity"
-        public string Items { get; set; }
+        public string Items
+        {
+            get => _items;
+            set => SetProperty(ref _items, value);
+        }
     }
 }

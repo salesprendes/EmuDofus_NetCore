@@ -1,27 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using Protocolo.Framework.Network;
-using Game.Entity;
-using Game.Spell;
-using Game.Manager;
-using Game.Stats;
-using Game.Database.Structure;
-using Game.Guild;
-using Game.Action;
-using Game.Network;
+﻿using Game.Action;
 using Game.Command;
+using Game.Database.Structure;
+using Game.Entity;
+using Game.Guild;
+using Game.Manager;
 using Game.Map;
+using Game.Network;
+using Game.Spell;
+using Game.Stats;
+using Protocolo.Framework.Network;
+using System;
+using System.Collections.Generic;
 
 namespace Game.Frame
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class BasicFrame : AbstractNetworkFrame<BasicFrame, CharacterEntity, string>
     {
-        /// <summary>
-        /// 
-        /// </summary>
         private readonly Dictionary<int, EffectEnum> m_statById = new Dictionary<int, EffectEnum>()
         {
             {10, EffectEnum.AddStrength},
@@ -32,11 +26,6 @@ namespace Game.Frame
             {15, EffectEnum.AddIntelligence},
         };
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
         public override Action<CharacterEntity, string> GetHandler(string message)
         {
             if (message.Length < 2)
@@ -454,10 +443,20 @@ namespace Game.Frame
         private void GuildCreationRequest(CharacterEntity character, string message)
         {       
             var guildData = message.Substring(2).Split('|');
-            var backId = int.Parse(guildData[0]);
-            var backColor = int.Parse(guildData[1]);
-            var symbolId = int.Parse(guildData[2]);
-            var symbolColor = int.Parse(guildData[3]);
+            if (guildData.Length < 5)
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
+            int backId = -1, backColor = -1, symbolId = -1, symbolColor = -1;
+            if (!int.TryParse(guildData[0], out backId) || !int.TryParse(guildData[1], out backColor) ||
+                !int.TryParse(guildData[2], out symbolId) || !int.TryParse(guildData[3], out symbolColor))
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
             var name = guildData[4];
 
             character.AddMessage(() =>
@@ -545,10 +544,20 @@ namespace Game.Frame
             }
 
             var messageData = message.Substring(2).Split('|');
-            var profilId = long.Parse(messageData[0]);
-            var rank = int.Parse(messageData[1]);
-            var xpSharePercent = int.Parse(messageData[2]);
-            var power = int.Parse(messageData[3]);
+            if (messageData.Length < 4)
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
+            long profilId = -1;
+            int rank = -1, xpSharePercent = -1, power = -1;
+            if (!long.TryParse(messageData[0], out profilId) || !int.TryParse(messageData[1], out rank) ||
+                !int.TryParse(messageData[2], out xpSharePercent) || !int.TryParse(messageData[3], out power))
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
 
             character.GuildMember.MemberProfilUpdate(profilId, rank, xpSharePercent, power);
         }

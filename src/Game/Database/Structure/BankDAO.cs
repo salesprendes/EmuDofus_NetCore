@@ -1,23 +1,24 @@
-﻿using Protocolo.Framework.Database;
-using PropertyChanged;
-
+using Protocolo.Framework.Database;
 namespace Game.Database.Structure
 {
     [Table("bank")]
-    [AddINotifyPropertyChangedInterface]
     public sealed class BankDAO : DataAccessObject<BankDAO>
     {
+        private long _id;
+        private long _kamas;
+
+
         [Key]
         public long Id
         {
-            get;
-            set;
+            get => _id;
+            set => SetProperty(ref _id, value);
         }
 
         public long Kamas
         {
-            get;
-            set;
+            get => _kamas;
+            set => SetProperty(ref _kamas, value);
         }
     }
 }

@@ -15,6 +15,7 @@ namespace Game.Fight.Ending
         public long DroppersTotalPP { get; }
         public List<ItemDAO> ItemLoot { get; }
         public long KamasLoot { get; } 
+        
         public EndingArguments(AbstractFight fight, List<AbstractFighter> droppers, List<T> losers, long droppersTotalPP, List<ItemDAO> itemLoot, long kamasLoot)
         {
             Fight = fight;

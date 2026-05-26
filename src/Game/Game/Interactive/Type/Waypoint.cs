@@ -1,15 +1,8 @@
-﻿using Game.Database.Repository;
-using Game.Database.Structure;
-using Game.Entity;
+﻿using Game.Entity;
 using Game.Job;
-using Game.Map;
 using Game.Manager;
+using Game.Map;
 using Game.Network;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.Interactive.Type
 {
@@ -41,8 +34,8 @@ namespace Game.Interactive.Type
                 character.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, InformationEnum.INFO_WAYPOINT_REGISTERED));
             }
 
-            switch(skill.Id)
-            { 
+            switch (skill.Id)
+            {
                 case SkillIdEnum.SKILL_SAUVEGARDER:
                     Save(character);
                     break;
@@ -52,7 +45,7 @@ namespace Game.Interactive.Type
                     break;
             }
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -69,7 +62,7 @@ namespace Game.Interactive.Type
         /// </summary>
         /// <param name="character"></param>
         public void Use(CharacterEntity character)
-        {            
+        {
             character.WaypointStart(this);
         }
     }

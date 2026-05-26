@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Protocolo.Framework.Network;
 using Game.Entity;
+using Game.Network;
 
 namespace Game.Frame
 {
@@ -38,7 +39,14 @@ namespace Game.Frame
 
         private void QuestsStepsRequest(CharacterEntity character, string message)
         {
-            var questId = int.Parse(message.Contains('|') ? message.Split('|')[0].Substring(2) : message.Substring(2));
+            var raw = message.Contains('|') ? message.Split('|')[0].Substring(2) : message.Substring(2);
+            int questId = -1;
+            if (!int.TryParse(raw, out questId))
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
             character.AddMessage(() => character.SendQuestsStepsList(questId));
         }
     }

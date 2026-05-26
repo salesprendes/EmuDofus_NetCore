@@ -90,7 +90,7 @@ namespace Game.Auction
         /// 
         /// </summary>
         private Dictionary<AuctionCategoryFloorEnum, List<AuctionEntry>> m_auctionsByFloor;
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -115,8 +115,12 @@ namespace Game.Auction
         public IEnumerable<AuctionEntry> All()
         {
             foreach (var entries in m_auctionsByFloor.Values)
+            {
                 foreach (var entry in entries)
+                {
                     yield return entry;
+                }
+            }
         }
 
         /// <summary>
@@ -127,8 +131,13 @@ namespace Game.Auction
         {
             AuctionEntry auction = null;
             foreach (var entries in m_auctionsByFloor.Values)
+            {
                 if (auction == null)
+                {
                     auction = entries.FirstOrDefault();
+                }
+            }
+
             return auction;
         }
 
@@ -140,7 +149,7 @@ namespace Game.Auction
         {
             return m_auctionsByFloor[floor].FirstOrDefault();
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -150,7 +159,9 @@ namespace Game.Auction
         {
             AuctionEntry auction = FirstOrDefault();
             if (auction == null)
+            {
                 throw new InvalidOperationException("AuctionCategory::IsValidForThisCategory empty category, should not happend.");
+            }
 
             return auction.Item.StringEffects == item.StringEffects;
         }
@@ -164,7 +175,9 @@ namespace Game.Auction
         {
             var auction = FirstOrDefault(floor);
             if (auction == null || auction.Price != price)
+            {
                 return AuctionBuyResultEnum.ALREADY_SOLD;
+            }
 
             character.Inventory.SubKamas(price);
             character.Inventory.AddItem(auction.Item);
@@ -193,7 +206,10 @@ namespace Game.Auction
         {
             var floor = GetFloorByQuantity(auction.Item.Quantity);
             if (floor == AuctionCategoryFloorEnum.INVALID)
+            {
                 throw new InvalidOperationException("AuctionCategory::Add invalid floor for quantity=" + auction.Item.Quantity);
+            }
+
             m_auctionsByFloor[floor].Add(auction);
             m_auctionsByFloor[floor].Sort();
         }
@@ -205,7 +221,7 @@ namespace Game.Auction
         /// <returns></returns>
         public AuctionCategoryFloorEnum GetFloorByQuantity(int quantity)
         {
-            switch(quantity)
+            switch (quantity)
             {
                 case 1: return AuctionCategoryFloorEnum.FLOOR_ONE;
                 case 10: return AuctionCategoryFloorEnum.FLOOR_TEN;
@@ -239,7 +255,10 @@ namespace Game.Auction
         {
             AuctionEntry entry = FirstOrDefault(floor);
             if (entry == null)
+            {
                 return "";
+            }
+
             return entry.Price.ToString();
         }
 
@@ -263,7 +282,7 @@ namespace Game.Auction
         /// <param name="message"></param>
         public void SerializeAs_CategoryMovement(OperatorEnum op, StringBuilder message)
         {
-            switch(op)
+            switch (op)
             {
                 case OperatorEnum.OPERATOR_ADD:
                 case OperatorEnum.OPERATOR_REFRESH:

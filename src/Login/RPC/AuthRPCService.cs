@@ -14,7 +14,7 @@ namespace Login.RPC
         public static int RPCServicePort = 4321;
 
         [Configurable("RPCPassword")]
-        public static string RPCPassword = "smarken";
+        public static string RPCPassword = "servidorDofus";
 
         public AuthRPCService()
         {

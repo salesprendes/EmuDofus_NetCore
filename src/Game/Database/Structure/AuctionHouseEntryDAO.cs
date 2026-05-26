@@ -1,6 +1,5 @@
-﻿using Protocolo.Framework.Database;
+using Protocolo.Framework.Database;
 using Game.Database.Repository;
-using PropertyChanged;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,17 +12,23 @@ namespace Game.Database.Structure
     /// 
     /// </summary>
     [Table("auctionhouseentry")]
-    [AddINotifyPropertyChangedInterface]
     public sealed class AuctionHouseEntryDAO : DataAccessObject<AuctionHouseEntryDAO>
     {
+        private long _itemId;
+        private int _auctionHouseId;
+        private long _ownerId;
+        private long _price;
+        private DateTime _expireDate;
+
+
         /// <summary>
         /// 
         /// </summary>
         [Key]
         public long ItemId
         {
-            get;
-            set;
+            get => _itemId;
+            set => SetProperty(ref _itemId, value);
         }
 
         /// <summary>
@@ -31,8 +36,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int AuctionHouseId
         {
-            get;
-            set;
+            get => _auctionHouseId;
+            set => SetProperty(ref _auctionHouseId, value);
         }
 
         /// <summary>
@@ -40,8 +45,8 @@ namespace Game.Database.Structure
         /// </summary>
         public long OwnerId
         {
-            get;
-            set;
+            get => _ownerId;
+            set => SetProperty(ref _ownerId, value);
         }
 
         /// <summary>
@@ -49,8 +54,8 @@ namespace Game.Database.Structure
         /// </summary>
         public long Price
         {
-            get;
-            set;
+            get => _price;
+            set => SetProperty(ref _price, value);
         }
 
         /// <summary>
@@ -58,8 +63,8 @@ namespace Game.Database.Structure
         /// </summary>
         public DateTime ExpireDate
         {
-            get;
-            set;
+            get => _expireDate;
+            set => SetProperty(ref _expireDate, value);
         }        
     }
 }

@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Game.Network;
 
 namespace Game.Map
 {
@@ -37,8 +33,10 @@ namespace Game.Map
         public static IEnumerable<int> GetLineCells(MapInstance map, int cellId, DirectionEnum direction, int length)
         {
             yield return cellId;
-            for (int i = 1; i < length + 1; i++)            
-                yield return Pathfinding.NextCell(map, cellId, direction, i);            
+            for (int i = 1; i < length + 1; i++)
+            {
+                yield return Pathfinding.NextCell(map, cellId, direction, i);
+            }
         }
 
         /// <summary>
@@ -55,9 +53,11 @@ namespace Game.Map
             {
                 var copy = cells.ToArray();
                 foreach (var cell in copy)
+                {
                     cells.AddRange(GetAdjacentCells(map, cell).Where(x => !cells.Contains(x)));
+                }
             }
-            return cells;           
+            return cells;
         }
 
         /// <summary>
@@ -70,8 +70,12 @@ namespace Game.Map
         public static IEnumerable<int> GetCrossCells(MapInstance map, int currentCell, int radius)
         {
             foreach (var cell in GetCircleCells(map, currentCell, radius))
+            {
                 if (Pathfinding.InLine(map, currentCell, cell))
+                {
                     yield return cell;
+                }
+            }
         }
 
         /// <summary>
@@ -87,9 +91,14 @@ namespace Game.Map
             var lineDirection = (DirectionEnum)(((int)direction + 2) % 8);
             yield return cellId;
             foreach (var cell in GetLineCells(map, cellId, lineDirection, length))
+            {
                 yield return cell;
-            foreach(var cell in (GetLineCells(map, cellId, Pathfinding.OppositeDirection(lineDirection), length)))
+            }
+
+            foreach (var cell in (GetLineCells(map, cellId, Pathfinding.OppositeDirection(lineDirection), length)))
+            {
                 yield return cell;
+            }
         }
 
         /// <summary>
@@ -108,36 +117,50 @@ namespace Game.Map
                     if (range[1] == '_')
                     {
                         foreach (var cell in map.Cells)
+                        {
                             yield return cell.Id;
+                        }
+
                         yield break;
                     }
                     else
                     {
                         foreach (var cell in GetCircleCells(map, cellId, Util.HASH.IndexOf(range[1])))
+                        {
                             yield return cell;
+                        }
                     }
                     break;
 
                 case 'X':
                     foreach (var cell in GetCrossCells(map, cellId, Util.HASH.IndexOf(range[1])))
+                    {
                         yield return cell;
+                    }
+
                     break;
 
                 case 'T':
                     foreach (var cell in GetTLineCells(map, cellId, Pathfinding.GetDirection(map, currentCell, cellId), Util.HASH.IndexOf(range[1])))
+                    {
                         yield return cell;
+                    }
+
                     break;
 
                 case 'L':
                     foreach (var cell in GetLineCells(map, cellId, Pathfinding.GetDirection(map, currentCell, cellId), Util.HASH.IndexOf(range[1])))
+                    {
                         yield return cell;
+                    }
+
                     break;
 
                 default:
                     yield return cellId;
                     break;
             }
-            
+
         }
     }
 }

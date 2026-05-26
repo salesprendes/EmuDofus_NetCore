@@ -84,8 +84,10 @@ namespace Game.Fight.Ending
                             foreach (var item in itemWon)
                             {
                                 var invocator = fighter.Invocator;
+
                                 while (fighter.Invocator != null)
                                     invocator = fighter.Invocator;
+
                                 invocator?.Inventory?.AddItem(item);
                                 invocator?.Inventory?.AddKamas(kamasWon);
                             }
@@ -100,6 +102,7 @@ namespace Game.Fight.Ending
                             taxCollector.Storage.AddItem(item);
                         break;
                 }
+
                 fight.Result.AddResult(fighter,
                     FightEndTypeEnum.END_WINNER,
                     false,
@@ -116,9 +119,7 @@ namespace Game.Fight.Ending
                 fighter.CachedBuffer = false;
             }
 
-            foreach (var loserCharacter in fight.LoserTeam.Fighters
-                .OfType<CharacterEntity>()
-                .Where(f => f.Invocator == null))
+            foreach (var loserCharacter in fight.LoserTeam.Fighters.OfType<CharacterEntity>().Where(f => f.Invocator == null))
             {
                 var xpWon = GetLoserExperienceWon(arguments, loserCharacter);
                 if (xpWon <= 0) continue;

@@ -1,6 +1,5 @@
-﻿using Protocolo.Framework.Database;
+using Protocolo.Framework.Database;
 using Game.Stats;
-using PropertyChanged;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,17 +11,69 @@ namespace Game.Database.Structure
     [Table("mounttemplate")]
     public sealed class MountTemplateDAO : DataAccessObject<MountTemplateDAO>
     {
+        private int _id;
+        private string _name;
+        private string _effects;
+        private int _defaultPods;
+        private int _podsPerLevel;
+        private int _defaultEnergy;
+        private int _energyPerLevel;
+        private int _maxMaturity;
+        private int _gestationTime;
+        private int _learningTime;
+
+
         [Key]
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string Effects { get; set; }
-        public int DefaultPods { get; set; }
-        public int PodsPerLevel { get; set; }
-        public int DefaultEnergy { get; set; }
-        public int EnergyPerLevel { get; set; }
-        public int MaxMaturity { get; set; }
-        public int GestationTime { get; set; }
-        public int LearningTime { get; set; }
+        public int Id
+        {
+            get => _id;
+            set => SetProperty(ref _id, value);
+        }
+        public string Name
+        {
+            get => _name;
+            set => SetProperty(ref _name, value);
+        }
+        public string Effects
+        {
+            get => _effects;
+            set => SetProperty(ref _effects, value);
+        }
+        public int DefaultPods
+        {
+            get => _defaultPods;
+            set => SetProperty(ref _defaultPods, value);
+        }
+        public int PodsPerLevel
+        {
+            get => _podsPerLevel;
+            set => SetProperty(ref _podsPerLevel, value);
+        }
+        public int DefaultEnergy
+        {
+            get => _defaultEnergy;
+            set => SetProperty(ref _defaultEnergy, value);
+        }
+        public int EnergyPerLevel
+        {
+            get => _energyPerLevel;
+            set => SetProperty(ref _energyPerLevel, value);
+        }
+        public int MaxMaturity
+        {
+            get => _maxMaturity;
+            set => SetProperty(ref _maxMaturity, value);
+        }
+        public int GestationTime
+        {
+            get => _gestationTime;
+            set => SetProperty(ref _gestationTime, value);
+        }
+        public int LearningTime
+        {
+            get => _learningTime;
+            set => SetProperty(ref _learningTime, value);
+        }
         
         /// <summary>
         /// 

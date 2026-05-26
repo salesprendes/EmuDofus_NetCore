@@ -103,6 +103,12 @@ namespace Game.Frame
                 }
             }
 
+            if (quantity <= 0)
+            {
+                character.SafeDispatch(WorldMessage.OBJECT_MOVE_ERROR());
+                return;
+            }
+
             if(!Enum.IsDefined(typeof(ItemSlotEnum), slotId))
             {
                 character.SafeDispatch(WorldMessage.OBJECT_MOVE_ERROR());
@@ -257,6 +263,12 @@ namespace Game.Frame
                     character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
+            }
+
+            if (quantity <= 0)
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
             }
 
             character.AddMessage(() =>

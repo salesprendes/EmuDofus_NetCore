@@ -4,9 +4,6 @@ using System.Text;
 
 namespace Game.Command
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class HelpCommand : Command<WorldCommandContext>
     {
         private static readonly string[] m_aliases = { "help", "h" };

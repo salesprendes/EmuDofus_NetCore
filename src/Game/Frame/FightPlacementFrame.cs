@@ -36,6 +36,14 @@ namespace Game.Frame
 
                         case 'Q':
                             return FightQuit;
+
+                        case 'P':
+                            if (message.Length < 3)
+                                return null;
+                            return FightPVPToggle;
+
+                        case 'f':
+                            return FightSetFlag;
                     }
                     break;
 
@@ -124,7 +132,7 @@ namespace Game.Frame
                     }
 
                     int cellId = -1;
-                    if (!int.TryParse(message.Substring(2), out cellId))
+                    if (!int.TryParse(message.Substring(2), out cellId) || cellId < 0)
                     {
                         Logger.Debug("GameFightPlacement::Placement unable to parse cell id : " + character.Name);
                         character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
@@ -188,6 +196,46 @@ namespace Game.Frame
                 var selectedCharacter = selectedFighter as CharacterEntity;
 
                 character.Fight.AddMessage(() => character.Fight.FightQuit(selectedCharacter, true));
+            });
+        }
+
+        private void FightPVPToggle(CharacterEntity character, string message)
+        {
+            switch (message[2])
+            {
+                case '*':
+                    character.SafeDispatch(WorldMessage.ALIGNMENT_DISABLE_COST((character.Honour / 100) * 5));
+                    return;
+                case '+':
+                    character.AddMessage(() => character.EnableAlignment());
+                    return;
+                case '-':
+                    character.AddMessage(() => character.DisableAlignment());
+                    return;
+            }
+
+            character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+        }
+
+        private void FightSetFlag(CharacterEntity character, string message)
+        {
+            int cellId = -1;
+            if (message.Length < 3 || !int.TryParse(message.Substring(2), out cellId) || cellId < 0)
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
+            character.AddMessage(() =>
+            {
+                if (!character.HasGameAction(GameActionTypeEnum.FIGHT))
+                {
+                    character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                    return;
+                }
+
+                character.Fight.AddMessage(() =>
+                    character.Fight.Dispatch(WorldMessage.FIGHT_CELL_FLAG(cellId, character.Id)));
             });
         }
     }

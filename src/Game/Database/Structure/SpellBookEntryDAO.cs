@@ -1,26 +1,30 @@
-﻿using Protocolo.Framework.Database;
+using Protocolo.Framework.Database;
 using Game.Database.Repository;
 using Game.Spell;
 using Game.Manager;
-using PropertyChanged;
-
 namespace Game.Database.Structure
 {
     /// <summary>
     /// 
     /// </summary>
     [Table("spellbookentry")]
-    [AddINotifyPropertyChangedInterface]
     public sealed class SpellBookEntryDAO : DataAccessObject<SpellBookEntryDAO>
     {
+        private int _ownerType;
+        private long _ownerId;
+        private int _spellId;
+        private int _level;
+        private int _position;
+
+
         /// <summary>
         /// 
         /// </summary>
         [Key]
         public int OwnerType
         {
-            get;
-            set;
+            get => _ownerType;
+            set => SetProperty(ref _ownerType, value);
         }
         /// <summary>
         /// 
@@ -28,8 +32,8 @@ namespace Game.Database.Structure
         [Key]
         public long OwnerId
         {
-            get;
-            set;
+            get => _ownerId;
+            set => SetProperty(ref _ownerId, value);
         }
         /// <summary>
         /// 
@@ -37,24 +41,24 @@ namespace Game.Database.Structure
         [Key]
         public int SpellId
         {
-            get;
-            set;
+            get => _spellId;
+            set => SetProperty(ref _spellId, value);
         }
         /// <summary>
         /// 
         /// </summary>
         public int Level
         {
-            get;
-            set;
+            get => _level;
+            set => SetProperty(ref _level, value);
         }
         /// <summary>
         /// 
         /// </summary>
         public int Position
         {
-            get;
-            set;
+            get => _position;
+            set => SetProperty(ref _position, value);
         }
 
         private SpellTemplate m_template;
@@ -64,7 +68,6 @@ namespace Game.Database.Structure
         /// 
         /// </summary>
         [Write(false)]
-        [DoNotNotify]
         public SpellTemplate Template
         {
             get
@@ -79,7 +82,6 @@ namespace Game.Database.Structure
         /// 
         /// </summary>
         [Write(false)]
-        [DoNotNotify]
         public SpellLevel SpellLevel
         {
             get

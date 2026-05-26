@@ -1,8 +1,7 @@
-﻿using Protocolo.Framework.Database;
+using Protocolo.Framework.Database;
 using Game.ActionEffect;
 using Game.Fight;
 using Game.Spell;
-using PropertyChanged;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,11 +16,19 @@ namespace Game.Database.Structure
     [Table("fightaction")]
     public sealed class FightActionDAO : DataAccessObject<FightActionDAO>
     {
+        private int _zoneType;
+        private int _zoneId;
+        private int _fightType;
+        private int _fightState;
+        private string _conditions;
+        private string _actions;
+
+
         [Key]
         public int ZoneType
         {
-            get;
-            set;
+            get => _zoneType;
+            set => SetProperty(ref _zoneType, value);
         }
 
         [Write(false)]
@@ -30,15 +37,15 @@ namespace Game.Database.Structure
         [Key]
         public int ZoneId
         {
-            get;
-            set;
+            get => _zoneId;
+            set => SetProperty(ref _zoneId, value);
         }
 
         [Key]
         public int FightType
         {
-            get;
-            set;
+            get => _fightType;
+            set => SetProperty(ref _fightType, value);
         }
 
         [Write(false)]
@@ -47,8 +54,8 @@ namespace Game.Database.Structure
         [Key]
         public int FightState
         {
-            get;
-            set;
+            get => _fightState;
+            set => SetProperty(ref _fightState, value);
         }
 
         [Write(false)]
@@ -56,14 +63,14 @@ namespace Game.Database.Structure
 
         public string Conditions
         {
-            get;
-            set;
+            get => _conditions;
+            set => SetProperty(ref _conditions, value);
         }
 
         public string Actions
         {
-            get;
-            set;
+            get => _actions;
+            set => SetProperty(ref _actions, value);
         }
 
         /// <summary>

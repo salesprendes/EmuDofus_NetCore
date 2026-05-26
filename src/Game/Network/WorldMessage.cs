@@ -394,32 +394,9 @@ namespace Game.Network
             return "AAEs";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public static string CHARACTER_DELETION_ERROR()
-        {
-            return "ADE";
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public static string CHARACTER_SELECTION_ERROR()
-        {
-            return "ASE";
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public static string BASIC_TIME()
-        {
-            return "BT" + Math.Round(DateTime.Now.Subtract(WorldConfig.REFERENCE_DATE).TotalMilliseconds);
-        }
+        public static string CHARACTER_DELETION_ERROR() => "ADE";
+        public static string CHARACTER_SELECTION_ERROR() => "ASE";
+        public static string BASIC_TIME() => "BT" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
         /// <summary>
         /// 
@@ -480,12 +457,6 @@ namespace Game.Network
             return message.ToString();
         }
 
-
-        /// <summary>
-        /// Envia un regalo pendiente al cliente para que elija en que personaje recibirlo.
-        /// Formato: Ag[type]|[id]|[title]|[desc]|[gfxurl]|[items]
-        /// Items: ;0~templateId_hex~qty_hex~~ por cada item (el cliente omite el indice 0).
-        /// </summary>
         public static string GIFT_LIST(Database.Structure.AccountGiftDAO gift)
         {
             var items = new StringBuilder();
@@ -504,14 +475,7 @@ namespace Game.Network
                 }
             }
 
-            return new StringBuilder("Ag")
-                .Append(gift.GiftType).Append('|')
-                .Append(gift.Id).Append('|')
-                .Append(Uri.EscapeDataString(gift.Title ?? string.Empty)).Append('|')
-                .Append(Uri.EscapeDataString(gift.Description ?? string.Empty)).Append('|')
-                .Append(Uri.EscapeDataString(gift.GfxUrl ?? string.Empty)).Append('|')
-                .Append(items)
-                .ToString();
+            return new StringBuilder("Ag").Append(gift.GiftType).Append('|').Append(gift.Id).Append('|').Append(Uri.EscapeDataString(gift.Title ?? string.Empty)).Append('|').Append(Uri.EscapeDataString(gift.Description ?? string.Empty)).Append('|').Append(Uri.EscapeDataString(gift.GfxUrl ?? string.Empty)).Append('|').Append(items).ToString();
         }
 
         /// <summary>
@@ -2976,8 +2940,6 @@ namespace Game.Network
             message.Append(",,,"); //TODO: dialogParams
             return message.ToString();
         }
-
-        // ===== CONQUEST / PRISM MESSAGES =====
 
         public static string SUBAREA_ALIGNMENT_CHANGED(int subAreaId, int alignmentId, bool silent)
         {

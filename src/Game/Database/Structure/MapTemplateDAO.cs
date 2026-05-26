@@ -1,11 +1,9 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using Protocolo.Framework.Database;
 using Game;
 using Game.Network;
-using PropertyChanged;
-
 namespace Game.Database.Structure
 {
     /// <summary>
@@ -14,14 +12,27 @@ namespace Game.Database.Structure
     [Table("maptemplate")]
     public sealed class MapTemplateDAO : DataAccessObject<MapTemplateDAO>
     {
+        private int _id;
+        private int _subAreaId;
+        private int _x;
+        private int _y;
+        private int _width;
+        private int _height;
+        private string _data;
+        private string _dataKey;
+        private string _createTime;
+        private string _places;
+        private int _capabilities;
+
+
         /// <summary>
         /// 
         /// </summary>
         [Key]
         public int Id
         {
-            get;
-            set;
+            get => _id;
+            set => SetProperty(ref _id, value);
         }
 
         /// <summary>
@@ -29,8 +40,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int SubAreaId
         {
-            get;
-            set;
+            get => _subAreaId;
+            set => SetProperty(ref _subAreaId, value);
         }
 
         /// <summary>
@@ -38,8 +49,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int X
         {
-            get;
-            set;
+            get => _x;
+            set => SetProperty(ref _x, value);
         }
 
         /// <summary>
@@ -47,8 +58,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int Y
         {
-            get;
-            set;
+            get => _y;
+            set => SetProperty(ref _y, value);
         }
 
         /// <summary>
@@ -56,8 +67,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int Width
         {
-            get;
-            set;
+            get => _width;
+            set => SetProperty(ref _width, value);
         }
 
         /// <summary>
@@ -65,8 +76,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int Height
         {
-            get;
-            set;
+            get => _height;
+            set => SetProperty(ref _height, value);
         }
 
         /// <summary>
@@ -74,8 +85,8 @@ namespace Game.Database.Structure
         /// </summary>
         public string Data
         {
-            get;
-            set;
+            get => _data;
+            set => SetProperty(ref _data, value);
         }
 
         /// <summary>
@@ -83,8 +94,8 @@ namespace Game.Database.Structure
         /// </summary>
         public string DataKey
         {
-            get;
-            set;
+            get => _dataKey;
+            set => SetProperty(ref _dataKey, value);
         }
 
         /// <summary>
@@ -92,8 +103,8 @@ namespace Game.Database.Structure
         /// </summary>
         public string CreateTime
         {
-            get;
-            set;
+            get => _createTime;
+            set => SetProperty(ref _createTime, value);
         }
 
         /// <summary>
@@ -101,8 +112,8 @@ namespace Game.Database.Structure
         /// </summary>
         public string Places
         {
-            get;
-            set;
+            get => _places;
+            set => SetProperty(ref _places, value);
         }
 
         /// <summary>
@@ -110,14 +121,13 @@ namespace Game.Database.Structure
         /// </summary>
         public int Capabilities
         {
-            get;
-            set;
+            get => _capabilities;
+            set => SetProperty(ref _capabilities, value);
         }
 
         private List<int> m_fightTeam0Cells, m_fightTeam1Cells;
 
         [Write(false)]
-        [DoNotNotify]
         public List<int> FightTeam0Cells
         {
             get
@@ -138,7 +148,6 @@ namespace Game.Database.Structure
         }
 
         [Write(false)]
-        [DoNotNotify]
         public List<int> FightTeam1Cells
         {
             get

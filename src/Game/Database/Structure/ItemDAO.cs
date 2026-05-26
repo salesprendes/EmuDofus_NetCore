@@ -1,9 +1,8 @@
-﻿using System.Text;
+using System.Text;
 using Protocolo.Framework.Database;
 using System;
 using Game.Database.Repository;
 using Game.Stats;
-using PropertyChanged;
 using Game.Spell;
 using Game.Entity;
 using Game.Condition;
@@ -14,17 +13,26 @@ namespace Game.Database.Structure
     /// 
     /// </summary>
     [Table("inventoryitem")]
-    [AddINotifyPropertyChangedInterface]
     public sealed class ItemDAO : DataAccessObject<ItemDAO>
     {
+        private long _id;
+        private int _ownerType;
+        private long _ownerId;
+        private int _templateId;
+        private int _slotId;
+        private int _quantity;
+        private string _stringEffects;
+        private long _merchantPrice;
+
+
         /// <summary>
         /// 
         /// </summary>
         [Key]
         public long Id
         {
-            get;
-            set;
+            get => _id;
+            set => SetProperty(ref _id, value);
         }
 
         /// <summary>
@@ -32,8 +40,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int OwnerType
         {
-            get;
-            set;
+            get => _ownerType;
+            set => SetProperty(ref _ownerType, value);
         }
 
         /// <summary>
@@ -41,8 +49,8 @@ namespace Game.Database.Structure
         /// </summary>
         public long OwnerId
         {
-            get;
-            set;
+            get => _ownerId;
+            set => SetProperty(ref _ownerId, value);
         }
 
         /// <summary>
@@ -50,8 +58,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int TemplateId
         {
-            get;
-            set;
+            get => _templateId;
+            set => SetProperty(ref _templateId, value);
         }
 
         /// <summary>
@@ -59,8 +67,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int SlotId
         {
-            get;
-            set;
+            get => _slotId;
+            set => SetProperty(ref _slotId, value);
         }
         
         /// <summary>
@@ -68,14 +76,14 @@ namespace Game.Database.Structure
         /// </summary>
         public int Quantity
         {
-            get;
-            set;
+            get => _quantity;
+            set => SetProperty(ref _quantity, value);
         }
 
         public string StringEffects
         {
-            get;
-            set;
+            get => _stringEffects;
+            set => SetProperty(ref _stringEffects, value);
         }
 
         /// <summary>
@@ -83,8 +91,8 @@ namespace Game.Database.Structure
         /// </summary>
         public long MerchantPrice
         {
-            get;
-            set;
+            get => _merchantPrice;
+            set => SetProperty(ref _merchantPrice, value);
         }
               
         /// <summary>
@@ -96,7 +104,6 @@ namespace Game.Database.Structure
         /// 
         /// </summary>
         [Write(false)]
-        [DoNotNotify]
         public ItemTemplateDAO Template
         {
             get
@@ -111,7 +118,6 @@ namespace Game.Database.Structure
         private GenericStats m_statistics;
 
         [Write(false)]
-        [DoNotNotify]
         public GenericStats Statistics
         {
             get
@@ -134,7 +140,6 @@ namespace Game.Database.Structure
         /// </summary>
         /// <returns></returns>
         [Write(false)]
-        [DoNotNotify]
         public ItemSlotEnum Slot => (ItemSlotEnum)SlotId;
 
         /// <summary>
@@ -142,7 +147,6 @@ namespace Game.Database.Structure
         /// </summary>
         /// <returns></returns>        
         [Write(false)]
-        [DoNotNotify]
         public bool IsEquiped => IsEquipedSlot(Slot);
 
         /// <summary>
@@ -150,41 +154,13 @@ namespace Game.Database.Structure
         /// </summary>
         /// <returns></returns>        
         [Write(false)]
-        [DoNotNotify]
         public bool IsBoostEquiped => IsBoostSlot(Slot);
 
         [Write(false)]
-        [DoNotNotify]
         public bool IsEthereal => Template?.Ethereal ?? false;
-
-        private static bool NormalizeEtherealDurabilityStats(GenericStats stats)
-        {
-            if (stats == null || !stats.HasEffect(EffectEnum.EtherealResist))
-                return false;
-
-            var effect = stats.GetEffect(EffectEnum.EtherealResist);
-            if (effect.Value2 > 0 && effect.Value3 > 0)
-                return false;
-
-            var durability = Math.Max(effect.Value2, effect.Value3);
-            if (durability <= 0)
-                durability = effect.Value1;
-
-            if (durability <= 0)
-                return false;
-
-            if (effect.Value2 <= 0)
-                effect.Value2 = durability;
-            if (effect.Value3 <= 0)
-                effect.Value3 = durability;
-
-            stats.StatisticsChanged();
-            return true;
-        }
 
         // Returns current durability charges, or -1 if the weapon has no durability effect.
         [Write(false)]
-        [DoNotNotify]
         public int Durability
         {
             get
@@ -197,7 +173,6 @@ namespace Game.Database.Structure
 
         // Returns maximum durability charges, or -1 if the weapon has no durability effect.
         [Write(false)]
-        [DoNotNotify]
         public int MaxDurability
         {
             get

@@ -1,32 +1,23 @@
-﻿using System;
-using Protocolo.Framework.Network;
+﻿using Game.Database.Repository;
 using Game.Database.Structure;
-using Game;
-using Game.Database.Repository;
 using Game.Entity;
 using Game.Manager;
-using System.Collections.Generic;
 using Game.Network;
 using Game.RPC;
-using Protocolo.Framework.Database;
+using Protocolo.Framework.Network;
+using System;
 using System.Linq;
 
 namespace Game.Frame
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class CharacterSelectionFrame : AbstractNetworkFrame<CharacterSelectionFrame, WorldClient, string>
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
         public override Action<WorldClient, string> GetHandler(string message)
         {
             if (message.Length < 2)
+            {
                 return null;
+            }
 
             switch (message[0])
             {
@@ -68,29 +59,19 @@ namespace Game.Frame
             }
         }
 
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="client"></param>
-        /// <param name="message"></param>
         private void HandleRegionalVersion(WorldClient client, string message)
         {
             client.Send(WorldMessage.ACCOUNT_REGIONAL_VERSION());
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="client"></param>
-        /// <param name="message"></param>
         private void HandleCharacterList(WorldClient client, string message)
         {
             WorldService.Instance.AddMessage(() =>
                 {
                     if (client.Characters == null)
+                    {
                         client.Characters = CharacterRepository.Instance.GetByAccount(client.Account.Id);
+                    }
 
                     foreach (var character in client.Characters)
                     {
@@ -110,14 +91,11 @@ namespace Game.Frame
         {
             var gifts = AccountGiftRepository.Instance.GetByAccountId(client.Account.Id);
             foreach (var gift in gifts)
+            {
                 client.Send(WorldMessage.GIFT_LIST(gift));
+            }
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="client"></param>
-        /// <param name="character"></param>
+
         public void HandleCharacterReconnect(WorldClient client, CharacterEntity character)
         {
             client.CurrentCharacter = character;
@@ -131,11 +109,6 @@ namespace Game.Frame
             });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="client"></param>
-        /// <param name="message"></param>
         private void HandleCharacterCreate(WorldClient client, string message)
         {
             if (client.Characters == null)
@@ -202,7 +175,7 @@ namespace Game.Frame
             }
 
             WorldService.Instance.AddMessage(() =>
-                {     
+                {
                     var character = new CharacterDAO()
                     {
                         Id = CharacterRepository.Instance.NextCharacterId,
@@ -312,7 +285,13 @@ namespace Game.Frame
             }
 
             var deletionData = message.Substring(2).Split('|');
-            var characterId = long.Parse(deletionData[0]);
+            long characterId = -1;
+            if (!long.TryParse(deletionData[0], out characterId))
+            {
+                client.Send(WorldMessage.CHARACTER_DELETION_ERROR());
+                return;
+            }
+
             var character = client.Characters.Find(entry => entry.Id == characterId);
 
             if (character == null)
@@ -340,7 +319,7 @@ namespace Game.Frame
                 return;
             }
 
-            if(character.Guild.GuildId != -1)
+            if (character.Guild.GuildId != -1)
             {
                 var guild = GuildManager.Instance.GetGuild(character.Guild.GuildId);
                 guild.MemberKick(GuildManager.Instance.GetMember(character.Guild.GuildId, character.Id), character.Name);
@@ -350,7 +329,9 @@ namespace Game.Frame
             InventoryItemRepository.Instance.EntityRemoved((int)EntityTypeEnum.TYPE_MERCHANT, character.Id);
             CharacterGuildRepository.Instance.ImplicitDeletion(character.Guild);
             foreach (var job in CharacterJobRepository.Instance.GetByCharacterId(character.Id))
+            {
                 CharacterJobRepository.Instance.ImplicitDeletion(job);
+            }
 
             client.Characters.Remove(character);
 
@@ -381,7 +362,13 @@ namespace Game.Frame
                 return;
             }
 
-            var characterId = long.Parse(message.Substring(2));
+            long characterId = -1;
+            if (!long.TryParse(message.Substring(2), out characterId))
+            {
+                client.Send(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
             var character = client.Characters.Find(entry => entry.Id == characterId);
 
             // unknow id
@@ -435,12 +422,12 @@ namespace Game.Frame
             character.SavedMapId = character.MapId;
             character.SavedCellId = character.CellId;
             character.Kamas = 0;
-            
+
             WorldService.Instance.AddMessage(() =>
             {
                 SpellBookEntryRepository.Instance.RemoveAll((int)EntityTypeEnum.TYPE_CHARACTER, character.Id);
                 SpellBookEntryRepository.Instance.GenerateForBreed(character.Id, (CharacterBreedEnum)character.Breed);
-                
+
                 client.Send(WorldMessage.CHARACTER_LIST(client.Characters));
             });
         }
@@ -457,7 +444,13 @@ namespace Game.Frame
                 return;
             }
 
-            var characterId = long.Parse(message.Substring(2));
+            long characterId = -1;
+            if (!long.TryParse(message.Substring(2), out characterId))
+            {
+                client.Send(WorldMessage.CHARACTER_SELECTION_ERROR());
+                return;
+            }
+
             var character = client.Characters.Find(entry => entry.Id == characterId);
 
             // unknow id
@@ -547,7 +540,9 @@ namespace Game.Frame
                 }
 
                 if (client.Characters == null)
+                {
                     client.Characters = CharacterRepository.Instance.GetByAccount(client.Account.Id);
+                }
 
                 var target = client.Characters.FirstOrDefault(c => c.Id == characterId);
                 if (target == null)
@@ -565,18 +560,29 @@ namespace Game.Frame
         private void AddGiftItemsToCharacter(AccountGiftDAO gift, CharacterDAO character)
         {
             if (string.IsNullOrEmpty(gift.Items))
+            {
                 return;
+            }
 
             foreach (var entry in gift.Items.Split('|'))
             {
                 var parts = entry.Split(':');
-                if (parts.Length != 2) continue;
+                if (parts.Length != 2)
+                {
+                    continue;
+                }
 
                 int templateId, quantity;
-                if (!int.TryParse(parts[0], out templateId) || !int.TryParse(parts[1], out quantity)) continue;
+                if (!int.TryParse(parts[0], out templateId) || !int.TryParse(parts[1], out quantity))
+                {
+                    continue;
+                }
 
                 var template = ItemTemplateRepository.Instance.GetById(templateId);
-                if (template == null) continue;
+                if (template == null)
+                {
+                    continue;
+                }
 
                 InventoryItemRepository.Instance.Create(templateId, character.Id, (int)EntityTypeEnum.TYPE_CHARACTER, quantity, template.GenerateStats(false));
             }
@@ -592,13 +598,19 @@ namespace Game.Frame
             client.CurrentCharacter.Dispatch(WorldMessage.BASIC_TIME());
             client.CurrentCharacter.Dispatch(WorldMessage.AREAS_LIST());
             if (client.CurrentCharacter.AlignmentEnabled)
+            {
                 client.CurrentCharacter.Dispatch(WorldMessage.SPECIALISATION_SET(client.CurrentCharacter.AlignmentId));
+            }
+
             client.CurrentCharacter.Dispatch(WorldMessage.EMOTES_LIST(client.CurrentCharacter.EmoteCapacity));
             client.CurrentCharacter.Dispatch(WorldMessage.CHAT_ENABLED_CHANNELS());
             client.CurrentCharacter.Dispatch(WorldMessage.ACCOUNT_RESTRICTIONS(client.CurrentCharacter.Restriction));
             client.CurrentCharacter.Dispatch(WorldMessage.INVENTORY_WEIGHT(0, 2000));
             if (client.CurrentCharacter.GuildMember != null)
+            {
                 client.CurrentCharacter.Dispatch(WorldMessage.GUILD_STATS(client.CurrentCharacter.GuildMember.Guild, client.CurrentCharacter.GuildMember.Power));
+            }
+
             client.CurrentCharacter.Dispatch(WorldMessage.JOB_SKILL(client.CurrentCharacter.CharacterJobs));
             client.CurrentCharacter.Dispatch(WorldMessage.JOB_XP(client.CurrentCharacter.CharacterJobs.Jobs));
             client.CurrentCharacter.Dispatch(WorldMessage.FRIENDS_LIST_ON_CONNECT(client.CurrentCharacter, client.CurrentCharacter.Friends));
@@ -607,7 +619,12 @@ namespace Game.Frame
             client.CurrentCharacter.SendMountXpShare();
             client.CurrentCharacter.Inventory.SendSets();
             client.CurrentCharacter.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_SERVER_WELCOME));
-            client.CurrentCharacter.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_SERVER_BETA));
+
+            if (WorldConfig.LOG_DEBUG)
+            {
+                client.CurrentCharacter.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_SERVER_BETA));
+            }
+
             client.CurrentCharacter.Dispatch(WorldMessage.INFORMATION_MESSAGE
                 (
                     InformationTypeEnum.INFO,

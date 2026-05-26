@@ -1,7 +1,5 @@
-﻿using Protocolo.Framework.Database;
+using Protocolo.Framework.Database;
 using Game.Database.Repository;
-using PropertyChanged;
-
 namespace Game.Database.Structure
 {
     /// <summary>
@@ -10,36 +8,44 @@ namespace Game.Database.Structure
     [Table("npcinstance")]
     public sealed class NpcInstanceDAO : DataAccessObject<NpcInstanceDAO>
     {
+        private int _id;
+        private int _mapId;
+        private int _templateId;
+        private int _cellId;
+        private int _orientation;
+        private int _questionId;
+
+
         [Key]
         public int Id
         {
-            get;
-            set;
+            get => _id;
+            set => SetProperty(ref _id, value);
         }
         public int MapId
         {
-            get;
-            set;
+            get => _mapId;
+            set => SetProperty(ref _mapId, value);
         }
         public int TemplateId
         {
-            get;
-            set;
+            get => _templateId;
+            set => SetProperty(ref _templateId, value);
         }
         public int CellId
         {
-            get;
-            set;
+            get => _cellId;
+            set => SetProperty(ref _cellId, value);
         }
         public int Orientation
         {
-            get;
-            set;
+            get => _orientation;
+            set => SetProperty(ref _orientation, value);
         }
         public int QuestionId
         {
-            get;
-            set;
+            get => _questionId;
+            set => SetProperty(ref _questionId, value);
         }
 
         /// <summary>
@@ -51,7 +57,6 @@ namespace Game.Database.Structure
         /// 
         /// </summary>
         [Write(false)]
-        [DoNotNotify]
         public NpcTemplateDAO Template
         {
             get
@@ -71,7 +76,6 @@ namespace Game.Database.Structure
         /// 
         /// </summary>
         [Write(false)]
-        [DoNotNotify]
         public MapTemplateDAO Map
         {
             get
@@ -91,7 +95,6 @@ namespace Game.Database.Structure
         /// 
         /// </summary>
         [Write(false)]
-        [DoNotNotify]
         public NpcQuestionDAO Question
         {
             get

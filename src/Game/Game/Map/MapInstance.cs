@@ -1,19 +1,19 @@
-﻿using Game.Area;
+﻿using Game.Action;
+using Game.Area;
 using Game.Database.Repository;
+using Game.Database.Structure;
 using Game.Entity;
+using Game.Interactive;
+using Game.Interactive.Type;
+using Game.Job;
+using Game.Manager;
+using Game.Mount;
+using Game.Network;
+using Game.Spawn;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Game.Manager;
-using Game.Network;
-using Game.Action;
-using Game.Spawn;
-using Game.Database.Structure;
-using Game.Interactive;
-using Game.Interactive.Type;
 using System.Threading;
-using Game.Mount;
-using Game.Job;
 
 namespace Game.Map
 {
@@ -35,11 +35,19 @@ namespace Game.Map
         private static int[] BuildHashCellIndex()
         {
             var idx = new int[128];
-            for (int i = 0; i < idx.Length; i++) idx[i] = -1;
-            for (int i = 0; i < HASH_CELL.Length; i++) idx[HASH_CELL[i]] = i;
+            for (int i = 0; i < idx.Length; i++)
+            {
+                idx[i] = -1;
+            }
+
+            for (int i = 0; i < HASH_CELL.Length; i++)
+            {
+                idx[HASH_CELL[i]] = i;
+            }
+
             return idx;
         }
-        
+
 
         /// <summary>
         /// 
@@ -157,7 +165,7 @@ namespace Game.Map
             get;
             private set;
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -256,11 +264,14 @@ namespace Game.Map
             get
             {
                 if (m_subArea == null)
+                {
                     m_subArea = AreaManager.Instance.GetSubArea(SubAreaId);
+                }
+
                 return m_subArea;
             }
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -288,11 +299,15 @@ namespace Game.Map
                 var actionCell = Array.Find(m_cellsArray, cell => cell.Trigger != null);
 
                 if (actionCell != null)
+                {
                     return actionCell.Id;
+                }
 
                 actionCell = Array.Find(m_cellsArray, cell => cell.Walkable);
                 if (actionCell != null)
+                {
                     return actionCell.Id;
+                }
 
                 return -1;
             }
@@ -308,10 +323,14 @@ namespace Game.Map
                 var candidates = m_walkableCellIds.Where(id => m_cellsArray[id].Walkable && !m_occupiedCells.Contains(id)).ToList();
 
                 if (candidates.Count > 0)
+                {
                     return candidates[Util.Next(0, candidates.Count)];
+                }
 
                 if (m_walkableCellIds.Length > 0)
+                {
                     return m_walkableCellIds[Util.Next(0, m_walkableCellIds.Length)];
+                }
 
                 return -1;
             }
@@ -411,7 +430,7 @@ namespace Game.Map
 
             Initialize();
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -425,8 +444,12 @@ namespace Game.Map
             {
                 triggerByCellId = new Dictionary<int, MapTriggerDAO>(triggers.Count);
                 foreach (var t in triggers)
+                {
                     if (!triggerByCellId.ContainsKey(t.CellId))
+                    {
                         triggerByCellId.Add(t.CellId, t);
+                    }
+                }
             }
 
             int cellCount = Data.Length / 10;
@@ -458,10 +481,15 @@ namespace Game.Map
 
                     var door = cell.InteractiveObject as AnimatedDoor;
                     if (door != null)
+                    {
                         m_animatedDoorByCellId[id] = door;
+                    }
                 }
                 m_cellsArray[id] = cell;
-                if (cell.Walkable) walkableIds.Add(id);
+                if (cell.Walkable)
+                {
+                    walkableIds.Add(id);
+                }
             }
 
             m_walkableCellIds = walkableIds.ToArray();
@@ -476,10 +504,12 @@ namespace Game.Map
                 foreach (var cellId in m_animatedDoorByCellId.Keys)
                 {
                     if (cellId < cellCount)
+                    {
                         m_doorCellEncodings[cellId] = (
                             closed: EncodeCellBytes(rawBytes, cellId * 10),
-                            open:   EncodeCellBytesWithMovement(rawBytes, cellId * 10, DOOR_OPEN_MOVEMENT)
+                            open: EncodeCellBytesWithMovement(rawBytes, cellId * 10, DOOR_OPEN_MOVEMENT)
                         );
+                    }
                 }
             }
             // rawBytes goes out of scope here and is collected by GC
@@ -491,7 +521,10 @@ namespace Game.Map
         {
             var chars = new char[10];
             for (int i = 0; i < 10; i++)
+            {
                 chars[i] = HASH_CELL[raw[offset + i]];
+            }
+
             return new string(chars);
         }
 
@@ -499,7 +532,10 @@ namespace Game.Map
         {
             var chars = new char[10];
             for (int i = 0; i < 10; i++)
+            {
                 chars[i] = HASH_CELL[i == 2 ? (byte)((raw[offset + 2] & ~56) | ((movement & 7) << 3)) : raw[offset + i]];
+            }
+
             return new string(chars);
         }
 
@@ -510,12 +546,16 @@ namespace Game.Map
         {
             DoorAnimationDefinition[] definitions;
             if (!s_doorAnimationsByMap.TryGetValue(Id, out definitions))
+            {
                 return;
+            }
 
             foreach (var definition in definitions)
             {
                 if (definition.CellId >= m_cellsArray.Length || m_animatedDoorByCellId.ContainsKey(definition.CellId))
+                {
                     continue;
+                }
 
                 var door = definition.Create(this);
                 m_animatedDoorByCellId.Add(definition.CellId, door);
@@ -547,7 +587,10 @@ namespace Game.Map
         private void RegisterAllInteractiveObjects()
         {
             if (m_interactiveObjectsRegistered)
+            {
                 return;
+            }
+
             m_interactiveObjectsRegistered = true;
             foreach (var obj in m_interactiveObjects)
             {
@@ -562,7 +605,10 @@ namespace Game.Map
         private void InitializeOnFirstPlayerEnter()
         {
             if (m_initialized)
+            {
                 return;
+            }
+
             m_initialized = true;
             RegisterAllInteractiveObjects();
             UpdateConquestDoors();
@@ -578,7 +624,9 @@ namespace Game.Map
         private void InitNpcsSpawn()
         {
             foreach (var npc in NpcManager.Instance.GetByMapId(Id))
+            {
                 SpawnEntity(new NonPlayerCharacterEntity(npc, npc.Id));
+            }
         }
 
         // True when this is a conquest-tagged subarea (CanConquest=1) inside a village
@@ -586,7 +634,11 @@ namespace Game.Map
         // Guards must not spawn until the city is conquered by an alignment.
         private bool IsConquestVillageWithoutTerritory()
         {
-            if (!SubArea.CanConquest) return false;
+            if (!SubArea.CanConquest)
+            {
+                return false;
+            }
+
             var area = SubArea.Area;
             return area != null
                 && ConquestManager.IsVillageArea(area.Id)
@@ -597,15 +649,28 @@ namespace Game.Map
         // Called on first player enter and whenever territory state changes.
         private void UpdateConquestDoors()
         {
-            if (m_animatedDoorByCellId.Count == 0) return;
+            if (m_animatedDoorByCellId.Count == 0)
+            {
+                return;
+            }
+
             var area = SubArea.Area;
-            if (area == null || !ConquestManager.IsVillageArea(area.Id)) return;
+            if (area == null || !ConquestManager.IsVillageArea(area.Id))
+            {
+                return;
+            }
 
             bool neutral = !ConquestManager.Instance.IsVillageAreaConquered(area.Id);
             foreach (var door in m_animatedDoorByCellId.Values)
             {
-                if (neutral) door.ForceOpen();
-                else         door.ForceClose();
+                if (neutral)
+                {
+                    door.ForceOpen();
+                }
+                else
+                {
+                    door.ForceClose();
+                }
             }
         }
 
@@ -622,7 +687,9 @@ namespace Game.Map
         private void UpdateConquestPrism()
         {
             if (m_conquestPrism != null && m_conquestPrism.HasGameAction(GameActionTypeEnum.FIGHT))
+            {
                 return;
+            }
 
             var prism = ConquestManager.Instance.CreatePrismEntityForMap(this);
 
@@ -638,7 +705,9 @@ namespace Game.Map
             }
 
             if (prism != null)
+            {
                 SpawnConquestPrism(prism);
+            }
         }
 
         public void ScheduleConquestDoorUpdate()
@@ -647,7 +716,9 @@ namespace Game.Map
             {
                 UpdateConquestDoors();
                 if (m_initialized)
+                {
                     UpdateConquestPrism();
+                }
             });
         }
 
@@ -659,12 +730,16 @@ namespace Game.Map
             m_monsters = new List<MonsterSpawnDAO>(MonsterSpawnRepository.Instance.GetById(ZoneTypeEnum.TYPE_MAP, Id).OrderByDescending(spawn => spawn.Probability));
 
             if (IsConquestVillageWithoutTerritory())
+            {
                 return;
+            }
 
             m_spawnCounter = m_monsters.Count > 0 ? WorldConfig.SPAWN_MAX_GROUP_PER_MAP : 0;
 
             while (m_spawnCounter > 0)
+            {
                 SpawnMonsters();
+            }
         }
 
         /// <summary>
@@ -677,20 +752,33 @@ namespace Game.Map
 
         private void ProcessEntitiesMovements()
         {
-            if (m_playerCount == 0) return;
+            if (m_playerCount == 0)
+            {
+                return;
+            }
+
             for (int i = 0; i < m_moveableEntities.Count; i++)
+            {
                 MoveEntity(m_moveableEntities[i]);
+            }
         }
 
         private void StaggerEntityMovements()
         {
             int count = m_moveableEntities.Count;
-            if (count == 0) return;
+            if (count == 0)
+            {
+                return;
+            }
+
             for (int i = 0; i < count; i++)
             {
                 var entity = m_moveableEntities[i];
                 if (entity.MovementInterval == 0)
+                {
                     entity.MovementInterval = Util.Next(10000, 25000);
+                }
+
                 entity.NextMovementTime = UpdateTime + (long)entity.MovementInterval * i / count;
             }
         }
@@ -698,30 +786,46 @@ namespace Game.Map
         public void MoveEntity(AbstractEntity entity)
         {
             if (entity.MovementInterval == 0)
+            {
                 entity.MovementInterval = Util.Next(10000, 25000);
+            }
 
-            if(entity.NextMovementTime == 0)            
+            if (entity.NextMovementTime == 0)
+            {
                 entity.NextMovementTime = UpdateTime + entity.MovementInterval;
-            
+            }
+
             if (entity.NextMovementTime > UpdateTime)
+            {
                 return;
+            }
 
             entity.NextMovementTime = UpdateTime + entity.MovementInterval;
 
             if (m_playerCount == 0)
+            {
                 return;
+            }
 
             var cellId = entity.LastCellId;
             if (cellId < 1)
+            {
                 cellId = GetNearestMovementCell(entity.CellId);
+            }
 
             if (entity.LastCellId == 0)
+            {
                 entity.LastCellId = entity.CellId;
+            }
             else
+            {
                 entity.LastCellId = 0;
+            }
 
             if (cellId < 1)
+            {
                 return;
+            }
 
             entity.StopAction(GameActionTypeEnum.MAP_MOVEMENT);
 
@@ -732,17 +836,22 @@ namespace Game.Map
         public MapCell GetCell(int id)
         {
             if (id >= 0 && id < m_cellsArray.Length)
+            {
                 return m_cellsArray[id];
+            }
+
             return null;
         }
 
         public int GetNearestCell(int cellId)
         {
-            foreach(var nextCell in CellZone.GetAdjacentCells(this, cellId))
+            foreach (var nextCell in CellZone.GetAdjacentCells(this, cellId))
             {
                 var cell = GetCell(nextCell);
                 if (cell != null && cell.Walkable)
+                {
                     return nextCell;
+                }
             }
             return -1;
         }
@@ -752,17 +861,28 @@ namespace Game.Map
             var rand = Util.Next(0, 101);
             var direction = DirectionEnum.Este;
             if (rand < 25)
+            {
                 direction = DirectionEnum.Sur;
+            }
             else if (rand < 50)
+            {
                 direction = DirectionEnum.Oeste;
+            }
             else if (rand < 75)
+            {
                 direction = DirectionEnum.Norte;
+            }
 
             var nextCellId = Pathfinding.NextCell(this, cellId, direction);
             var cell = GetCell(nextCellId);
-            if(cell != null && cell.Walkable)
+            if (cell != null && cell.Walkable)
+            {
                 if (cell.Walkable)
+                {
                     return nextCellId;
+                }
+            }
+
             return -1;
         }
 
@@ -770,7 +890,10 @@ namespace Game.Map
         {
             MapCell cell = GetCell(cellId);
             if (cell != null)
+            {
                 return cell.Walkable || IsAnimatedDoorOpen(cellId);
+            }
+
             return false;
         }
 
@@ -784,13 +907,18 @@ namespace Game.Map
         {
             var message = BuildDoorCellStateMessage(cellId, opened);
             if (message != null)
+            {
                 Dispatch(message);
+            }
         }
 
         private string BuildDoorCellStateMessage(int cellId, bool opened)
         {
             if (m_doorCellEncodings == null || !m_doorCellEncodings.TryGetValue(cellId, out var encodings))
+            {
                 return null;
+            }
+
             string data = opened ? encodings.open : encodings.closed;
             return WorldMessage.GAME_DATA_CELL(cellId, data, CELL_MOVEMENT_MASK);
         }
@@ -798,7 +926,10 @@ namespace Game.Map
         public AbstractEntity GetEntity(long id)
         {
             if (m_entityById.ContainsKey(id))
+            {
                 return m_entityById[id];
+            }
+
             return null;
         }
 
@@ -811,7 +942,9 @@ namespace Game.Map
                 {
                     var group = new MonsterGroupEntity(NextMonsterId, Id, cellId, m_monsters, FightTeam1Cells.Count);
                     if (group.HasMonsters)
+                    {
                         SpawnEntity(group);
+                    }
                 }
             }
             m_spawnCounter--;
@@ -820,16 +953,20 @@ namespace Game.Map
         public void SpawnMonsters(IEnumerable<MonsterSpawnDAO> monsters)
         {
             if (IsConquestVillageWithoutTerritory())
+            {
                 return;
+            }
 
-            if(monsters.Any())
+            if (monsters.Any())
             {
                 var cellId = RandomFreeCell;
                 if (cellId >= 0)
                 {
                     var group = new MonsterGroupEntity(NextMonsterId, Id, cellId, monsters, FightTeam1Cells.Count);
                     if (group.HasMonsters)
+                    {
                         SpawnEntity(group);
+                    }
                 }
             }
         }
@@ -843,12 +980,14 @@ namespace Game.Map
         {
             var cellId = RandomFreeCell;
             if (cellId < 0)
+            {
                 return false;
+            }
 
             var group = new MonsterGroupEntity(NextMonsterId, Id, cellId, grades);
             return group.HasMonsters && FightManager.StartMonsterFight(character, group);
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -863,13 +1002,30 @@ namespace Game.Map
                     m_occupiedCells.Add(entity.CellId);
 
                     // Maintain pre-built lists so hot paths skip LINQ
-                    if (entity.CanBeMoved()) m_moveableEntities.Add(entity);
-                    if (entity is MonsterGroupEntity mg) m_monsterGroups.Add(mg);
-                    if (entity is TaxCollectorEntity tc) m_taxCollector = tc;
-                    if (entity is ConquestPrismEntity cp) m_conquestPrism = cp;
+                    if (entity.CanBeMoved())
+                    {
+                        m_moveableEntities.Add(entity);
+                    }
+
+                    if (entity is MonsterGroupEntity mg)
+                    {
+                        m_monsterGroups.Add(mg);
+                    }
+
+                    if (entity is TaxCollectorEntity tc)
+                    {
+                        m_taxCollector = tc;
+                    }
+
+                    if (entity is ConquestPrismEntity cp)
+                    {
+                        m_conquestPrism = cp;
+                    }
 
                     if (m_subInstance) // For npc etc
+                    {
                         entity.SetMap(this);
+                    }
 
                     Dispatch(WorldMessage.GAME_MAP_INFORMATIONS(OperatorEnum.OPERATOR_ADD, entity));
                     AddUpdatable(entity);
@@ -882,7 +1038,10 @@ namespace Game.Map
                         m_entityByName.Add(entity.Name.ToLower(), entity);
 
                         // First player entering a dormant map: stagger entity move times
-                        if (m_playerCount == 1) StaggerEntityMovements();
+                        if (m_playerCount == 1)
+                        {
+                            StaggerEntityMovements();
+                        }
 
                         AddHandler(entity.Dispatch);
                         SendAllInformations(entity);
@@ -926,21 +1085,23 @@ namespace Game.Map
         public void SendFightsInformations(AbstractEntity entity)
         {
             foreach (var fight in FightManager.Fights)
+            {
                 fight.SendMapFightInfos(entity);
+            }
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="entity"></param>
-        public void SendFightCount(AbstractEntity entity) 
+        public void SendFightCount(AbstractEntity entity)
             => entity.Dispatch(WorldMessage.FIGHT_COUNT(FightManager.FightCount));
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="entity"></param>
-        public void SendMapInformations(AbstractEntity entity) 
+        public void SendMapInformations(AbstractEntity entity)
             => entity.Dispatch(WorldMessage.GAME_MAP_INFORMATIONS(OperatorEnum.OPERATOR_ADD, Entities.ToArray()));
 
         /// <summary>
@@ -961,13 +1122,17 @@ namespace Game.Map
             foreach (var door in m_animatedDoorByCellId.Values)
             {
                 if (door.IsClosed)
+                {
                     continue;
+                }
 
                 if (door.IsOpened)
                 {
                     var message = BuildDoorCellStateMessage(door.CellId, true);
                     if (message != null)
+                    {
                         entity.Dispatch(message);
+                    }
                 }
 
                 door.SendUpdateTo(entity);
@@ -981,7 +1146,9 @@ namespace Game.Map
         public void SendPaddockInformations(AbstractEntity entity)
         {
             if (m_paddock != null)
+            {
                 m_paddock.SendInformations(entity);
+            }
         }
 
         /// <summary>
@@ -996,10 +1163,25 @@ namespace Game.Map
                 m_occupiedCells.Remove(entity.CellId);
 
                 // Keep pre-built lists in sync
-                if (entity.CanBeMoved()) m_moveableEntities.Remove(entity);
-                if (entity is MonsterGroupEntity mg) m_monsterGroups.Remove(mg);
-                if (entity is TaxCollectorEntity) m_taxCollector = null;
-                if (entity is ConquestPrismEntity) m_conquestPrism = null;
+                if (entity.CanBeMoved())
+                {
+                    m_moveableEntities.Remove(entity);
+                }
+
+                if (entity is MonsterGroupEntity mg)
+                {
+                    m_monsterGroups.Remove(mg);
+                }
+
+                if (entity is TaxCollectorEntity)
+                {
+                    m_taxCollector = null;
+                }
+
+                if (entity is ConquestPrismEntity)
+                {
+                    m_conquestPrism = null;
+                }
 
                 RemoveUpdatable(entity);
                 Dispatch(WorldMessage.GAME_MAP_INFORMATIONS(OperatorEnum.OPERATOR_REMOVE, entity));
@@ -1012,7 +1194,7 @@ namespace Game.Map
                     m_playerCount--;
 
                     // Multiple instance released
-                    if(m_playerCount == 0 && m_subInstance)
+                    if (m_playerCount == 0 && m_subInstance)
                     {
                         MapManager.Instance.ReleaseInstance(this);
                     }
@@ -1020,21 +1202,15 @@ namespace Game.Map
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="cellId"></param>
-        /// <param name="skillId"></param>
         public void InteractiveExecute(CharacterEntity character, int cellId, int skillId)
         {
             var cell = GetCell(cellId);
-            if(cell != null)
+            if (cell != null)
             {
-                if(cell.InteractiveObject != null)
+                if (cell.InteractiveObject != null)
                 {
                     var skill = character.CharacterJobs.GetSkill(skillId);
-                    
+
                     if (skill == null && !cell.InteractiveObject.CanUseWithoutJobSkill(skillId))
                     {
                         character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
@@ -1053,10 +1229,14 @@ namespace Game.Map
         public bool IsInInteractiveSkillRange(CharacterEntity character, int sourceCellId, int targetCellId, int skillId)
         {
             if (character == null || character.MapId != Id || !Pathfinding.IsValidCellId(this, sourceCellId) || GetCell(targetCellId) == null)
+            {
                 return false;
+            }
 
             if (Pathfinding.GoalDistance(this, sourceCellId, targetCellId) <= 1)
+            {
                 return true;
+            }
 
             return IsFishingSkillInRange(character, sourceCellId, targetCellId, skillId);
         }
@@ -1065,11 +1245,15 @@ namespace Game.Map
         {
             var skill = character.CharacterJobs.GetSkill(skillId);
             if (skill == null)
+            {
                 return false;
+            }
 
             var job = character.CharacterJobs.GetJob(skill.Id);
             if (job == null || job.JobId != (int)JobIdEnum.JOB_PECHEUR)
+            {
                 return false;
+            }
 
             var weapon = character.Inventory?.Items.Find(item => item.Slot == ItemSlotEnum.SLOT_WEAPON);
             var range = weapon == null ? 0 : GetFishingRodRange(weapon.TemplateId);
@@ -1189,7 +1373,9 @@ namespace Game.Map
         public bool CanBeAggro(CharacterEntity character, int cellId, MonsterGroupEntity monsters)
         {
             if (character == null || monsters == null || character.IsGhost || character.IsTombestone)
+            {
                 return false;
+            }
 
             return Pathfinding.GoalDistance(this, cellId, monsters.CellId) <= monsters.AggressionRange && ((character.AlignmentId == (int)ConquestManager.AlignmentTypeEnum.ALIGNMENT_NEUTRAL && monsters.AlignmentId == -1) || (character.AlignmentId != (int)ConquestManager.AlignmentTypeEnum.ALIGNMENT_NEUTRAL && monsters.AlignmentId != character.AlignmentId));
         }
@@ -1199,7 +1385,9 @@ namespace Game.Map
             for (int i = 0; i < m_monsterGroups.Count; i++)
             {
                 if (CanBeAggro(character, cellId, m_monsterGroups[i]))
+                {
                     return true;
+                }
             }
             return false;
         }
@@ -1213,7 +1401,9 @@ namespace Game.Map
         {
             AnimatedDoor door;
             if (!m_animatedDoorByCellId.TryGetValue(cellId, out door))
+            {
                 return 0;
+            }
 
             return door.OpenTemporarily();
         }
@@ -1236,7 +1426,9 @@ namespace Game.Map
             AddTimer(delay, () =>
             {
                 if (character.MapId == Id && character.CellId == cellId)
+                {
                     cell.ApplyActions(character);
+                }
             }, true);
         }
 
@@ -1249,16 +1441,22 @@ namespace Game.Map
         {
             DoorSwitchDefinition[] definitions;
             if (!s_doorSwitchesByMap.TryGetValue(Id, out definitions))
+            {
                 return;
+            }
 
             foreach (var definition in definitions)
             {
                 if (!definition.HasTriggerCell(cellId) || CountOccupiedSwitchCells(definition.TriggerCellIds) < definition.RequiredPlayers)
+                {
                     continue;
+                }
 
-            AnimatedDoor door;
+                AnimatedDoor door;
                 if (m_animatedDoorByCellId.TryGetValue(definition.DoorCellId, out door))
+                {
                     door.OpenTemporarily(definition.OpenedDuration);
+                }
             }
         }
 
@@ -1273,7 +1471,9 @@ namespace Game.Map
             foreach (var cellId in cellIds)
             {
                 if (m_entityById.Values.OfType<CharacterEntity>().Any(character => character.CellId == cellId))
+                {
                     count++;
+                }
             }
             return count;
         }
@@ -1287,7 +1487,9 @@ namespace Game.Map
         public void MovementFinish(AbstractEntity entity, MovementPath path, int cellId)
         {
             if (entity.CellId == cellId)
+            {
                 return;
+            }
 
             if (entity.Type == EntityTypeEnum.TYPE_CHARACTER)
             {
@@ -1303,12 +1505,16 @@ namespace Game.Map
                             if (monsterGroup.AlignmentId == -1)
                             {
                                 if (FightManager.StartMonsterFight(character, monsterGroup))
+                                {
                                     return;
+                                }
                             }
                             else
                             {
                                 if (FightManager.StartAggression(monsterGroup, character))
+                                {
                                     return;
+                                }
                             }
                         }
                     }
@@ -1325,7 +1531,7 @@ namespace Game.Map
                 {
                     if (cell.Trigger != null)
                     {
-                        if(!cell.SatisfyConditions(character) && !IsConquestVillageWithoutTerritory())
+                        if (!cell.SatisfyConditions(character) && !IsConquestVillageWithoutTerritory())
                         {
                             entity.Dispatch(WorldMessage.IM_ERROR_MESSAGE(InformationEnum.ERROR_CONDITIONS_UNSATISFIED));
                             return;
@@ -1335,8 +1541,8 @@ namespace Game.Map
                         TryOpenDoorSwitch(character, cellId);
                         ApplyTriggerActions(character, cell, cellId);
                         return;
-                    }                    
-                }     
+                    }
+                }
 
                 entity.CellId = cellId;
                 TryOpenDoorSwitch(character, cellId);
@@ -1397,5 +1603,5 @@ namespace Game.Map
 
             base.Dispose();
         }
-    }    
+    }
 }

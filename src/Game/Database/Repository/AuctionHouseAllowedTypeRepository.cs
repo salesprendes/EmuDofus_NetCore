@@ -1,4 +1,4 @@
-﻿using Protocolo.Framework.Database;
+using Protocolo.Framework.Database;
 using Game.Database.Structure;
 using System;
 using System.Collections.Generic;
@@ -13,15 +13,15 @@ namespace Game.Database.Repository
     /// </summary>
     public sealed class AuctionHouseAllowedTypeRepository : Repository<AuctionHouseAllowedTypeRepository, AuctionHouseAllowedTypeDAO>
     {
-        public override void UpdateAll(MySql.Data.MySqlClient.MySqlConnection connection, MySql.Data.MySqlClient.MySqlTransaction transaction)
+        public override void UpdateAll(MySqlConnector.MySqlConnection connection, MySqlConnector.MySqlTransaction transaction)
         {
         }
 
-        public override void DeleteAll(MySql.Data.MySqlClient.MySqlConnection connection, MySql.Data.MySqlClient.MySqlTransaction transaction)
+        public override void DeleteAll(MySqlConnector.MySqlConnection connection, MySqlConnector.MySqlTransaction transaction)
         {
         }
 
-        public override void InsertAll(MySql.Data.MySqlClient.MySqlConnection connection, MySql.Data.MySqlClient.MySqlTransaction transaction)
+        public override void InsertAll(MySqlConnector.MySqlConnection connection, MySqlConnector.MySqlTransaction transaction)
         {
         }
     }

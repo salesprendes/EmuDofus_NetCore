@@ -8,7 +8,6 @@ using Login.Database.Structure;
 using Login.Frames;
 using Login.Network;
 using Login.RPC;
-using MySqlX.XDevAPI;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;

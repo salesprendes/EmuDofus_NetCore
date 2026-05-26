@@ -1,4 +1,4 @@
-﻿using Protocolo.Framework.Database;
+using Protocolo.Framework.Database;
 using Game.ActionEffect;
 using System;
 using System.Collections.Generic;
@@ -11,13 +11,45 @@ namespace Game.Database.Structure
     [Table("queststep")]
     public sealed class QuestStepDAO : DataAccessObject<QuestStepDAO>
     {
+        private int _id;
+        private int _questId;
+        private int _order;
+        private string _name;
+        private string _description;
+        private string _actions;
+
+
         [Key]
-        public int Id { get; set; }
-        public int QuestId { get; set; }
-        public int Order { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string Actions { get; set; }
+        public int Id
+        {
+            get => _id;
+            set => SetProperty(ref _id, value);
+        }
+        public int QuestId
+        {
+            get => _questId;
+            set => SetProperty(ref _questId, value);
+        }
+        public int Order
+        {
+            get => _order;
+            set => SetProperty(ref _order, value);
+        }
+        public string Name
+        {
+            get => _name;
+            set => SetProperty(ref _name, value);
+        }
+        public string Description
+        {
+            get => _description;
+            set => SetProperty(ref _description, value);
+        }
+        public string Actions
+        {
+            get => _actions;
+            set => SetProperty(ref _actions, value);
+        }
 
         /// <summary>
         /// 

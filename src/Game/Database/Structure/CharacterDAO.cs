@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Protocolo.Framework.Database;
 using Game.Database.Repository;
-using PropertyChanged;
 using Game.Entity;
 using Game.Spell;
 
@@ -32,23 +31,69 @@ namespace Game.Database.Structure
     /// 
     /// </summary>    
     [Table("characterinstance")]
-    [AddINotifyPropertyChangedInterface]
     public sealed class CharacterDAO : DataAccessObject<CharacterDAO>
     {
+        private long _id;
+        private int _serverId;
+        private string _name;
+        private byte _breed;
+        private int _color1;
+        private int _color2;
+        private int _color3;
+        private int _skin;
+        private int _skinSize;
+        private int _vitality;
+        private int _wisdom;
+        private int _strength;
+        private int _intelligence;
+        private int _agility;
+        private int _chance;
+        private int _life;
+        private int _energy;
+        private int _spellPoint;
+        private int _caracPoint;
+        private int _mapId;
+        private int _cellId;
+        private int _restriction;
+        private long _experience;
+        private long _accountId;
+        private bool _dead;
+        private int _maxLevel;
+        private int _deathCount;
+        private int _level;
+        private bool _sex;
+        private long _kamas;
+        private int _savedMapId;
+        private int _savedCellId;
+        private bool _merchant;
+        private int _titleId;
+        private string _titleParams;
+        private int _emoteCapacity;
+        private int _deathType;
+        private int _equippedMount;
+        private int _alignmentId;
+        private int _alignmentLevel;
+        private int _alignmentPromotion;
+        private int _alignmentHonour;
+        private int _alignmentDishonour;
+        private bool _alignmentEnabled;
+        private string _zaaps;
+
+
         /// <summary>
         ///
         /// </summary>
         [Key]
         public long Id
         {
-            get;
-            set;
+            get => _id;
+            set => SetProperty(ref _id, value);
         }
 
         public int ServerId
         {
-            get;
-            set;
+            get => _serverId;
+            set => SetProperty(ref _serverId, value);
         }
 
         /// <summary>
@@ -56,8 +101,8 @@ namespace Game.Database.Structure
         /// </summary>
         public string Name
         {
-            get;
-            set;
+            get => _name;
+            set => SetProperty(ref _name, value);
         }
 
         /// <summary>
@@ -65,8 +110,8 @@ namespace Game.Database.Structure
         /// </summary>
         public byte Breed
         {
-            get;
-            set;
+            get => _breed;
+            set => SetProperty(ref _breed, value);
         }
 
         /// <summary>
@@ -74,8 +119,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int Color1
         {
-            get;
-            set;
+            get => _color1;
+            set => SetProperty(ref _color1, value);
         }
 
         /// <summary>
@@ -83,8 +128,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int Color2
         {
-            get;
-            set;
+            get => _color2;
+            set => SetProperty(ref _color2, value);
         }
 
         /// <summary>
@@ -92,8 +137,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int Color3
         {
-            get;
-            set;
+            get => _color3;
+            set => SetProperty(ref _color3, value);
         }
 
         /// <summary>
@@ -101,8 +146,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int Skin
         {
-            get;
-            set;
+            get => _skin;
+            set => SetProperty(ref _skin, value);
         }
 
         /// <summary>
@@ -110,8 +155,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int SkinSize
         {
-            get;
-            set;
+            get => _skinSize;
+            set => SetProperty(ref _skinSize, value);
         }
 
         /// <summary>
@@ -119,8 +164,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int Vitality
         {
-            get;
-            set;
+            get => _vitality;
+            set => SetProperty(ref _vitality, value);
         }
 
         /// <summary>
@@ -128,8 +173,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int Wisdom
         {
-            get;
-            set;
+            get => _wisdom;
+            set => SetProperty(ref _wisdom, value);
         }
 
         /// <summary>
@@ -137,16 +182,16 @@ namespace Game.Database.Structure
         /// </summary>
         public int Strength
         {
-            get;
-            set;
+            get => _strength;
+            set => SetProperty(ref _strength, value);
         }
         /// <summary>
         /// 
         /// </summary>
         public int Intelligence
         {
-            get;
-            set;
+            get => _intelligence;
+            set => SetProperty(ref _intelligence, value);
         }
 
         /// <summary>
@@ -154,8 +199,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int Agility
         {
-            get;
-            set;
+            get => _agility;
+            set => SetProperty(ref _agility, value);
         }
 
         /// <summary>
@@ -163,8 +208,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int Chance
         {
-            get;
-            set;
+            get => _chance;
+            set => SetProperty(ref _chance, value);
         }
 
         /// <summary>
@@ -172,8 +217,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int Life
         {
-            get;
-            set;
+            get => _life;
+            set => SetProperty(ref _life, value);
         }
 
         /// <summary>
@@ -181,8 +226,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int Energy
         {
-            get;
-            set;
+            get => _energy;
+            set => SetProperty(ref _energy, value);
         }
 
         /// <summary>
@@ -190,8 +235,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int SpellPoint
         {
-            get;
-            set;
+            get => _spellPoint;
+            set => SetProperty(ref _spellPoint, value);
         }
 
         /// <summary>
@@ -199,8 +244,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int CaracPoint
         {
-            get;
-            set;
+            get => _caracPoint;
+            set => SetProperty(ref _caracPoint, value);
         }
 
         /// <summary>
@@ -208,8 +253,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int MapId
         {
-            get;
-            set;
+            get => _mapId;
+            set => SetProperty(ref _mapId, value);
         }
 
         /// <summary>
@@ -217,8 +262,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int CellId
         {
-            get;
-            set;
+            get => _cellId;
+            set => SetProperty(ref _cellId, value);
         }
 
         /// <summary>
@@ -226,8 +271,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int Restriction
         {
-            get;
-            set;
+            get => _restriction;
+            set => SetProperty(ref _restriction, value);
         }
 
         /// <summary>
@@ -235,8 +280,8 @@ namespace Game.Database.Structure
         /// </summary>
         public long Experience
         {
-            get;
-            set;
+            get => _experience;
+            set => SetProperty(ref _experience, value);
         }
 
         /// <summary>
@@ -244,8 +289,8 @@ namespace Game.Database.Structure
         /// </summary>
         public long AccountId
         {
-            get;
-            set;
+            get => _accountId;
+            set => SetProperty(ref _accountId, value);
         }
 
 
@@ -254,8 +299,8 @@ namespace Game.Database.Structure
         /// </summary>
         public bool Dead
         {
-            get;
-            set;
+            get => _dead;
+            set => SetProperty(ref _dead, value);
         }
 
 
@@ -264,8 +309,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int MaxLevel
         {
-            get;
-            set;
+            get => _maxLevel;
+            set => SetProperty(ref _maxLevel, value);
         }
 
 
@@ -274,8 +319,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int DeathCount
         {
-            get;
-            set;
+            get => _deathCount;
+            set => SetProperty(ref _deathCount, value);
         }
 
         /// <summary>
@@ -283,8 +328,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int Level
         {
-            get;
-            set;
+            get => _level;
+            set => SetProperty(ref _level, value);
         }
 
         /// <summary>
@@ -292,8 +337,8 @@ namespace Game.Database.Structure
         /// </summary>
         public bool Sex
         {
-            get;
-            set;
+            get => _sex;
+            set => SetProperty(ref _sex, value);
         }
 
         /// <summary>
@@ -301,8 +346,8 @@ namespace Game.Database.Structure
         /// </summary>
         public long Kamas
         {
-            get;
-            set;
+            get => _kamas;
+            set => SetProperty(ref _kamas, value);
         }
 
         /// <summary>
@@ -310,8 +355,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int SavedMapId
         {
-            get;
-            set;
+            get => _savedMapId;
+            set => SetProperty(ref _savedMapId, value);
         }
 
         /// <summary>
@@ -319,8 +364,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int SavedCellId
         {
-            get;
-            set;
+            get => _savedCellId;
+            set => SetProperty(ref _savedCellId, value);
         }
 
         /// <summary>
@@ -328,8 +373,8 @@ namespace Game.Database.Structure
         /// </summary>
         public bool Merchant
         {
-            get;
-            set;
+            get => _merchant;
+            set => SetProperty(ref _merchant, value);
         }
 
         /// <summary>
@@ -337,8 +382,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int TitleId
         {
-            get;
-            set;
+            get => _titleId;
+            set => SetProperty(ref _titleId, value);
         }
 
         /// <summary>
@@ -346,8 +391,8 @@ namespace Game.Database.Structure
         /// </summary>
         public string TitleParams
         {
-            get;
-            set;
+            get => _titleParams;
+            set => SetProperty(ref _titleParams, value);
         }
 
         /// <summary>
@@ -355,8 +400,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int EmoteCapacity
         {
-            get;
-            set;
+            get => _emoteCapacity;
+            set => SetProperty(ref _emoteCapacity, value);
         }
 
         /// <summary>
@@ -364,8 +409,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int DeathType
         {
-            get;
-            set;
+            get => _deathType;
+            set => SetProperty(ref _deathType, value);
         }
 
         /// <summary>
@@ -373,50 +418,50 @@ namespace Game.Database.Structure
         /// </summary>
         public int EquippedMount
         {
-            get;
-            set;
+            get => _equippedMount;
+            set => SetProperty(ref _equippedMount, value);
         }
 
         public int AlignmentId
         {
-            get;
-            set;
+            get => _alignmentId;
+            set => SetProperty(ref _alignmentId, value);
         }
 
         public int AlignmentLevel
         {
-            get;
-            set;
+            get => _alignmentLevel;
+            set => SetProperty(ref _alignmentLevel, value);
         }
 
         public int AlignmentPromotion
         {
-            get;
-            set;
+            get => _alignmentPromotion;
+            set => SetProperty(ref _alignmentPromotion, value);
         }
 
         public int AlignmentHonour
         {
-            get;
-            set;
+            get => _alignmentHonour;
+            set => SetProperty(ref _alignmentHonour, value);
         }
 
         public int AlignmentDishonour
         {
-            get;
-            set;
+            get => _alignmentDishonour;
+            set => SetProperty(ref _alignmentDishonour, value);
         }
 
         public bool AlignmentEnabled
         {
-            get;
-            set;
+            get => _alignmentEnabled;
+            set => SetProperty(ref _alignmentEnabled, value);
         }
 
         public string Zaaps
         {
-            get;
-            set;
+            get => _zaaps;
+            set => SetProperty(ref _zaaps, value);
         }
 
         #region Unmapped
@@ -433,7 +478,6 @@ namespace Game.Database.Structure
         }
 
         [Write(false)]
-        [DoNotNotify]
         public string HexColor1
         {
             get
@@ -445,7 +489,6 @@ namespace Game.Database.Structure
         }
 
         [Write(false)]
-        [DoNotNotify]
         public string HexColor2
         {
             get
@@ -457,7 +500,6 @@ namespace Game.Database.Structure
         }
 
         [Write(false)]
-        [DoNotNotify]
         public string HexColor3
         {
             get
@@ -472,7 +514,6 @@ namespace Game.Database.Structure
         /// 
         /// </summary>
         [Write(false)]
-        [DoNotNotify]
         public CharacterGuildDAO Guild
         {
             get

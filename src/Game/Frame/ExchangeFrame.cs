@@ -603,6 +603,12 @@ namespace Game.Frame
                 return;
             }
 
+            if (quantity <= 0)
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
             character.AddMessage(() =>
             {
                 if (!character.HasGameAction(GameActionTypeEnum.EXCHANGE))
@@ -629,7 +635,13 @@ namespace Game.Frame
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
-            
+
+            if (kamas < 0)
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
             character.AddMessage(() =>
             {
                 if (!character.HasGameAction(GameActionTypeEnum.EXCHANGE))
@@ -674,6 +686,12 @@ namespace Game.Frame
 
             int quantity = -1;
             if (!int.TryParse(data[1], out quantity))
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
+            if (quantity < 0)
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;

@@ -35,14 +35,14 @@ namespace Game
             get;
             private set;
         }
-        
+
         public void Start(string archivo_configuracion)
         {
             ConfigurationManager = new ConfigurationManager();
             ConfigurationManager.RegisterAttributes();
             ConfigurationManager.Add(new JsonConfigurationProvider(archivo_configuracion), true);
             ConfigurationManager.Load();
-            WorldClient.DebugEnabled = WorldConfig.LOG_DEBUG_ENABLED;
+            WorldClient.DebugEnabled = WorldConfig.LOG_DEBUG;
 
             CommandManager = new CommandManager<WorldCommandContext>();
             CommandManager.RegisterCommands();
@@ -51,7 +51,7 @@ namespace Game
             AddUpdatable(RPCManager.Instance);
 
             AddTimer(WorldConfig.WORLD_SAVE_INTERVAL, SaveWorld);
-       
+
             WorldDbMgr.Instance.Initialize();
             QuestManager.Instance.Initialize();
             InteractiveObjectManager.Instance.Initialize();
@@ -105,16 +105,19 @@ namespace Game
         {
             foreach (var message in client.Receive(buffer, offset, count))
             {
-                if (WorldConfig.LOG_DEBUG_ENABLED)
-                    Logger.Debug("Client : " + message);
-                
-                if (client.CurrentCharacter != null)
+                if (WorldConfig.LOG_DEBUG)
                 {
-                    if (client.CurrentCharacter.FrameManager != null)
+                    Logger.Debug("Client : " + message);
+                }
+
+                var character = client.CurrentCharacter;
+                if (character != null)
+                {
+                    if (character.FrameManager != null)
                     {
-                        if (!client.CurrentCharacter.FrameManager.ProcessMessage(message))
+                        if (!character.FrameManager.ProcessMessage(message))
                         {
-                            client.CurrentCharacter.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                            character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                         }
                     }
                 }

@@ -1,20 +1,20 @@
-﻿using Game.Frame;
-using Game.Action;
+﻿using Game.Action;
+using Game.Database.Structure;
 using Game.Entity;
+using Game.Fight.AI;
 using Game.Fight.Effect;
+using Game.Fight.Ending;
+using Game.Frame;
+using Game.Manager;
 using Game.Map;
+using Game.Network;
 using Game.Spell;
+using Game.Stats;
+using Protocolo.Framework.Generic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Game.Manager;
-using Game.Network;
-using Protocolo.Framework.Generic;
-using Game.Database.Structure;
-using Game.Fight.AI;
-using Game.Fight.Ending;
-using Game.Stats;
 
 namespace Game.Fight
 {
@@ -195,11 +195,13 @@ namespace Game.Fight
             Dictionary<int, int> items = null)
         {
             if (fighter == null)
+            {
                 return;
+            }
 
             m_resultFighterIds.Add(fighter.Id);
 
-            m_message.Append('|').Append((int)type).Append(';');                   
+            m_message.Append('|').Append((int)type).Append(';');
             m_message.Append(fighter.Id).Append(';');
             m_message.Append(fighter.Name).Append(';');
             m_message.Append(fighter.Level).Append(';');
@@ -207,7 +209,7 @@ namespace Game.Fight
 
             if (CanWinHonor)
             {
-                switch(fighter.Type)
+                switch (fighter.Type)
                 {
                     case EntityTypeEnum.TYPE_CHARACTER:
                         CharacterEntity character = (CharacterEntity)fighter;
@@ -226,9 +228,14 @@ namespace Game.Fight
                             m_message.Append("0;0;0;0;0;0;0;");
                         }
                         if (items != null && items.Count > 0)
+                        {
                             m_message.Append(string.Join(",", items.Select(itemEntry => itemEntry.Key + "~" + itemEntry.Value))).Append(';');
+                        }
                         else
+                        {
                             m_message.Append("").Append(';');
+                        }
+
                         m_message.Append(kamas > 0 ? kamas.ToString() : "").Append(';');
                         m_message.Append(character.ExperienceFloorCurrent).Append(';');
                         m_message.Append(character.Experience).Append(';');
@@ -238,11 +245,16 @@ namespace Game.Fight
 
                     case EntityTypeEnum.TYPE_PRISM:
                     case EntityTypeEnum.TYPE_MONSTER_FIGHTER:
-                         m_message.Append("0;0;0;0;0;0;0;");
+                        m_message.Append("0;0;0;0;0;0;0;");
                         if (items != null && items.Count > 0)
+                        {
                             m_message.Append(string.Join(",", items.Select(itemEntry => itemEntry.Key + "~" + itemEntry.Value))).Append(';');
+                        }
                         else
+                        {
                             m_message.Append("").Append(';');
+                        }
+
                         m_message.Append(kamas > 0 ? kamas.ToString() : "").Append(';');
                         m_message.Append(0).Append(';');
                         m_message.Append(0).Append(';');
@@ -253,9 +265,9 @@ namespace Game.Fight
             }
             else
             {
-                switch(fighter.Type)
+                switch (fighter.Type)
                 {
-                    case EntityTypeEnum.TYPE_CHARACTER:                        
+                    case EntityTypeEnum.TYPE_CHARACTER:
                         var character = (CharacterEntity)fighter;
                         m_message.Append(character.ExperienceFloorCurrent).Append(';');
                         m_message.Append(character.Experience).Append(';');
@@ -274,16 +286,21 @@ namespace Game.Fight
                         m_message.Append(guildxp).Append(';');
                         m_message.Append("").Append(';');
                         break;
-                        
+
                     default:
                         m_message.Append(";;;;;;");
-                    break;
+                        break;
                 }
 
                 if (items != null && items.Count > 0)
+                {
                     m_message.Append(string.Join(",", items.Select(itemEntry => itemEntry.Key + "~" + itemEntry.Value))).Append(';');
+                }
                 else
+                {
                     m_message.Append("").Append(';');
+                }
+
                 m_message.Append(kamas > 0 ? kamas.ToString() : "");
             }
         }
@@ -630,7 +647,10 @@ namespace Game.Fight
             get
             {
                 if (NextTurnTimeout < UpdateTime)
+                {
                     return 0;
+                }
+
                 return NextTurnTimeout - UpdateTime;
             }
         }
@@ -648,7 +668,10 @@ namespace Game.Fight
             get
             {
                 if (NextLoopTimeout < UpdateTime)
+                {
                     return 0;
+                }
+
                 return NextLoopTimeout - UpdateTime;
             }
         }
@@ -701,7 +724,10 @@ namespace Game.Fight
             get
             {
                 if (NextSubActionTimeout < UpdateTime)
+                {
                     return 0;
+                }
+
                 return NextSubActionTimeout - UpdateTime;
             }
         }
@@ -729,19 +755,16 @@ namespace Game.Fight
             get
             {
                 if (CurrentAction == null)
+                {
                     return true;
+                }
+
                 return CurrentAction.Timeout <= UpdateTime;
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool SynchronizationTimedout => NextSynchroTimeout <= UpdateTime;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long NextSynchroTimeout
         {
             get
@@ -753,19 +776,15 @@ namespace Game.Fight
                 m_synchronizationTimeout = UpdateTime + value;
             }
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        public string FightPlaces => 
-            Team0.Places + "|" + Team1.Places;
+
+        public string FightPlaces => Team0.Places + "|" + Team1.Places;
 
         /// <summary>
         /// 
         /// </summary>
-        private bool IsAllReady => 
+        private bool IsAllReady =>
             Fighters.OfType<CharacterEntity>().All(fighter => fighter.TurnReady || fighter.IsFighterDead);
-         
+
 
         /// <summary>
         /// 
@@ -774,7 +793,7 @@ namespace Game.Fight
         {
             get
             {
-                switch(Type)
+                switch (Type)
                 {
                     case FightTypeEnum.TYPE_PVT:
                     case FightTypeEnum.TYPE_PVMA:
@@ -782,7 +801,10 @@ namespace Game.Fight
 
                     case FightTypeEnum.TYPE_AGGRESSION:
                         if (Team0.Fighters.First().Type == EntityTypeEnum.TYPE_MONSTER_FIGHTER)
+                        {
                             return false;
+                        }
+
                         break;
                 }
 
@@ -793,19 +815,19 @@ namespace Game.Fight
         /// <summary>
         /// 
         /// </summary>
-        public IEnumerable<AbstractFighter> Fighters => 
+        public IEnumerable<AbstractFighter> Fighters =>
             Team0.Fighters.Concat(Team1.Fighters);
 
         /// <summary>
         /// 
         /// </summary>
-        public IEnumerable<AbstractFighter> AliveFighters => 
+        public IEnumerable<AbstractFighter> AliveFighters =>
             Fighters.Where(fighter => !fighter.IsFighterDead);
 
         /// <summary>
         /// 
         /// </summary>
-        public AbstractGameFightAction CurrentAction => 
+        public AbstractGameFightAction CurrentAction =>
             CurrentFighter?.CurrentAction as AbstractGameFightAction;
 
         /// <summary>
@@ -857,8 +879,8 @@ namespace Game.Fight
             protected set;
         }
 
-        public int ChallengeXpBonus => Math.Max(1, (int)Math.Round((double)(100 + WinnerTeam.SucceededChallenges.Sum(challenge => challenge.BasicXpBonus + challenge.TeamXpBonus)) / 100));
-        public int ChallengeLootBonus => ChallengeXpBonus;
+        public double ChallengeXpBonus => Math.Max(1.0, (100.0 + WinnerTeam.SucceededChallenges.Sum(challenge => challenge.BasicXpBonus + challenge.TeamXpBonus)) / 100.0);
+        public double ChallengeLootBonus => Math.Max(1.0, (100.0 + WinnerTeam.SucceededChallenges.Sum(challenge => challenge.BasicDropBonus + challenge.TeamDropBonus)) / 100.0);
         public List<AbstractFighter> WinnerFighters { get; private set; }
         public List<AbstractFighter> LoserFighters { get; private set; }
         public FightTeam WinnerTeam { get; private set; }
@@ -872,19 +894,19 @@ namespace Game.Fight
         private LinkedList<CastInfos> m_processingTargets;
         private int m_currentApCost;
         private readonly Queue<AbstractEndingBehavior> m_endingBehaviors;
-        
-        protected AbstractFight(FightTypeEnum type, 
-            MapInstance  mapInstance, 
-            long id, 
-            long team0LeaderId, 
+
+        protected AbstractFight(FightTypeEnum type,
+            MapInstance mapInstance,
+            long id,
+            long team0LeaderId,
             int team0Alignment,
-            int team0FlagCell, 
-            long team1LeaderId, 
+            int team0FlagCell,
+            long team1LeaderId,
             int team1Alignment,
-            int team1FlagCell, 
-            long startTimeout, 
-            long turnTime, 
-            bool cancelButton = false, 
+            int team1FlagCell,
+            long startTimeout,
+            long turnTime,
+            bool cancelButton = false,
             bool canWinHonor = false,
             params AbstractEndingBehavior[] endingBehaviors)
         {
@@ -906,15 +928,17 @@ namespace Game.Fight
             Cells = new Dictionary<int, FightCell>();
             TurnProcessor = new FightTurnProcessor();
 
-            foreach (var cell in mapInstance.Cells)            
-                Cells.Add(cell.Id, new FightCell(cell.Id, cell.Walkable , cell.LineOfSight));
-            
+            foreach (var cell in mapInstance.Cells)
+            {
+                Cells.Add(cell.Id, new FightCell(cell.Id, cell.Walkable, cell.LineOfSight));
+            }
+
             SpectatorTeam = new SpectatorTeam(this);
             Team0 = new FightTeam(0, team0LeaderId, team0Alignment, team0FlagCell, this, new List<FightCell>(Cells.Values.Where(cell => mapInstance.FightTeam0Cells.Contains(cell.Id))));
             Team1 = new FightTeam(1, team1LeaderId, team1Alignment, team1FlagCell, this, new List<FightCell>(Cells.Values.Where(cell => mapInstance.FightTeam1Cells.Contains(cell.Id))));
             Team0.OpponentTeam = Team1;
             Team1.OpponentTeam = Team0;
-            
+
             AddUpdatable(SpectatorTeam);
             AddUpdatable(Team0);
             AddUpdatable(Team1);
@@ -922,7 +946,7 @@ namespace Game.Fight
             AddHandler(Team0.Dispatch);
             AddHandler(Team1.Dispatch);
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -956,7 +980,7 @@ namespace Game.Fight
         /// <param name="infos"></param>
         public void AddProcessingTarget(CastInfos infos)
         {
-            if(infos.Target == null)
+            if (infos.Target == null)
             {
                 Logger.Debug("AddProcessingTarget first (Null target)");
                 m_processingTargets.AddFirst(infos);
@@ -978,7 +1002,7 @@ namespace Game.Fight
             }
         }
 
-         /// <summary>
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="cellId"></param>
@@ -986,7 +1010,10 @@ namespace Game.Fight
         public FightCell GetCell(int cellId)
         {
             if (Cells.ContainsKey(cellId))
+            {
                 return Cells[cellId];
+            }
+
             return null;
         }
 
@@ -999,10 +1026,14 @@ namespace Game.Fight
             AddMessage(() =>
             {
                 if (LoopState == FightLoopStateEnum.STATE_WAIT_END || LoopState == FightLoopStateEnum.STATE_ENDED)
+                {
                     return;
+                }
 
-                for (int i = SpectatorTeam.Spectators.Count() - 1; i > -1; i--)                
-                    FightQuit(SpectatorTeam.Spectators.ElementAt(i), true);                
+                for (int i = SpectatorTeam.Spectators.Count() - 1; i > -1; i--)
+                {
+                    FightQuit(SpectatorTeam.Spectators.ElementAt(i), true);
+                }
             });
         }
 
@@ -1026,7 +1057,7 @@ namespace Game.Fight
                             character.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_FIGHT_SPECTATOR_LOCKED));
                             return;
                         }
-                        
+
                         if (!SpectatorTeam.CanJoin)
                         {
                             character.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_FIGHT_SPECTATOR_LOCKED));
@@ -1075,7 +1106,7 @@ namespace Game.Fight
                         character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                         return;
                     }
-                    
+
                     JoinFight(character, team);
                 });
         }
@@ -1088,19 +1119,25 @@ namespace Game.Fight
         public void JoinFight(AbstractFighter fighter, FightTeam team)
         {
             if (team.FreePlace == null)
+            {
                 return;
+            }
 
             if (!fighter.IsDisconnected)
             {
-                if(fighter.Type == EntityTypeEnum.TYPE_CHARACTER)
+                if (fighter.Type == EntityTypeEnum.TYPE_CHARACTER)
+                {
                     OnCharacterJoin(fighter as CharacterEntity, team);
+                }
 
                 fighter.JoinFight(this, team);
                 Dispatch(WorldMessage.GAME_MAP_INFORMATIONS(OperatorEnum.OPERATOR_ADD, fighter));
             }
 
             if (fighter.MapId == Map.Id)
+            {
                 SendFightJoinInfos(fighter);
+            }
         }
 
         /// <summary>
@@ -1116,17 +1153,23 @@ namespace Game.Fight
 
             var result = fighter.SetCell(GetCell(cellId));
             if (result != FightActionResultEnum.RESULT_NOTHING)
+            {
                 return result;
+            }
 
             var message = new StringBuilder("+");
             fighter.SerializeAs_GameMapInformations(OperatorEnum.OPERATOR_ADD, message);
-                      
-            if (fighter.Invocator != null)
-                Dispatch(WorldMessage.GAME_ACTION(fighter.SummonEffectType, fighter.Invocator.Id, message.ToString()));
-            else
-                Dispatch("GM|" + message.ToString());
 
-            switch(State)
+            if (fighter.Invocator != null)
+            {
+                Dispatch(WorldMessage.GAME_ACTION(fighter.SummonEffectType, fighter.Invocator.Id, message.ToString()));
+            }
+            else
+            {
+                Dispatch("GM|" + message.ToString());
+            }
+
+            switch (State)
             {
                 case FightStateEnum.STATE_PLACEMENT:
                     // implicit turnready after start fighting
@@ -1150,23 +1193,28 @@ namespace Game.Fight
         {
             AddMessage(() =>
             {
-                // fight just ended
-                if (LoopState == FightLoopStateEnum.STATE_WAIT_END || LoopState == FightLoopStateEnum.STATE_ENDED)                
+                if (LoopState == FightLoopStateEnum.STATE_WAIT_END || LoopState == FightLoopStateEnum.STATE_ENDED)
+                {
                     return;
-                
+                }
+
                 fighter.IsDisconnected = true;
-                
-                // disconnected during placement or spectator disconnected
+
                 if (fighter.IsSpectating)
                 {
                     FightQuit((CharacterEntity)fighter, true);
                     return;
                 }
 
-                Logger.Debug("Fight::Disconnect fighter disconnected : " + fighter.Name);
-                
+                if (WorldConfig.LOG_DEBUG)
+                {
+                    Logger.Debug("Fight::Disconnect fighter disconnected: " + fighter.Name);
+                }
+
                 if (fighter.DisconnectedTurnLeft == 0)
+                {
                     fighter.DisconnectedTurnLeft = WorldConfig.FIGHT_DISCONNECTION_TURN;
+                }
 
                 Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_FIGHTER_DISCONNECTED, fighter.Name, fighter.DisconnectedTurnLeft));
             });
@@ -1184,13 +1232,19 @@ namespace Game.Fight
             if (LoopState == FightLoopStateEnum.STATE_ENDED ||
                 LoopState == FightLoopStateEnum.STATE_WAIT_END ||
                 LoopState == FightLoopStateEnum.STATE_INIT)
+            {
                 return FightActionResultEnum.RESULT_NOTHING;
+            }
 
             if (fighter.DeclaredDead)
+            {
                 return FightActionResultEnum.RESULT_DEATH;
+            }
 
             if (force)
+            {
                 fighter.Life = 0;
+            }
 
             if (fighter.IsFighterDead)
             {
@@ -1204,7 +1258,7 @@ namespace Game.Fight
                 {
                     Dispatch(WorldMessage.GAME_ACTION(GameActionTypeEnum.FIGHT_KILL, killer.Id, fighter.Id.ToString()));
                 }
-                
+
                 fighter.OnDeath(killer);
                 killer.OnKill(fighter);
 
@@ -1212,7 +1266,9 @@ namespace Game.Fight
                 Team1.CheckDeath(fighter);
 
                 foreach (var invocation in fighter.Team.AliveFighters.Where(ally => ally.Invocator == fighter))
+                {
                     TryKillFighter(invocation, invocation, true);
+                }
 
                 if (fighter.Invocator != null)
                 {
@@ -1221,12 +1277,17 @@ namespace Game.Fight
                 }
 
                 if (State != FightStateEnum.STATE_PLACEMENT)
+                {
                     NextLoopTimeout = CurrentLoopTimeout + 1300; // time delayed because of the death
+                }
 
                 if (WillFinish())
                 {
                     if (State == FightStateEnum.STATE_PLACEMENT)
+                    {
                         NextLoopTimeout = -1;
+                    }
+
                     return FightActionResultEnum.RESULT_END;
                 }
 
@@ -1234,7 +1295,9 @@ namespace Game.Fight
             }
 
             if (WillFinish())
+            {
                 return FightActionResultEnum.RESULT_END;
+            }
 
             return FightActionResultEnum.RESULT_NOTHING;
         }
@@ -1268,7 +1331,7 @@ namespace Game.Fight
                     fighter.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
-                    
+
                 var cell = GetCell(cellId);
                 if (cell != null)
                 {
@@ -1287,7 +1350,9 @@ namespace Game.Fight
         private void SetAllUnReady()
         {
             foreach (var fighter in Fighters)
+            {
                 fighter.TurnReady = false;
+            }
         }
 
         /// <summary>
@@ -1329,13 +1394,13 @@ namespace Game.Fight
             AddMessage(() =>
                 {
                     CurrentFighter = TurnProcessor.NextFighter;
-                    if(CurrentFighter == null)
+                    if (CurrentFighter == null)
                     {
                         LoopState = FightLoopStateEnum.STATE_WAIT_END;
                         LoopEndState = FightEndStateEnum.STATE_END_ERROR;
                         return;
                     }
-                    
+
                     base.Dispatch(WorldMessage.FIGHT_TURN_STARTS(CurrentFighter.Id, TurnTime));
 
                     NextTurnTimeout = TurnTime;
@@ -1356,25 +1421,18 @@ namespace Game.Fight
 
                     LoopState = FightLoopStateEnum.STATE_PROCESS_EFFECT;
 
-                    switch(CurrentFighter.Type)
+                    switch (CurrentFighter.Type)
                     {
                         case EntityTypeEnum.TYPE_CHARACTER:
                             NextLoopState = FightLoopStateEnum.STATE_WAIT_TURN;
                             if (CurrentFighter.IsDisconnected)
                             {
-                                CurrentFighter.DisconnectedTurnLeft--;
-                                if (CurrentFighter.DisconnectedTurnLeft <= 0)
-                                {
-                                    FightQuit((CharacterEntity)CurrentFighter, true);
-                                    return;
-                                }
-                                Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_FIGHTER_DISCONNECTED, CurrentFighter.Name, CurrentFighter.DisconnectedTurnLeft));
                                 CurrentFighter.TurnPass = true;
                             }
                             break;
 
                         default:
-                            NextLoopState = FightLoopStateEnum.STATE_WAIT_AI;                            
+                            NextLoopState = FightLoopStateEnum.STATE_WAIT_AI;
                             if (CurrentFighter is AIFighter)
                             {
                                 ((AIFighter)CurrentFighter).CurrentBrain.OnTurnStart();
@@ -1391,8 +1449,11 @@ namespace Game.Fight
         {
             AddMessage(() =>
                 {
-                    if(!HasLeft(CurrentFighter))
+                    if (!HasLeft(CurrentFighter))
+                    {
                         CurrentFighter.MiddleTurn();
+                    }
+
                     base.Dispatch(WorldMessage.FIGHT_TURN_MIDDLE(Fighters));
                 });
         }
@@ -1466,7 +1527,9 @@ namespace Game.Fight
         public bool WillFinish()
         {
             if (LoopState == FightLoopStateEnum.STATE_WAIT_END)
+            {
                 return true;
+            }
 
             if (GetWinners() != null)
             {
@@ -1478,8 +1541,10 @@ namespace Game.Fight
 
                 LoopState = FightLoopStateEnum.STATE_WAIT_END;
 
-                if(CurrentAction != null)
+                if (CurrentAction != null)
+                {
                     Dispatch(WorldMessage.FIGHT_ACTION_FINISHED(CurrentFighter.Id));
+                }
 
                 return true;
             }
@@ -1504,9 +1569,15 @@ namespace Game.Fight
         public FightTeam GetWinners()
         {
             if (!Team0.HasSomeoneAlive)
+            {
                 return Team1;
+            }
+
             if (!Team1.HasSomeoneAlive)
+            {
                 return Team0;
+            }
+
             return null;
         }
 
@@ -1574,14 +1645,18 @@ namespace Game.Fight
                                     Logger.Debug("Processing effect : " + CurrentProcessingFighter.Name);
                                     var effectResult = EffectManager.Instance.TryApplyEffect(castInfos);
                                     if (effectResult == FightActionResultEnum.RESULT_END)
+                                    {
                                         break;
+                                    }
                                 }
                             }
                             else
                             {
                                 var effectResult = EffectManager.Instance.TryApplyEffect(castInfos);
                                 if (effectResult == FightActionResultEnum.RESULT_END)
+                                {
                                     break;
+                                }
                             }
 
                             LoopState = FightLoopStateEnum.STATE_WAIT_SUBACTION;
@@ -1625,7 +1700,9 @@ namespace Game.Fight
                             Dispatch(WorldMessage.FIGHT_ACTION_FINISHED(CurrentFighter.Id));
 
                             if (LoopState == FightLoopStateEnum.STATE_WAIT_END)
+                            {
                                 break;
+                            }
 
                             switch (CurrentFighter.Type)
                             {
@@ -1660,7 +1737,10 @@ namespace Game.Fight
 
                                     case FightActionResultEnum.RESULT_DEATH:
                                         if (CurrentFighter.IsFighterDead)
+                                        {
                                             CurrentFighter.TurnPass = true;
+                                        }
+
                                         break;
                                 }
 
@@ -1733,60 +1813,86 @@ namespace Game.Fight
 
                 base.Update(updateDelta);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 if (LoopState != FightLoopStateEnum.STATE_ENDED)
                 {
                     LoopState = FightLoopStateEnum.STATE_WAIT_END;
                     LoopEndState = FightEndStateEnum.STATE_END_ERROR;
                 }
-                Logger.Error("Fight ended error : type=" + Type + " message="+ ex.ToString());
+                Logger.Error("Fight ended error : type=" + Type + " message=" + ex.ToString());
             }
         }
 
         public FightSpellLaunchResultEnum CanLaunchSpell(AbstractFighter fighter, SpellLevel spellLevel, int spellId, int cellId, int castCell)
         {
-            if(LoopState != FightLoopStateEnum.STATE_WAIT_TURN && LoopState != FightLoopStateEnum.STATE_WAIT_AI)            
+            if (LoopState != FightLoopStateEnum.STATE_WAIT_TURN && LoopState != FightLoopStateEnum.STATE_WAIT_AI)
+            {
                 return FightSpellLaunchResultEnum.RESULT_ERROR;
-            
-            if (CurrentFighter != fighter)            
-                return FightSpellLaunchResultEnum.RESULT_ERROR;            
-            
-            if (GetCell(castCell) == null)            
+            }
+
+            if (CurrentFighter != fighter)
+            {
                 return FightSpellLaunchResultEnum.RESULT_ERROR;
-            
+            }
+
+            if (GetCell(castCell) == null)
+            {
+                return FightSpellLaunchResultEnum.RESULT_ERROR;
+            }
+
             if (fighter.AP < spellLevel.APCost)
+            {
                 return FightSpellLaunchResultEnum.RESULT_NO_AP;
+            }
 
             if (spellLevel.RequiredLevel > 0 && fighter.Level < spellLevel.RequiredLevel)
+            {
                 return FightSpellLaunchResultEnum.RESULT_ERROR;
+            }
 
             if (fighter.StateManager.HasState(FighterStateEnum.STATE_WEAKENED))
+            {
                 return FightSpellLaunchResultEnum.RESULT_ERROR;
+            }
 
             if (fighter.StateManager.HasState(FighterStateEnum.STATE_CARRIED))
+            {
                 return FightSpellLaunchResultEnum.RESULT_ERROR;
+            }
 
             var distance = Pathfinding.GoalDistance(Map, cellId, castCell);
-            var maxPo = spellLevel.AllowPOBoost ?  spellLevel.MaxPO + fighter.Statistics.GetTotal(EffectEnum.AddPO) : spellLevel.MaxPO;
-          
+            var maxPo = spellLevel.AllowPOBoost ? spellLevel.MaxPO + fighter.Statistics.GetTotal(EffectEnum.AddPO) : spellLevel.MaxPO;
+
             if (maxPo < spellLevel.MinPO)
+            {
                 maxPo = spellLevel.MinPO;
+            }
 
-            if (distance > maxPo || distance < spellLevel.MinPO)            
-                return FightSpellLaunchResultEnum.RESULT_NEED_MOVE;            
-
-            if(spellLevel.EmptyCell && !GetCell(castCell).CanWalk)            
-                return FightSpellLaunchResultEnum.RESULT_WRONG_TARGET;            
-
-            if(spellLevel.InLine && !Pathfinding.InLine(Map, cellId, castCell))            
+            if (distance > maxPo || distance < spellLevel.MinPO)
+            {
                 return FightSpellLaunchResultEnum.RESULT_NEED_MOVE;
+            }
+
+            if (spellLevel.EmptyCell && !GetCell(castCell).CanWalk)
+            {
+                return FightSpellLaunchResultEnum.RESULT_WRONG_TARGET;
+            }
+
+            if (spellLevel.InLine && !Pathfinding.InLine(Map, cellId, castCell))
+            {
+                return FightSpellLaunchResultEnum.RESULT_NEED_MOVE;
+            }
 
             if (spellLevel.EmptyCell && GetCell(castCell).HasObject(FightObstacleTypeEnum.TYPE_FIGHTER))
+            {
                 return FightSpellLaunchResultEnum.RESULT_NO_LOS;
+            }
 
             if (spellLevel.LOS && !Pathfinding.CheckView(this, cellId, castCell))
+            {
                 return FightSpellLaunchResultEnum.RESULT_NO_LOS;
+            }
 
             if (spellLevel.Effects != null)
             {
@@ -1804,11 +1910,15 @@ namespace Game.Fight
             var target = GetFighterOnCell(castCell);
             long targetId = 0;
             if (target != null)
+            {
                 targetId = target.Id;
+            }
 
-            if (!fighter.SpellManager.CanLaunchSpell(spellLevel, spellId, targetId))            
+            if (!fighter.SpellManager.CanLaunchSpell(spellLevel, spellId, targetId))
+            {
                 return FightSpellLaunchResultEnum.RESULT_WRONG_TARGET;
-            
+            }
+
             return FightSpellLaunchResultEnum.RESULT_OK;
         }
 
@@ -1858,7 +1968,9 @@ namespace Game.Fight
             var poMax = template.POMax + fighter.Statistics.GetTotal(EffectEnum.AddPO);
 
             if (poMax - template.POMin < 1)
+            {
                 poMax = template.POMin;
+            }
 
             if (distance > poMax || distance < template.POMin)
             {
@@ -1884,7 +1996,7 @@ namespace Game.Fight
                         return;
                     }
 
-                    if(State != FightStateEnum.STATE_FIGHTING)
+                    if (State != FightStateEnum.STATE_FIGHTING)
                     {
                         Logger.Debug("Fight::TryUseWeapon fight is not in fighting state : " + fighter.Name);
                         fighter.Dispatch(WorldMessage.BASIC_NO_OPERATION());
@@ -1897,16 +2009,16 @@ namespace Game.Fight
                         fighter.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                         return;
                     }
-                    
+
                     var weapon = fighter.Inventory.Items.Find(item => item.Slot == ItemSlotEnum.SLOT_WEAPON);
 
-                    if(weapon == null)
+                    if (weapon == null)
                     {
                         TryLaunchSpell(fighter, 0, cellId);
                         return;
                     }
 
-                    if(!CanUseWeapon(fighter, weapon, cellId))
+                    if (!CanUseWeapon(fighter, weapon, cellId))
                     {
                         Logger.Debug("Fight::TryUseWeapon unable to use weapon : " + fighter.Name);
                         fighter.Dispatch(WorldMessage.BASIC_NO_OPERATION());
@@ -1929,13 +2041,17 @@ namespace Game.Fight
                         var criticalFailureRate = weaponTemplate.CFRate - fighter.Statistics.GetTotal(EffectEnum.AddEchecCritic);
 
                         if (criticalFailureRate < 2)
+                        {
                             criticalFailureRate = 2;
+                        }
 
                         if (Util.Next(0, criticalFailureRate) == 0)
+                        {
                             failure = true;
+                        }
                     }
 
-                    if(failure)
+                    if (failure)
                     {
                         CachedBuffer = true;
                         Dispatch(WorldMessage.GAME_ACTION(GameActionTypeEnum.FIGHT_WEAPON_FAILURE, fighter.Id, weaponTemplate.Id.ToString()));
@@ -1955,14 +2071,20 @@ namespace Game.Fight
                         fighter.CalculCriticalHitRate(ref criticalHitRate);
 
                         if (criticalHitRate < 2)
+                        {
                             criticalHitRate = 2;
+                        }
 
                         if (Util.Next(0, criticalHitRate) == 0)
+                        {
                             criticalHit = true;
+                        }
                     }
 
-                    if(criticalHit)                   
+                    if (criticalHit)
+                    {
                         Dispatch(WorldMessage.GAME_ACTION(GameActionTypeEnum.FIGHT_CRITICAL_HIT, fighter.Id, "0"));
+                    }
 
                     var effects = weapon.Statistics.WeaponEffects;
                     var targetLists = new List<Tuple<GenericEffect, List<AbstractFighter>>>();
@@ -1975,10 +2097,12 @@ namespace Game.Fight
                             var fightCell = GetCell(currentCellId);
                             if (fightCell != null)
                             {
-                                foreach(var fighterObject in fightCell.FightObjects.OfType<AbstractFighter>())
+                                foreach (var fighterObject in fightCell.FightObjects.OfType<AbstractFighter>())
                                 {
                                     if (fighter == fighterObject)
+                                    {
                                         continue;
+                                    }
 
                                     targetList.Add(fighterObject);
                                 }
@@ -2015,8 +2139,8 @@ namespace Game.Fight
                                                         0,
                                                         fighter,
                                                         null,
-                                                        weaponTemplate.RangeType, 
-                                                        0, 
+                                                        weaponTemplate.RangeType,
+                                                        0,
                                                         -1,
                                                         isMelee)
                                                      );
@@ -2068,21 +2192,33 @@ namespace Game.Fight
 
                 if (State != FightStateEnum.STATE_FIGHTING)
                 {
-                    Logger.Debug("Fight::TryLaunchSpell fight is not in fighting state : " + fighter.Name);
+                    if (WorldConfig.LOG_DEBUG)
+                    {
+                        Logger.Debug("Fight::TryLaunchSpell fight is not in fighting state : " + fighter.Name);
+                    }
+
                     fighter.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
 
                 if (m_currentApCost != -1)
                 {
-                    Logger.Debug("Fight::TryLaunchSpell fight already processing spell launch and not finished : " + fighter.Name);
+                    if (WorldConfig.LOG_DEBUG)
+                    {
+                        Logger.Debug("Fight::TryLaunchSpell fight already processing spell launch and not finished : " + fighter.Name);
+                    }
+
                     fighter.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
 
                 if (fighter.SpellBook == null)
                 {
-                    Logger.Debug("Fight::TryLaunchSpell empty spellbook : " + fighter.Name);
+                    if (WorldConfig.LOG_DEBUG)
+                    {
+                        Logger.Debug("Fight::TryLaunchSpell empty spellbook : " + fighter.Name);
+                    }
+
                     fighter.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
@@ -2091,7 +2227,11 @@ namespace Game.Fight
 
                 if (spellLevel == null)
                 {
-                    Logger.Debug("Fight::TryLaunchSpell unnknow spellId : " + fighter.Name);
+                    if (WorldConfig.LOG_DEBUG)
+                    {
+                        Logger.Debug("Fight::TryLaunchSpell unnknow spellId : " + fighter.Name);
+                    }
+
                     fighter.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
@@ -2099,7 +2239,11 @@ namespace Game.Fight
                 var launchResult = CanLaunchSpell(fighter, spellLevel, spellId, fighter.Cell.Id, castCellId);
                 if (launchResult != FightSpellLaunchResultEnum.RESULT_OK)
                 {
-                    Logger.Debug("Fight::TryLaunchSpell unable to launch spell : " + fighter.Name + " reason=" + launchResult);
+                    if (WorldConfig.LOG_DEBUG)
+                    {
+                        Logger.Debug("Fight::TryLaunchSpell unable to launch spell : " + fighter.Name + " reason=" + launchResult);
+                    }
+
                     fighter.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
@@ -2107,7 +2251,7 @@ namespace Game.Fight
                 var isMelee = Pathfinding.GoalDistance(Map, fighter.Cell.Id, castCellId) == 1;
 
                 fighter.UsedAP += spellLevel.APCost;
-                                
+
                 base.Dispatch(WorldMessage.FIGHT_ACTION_START(CurrentFighter.Id));
 
                 var isEchec = false;
@@ -2116,10 +2260,14 @@ namespace Game.Fight
                     var echecRate = spellLevel.ECSRate - fighter.Statistics.GetTotal(EffectEnum.AddEchecCritic);
 
                     if (echecRate < 2)
+                    {
                         echecRate = 2;
+                    }
 
                     if (Util.Next(0, echecRate) == 0)
+                    {
                         isEchec = true;
+                    }
 
                     if (isEchec)
                     {
@@ -2144,18 +2292,24 @@ namespace Game.Fight
                 if (spellLevel.CSRate != 0 && spellLevel.CriticalEffects.Count > 0)
                 {
                     var criticalHitRate = spellLevel.CSRate - fighter.Statistics.GetTotal(EffectEnum.AddDamageCritic);
-                    
+
                     fighter.CalculCriticalHitRate(ref criticalHitRate);
 
                     if (criticalHitRate < 2)
+                    {
                         criticalHitRate = 2;
+                    }
 
                     if (Util.Next(0, criticalHitRate) == 0)
+                    {
                         isCritic = true;
+                    }
                 }
-                
-                if (isCritic)                
-                    Dispatch(WorldMessage.GAME_ACTION(GameActionTypeEnum.FIGHT_CRITICAL_HIT, fighter.Id, spellId.ToString()));                
+
+                if (isCritic)
+                {
+                    Dispatch(WorldMessage.GAME_ACTION(GameActionTypeEnum.FIGHT_CRITICAL_HIT, fighter.Id, spellId.ToString()));
+                }
 
                 var effects = isCritic ? spellLevel.CriticalEffects : spellLevel.Effects;
                 var targetLists = new Dictionary<SpellEffect, List<AbstractFighter>>();
@@ -2182,33 +2336,48 @@ namespace Game.Fight
                                         if (((((targetType >> 5) & 1) == 1) && (fighter.Id != fighterObject.Id)))
                                         {
                                             if (!targetLists[effect].Contains(fighter))
+                                            {
                                                 targetLists[effect].Add(fighter);
+                                            }
+
                                             continue;
                                         }
 
                                         // doesnt affect team mates : 1
                                         if (((targetType & 1) == 1) && fighter.Team == fighterObject.Team)
+                                        {
                                             continue;
+                                        }
 
                                         // doesnt affect the caster : 2
                                         if ((((targetType >> 1) & 1) == 1) && fighter.Id == fighterObject.Id)
+                                        {
                                             continue;
+                                        }
 
                                         // doesnt affect ennemies : 4
                                         if ((((targetType >> 2) & 1) == 1) && fighter.Team != fighterObject.Team)
+                                        {
                                             continue;
+                                        }
 
                                         // only invocation : 8
                                         if (((((targetType >> 3) & 1) == 1) && (fighterObject.Invocator == null)))
+                                        {
                                             continue;
+                                        }
 
                                         // doesnt affect invocs : 16
                                         if (((((targetType >> 4) & 1) == 1) && (fighterObject.Invocator != null)))
-                                            continue;                                        
+                                        {
+                                            continue;
+                                        }
                                     }
 
                                     if (!targetLists[effect].Contains(fighterObject))
+                                    {
                                         targetLists[effect].Add(fighterObject);
+                                    }
                                 }
                             }
                         }
@@ -2294,7 +2463,7 @@ namespace Game.Fight
                 });
             });
         }
-        
+
 
         /// <summary>
         /// 
@@ -2302,29 +2471,45 @@ namespace Game.Fight
         protected virtual void FightEnd()
         {
             if (State == FightStateEnum.STATE_PLACEMENT)
+            {
                 Map.Dispatch(WorldMessage.FIGHT_FLAG_DESTROY(Id));
+            }
 
             State = FightStateEnum.STATE_ENDED;
             LoopState = FightLoopStateEnum.STATE_ENDED;
 
             foreach (var fighter in WinnerFighters)
+            {
                 if (!Result.HasResult(fighter))
+                {
                     Result.AddResult(fighter, FightEndTypeEnum.END_WINNER);
+                }
+            }
 
             foreach (var fighter in LoserFighters)
+            {
                 if (!Result.HasResult(fighter))
+                {
                     Result.AddResult(fighter);
+                }
+            }
 
             Dispatch(WorldMessage.FIGHT_END_RESULT(Result));
 
             foreach (var fighter in WinnerTeam.Fighters.ToArray())
+            {
                 fighter.EndFight(true);
+            }
 
             foreach (var fighter in LoserTeam.Fighters.ToArray())
+            {
                 fighter.EndFight();
+            }
 
             foreach (var spectator in SpectatorTeam.Spectators.ToArray())
+            {
                 spectator.EndFight();
+            }
         }
 
         /// <summary>
@@ -2333,7 +2518,9 @@ namespace Game.Fight
         protected virtual void FightEndError()
         {
             if (State == FightStateEnum.STATE_PLACEMENT)
+            {
                 Map.Dispatch(WorldMessage.FIGHT_FLAG_DESTROY(Id));
+            }
 
             State = FightStateEnum.STATE_ENDED;
             LoopState = FightLoopStateEnum.STATE_ENDED;
@@ -2343,12 +2530,14 @@ namespace Game.Fight
             foreach (var fighter in Fighters.ToArray())
             {
                 fighter.EndFight(true);
-            }      
+            }
 
             foreach (var spectator in SpectatorTeam.Spectators.ToArray())
+            {
                 spectator.EndFight();
+            }
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -2363,11 +2552,13 @@ namespace Game.Fight
         public override void Dispose()
         {
             foreach (var cell in Cells)
+            {
                 cell.Value.Dispose();
+            }
 
             Cells.Clear();
             Cells = null;
-            
+
             SpectatorTeam = null;
             Team0 = null;
             Team1 = null;
@@ -2381,7 +2572,7 @@ namespace Game.Fight
 
             Result.Dispose();
             Result = null;
-            
+
             Map = null;
 
             m_activableObjects.Clear();
@@ -2408,7 +2599,9 @@ namespace Game.Fight
         {
             var fightCell = GetCell(cell);
             if (fightCell == null)
+            {
                 return false;
+            }
 
             return fightCell.HasObject(type);
         }
@@ -2422,7 +2615,10 @@ namespace Game.Fight
         {
             var cell = GetCell(cellId);
             if (cell == null)
+            {
                 return false;
+            }
+
             return cell.CanPutObject;
         }
 
@@ -2434,7 +2630,10 @@ namespace Game.Fight
         public void AddActivableObject(AbstractFighter caster, AbstractActivableObject obj)
         {
             if (!m_activableObjects.ContainsKey(caster))
+            {
                 m_activableObjects.Add(caster, new List<AbstractActivableObject>());
+            }
+
             m_activableObjects[caster].Add(obj);
         }
 
@@ -2469,7 +2668,6 @@ namespace Game.Fight
                 var fighter = (AbstractFighter)entity;
                 var movementPath = Pathfinding.IsValidPath(this, fighter, fighter.Cell.Id, path);
 
-                //
                 if (movementPath == null)
                 {
                     Logger.Debug("Fight::Move null movement path : " + entity.Name);
@@ -2490,23 +2688,24 @@ namespace Game.Fight
                 }
 
                 var tacledChance = Pathfinding.TryTacle(fighter);
-                
-                // Si tacle
+
                 if (tacledChance != -1 && !CurrentFighter.StateManager.HasState(FighterStateEnum.STATE_ROOTED))
                 {
                     CachedBuffer = true;
 
-                    // XX A été taclé
                     Dispatch(WorldMessage.GAME_ACTION(GameActionTypeEnum.FIGHT_TACLE, fighter.Id));
 
-                    // perte d'ap
                     var lostAP = (fighter.AP * tacledChance / 100) - 1;
 
                     if (lostAP < 0)
+                    {
                         lostAP = 1;
+                    }
 
                     if (lostAP > fighter.AP)
+                    {
                         lostAP = fighter.AP;
+                    }
 
                     fighter.UsedAP += lostAP;
 
@@ -2515,10 +2714,14 @@ namespace Game.Fight
                     var lostMP = fighter.MP;
 
                     if (lostMP < 0)
+                    {
                         lostMP = 0;
+                    }
 
                     if (lostMP > fighter.MP)
+                    {
                         lostMP = fighter.MP;
+                    }
 
                     fighter.UsedMP += lostMP;
 
@@ -2538,12 +2741,6 @@ namespace Game.Fight
             });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="movementPath"></param>
-        /// <param name="cellId"></param>
         public void MovementFinish(AbstractEntity entity, MovementPath movementPath, int cellId)
         {
             var fighter = (AbstractFighter)entity;
@@ -2556,9 +2753,6 @@ namespace Game.Fight
             fighter.SetCell(GetCell(cellId));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void SendMapFightInfos(AbstractEntity entity)
         {
             if (State == FightStateEnum.STATE_PLACEMENT)
@@ -2569,23 +2763,19 @@ namespace Game.Fight
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
         public void SendFightJoinInfos(AbstractFighter fighter)
         {
             if (fighter.Type == EntityTypeEnum.TYPE_CHARACTER)
             {
                 fighter.CachedBuffer = true;
                 fighter.Dispatch(fighter.IsSpectating
-                    ? WorldMessage.FIGHT_JOIN_SUCCESS((int) FightStateEnum.STATE_FIGHTING, false, false, true, 0)
-                    : WorldMessage.FIGHT_JOIN_SUCCESS((int) State, CancelButton, true, false, StartTime - UpdateTime));
+                    ? WorldMessage.FIGHT_JOIN_SUCCESS((int)FightStateEnum.STATE_FIGHTING, false, false, true, 0)
+                    : WorldMessage.FIGHT_JOIN_SUCCESS((int)State, CancelButton, true, false, StartTime - UpdateTime));
                 fighter.Dispatch(WorldMessage.GAME_MAP_INFORMATIONS(OperatorEnum.OPERATOR_ADD, AliveFighters.ToArray()));
 
                 switch (State)
                 {
-                    case FightStateEnum.STATE_PLACEMENT:                        
+                    case FightStateEnum.STATE_PLACEMENT:
                         fighter.Dispatch(WorldMessage.FIGHT_AVAILABLE_PLACEMENTS(fighter.Team.Id, FightPlaces)); // GamePlace
                         if (fighter.IsDisconnected)
                         {
@@ -2604,7 +2794,7 @@ namespace Game.Fight
                         break;
 
                     case FightStateEnum.STATE_FIGHTING:
-                        if(fighter.IsSpectating)
+                        if (fighter.IsSpectating)
                         {
                             Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, InformationEnum.INFO_FIGHT_SPECTATOR_JOINED, fighter.Name));
                         }
@@ -2614,15 +2804,20 @@ namespace Game.Fight
                             fighter.Team.SendChallengeInfos(fighter);
                             fighter.Dispatch(WorldMessage.GAME_DATA_SUCCESS());
                             Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_FIGHTER_RECONNECTED, fighter.Name));
-                        }                        
+                        }
                         fighter.Dispatch(WorldMessage.FIGHT_COORDINATE_INFORMATIONS(AliveFighters.ToArray()));
                         fighter.Dispatch(WorldMessage.FIGHT_STARTS());
                         fighter.Dispatch(WorldMessage.FIGHT_TURN_LIST(TurnProcessor.FighterOrder));
                         fighter.Dispatch(WorldMessage.FIGHT_TURN_STARTS(CurrentFighter.Id, TurnTimeLeft));
 
                         foreach (var aliveFighter in AliveFighters)
+                        {
                             foreach (var buff in aliveFighter.BuffManager.GetAllBuffs())
+                            {
                                 buff.SendTo(fighter.Dispatch);
+                            }
+                        }
+
                         break;
                 }
                 fighter.CachedBuffer = false;
@@ -2645,7 +2840,9 @@ namespace Game.Fight
             }
 
             foreach (var fighter in Fighters.OfType<AIFighter>())
+            {
                 fighter.TurnReady = true;
+            }
         }
 
         /// <summary>
@@ -2663,7 +2860,7 @@ namespace Game.Fight
         /// <param name="character"></param>
         /// <returns></returns>
         public abstract bool CanJoin(CharacterEntity character);
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -2671,13 +2868,13 @@ namespace Game.Fight
         /// <param name="kick"></param>
         /// <returns></returns>
         public abstract FightActionResultEnum FightQuit(CharacterEntity character, bool kick = false);
-        
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="message"></param>
         public abstract void SerializeAs_FightList(StringBuilder message);
-        
+
         /// <summary>
         /// 
         /// </summary>

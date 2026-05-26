@@ -25,17 +25,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Fody weavers: build-time only -->
-    <PackageReference Include="Fody" Version="6.9.3" PrivateAssets="all" />
-    <PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="all" />
-
-    <!-- Runtime dependencies -->
-    <PackageReference Include="MySql.Data" Version="9.2.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Protocolo\Protocolo.csproj" />
   </ItemGroup>
 

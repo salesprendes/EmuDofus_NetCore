@@ -1,6 +1,5 @@
-﻿using Protocolo.Framework.Database;
+using Protocolo.Framework.Database;
 using Game.Database.Repository;
-using PropertyChanged;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,23 +14,28 @@ namespace Game.Database.Structure
     [Table("npcquestion")]
     public sealed class NpcQuestionDAO : DataAccessObject<NpcQuestionDAO>
     {
+        private int _id;
+        private string _params;
+        private string _responses;
+
+
         [Key]
         public int Id
         {
-            get;
-            set;
+            get => _id;
+            set => SetProperty(ref _id, value);
         }
 
         public string Params
         {
-            get;
-            set;
+            get => _params;
+            set => SetProperty(ref _params, value);
         }
 
         public string Responses
         {
-            get;
-            set;
+            get => _responses;
+            set => SetProperty(ref _responses, value);
         }
 
         /// <summary>
@@ -43,7 +47,6 @@ namespace Game.Database.Structure
         /// 
         /// </summary>
         [Write(false)]
-        [DoNotNotify]
         public List<NpcResponseDAO> ResponseList
         {
             get

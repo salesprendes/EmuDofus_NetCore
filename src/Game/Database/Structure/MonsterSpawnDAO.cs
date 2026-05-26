@@ -1,4 +1,4 @@
-﻿using Protocolo.Framework.Database;
+using Protocolo.Framework.Database;
 using Game.Database.Repository;
 using System;
 using System.Collections.Generic;
@@ -25,14 +25,20 @@ namespace Game.Database.Structure
     [Table("monsterspawn")]
     public sealed class MonsterSpawnDAO : DataAccessObject<MonsterSpawnDAO>
     {
+        private int _zoneType;
+        private int _zoneId;
+        private int _gradeId;
+        private double _probability;
+
+
         /// <summary>
         /// 
         /// </summary>
         [Key]
         public int ZoneType
         {
-            get;
-            set;
+            get => _zoneType;
+            set => SetProperty(ref _zoneType, value);
         }
 
         /// <summary>
@@ -46,8 +52,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int ZoneId
         {
-            get;
-            set;
+            get => _zoneId;
+            set => SetProperty(ref _zoneId, value);
         }
 
         /// <summary>
@@ -55,14 +61,14 @@ namespace Game.Database.Structure
         /// </summary>
         public int GradeId
         {
-            get;
-            set;
+            get => _gradeId;
+            set => SetProperty(ref _gradeId, value);
         }
 
         public double Probability
         {
-            get;
-            set;
+            get => _probability;
+            set => SetProperty(ref _probability, value);
         }
 
         /// <summary>

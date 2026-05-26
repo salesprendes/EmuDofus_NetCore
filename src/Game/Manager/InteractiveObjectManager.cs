@@ -1,39 +1,23 @@
-﻿using Protocolo.Framework.Generic;
-using Game.Interactive;
+﻿using Game.Interactive;
 using Game.Interactive.Type;
 using Game.Map;
+using Protocolo.Framework.Generic;
 using System;
 using System.Collections.Generic;
 
 namespace Game.Manager
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class InteractiveObjectManager : Singleton<InteractiveObjectManager>
     {
-        /// <summary>
-        /// 
-        /// </summary>
         private readonly Dictionary<int, Func<MapInstance, int, InteractiveObject>> m_interactiveById;
-
-        /// <summary>
-        /// 
-        /// </summary>
         private readonly Dictionary<int, int> m_interactiveByGfx;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public InteractiveObjectManager()
         {
             m_interactiveById = new Dictionary<int, Func<MapInstance, int, InteractiveObject>>();
             m_interactiveByGfx = new Dictionary<int, int>();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void Initialize()
         {
             // Autre
@@ -110,15 +94,15 @@ namespace Game.Manager
             // Mineur
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_FER, (map, cellId) => new HarvestableResource(map, cellId, 312, 1000 * 60 * 1, 1000 * 60 * 1, 10));
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_PIERRE_CUIVREE, (map, cellId) => new HarvestableResource(map, cellId, 441, 1000 * 60 * 1, 1000 * 60 * 1, 10));
-            AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_BRONZE, (map, cellId) => new HarvestableResource(map, cellId, 442, 1000 *  60 *  1, 1000 *  60 *  1, 10));
-            AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_PIERRE_DE_KOBALTE, (map, cellId) => new HarvestableResource(map, cellId, 443, 1000 *  60 *  1, 1000 *  60 *  1, 10));
-            AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_ARGENT, (map, cellId) => new HarvestableResource(map, cellId, 350, 1000 *  60 *  1, 1000 *  60 *  1, 10));
-            AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_OR, (map, cellId) => new HarvestableResource(map, cellId, 313, 1000 *  60 *  1, 1000 *  60 *  1, 10));
-            AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_PIERRE_DE_BAUXITE, (map, cellId) => new HarvestableResource(map, cellId, 446, 1000 *  60 *  1, 1000 *  60 *  1, 10));
-            AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_ETAIN, (map, cellId) => new HarvestableResource(map, cellId, 444, 1000 *  60 * 1, 1000 *  60 *  1, 10));
-            AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_MANGANESE, (map, cellId) => new HarvestableResource(map, cellId, 445, 1000 *  60 *  1, 1000 *  60 *  1, 10));
-            AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_DOLOMITE, (map, cellId) => new HarvestableResource(map, cellId, 7033, 1000 *  60 *  1, 1000 *  60 *  1, 10));
-            AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_SILICATE, (map, cellId) => new HarvestableResource(map, cellId, 7032, 1000 *  60 *  1, 1000 *  60 *  1, 10));
+            AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_BRONZE, (map, cellId) => new HarvestableResource(map, cellId, 442, 1000 * 60 * 1, 1000 * 60 * 1, 10));
+            AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_PIERRE_DE_KOBALTE, (map, cellId) => new HarvestableResource(map, cellId, 443, 1000 * 60 * 1, 1000 * 60 * 1, 10));
+            AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_ARGENT, (map, cellId) => new HarvestableResource(map, cellId, 350, 1000 * 60 * 1, 1000 * 60 * 1, 10));
+            AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_OR, (map, cellId) => new HarvestableResource(map, cellId, 313, 1000 * 60 * 1, 1000 * 60 * 1, 10));
+            AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_PIERRE_DE_BAUXITE, (map, cellId) => new HarvestableResource(map, cellId, 446, 1000 * 60 * 1, 1000 * 60 * 1, 10));
+            AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_ETAIN, (map, cellId) => new HarvestableResource(map, cellId, 444, 1000 * 60 * 1, 1000 * 60 * 1, 10));
+            AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_MANGANESE, (map, cellId) => new HarvestableResource(map, cellId, 445, 1000 * 60 * 1, 1000 * 60 * 1, 10));
+            AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_DOLOMITE, (map, cellId) => new HarvestableResource(map, cellId, 7033, 1000 * 60 * 1, 1000 * 60 * 1, 10));
+            AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_SILICATE, (map, cellId) => new HarvestableResource(map, cellId, 7032, 1000 * 60 * 1, 1000 * 60 * 1, 10));
 
             // Enclos 
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_ENCLOS, (map, cellId) => new PaddockDoor(map, cellId));
@@ -318,6 +302,8 @@ namespace Game.Manager
             AddInteractiveGfx(7043, InteractiveObjectIdEnum.INTERACTIVE_LEVIER);
             AddInteractiveGfx(7044, InteractiveObjectIdEnum.INTERACTIVE_LEVIER);
             AddInteractiveGfx(7045, InteractiveObjectIdEnum.INTERACTIVE_LEVIER);
+
+            AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_STATUE_DE_CLASSE, (map, cellId) => new EstatuaRaza(map, cellId));
             AddInteractiveGfx(1853, InteractiveObjectIdEnum.INTERACTIVE_STATUE_DE_CLASSE);
             AddInteractiveGfx(1854, InteractiveObjectIdEnum.INTERACTIVE_STATUE_DE_CLASSE);
             AddInteractiveGfx(1855, InteractiveObjectIdEnum.INTERACTIVE_STATUE_DE_CLASSE);
@@ -354,7 +340,7 @@ namespace Game.Manager
         {
             m_interactiveByGfx.Add(gfxId, (int)interactiveId);
         }
-        
+
         /// <summary>
         /// 
         /// </summary>

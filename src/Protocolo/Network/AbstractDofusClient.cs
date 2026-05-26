@@ -1,7 +1,6 @@
 using Protocolo.Framework.IO;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace Protocolo.Framework.Network
@@ -48,36 +47,48 @@ namespace Protocolo.Framework.Network
             LastActivityTime = DateTime.UtcNow;
             var end = offset + count;
             var segmentStart = offset;
+            var stopReceiving = false;
 
-            foreach (var i in Enumerable.Range(offset, count).Where(i => buffer[i] == '\n' || buffer[i] == 0x00))
+            for (int i = offset; i < end && !stopReceiving; i++)
             {
-                if (i > segmentStart)
-                    m_messageQueue.WriteBytes(buffer, segmentStart, i - segmentStart);
-
-                segmentStart = i + 1;
-
-                if (buffer[i] == 0x00)
+                var b = buffer[i];
+                if (b == '\n' || b == 0x00)
                 {
-                    if (m_messageQueue.Count > MaxMessageSize)
+                    if (i > segmentStart)
                     {
-                        Logger.Warn("Client kicked due to oversized packet : " + Ip);
-                        Disconnect();
-                        yield break;
+                        m_messageQueue.WriteBytes(buffer, segmentStart, i - segmentStart);
                     }
 
-                    if (!RegisterPacketActivity())
-                        yield break;
+                    segmentStart = i + 1;
 
-                    yield return m_messageQueue.ReadStringDirect(m_messageQueue.Count, Encoding.UTF8);
+                    if (b == 0x00)
+                    {
+                        if (m_messageQueue.Count > MaxMessageSize)
+                        {
+                            Logger.Warn("Client kicked due to oversized packet : " + Ip);
+                            Disconnect();
+                            stopReceiving = true;
+                        }
+                        else if (!RegisterPacketActivity())
+                        {
+                            stopReceiving = true;
+                        }
+                        else
+                        {
+                            yield return m_messageQueue.ReadStringDirect(m_messageQueue.Count, Encoding.UTF8);
+                        }
+                    }
                 }
             }
 
-            if (segmentStart < end)
-                m_messageQueue.WriteBytes(buffer, segmentStart, end - segmentStart);
-
-            if (m_messageQueue.Count > MaxMessageSize)
+            if (!stopReceiving && segmentStart < end)
             {
-                Logger.Warn("Client kicked due to oversized packet : " + Ip);
+                m_messageQueue.WriteBytes(buffer, segmentStart, end - segmentStart);
+            }
+
+            if (!stopReceiving && m_messageQueue.Count > MaxMessageSize)
+            {
+                Logger.Warn("El cliente fue expulsado debido a un paquete de tamaño excesivo: " + Ip);
                 Disconnect();
             }
         }
@@ -85,10 +96,14 @@ namespace Protocolo.Framework.Network
         public virtual void Send(string message)
         {
             if (message == null)
+            {
                 return;
+            }
 
             if (DebugEnabled)
+            {
                 Logger.Debug("Server : " + message);
+            }
 
             var byteCount = Encoding.UTF8.GetByteCount(message);
             var data = new byte[byteCount + 1];
@@ -98,7 +113,7 @@ namespace Protocolo.Framework.Network
 
         private bool RegisterPacketActivity()
         {
-            if (Environment.TickCount - LastPacketTime < 1000)
+            if (Environment.TickCount64 - LastPacketTime < 1000)
             {
                 CumulatedPacketInOneSecond++;
                 if (CumulatedPacketInOneSecond > 25)
@@ -111,7 +126,7 @@ namespace Protocolo.Framework.Network
             else
             {
                 CumulatedPacketInOneSecond = 1;
-                LastPacketTime = Environment.TickCount;
+                LastPacketTime = Environment.TickCount64;
             }
 
             return true;

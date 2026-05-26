@@ -14,18 +14,18 @@ namespace Game
         {
             switch (breed)
             {
-                case CharacterBreedEnum.BREED_CRA:       return 219;
-                case CharacterBreedEnum.BREED_ECAFLIP:   return 297;
-                case CharacterBreedEnum.BREED_ENIRIPSA:  return 270;
-                case CharacterBreedEnum.BREED_ENUTROF:   return 272;
-                case CharacterBreedEnum.BREED_FECA:      return 321;
-                case CharacterBreedEnum.BREED_IOP:       return 235;
-                case CharacterBreedEnum.BREED_OSAMODAS:  return 219;
-                case CharacterBreedEnum.BREED_PANDAWA:   return 249;
-                case CharacterBreedEnum.BREED_SACRIEUR:  return 229;
-                case CharacterBreedEnum.BREED_SADIDAS:   return 255;
-                case CharacterBreedEnum.BREED_SRAM:      return 219;
-                case CharacterBreedEnum.BREED_XELOR:     return 286;
+                case CharacterBreedEnum.BREED_CRA: return 219;
+                case CharacterBreedEnum.BREED_ECAFLIP: return 297;
+                case CharacterBreedEnum.BREED_ENIRIPSA: return 270;
+                case CharacterBreedEnum.BREED_ENUTROF: return 272;
+                case CharacterBreedEnum.BREED_FECA: return 321;
+                case CharacterBreedEnum.BREED_IOP: return 235;
+                case CharacterBreedEnum.BREED_OSAMODAS: return 219;
+                case CharacterBreedEnum.BREED_PANDAWA: return 249;
+                case CharacterBreedEnum.BREED_SACRIEUR: return 229;
+                case CharacterBreedEnum.BREED_SADIDAS: return 255;
+                case CharacterBreedEnum.BREED_SRAM: return 219;
+                case CharacterBreedEnum.BREED_XELOR: return 286;
                 default: throw new Exception("Unknow breedId " + breed);
             }
         }
@@ -34,43 +34,43 @@ namespace Game
         {
             switch (breed)
             {
-                case CharacterBreedEnum.BREED_CRA:       return 10285;
-                case CharacterBreedEnum.BREED_ECAFLIP:   return 10276;
-                case CharacterBreedEnum.BREED_ENIRIPSA:  return 10283;
-                case CharacterBreedEnum.BREED_ENUTROF:   return 10299;
-                case CharacterBreedEnum.BREED_FECA:      return 10300;
-                case CharacterBreedEnum.BREED_IOP:       return 10294;
-                case CharacterBreedEnum.BREED_OSAMODAS:  return 10285;
-                case CharacterBreedEnum.BREED_PANDAWA:   return 10289;
-                case CharacterBreedEnum.BREED_SACRIEUR:  return 10296;
-                case CharacterBreedEnum.BREED_SADIDAS:   return 10279;
-                case CharacterBreedEnum.BREED_SRAM:      return 10285;
-                case CharacterBreedEnum.BREED_XELOR:     return 10298;
+                case CharacterBreedEnum.BREED_CRA: return 10285;
+                case CharacterBreedEnum.BREED_ECAFLIP: return 10276;
+                case CharacterBreedEnum.BREED_ENIRIPSA: return 10283;
+                case CharacterBreedEnum.BREED_ENUTROF: return 10299;
+                case CharacterBreedEnum.BREED_FECA: return 10300;
+                case CharacterBreedEnum.BREED_IOP: return 10294;
+                case CharacterBreedEnum.BREED_OSAMODAS: return 10285;
+                case CharacterBreedEnum.BREED_PANDAWA: return 10289;
+                case CharacterBreedEnum.BREED_SACRIEUR: return 10296;
+                case CharacterBreedEnum.BREED_SADIDAS: return 10279;
+                case CharacterBreedEnum.BREED_SRAM: return 10285;
+                case CharacterBreedEnum.BREED_XELOR: return 10298;
                 default: throw new Exception("Unknow breedId " + breed);
             }
         }
 
         public static readonly FrozenDictionary<JobIdEnum, int[]> JOB_TOOLS = new Dictionary<JobIdEnum, int[]>()
-        { 
+        {
             { JobIdEnum.JOB_BUCHERON, new int[] { 454, 8539, 1378, 2608, 478, 2593, 2592, 2600, 2604, 456, 502, 675, 674, 923, 927, 515, 782, 673, 676, 771 } },
             { JobIdEnum.JOB_PAYSAN, new int[] { 577, 765, 8127, 8540, 8992, 12006 } },
             { JobIdEnum.JOB_PECHEUR, new int[] { 596, 1860, 1863, 1865, 1866, 1867, 1868, 2188, 2366, 8541 } },
             { JobIdEnum.JOB_FORGEUR_EPEES, new int[] { 494 } },
             { JobIdEnum.JOB_MINEUR, new int[] { 497 } },
-            { JobIdEnum.JOB_ALCHIMISTE, new int[] { 1473 } },            
-            { JobIdEnum.JOB_TAILLEUR, new int[] { 951 } },            
-            { JobIdEnum.JOB_BOULANGER, new int[] { 492 } },            
-            { JobIdEnum.JOB_SCULPTEUR_ARCS, new int[] { 500 } },            
-            { JobIdEnum.JOB_FORGEUR_DE_MARTEAUX, new int[] { 493 } },            
-            { JobIdEnum.JOB_FORGEUR_DE_BOUCLIERS, new int[] { 7098 } },            
-            { JobIdEnum.JOB_CORDONNIER, new int[] { 579 } },            
-            { JobIdEnum.JOB_BIJOUTIER, new int[] { 491 } },          
-            { JobIdEnum.JOB_SCULPTEUR_DE_BATONS, new int[] { 498 } },          
-            { JobIdEnum.JOB_SCULPTEUR_DE_BAGUETTES, new int[] { 499 } },          
-            { JobIdEnum.JOB_FORGEUR_DE_DAGUES, new int[] { 495 } },          
-            { JobIdEnum.JOB_FORGEUR_DE_PELLES, new int[] { 496 } },          
-            { JobIdEnum.JOB_FORGEUR_DE_HACHES, new int[] { 922 } },         
-            { JobIdEnum.JOB_BRICOLEUR, new int[] { 7650 } },    
+            { JobIdEnum.JOB_ALCHIMISTE, new int[] { 1473 } },
+            { JobIdEnum.JOB_TAILLEUR, new int[] { 951 } },
+            { JobIdEnum.JOB_BOULANGER, new int[] { 492 } },
+            { JobIdEnum.JOB_SCULPTEUR_ARCS, new int[] { 500 } },
+            { JobIdEnum.JOB_FORGEUR_DE_MARTEAUX, new int[] { 493 } },
+            { JobIdEnum.JOB_FORGEUR_DE_BOUCLIERS, new int[] { 7098 } },
+            { JobIdEnum.JOB_CORDONNIER, new int[] { 579 } },
+            { JobIdEnum.JOB_BIJOUTIER, new int[] { 491 } },
+            { JobIdEnum.JOB_SCULPTEUR_DE_BATONS, new int[] { 498 } },
+            { JobIdEnum.JOB_SCULPTEUR_DE_BAGUETTES, new int[] { 499 } },
+            { JobIdEnum.JOB_FORGEUR_DE_DAGUES, new int[] { 495 } },
+            { JobIdEnum.JOB_FORGEUR_DE_PELLES, new int[] { 496 } },
+            { JobIdEnum.JOB_FORGEUR_DE_HACHES, new int[] { 922 } },
+            { JobIdEnum.JOB_BRICOLEUR, new int[] { 7650 } },
             { JobIdEnum.JOB_CHASSEUR, new int[] { } },
             { JobIdEnum.JOB_BOUCHER, new int[] { 1945 } },
             { JobIdEnum.JOB_POISSONNIER, new int[] { 1946 } },
@@ -130,7 +130,7 @@ namespace Game
 
         [Configurable()]
         public static int WORLD_SAVE_INTERVAL = 20 * 60 * 1000;
-        
+
         [Configurable()]
         public static string WORLD_DB_CONNECTION = "Server=localhost;Database=game_emudofus;Uid=root;Pwd=;SslMode=Disabled;Pooling=true;Min Pool Size=3;Max Pool Size=30;Connection Timeout=30;Connection Lifetime=300;";
 
@@ -138,7 +138,7 @@ namespace Game
         public static string AUTH_DB_NAME = "login_emudofus";
 
         [Configurable()]
-        public static string RPC_PASSWORD = "smarken";
+        public static string RPC_PASSWORD = "servidorDofus";
 
         [Configurable()]
         public static string RPC_IP = "127.0.0.1";
@@ -151,8 +151,8 @@ namespace Game
 
         [Configurable()]
         public static int CHARACTER_CREATION_LEVEL = 1;
-       
-       
+
+
         [Configurable()]
         public static int CHARACTER_CREATION_LIFE = 55;
 
@@ -221,7 +221,6 @@ namespace Game
         public static int FIGHT_AI_SPELL_SPECIAL_DELAY = 200;
         public static int FIGHT_AI_MOVE_DELAY = 120;
 
-        // ChatRestriction
         public static readonly FrozenDictionary<ChatChannelEnum, long> CHAT_RESTRICTED_DELAY = new Dictionary<ChatChannelEnum, long>()
         {
             { ChatChannelEnum.CHANNEL_GENERAL, 100 },
@@ -233,13 +232,10 @@ namespace Game
         }.ToFrozenDictionary();
 
         [Configurable()]
-        public static DateTime REFERENCE_DATE = new DateTime(1970, 1, 1);
-
-        [Configurable()]
         public static int GAME_ID = 1;
 
-        [Configurable("LogDebugEnabled")]
-        public static bool LOG_DEBUG_ENABLED = true;
+        [Configurable("LogDebug")]
+        public static bool LOG_DEBUG = true;
     }
 }
 

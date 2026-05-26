@@ -98,7 +98,7 @@ namespace Game.Fight.Ending
                 loserFighters,
                 fighter.Level,
                 fighter.Statistics.GetTotal(EffectEnum.AddWisdom),
-                1,
+                1.0,
                 monsterFight?.MonsterGroup.AgeBonus ?? 0);
 
             return (long)(fullXp * 0.1);

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using Protocolo.Framework.Database;
@@ -7,8 +7,6 @@ using Game.Spell;
 using Game.Stats;
 using Game.Network;
 using Game.Database.Repository;
-using PropertyChanged;
-
 namespace Game.Database.Structure
 {
     /// <summary>
@@ -196,6 +194,29 @@ namespace Game.Database.Structure
     [Table("itemtemplate")]
     public sealed class ItemTemplateDAO : DataAccessObject<ItemTemplateDAO>
     {
+        private int _id;
+        private string _name;
+        private int _type;
+        private int _level;
+        private int _weight;
+        private bool _twoHands;
+        private bool _ethereal;
+        private bool _forgemageable;
+        private bool _buff;
+        private bool _usable;
+        private bool _targetable;
+        private int _price;
+        private string _conditions;
+        private string _effects;
+        private int _setId;
+        private int _csBonus;
+        private int _apCost;
+        private int _poMin;
+        private int _poMax;
+        private int _csRate;
+        private int _cfRate;
+
+
         /// <summary>
         /// 
         /// </summary>
@@ -319,168 +340,168 @@ namespace Game.Database.Structure
         /// </summary>
         public int Id
         {
-            get;
-            set;
+            get => _id;
+            set => SetProperty(ref _id, value);
         }
         /// <summary>
         /// 
         /// </summary>
         public string Name
         {
-            get;
-            set;
+            get => _name;
+            set => SetProperty(ref _name, value);
         }
         /// <summary>
         /// 
         /// </summary>
         public int Type
         {
-            get;
-            set;
+            get => _type;
+            set => SetProperty(ref _type, value);
         }
         /// <summary>
         /// 
         /// </summary>
         public int Level
         {
-            get;
-            set;
+            get => _level;
+            set => SetProperty(ref _level, value);
         }
         /// <summary>
         /// 
         /// </summary>
         public int Weight
         {
-            get;
-            set;
+            get => _weight;
+            set => SetProperty(ref _weight, value);
         }
         /// <summary>
         /// 
         /// </summary>
         public bool TwoHands
         {
-            get;
-            set;
+            get => _twoHands;
+            set => SetProperty(ref _twoHands, value);
         }
         /// <summary>
         /// 
         /// </summary>
         public bool Ethereal
         {
-            get;
-            set;
+            get => _ethereal;
+            set => SetProperty(ref _ethereal, value);
         }
         /// <summary>
         /// 
         /// </summary>
         public bool Forgemageable
         {
-            get;
-            set;
+            get => _forgemageable;
+            set => SetProperty(ref _forgemageable, value);
         }
         /// <summary>
         /// 
         /// </summary>
         public bool Buff
         {
-            get;
-            set;
+            get => _buff;
+            set => SetProperty(ref _buff, value);
         }
         /// <summary>
         /// 
         /// </summary>
         public bool Usable
         {
-            get;
-            set;
+            get => _usable;
+            set => SetProperty(ref _usable, value);
         }
         /// <summary>
         /// 
         /// </summary>
         public bool Targetable
         {
-            get;
-            set;
+            get => _targetable;
+            set => SetProperty(ref _targetable, value);
         }
         /// <summary>
         /// 
         /// </summary>
         public int Price
         {
-            get;
-            set;
+            get => _price;
+            set => SetProperty(ref _price, value);
         }
         /// <summary>
         /// 
         /// </summary>
         public string Conditions
         {
-            get;
-            set;
+            get => _conditions;
+            set => SetProperty(ref _conditions, value);
         }
         /// <summary>
         /// 
         /// </summary>
         public string Effects
         {
-            get;
-            set;
+            get => _effects;
+            set => SetProperty(ref _effects, value);
         }
         /// <summary>
         /// 
         /// </summary>
         public int SetId
         {
-            get;
-            set;
+            get => _setId;
+            set => SetProperty(ref _setId, value);
         }
         /// <summary>
         /// 
         /// </summary>
         public int CSBonus
         {
-            get;
-            set;
+            get => _csBonus;
+            set => SetProperty(ref _csBonus, value);
         }
         /// <summary>
         /// 
         /// </summary>
         public int APCost
         {
-            get;
-            set;
+            get => _apCost;
+            set => SetProperty(ref _apCost, value);
         }
         /// <summary>
         /// 
         /// </summary>
         public int POMin
         {
-            get;
-            set;
+            get => _poMin;
+            set => SetProperty(ref _poMin, value);
         }
         /// <summary>
         /// 
         /// </summary>
         public int POMax
         {
-            get;
-            set;
+            get => _poMax;
+            set => SetProperty(ref _poMax, value);
         }
         /// <summary>
         /// 
         /// </summary>
         public int CSRate
         {
-            get;
-            set;
+            get => _csRate;
+            set => SetProperty(ref _csRate, value);
         }
         /// <summary>
         /// 
         /// </summary>
         public int CFRate
         {
-            get;
-            set;
+            get => _cfRate;
+            set => SetProperty(ref _cfRate, value);
         }
 
         /// <summary>
@@ -511,7 +532,6 @@ namespace Game.Database.Structure
         /// 
         /// </summary>
         [Write(false)]
-        [DoNotNotify]
         public ItemSetDAO Set
         {
             get
@@ -533,7 +553,6 @@ namespace Game.Database.Structure
         /// </summary>
         /// <returns></returns>
         [Write(false)]
-        [DoNotNotify]
         public string RangeType
         {
             get
@@ -565,7 +584,6 @@ namespace Game.Database.Structure
         /// 
         /// </summary>
         [Write(false)]
-        [DoNotNotify]
         public RandomStatistics RandomEffects
         {
             get

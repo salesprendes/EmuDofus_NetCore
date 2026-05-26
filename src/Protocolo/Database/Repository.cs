@@ -1,5 +1,5 @@
-﻿using Protocolo.Framework.Generic;
-using MySql.Data.MySqlClient;
+using Protocolo.Framework.Generic;
+using MySqlConnector;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;

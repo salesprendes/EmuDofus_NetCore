@@ -1,13 +1,13 @@
+using Login.Database.Repository;
 using Protocolo.Framework.Configuration;
 using Protocolo.Framework.Database;
-using Login.Database.Repository;
 
 namespace Login.Database
 {
     public sealed class AuthDbMgr : DbManager<AuthDbMgr>
     {
         [Configurable("DbConnection")]
-		public static string DbConnection = "Server=localhost;Database=login_emudofus;Uid=root;Pwd=;SslMode=Disabled;Convert Zero Datetime=True;Allow Zero Datetime=True;";
+        public static string DbConnection = "Server=localhost;Database=login_emudofus;Uid=root;Pwd=;SslMode=Disabled;Convert Zero Datetime=True;Allow Zero Datetime=True;";
 
         public void Initialize()
         {

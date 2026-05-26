@@ -40,14 +40,7 @@ namespace Game.Interactive.Type
 
         public bool IsClosed => m_state == DoorState.Closed;
 
-        public AnimatedDoor(
-            MapInstance map,
-            int cellId,
-            int openingDuration,
-            int openedDuration,
-            int closingDuration,
-            bool interactiveWhenIdle = false)
-            : base(map, cellId, true)
+        public AnimatedDoor(MapInstance map, int cellId, int openingDuration, int openedDuration, int closingDuration, bool interactiveWhenIdle = false) : base(map, cellId, true)
         {
             m_openingDuration = openingDuration;
             m_openedDuration = openedDuration;

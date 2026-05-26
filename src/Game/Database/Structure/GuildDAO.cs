@@ -1,7 +1,6 @@
-﻿using Protocolo.Framework.Database;
+using Protocolo.Framework.Database;
 using Game.Guild;
 using Game.Stats;
-using PropertyChanged;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,81 +13,92 @@ namespace Game.Database.Structure
     /// 
     /// </summary>
     [Table("guild")]
-    [AddINotifyPropertyChangedInterface]
     public sealed class GuildDAO : DataAccessObject<GuildDAO>
     {
+        private long _id;
+        private string _name;
+        private int _symbolId;
+        private int _symbolColor;
+        private int _backgroundId;
+        private int _backgroundColor;
+        private int _level;
+        private long _experience;
+        private byte[] _stats;
+        private int _boostPoint;
+
+
         /// <summary>
         /// 
         /// </summary>
         [Key]
         public long Id
         {
-            get;
-            set;
+            get => _id;
+            set => SetProperty(ref _id, value);
         }
         /// <summary>
         /// 
         /// </summary>
         public string Name
         {
-            get;
-            set;
+            get => _name;
+            set => SetProperty(ref _name, value);
         }
         /// <summary>
         /// 
         /// </summary>
         public int SymbolId
         {
-            get;
-            set;
+            get => _symbolId;
+            set => SetProperty(ref _symbolId, value);
         }
         /// <summary>
         /// 
         /// </summary>
         public int SymbolColor
         {
-            get;
-            set;
+            get => _symbolColor;
+            set => SetProperty(ref _symbolColor, value);
         }
         /// <summary>
         /// 
         /// </summary>
         public int BackgroundId
         {
-            get;
-            set;
+            get => _backgroundId;
+            set => SetProperty(ref _backgroundId, value);
         }
         /// <summary>
         /// 
         /// </summary>
         public int BackgroundColor
         {
-            get;
-            set;
+            get => _backgroundColor;
+            set => SetProperty(ref _backgroundColor, value);
         }
         /// <summary>
         /// 
         /// </summary>
         public int Level
         {
-            get;
-            set;
+            get => _level;
+            set => SetProperty(ref _level, value);
         }
         /// <summary>
         /// 
         /// </summary>
         public long Experience
         {
-            get;
-            set;
+            get => _experience;
+            set => SetProperty(ref _experience, value);
         }
         /// <summary>
         /// 
         /// </summary>
         public byte[] Stats
         {
-            get;
-            set;
+            get => _stats;
+            set => SetProperty(ref _stats, value);
         }
 
         /// <summary>
@@ -96,8 +106,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int BoostPoint
         {
-            get;
-            set;
+            get => _boostPoint;
+            set => SetProperty(ref _boostPoint, value);
         }
 
         /// <summary>
@@ -110,7 +120,6 @@ namespace Game.Database.Structure
         /// </summary>
         /// <returns></returns>
         [Write(false)]
-        [DoNotNotify]
         public GuildStatistics Statistics
         {
             get

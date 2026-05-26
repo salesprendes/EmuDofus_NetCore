@@ -1,5 +1,4 @@
-﻿using Protocolo.Framework.Database;
-using PropertyChanged;
+using Protocolo.Framework.Database;
 using System.Collections.Generic;
 
 namespace Game.Database.Structure
@@ -7,48 +6,63 @@ namespace Game.Database.Structure
     [Table("monstruos_template")]
     public sealed class MonsterDAO : DataAccessObject<MonsterDAO>
     {
+        private int _id;
+        private string _name;
+        private int _gfxId;
+        private int _skinSize;
+        private int _alignment;
+        private string _colors;
+        private string _kamas;
+        private int _aggressionRange;
+        private int _race;
+
+
         [Key]
         public int Id
         {
-            get;
-            set;
+            get => _id;
+            set => SetProperty(ref _id, value);
         }
         public string Name
         {
-            get;
-            set;
+            get => _name;
+            set => SetProperty(ref _name, value);
         }
         public int GfxId
         {
-            get;
-            set;
+            get => _gfxId;
+            set => SetProperty(ref _gfxId, value);
         }
         public int SkinSize
         {
-            get;
-            set;
+            get => _skinSize;
+            set => SetProperty(ref _skinSize, value);
         }
         [Write(false)]
-        public int Alignment { get; set; }
+        public int Alignment
+        {
+            get => _alignment;
+            set => SetProperty(ref _alignment, value);
+        }
         public string Colors
         {
-            get;
-            set;
+            get => _colors;
+            set => SetProperty(ref _colors, value);
         }
         public string Kamas
         {
-            get;
-            set;
+            get => _kamas;
+            set => SetProperty(ref _kamas, value);
         }
         public int AggressionRange
         {
-            get;
-            set;
+            get => _aggressionRange;
+            set => SetProperty(ref _aggressionRange, value);
         }
         public int Race
         {
-            get;
-            set;
+            get => _race;
+            set => SetProperty(ref _race, value);
         }
 
 
@@ -60,7 +74,6 @@ namespace Game.Database.Structure
         /// 
         /// </summary>
         [Write(false)]
-        [DoNotNotify]
         public int MinKamas
         {
             get
@@ -75,7 +88,6 @@ namespace Game.Database.Structure
         /// 
         /// </summary>
         [Write(false)]
-        [DoNotNotify]
         public int MaxKamas
         {
             get
@@ -91,14 +103,12 @@ namespace Game.Database.Structure
         /// </summary>
         /// <returns></returns>
         [Write(false)]
-        [DoNotNotify]
         public IEnumerable<MonsterGradeDAO> Grades => m_monsterGrades.Values;
 
         /// <summary>
         /// 
         /// </summary>
         [Write(false)]
-        [DoNotNotify]
         public IEnumerable<DropTemplateDAO> Drops => m_drops;
 
         /// <summary>

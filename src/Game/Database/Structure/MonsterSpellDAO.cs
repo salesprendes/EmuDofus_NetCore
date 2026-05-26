@@ -8,11 +8,33 @@ namespace Game.Database.Structure
     [Table("monstruos_hechizos")]
     public sealed class MonsterSpellDAO : DataAccessObject<MonsterSpellDAO>
     {
-        [Key] public int MonsterId { get; set; }
-        [Key] public int GradeId   { get; set; }
-        [Key] public int SpellId   { get; set; }
+        private int _monsterId;
+        private int _gradeId;
+        private int _spellId;
+        private int _spellLevel;
+
+
+        [Key] public int MonsterId
+        {
+            get => _monsterId;
+            set => SetProperty(ref _monsterId, value);
+        }
+        [Key] public int GradeId
+        {
+            get => _gradeId;
+            set => SetProperty(ref _gradeId, value);
+        }
+        [Key] public int SpellId
+        {
+            get => _spellId;
+            set => SetProperty(ref _spellId, value);
+        }
         
-        public int SpellLevel { get; set; }
+        public int SpellLevel
+        {
+            get => _spellLevel;
+            set => SetProperty(ref _spellLevel, value);
+        }
 
         private SpellTemplate m_template;
         private SpellLevel m_combatLevel;

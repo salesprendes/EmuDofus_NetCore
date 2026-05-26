@@ -1,6 +1,7 @@
 ﻿using Protocolo.Framework.Network;
 using Game.Action;
 using Game.Entity;
+using Game.Network;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,8 +53,19 @@ namespace Game.Frame
         public void DialogReply(CharacterEntity character, string message)
         {
             var dialogData = message.Substring(2).Split('|');
-            var questionId = int.Parse(dialogData[0]);
-            var responseId = int.Parse(dialogData[1]);
+            if (dialogData.Length < 2)
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
+            int questionId = -1;
+            int responseId = -1;
+            if (!int.TryParse(dialogData[0], out questionId) || !int.TryParse(dialogData[1], out responseId))
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
 
             character.AddMessage(() =>
                 {

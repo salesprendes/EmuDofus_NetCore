@@ -1,24 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Protocolo.Framework.Network;
+﻿using Game.Action;
 using Game.Database.Repository;
 using Game.Database.Structure;
-using Game.Frame;
-using Game.Action;
 using Game.Entity.Inventory;
 using Game.Exchange;
 using Game.Fight;
+using Game.Frame;
 using Game.Guild;
 using Game.Interactive.Type;
 using Game.Job;
-using Game.Mount;
-using Game.Spell;
-using Game.Stats;
 using Game.Manager;
+using Game.Mount;
 using Game.Network;
 using Game.Quest;
+using Game.Spell;
+using Game.Stats;
+using Protocolo.Framework.Network;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace Game.Entity
 {
@@ -188,7 +188,7 @@ namespace Game.Entity
             m_pendingInteractiveSkillCellId = -1;
             m_pendingInteractiveSkillId = -1;
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -317,11 +317,14 @@ namespace Game.Entity
             {
                 var next = ExperienceManager.Instance.GetFloor(Level + 1, ExperienceTypeEnum.CHARACTER);
                 if (next == -1)
+                {
                     return Experience;
+                }
+
                 return next;
             }
         }
-              
+
         /// <summary>
         /// 
         /// </summary>
@@ -356,7 +359,7 @@ namespace Game.Entity
                 DatabaseRecord.AlignmentDishonour = value;
             }
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -411,7 +414,10 @@ namespace Game.Entity
             {
                 var next = ExperienceManager.Instance.GetFloor(AlignmentLevel + 1, ExperienceTypeEnum.PVP);
                 if (next == -1)
+                {
                     return Honour;
+                }
+
                 return next;
             }
         }
@@ -605,13 +611,19 @@ namespace Game.Entity
             get
             {
                 if (Level > 199)
+                {
                     return 2;
+                }
+
                 if (Level > 100)
+                {
                     return 1;
+                }
+
                 return 0;
             }
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -692,11 +704,14 @@ namespace Game.Entity
             get
             {
                 if (Account == null)
+                {
                     return "[No Account ?]";
+                }
+
                 return Account.Pseudo;
             }
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -922,10 +937,16 @@ namespace Game.Entity
 
             var guildMember = GuildManager.Instance.GetMember(characterDAO.Guild.GuildId, Id);
             if (guildMember != null)
+            {
                 if (type == EntityTypeEnum.TYPE_CHARACTER)
+                {
                     guildMember.CharacterConnected(this);
+                }
                 else
+                {
                     SetCharacterGuild(guildMember); // Merchant
+                }
+            }
 
             SetChatChannel(ChatChannelEnum.CHANNEL_GUILD, () => DispatchGuildMessage);
             SetChatChannel(ChatChannelEnum.CHANNEL_GROUP, () => DispatchPartyMessage);
@@ -937,7 +958,11 @@ namespace Game.Entity
 
         private void LoadEquippedMount()
         {
-            if (EquippedMount == -1) return;
+            if (EquippedMount == -1)
+            {
+                return;
+            }
+
             var mount = EntityManager.Instance.GetMountById(EquippedMount);
             if (mount != null)
             {
@@ -956,7 +981,7 @@ namespace Game.Entity
                 EquippedMount = -1;
             }
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -983,7 +1008,7 @@ namespace Game.Entity
                 SetPlayerRestriction(PlayerRestrictionEnum.RESTRICTION_CANT_CHALLENGE, true);
                 SetPlayerRestriction(PlayerRestrictionEnum.RESTRICTION_CANT_INTERACT_WITH_PRISM, true);
                 SetPlayerRestriction(PlayerRestrictionEnum.RESTRICTION_CANT_INTERACT_WITH_TAX_COLLECTOR, true);
-                SetPlayerRestriction(PlayerRestrictionEnum.RESTRICTION_CAN_MOVE_IN_ALL_DIRECTIONS, false);                
+                SetPlayerRestriction(PlayerRestrictionEnum.RESTRICTION_CAN_MOVE_IN_ALL_DIRECTIONS, false);
                 SetEntityRestriction(EntityRestrictionEnum.RESTRICTION_IS_TOMBESTONE, true);
                 SafeDispatch(WorldMessage.GAME_MESSAGE(GamePopupTypeEnum.TYPE_INSTANT, GameMessageEnum.MESSAGE_TOMBESTONE));
             }
@@ -1004,7 +1029,7 @@ namespace Game.Entity
         /// 
         /// </summary>
         public void Reborn()
-        {            
+        {
             DatabaseRecord.Skin = (BreedId * 10) + Sex;
             Energy = 1000;
             Restriction = (int)PlayerRestrictionEnum.RESTRICTION_NEW_CHARACTER;
@@ -1024,7 +1049,10 @@ namespace Game.Entity
         {
             SpellBook.Reset(Breed);
             for (var i = 1; i < Level; i++)
+            {
                 SpellBook.GenerateLevelUpSpell(Breed, i);
+            }
+
             SpellPoint = Level - 1;
             CachedBuffer = true;
             SendAccountStats();
@@ -1037,22 +1065,28 @@ namespace Game.Entity
         /// </summary>
         public void FreeSoul()
         {
-            switch(DeathType)
+            switch (DeathType)
             {
                 case DeathTypeEnum.TYPE_NORMAL:
                     DatabaseRecord.Skin = 8004;
                     CheckRestrictions();
                     if (!DisableAlignment())
+                    {
                         RefreshOnMap();
-                break;
+                    }
+
+                    break;
 
                 case DeathTypeEnum.TYPE_HEROIC:
                     Dead = true;
                     DeathCount++;
-                    if(Level > MaxLevel)
+                    if (Level > MaxLevel)
+                    {
                         MaxLevel = Level;
+                    }
+
                     Dispatch(WorldMessage.GAME_OVER());
-                break;
+                    break;
             }
         }
 
@@ -1064,7 +1098,7 @@ namespace Game.Entity
             DeathType = type;
             Life = 1;
 
-            switch(type)
+            switch (type)
             {
                 case DeathTypeEnum.TYPE_HEROIC:
                     Energy = 1;
@@ -1090,7 +1124,9 @@ namespace Game.Entity
         {
             var energyLost = Math.Min(Energy, Level * 10);
             if (energyLost < 1)
+            {
                 return;
+            }
 
             Energy -= energyLost;
             Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, InformationEnum.INFO_ENERGY_LOST, energyLost));
@@ -1121,7 +1157,7 @@ namespace Game.Entity
             Fight.SpectatorTeam.AddSpectator(this);
             Fight.SpectatorTeam.AddUpdatable(this);
             Fight.SpectatorTeam.AddHandler(Dispatch);
-            
+
             SetChatChannel(ChatChannelEnum.CHANNEL_TEAM, () => Fight.SpectatorTeam.Dispatch);
             SetChatChannel(ChatChannelEnum.CHANNEL_GENERAL, () => null);
 
@@ -1136,17 +1172,19 @@ namespace Game.Entity
         {
             if (IsDisconnected)
             {
-                if (DisconnectedTurnLeft == 0)
+                DisconnectedTurnLeft--;
+                if (DisconnectedTurnLeft <= 0)
                 {
                     Fight.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_FIGHTER_KICKED_DUE_TO_DISCONNECTION, Name));
                     if (Fight.FightQuit(this) == FightActionResultEnum.RESULT_END)
+                    {
                         return FightActionResultEnum.RESULT_END;
+                    }
                 }
                 else
                 {
                     Fight.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, InformationEnum.INFO_FIGHT_DISCONNECT_TURN_REMAIN, Name, DisconnectedTurnLeft));
                 }
-                DisconnectedTurnLeft--;
             }
             return base.EndTurn();
         }
@@ -1181,11 +1219,11 @@ namespace Game.Entity
                         case FightTypeEnum.TYPE_PVT:
                         case FightTypeEnum.TYPE_PVMA:
                             OnLoseFight(DeathTypeEnum.TYPE_NORMAL);
-                            break;
+                        break;
 
-                        //case FightTypeEnum.TYPE_PVM:
-                        //    OnLoseFight(DeathTypeEnum.TYPE_HEROIC);
-                        //    break;
+                            //case FightTypeEnum.TYPE_PVM:
+                            //    OnLoseFight(DeathTypeEnum.TYPE_HEROIC);
+                            //    break;
                     }
                 }
 
@@ -1193,7 +1231,7 @@ namespace Game.Entity
                 {
                     case FightTypeEnum.TYPE_CHALLENGE:
                         Life = LifeBeforeFight;
-                        break;
+                    break;
 
                     default:
                         CachedBuffer = true;
@@ -1208,12 +1246,14 @@ namespace Game.Entity
                                 item.SaveStats();
                                 changedItems.Add(item);
                                 if (effect.Value3 <= 0)
+                                {
                                     Inventory.RemoveItem(item.Id);
+                                }
                             }
                         }
 
                         var etherealWeapon = Inventory.Items.Find(item => item.Slot == ItemSlotEnum.SLOT_WEAPON && item.IsEthereal && item.MaxDurability > 0 && item.Durability > 0);
-                        
+
                         if (etherealWeapon != null)
                         {
                             etherealWeapon.DecreaseDurability();
@@ -1225,11 +1265,11 @@ namespace Game.Entity
                             Dispatch(WorldMessage.OBJECT_CHANGE(changedItems));
                             SendAccountStats();
                         }
-                        
+
                         CachedBuffer = false;
                         break;
-                }               
-               
+                }
+
             }
             else
             {
@@ -1239,7 +1279,9 @@ namespace Game.Entity
             }
 
             if (IsDisconnected)
+            {
                 EntityManager.Instance.RemoveCharacter(this);
+            }
 
             var fightType = Fight.Type;
             AddMessage(() => Map.FightManager.ExecuteFightActions(fightType, FightStateEnum.STATE_ENDED, this));
@@ -1247,19 +1289,21 @@ namespace Game.Entity
             base.EndFight(win);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="emoteId"></param>
         public override void EmoteUse(int emoteId, int timeout = 360000)
         {
             if (IsTombestone || IsGhost)
+            {
                 return;
+            }
 
-            if (m_lastEmoteId == 1)            
-                StopRegeneration();            
+            if (m_lastEmoteId == 1)
+            {
+                StopRegeneration();
+            }
             else if (emoteId == 1)
+            {
                 StartRegeneration(WorldConfig.REGEN_TIMER_SIT);
+            }
 
             timeout = emoteId == m_lastEmoteId ? 0 : timeout;
             m_lastEmoteId = emoteId == m_lastEmoteId ? 0 : emoteId;
@@ -1267,38 +1311,41 @@ namespace Game.Entity
             base.EmoteUse(m_lastEmoteId, timeout);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void StopEmote()
         {
-            if(m_lastEmoteId == 1)            
-                StopRegeneration();            
+            if (m_lastEmoteId == 1)
+            {
+                StopRegeneration();
+            }
+
             m_lastEmoteId = 0;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void StartRegeneration(double timer)
         {
             if (Life >= MaxLife)
+            {
                 return;
+            }
+
             m_regenTimer = timer;
             m_lastRegenTime = UpdateTime;
             Dispatch(WorldMessage.LIFE_RESTORE_TIME_START(timer));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void StopRegeneration()
         {
             if (Life >= MaxLife || m_lastRegenTime == -1)
+            {
                 return;
+            }
+
             var lifeRestored = (int)Math.Floor((UpdateTime - m_lastRegenTime) / m_regenTimer);
             if (Life + lifeRestored > MaxLife)
+            {
                 lifeRestored = MaxLife - Life;
+            }
+
             Life += lifeRestored;
             m_lastRegenTime = -1;
 
@@ -1307,128 +1354,86 @@ namespace Game.Entity
             Dispatch(WorldMessage.LIFE_RESTORE_TIME_FINISH(lifeRestored));
             CachedBuffer = false;
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="value"></param>
-        public void SubstractDishonour(int value)
+
+        public void ChangeDishonour(int delta)
         {
-            if (value < 1)
+            if (delta == 0)
             {
                 Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
-            if(Dishonour < 1)
+            if (delta < 0 && Dishonour < 1)
             {
                 Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
-            Dishonour -= value;
+            Dishonour += delta;
+
             if (Dishonour < 0)
+            {
                 Dishonour = 0;
-
-            CachedBuffer = true;
-            Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, InformationEnum.INFO_ALIGNMENT_DISHONOR_DOWN, value));
-            Dispatch(WorldMessage.ACCOUNT_STATS(this));
-            CachedBuffer = false;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="value"></param>
-        public void AddDishonour(int value)
-        {
-            if (value < 1)
-            {
-                Dispatch(WorldMessage.BASIC_NO_OPERATION());
-                return;
             }
 
-            Dishonour += value;
-            if (Dishonour > 499)
+            if (Dishonour > 500)
+            {
                 Dishonour = 500;
+            }
 
             CachedBuffer = true;
-            Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, InformationEnum.INFO_ALIGNMENT_DISHONOR_UP, value));
+            var info = delta > 0 ? InformationEnum.INFO_ALIGNMENT_DISHONOR_UP : InformationEnum.INFO_ALIGNMENT_DISHONOR_DOWN;
+            Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, info, Math.Abs(delta)));
             Dispatch(WorldMessage.ACCOUNT_STATS(this));
             CachedBuffer = false;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="value"></param>
-        public void SubstractHonour(int value)
+        public void ChangeHonour(int delta)
         {
-            if (value < 1)
+            if (delta == 0)
             {
                 Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
-            if (Honour < 1)
+            var isGain = delta > 0;
+
+            if (isGain && Dishonour > 0)
             {
                 Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
-            var currentLevel = AlignmentLevel;
-            Honour -= value;
+            if (delta < 0 && Honour < 1)
+            {
+                Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
 
-            if (Honour < 0)
-                Honour = 0;
+            int currentLevel = AlignmentLevel;
+            int rankDirection = isGain ? 1 : -1;
 
-            while (Honour < AlignmentExperienceFloorCurrent && AlignmentLevel > 1)
-                AlignmentLevel--;
+            Honour = (int)Math.Clamp((long)Honour + delta, 0, 18000);
+
+            while ((isGain && AlignmentLevel < 10 && Honour > AlignmentExperienceFloorNext) || (!isGain && AlignmentLevel > 1 && Honour < AlignmentExperienceFloorCurrent))
+            {
+                AlignmentLevel += rankDirection;
+            }
 
             CachedBuffer = true;
+
             if (currentLevel != AlignmentLevel)
             {
-                Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, InformationEnum.INFO_ALIGNMENT_RANK_DOWN, AlignmentLevel));
+                var rankInfo = isGain ? InformationEnum.INFO_ALIGNMENT_RANK_UP : InformationEnum.INFO_ALIGNMENT_RANK_DOWN;
+                Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, rankInfo, AlignmentLevel));
                 if (!HasGameAction(GameActionTypeEnum.FIGHT))
+                {
                     RefreshOnMap();
-            }
-            Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, InformationEnum.INFO_ALIGNMENT_HONOR_DOWN, value));
-            Dispatch(WorldMessage.ACCOUNT_STATS(this));
-            CachedBuffer = false;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="value"></param>
-        public void AddHonour(int value)
-        {
-            if(value < 1)
-            {
-                Dispatch(WorldMessage.BASIC_NO_OPERATION());
-                return;
+                }
             }
 
-            if(Dishonour > 0)
-            {
-                Dispatch(WorldMessage.BASIC_NO_OPERATION());
-                return;
-            }
-
-            var currentLevel = AlignmentLevel;
-            Honour += value;
-
-            while (Honour > AlignmentExperienceFloorNext && AlignmentLevel < 10)
-                AlignmentLevel++;
-
-            CachedBuffer = true;
-            if (currentLevel != AlignmentLevel)
-            {
-                Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, InformationEnum.INFO_ALIGNMENT_RANK_UP, AlignmentLevel));
-                if (!HasGameAction(GameActionTypeEnum.FIGHT))
-                    RefreshOnMap();
-            }
-            Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, InformationEnum.INFO_ALIGNMENT_HONOR_UP, value));
+            InformationEnum honorInfo = isGain ? InformationEnum.INFO_ALIGNMENT_HONOR_UP : InformationEnum.INFO_ALIGNMENT_HONOR_DOWN;
+            Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, honorInfo, Math.Abs(delta)));
             Dispatch(WorldMessage.ACCOUNT_STATS(this));
             CachedBuffer = false;
         }
@@ -1438,7 +1443,7 @@ namespace Game.Entity
         /// </summary>
         public void EnableAlignment()
         {
-            if(AlignmentEnabled)
+            if (AlignmentEnabled)
             {
                 Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -1465,19 +1470,22 @@ namespace Game.Entity
                 Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return false;
             }
-            
-            if(Dishonour > 0)
+
+            if (Dishonour > 0)
             {
                 Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return false;
             }
 
             AlignmentEnabled = false;
-            if(!force)
-                SubstractHonour((Honour / 100) * 5);
+
+            if (!force)
+            {
+                ChangeHonour(-((Honour / 100) * 5));
+            }
+
             Dispatch(WorldMessage.ACCOUNT_STATS(this));
             RefreshOnMap();
-
             return true;
         }
 
@@ -1511,8 +1519,11 @@ namespace Game.Entity
         /// </summary>
         public void RefreshPersonalShopTaxe()
         {
-            foreach(var item in PersonalShop.Items)            
-                MerchantTaxe += item.MerchantPrice * item.Quantity;            
+            foreach (var item in PersonalShop.Items)
+            {
+                MerchantTaxe += item.MerchantPrice * item.Quantity;
+            }
+
             MerchantTaxe /= 1000;
         }
 
@@ -1533,10 +1544,14 @@ namespace Game.Entity
             AddMessage(() =>
                 {
                     if (reason != "")
+                    {
                         Dispatch(WorldMessage.GAME_MESSAGE(GamePopupTypeEnum.TYPE_ON_DISCONNECT, GameMessageEnum.MESSAGE_KICKED, kicker, reason));
+                    }
 
                     if (KickEvent != null)
+                    {
                         KickEvent();
+                    }
                 });
         }
 
@@ -1554,18 +1569,30 @@ namespace Game.Entity
                 else
                 {
                     if (CurrentAction != null)
+                    {
                         AbortAction(CurrentAction.Type);
+                    }
+
                     AbortAction(GameActionTypeEnum.FIGHT);
                     return false;
                 }
             }
             StopRegeneration();
             if (CurrentAction != null)
+            {
                 AbortAction(CurrentAction.Type, Id);
+            }
+
             if (HasGameAction(GameActionTypeEnum.MAP))
+            {
                 AbortAction(GameActionTypeEnum.MAP);
+            }
+
             if (GuildMember != null)
+            {
                 GuildMember.CharacterDisconnected();
+            }
+
             Dispose();
             if (Merchant)
             {
@@ -1605,9 +1632,13 @@ namespace Game.Entity
         {
             GuildMember = characterGuild;
             if (GuildMember != null)
+            {
                 m_guildDisplayInfos = GuildMember.Guild.Name + ";" + GuildMember.Guild.DisplayEmblem;
+            }
             else
+            {
                 m_guildDisplayInfos = null;
+            }
         }
 
         /// <summary>
@@ -1617,9 +1648,13 @@ namespace Game.Entity
         {
             Away = Away == false;
             if (Away)
+            {
                 Dispatch(WorldMessage.IM_INFO_MESSAGE(InformationEnum.INFO_YOU_ARE_AWAY));
+            }
             else
+            {
                 Dispatch(WorldMessage.IM_INFO_MESSAGE(InformationEnum.INFO_YOU_ARE_NOT_AWAY_ANYMORE));
+            }
         }
 
         /// <summary>
@@ -1630,14 +1665,14 @@ namespace Game.Entity
         /// <param name="whispedCharacter"></param>
         public override bool DispatchChatMessage(ChatChannelEnum channel, string message, CharacterEntity whispedCharacter = null)
         {
-            if(channel == ChatChannelEnum.CHANNEL_PRIVATE_SEND)
+            if (channel == ChatChannelEnum.CHANNEL_PRIVATE_SEND)
             {
-                if(whispedCharacter.Away || whispedCharacter.HasEnnemy(Pseudo))
+                if (whispedCharacter.Away || whispedCharacter.HasEnnemy(Pseudo))
                 {
                     Dispatch(WorldMessage.IM_ERROR_MESSAGE(InformationEnum.ERROR_PLAYER_AWAY_MESSAGE, whispedCharacter.Name));
                     return false;
                 }
-                if(Away)
+                if (Away)
                 {
                     Dispatch(WorldMessage.IM_INFO_MESSAGE(InformationEnum.INFO_YOU_ARE_AWAY_PLAYERS_CANT_RESPOND));
                 }
@@ -1680,7 +1715,7 @@ namespace Game.Entity
         /// <param name="message"></param>
         public void DispatchGuildMessage(string message)
         {
-            if(GuildMember != null)
+            if (GuildMember != null)
             {
                 GuildMember.Guild.SafeDispatch(message);
             }
@@ -1692,7 +1727,7 @@ namespace Game.Entity
         public void MountRideUnride()
         {
             if (m_mount != null)
-            {                
+            {
                 if (!RidingMount)
                 {
                     if (Level < 60)
@@ -1710,7 +1745,7 @@ namespace Game.Entity
                         Dispatch(WorldMessage.IM_ERROR_MESSAGE(InformationEnum.ERROR_PET_ALREADY_EQUIPPED));
                         return;
                     }
-                    RidingMount = true;           
+                    RidingMount = true;
                     Dispatch(WorldMessage.MOUNT_RIDING_START());
                     Statistics.Merge(StatsType.TYPE_ITEM, m_mount.GetStatistics());
                 }
@@ -1741,8 +1776,10 @@ namespace Game.Entity
         public void SendQuestsStepsList(int questId)
         {
             var quest = Quests.FirstOrDefault(q => q.Id == questId);
-            if(quest != null)
+            if (quest != null)
+            {
                 Dispatch(WorldMessage.QUEST_STEPS(quest));
+            }
         }
 
         /// <summary>
@@ -1758,12 +1795,12 @@ namespace Game.Entity
 
         public void SendMountXpShare()
         {
-            if(m_mount != null)
+            if (m_mount != null)
             {
                 Dispatch(WorldMessage.MOUNT_EXPERIENCE_SHARED(m_mount.XPSharePercent));
             }
         }
-                        
+
         /// <summary>
         /// 
         /// </summary>
@@ -1802,7 +1839,9 @@ namespace Game.Entity
         public bool AddWaypoint(int mapId)
         {
             if (Waypoints.Contains(mapId))
+            {
                 return false;
+            }
 
             Waypoints.Add(mapId);
             DatabaseRecord.SetWaypoints(Waypoints);
@@ -1822,7 +1861,9 @@ namespace Game.Entity
         public void CloseCurrentInteraction()
         {
             if (CurrentAction == null || CurrentAction.IsFinished)
+            {
                 return;
+            }
 
             switch (CurrentAction.Type)
             {
@@ -1832,7 +1873,7 @@ namespace Game.Entity
                 case GameActionTypeEnum.PRISM_USE:
                 case GameActionTypeEnum.MAP_MOVEMENT:
                     AbortAction(CurrentAction.Type);
-                break;
+                    break;
             }
         }
 
@@ -1988,7 +2029,9 @@ namespace Game.Entity
             var currentLevel = Level;
 
             while (Experience > ExperienceFloorNext)
+            {
                 LevelUp();
+            }
 
             if (Level != currentLevel)
             {
@@ -2038,9 +2081,13 @@ namespace Game.Entity
         {
             var message = WorldMessage.GAME_MAP_INFORMATIONS(OperatorEnum.OPERATOR_REFRESH, this);
             if (HasGameAction(GameActionTypeEnum.MAP))
+            {
                 Map.SafeDispatch(message);
+            }
             else
-                Fight.SafeDispatch(message);            
+            {
+                Fight.SafeDispatch(message);
+            }
         }
 
         /// <summary>
@@ -2063,13 +2110,16 @@ namespace Game.Entity
                     break;
 
                 case GameActionTypeEnum.MAP:
-                    if(Map == null)
+                    if (Map == null)
                     {
                         MapId = SavedMapId;
                         CellId = SavedCellId;
                     }
-                    if (HasEntityRestriction(EntityRestrictionEnum.RESTRICTION_IS_TOMBESTONE))                    
+                    if (HasEntityRestriction(EntityRestrictionEnum.RESTRICTION_IS_TOMBESTONE))
+                    {
                         FrameManager.AddFrame(GameTombestoneFrame.Instance);
+                    }
+
                     FrameManager.AddFrame(MapFrame.Instance);
                     FrameManager.AddFrame(InventoryFrame.Instance);
                     FrameManager.AddFrame(ExchangeFrame.Instance);
@@ -2091,7 +2141,7 @@ namespace Game.Entity
                     FrameManager.AddFrame(PrismSubwayFrame.Instance);
                     break;
 
-                case GameActionTypeEnum.NPC_DIALOG:                          
+                case GameActionTypeEnum.NPC_DIALOG:
                     FrameManager.RemoveFrame(GameActionFrame.Instance);
                     FrameManager.RemoveFrame(InventoryFrame.Instance);
                     FrameManager.RemoveFrame(MapFrame.Instance);
@@ -2107,7 +2157,7 @@ namespace Game.Entity
                     FrameManager.RemoveFrame(MapFrame.Instance);
                     break;
 
-                case GameActionTypeEnum.FIGHT:                    
+                case GameActionTypeEnum.FIGHT:
                     StopEmote();
                     FrameManager.RemoveFrame(MapFrame.Instance);
                     if (IsSpectating)
@@ -2192,7 +2242,7 @@ namespace Game.Entity
                     Dispatch(WorldMessage.GAME_ACTION(GameActionTypeEnum.CHANGE_MAP, Id));
                     FrameManager.AddFrame(GameInformationFrame.Instance);
                     Dispatch(WorldMessage.GAME_DATA_MAP(MapId, Map.CreateTime, Map.DataKey));
-                break;
+                    break;
 
                 case GameActionTypeEnum.WAYPOINT:
                     FrameManager.AddFrame(GameActionFrame.Instance);
@@ -2257,10 +2307,14 @@ namespace Game.Entity
 
                 case OperatorEnum.OPERATOR_ADD:
                 case OperatorEnum.OPERATOR_REFRESH:
-                    if(HasGameAction(GameActionTypeEnum.FIGHT))
+                    if (HasGameAction(GameActionTypeEnum.FIGHT))
+                    {
                         message.Append(Cell.Id).Append(';');
+                    }
                     else
+                    {
                         message.Append(CellId).Append(';');
+                    }
 
                     message.Append(Orientation).Append(';'); // Direction
                     message.Append((int)Type).Append(';');
@@ -2275,18 +2329,31 @@ namespace Game.Entity
                     }
                     message.Append(';');
                     if (HasGameAction(GameActionTypeEnum.FIGHT))
+                    {
                         message.Append(Skin).Append('^').Append(SkinSize).Append(';');
+                    }
                     else
+                    {
                         message.Append(SkinBase).Append('^').Append(SkinSizeBase).Append(';');
+                    }
+
                     message.Append(Sex).Append(';');
-                    if(HasGameAction(GameActionTypeEnum.FIGHT))
+                    if (HasGameAction(GameActionTypeEnum.FIGHT))
+                    {
                         message.Append(Level).Append(';');
+                    }
+
                     message.Append(AlignmentId).Append(',');
                     message.Append(AlignmentId).Append(',');
                     if (AlignmentEnabled)
+                    {
                         message.Append(AlignmentLevel).Append(',');
+                    }
                     else
+                    {
                         message.Append('0').Append(',');
+                    }
+
                     message.Append(Id + Level).Append(';');
                     message.Append(HexColor1).Append(';');
                     message.Append(HexColor2).Append(';');
@@ -2338,9 +2405,14 @@ namespace Game.Entity
                         message.Append(Team.Id).Append(';');
                     }
                     if (m_mount != null && RidingMount)
+                    {
                         message.Append(m_mount.SerializeAs_MountLightInfos()).Append(';');
+                    }
                     else
+                    {
                         message.Append("").Append(';'); // MountLightInfos
+                    }
+
                     break;
             }
         }
@@ -2365,7 +2437,7 @@ namespace Game.Entity
             message.Append(Prospection).Append(';');
             message.Append(0); // 'Side' Wtf ?
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -2376,9 +2448,14 @@ namespace Game.Entity
             if (HasEnnemy(playerPseudo))
             {
                 if (HasGameAction(GameActionTypeEnum.FIGHT))
+                {
                     message.Append('2').Append(';');
+                }
                 else
+                {
                     message.Append('1').Append(';');
+                }
+
                 message.Append(Name).Append(';');
                 message.Append(Level).Append(';');
                 message.Append(AlignmentId).Append(';');
@@ -2391,9 +2468,14 @@ namespace Game.Entity
                 message.Append("-1;"); // align
             }
             if (GuildMember != null)
+            {
                 message.Append(GuildMember.Guild.Name).Append(';');
+            }
             else
+            {
                 message.Append(';');
+            }
+
             message.Append(Sex).Append(';');
             message.Append(SkinBase);
         }
@@ -2408,9 +2490,14 @@ namespace Game.Entity
             if (HasFriend(playerPseudo))
             {
                 if (HasGameAction(GameActionTypeEnum.FIGHT))
+                {
                     message.Append('2').Append(';');
+                }
                 else
+                {
                     message.Append('1').Append(';');
+                }
+
                 message.Append(Name).Append(';');
                 message.Append(Level).Append(';');
                 message.Append(AlignmentId).Append(';');
@@ -2423,13 +2510,18 @@ namespace Game.Entity
                 message.Append("-1;"); // align
             }
             if (GuildMember != null && GuildMember.Guild != null)
+            {
                 message.Append(GuildMember.Guild.Name).Append(';');
+            }
             else
+            {
                 message.Append(';');
+            }
+
             message.Append(Sex).Append(';');
             message.Append(SkinBase);
         }
-                
+
         /// <summary>
         /// 
         /// </summary>

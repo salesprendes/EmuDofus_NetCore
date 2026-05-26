@@ -86,7 +86,7 @@ namespace Game.Database.Repository
             base.Removed(list.ToArray());
         }
 
-        public override void InsertAll(MySql.Data.MySqlClient.MySqlConnection connection, MySql.Data.MySqlClient.MySqlTransaction transaction)
+        public override void InsertAll(MySqlConnector.MySqlConnection connection, MySqlConnector.MySqlTransaction transaction)
         {
             lock (m_syncLock)
                 m_dataObjects.RemoveAll(item => item.IsNew && item.OwnerId == -1);
@@ -94,7 +94,7 @@ namespace Game.Database.Repository
             base.InsertAll(connection, transaction);
         }
 
-        public override void DeleteAll(MySql.Data.MySqlClient.MySqlConnection connection, MySql.Data.MySqlClient.MySqlTransaction transaction)
+        public override void DeleteAll(MySqlConnector.MySqlConnection connection, MySqlConnector.MySqlTransaction transaction)
         {
             lock (m_syncLock)
                 foreach (var item in m_dataObjects)

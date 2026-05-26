@@ -228,8 +228,9 @@ namespace Protocolo.Framework.Network
                 if (!client.Socket.ReceiveAsync(saea))
                     ProcessReceived(saea);
             }
-            catch
+            catch (Exception ex)
             {
+                Logger.Warn("StartReceive error for " + client.Ip + " : " + ex.Message);
                 Disconnect(saea);
             }
         }

@@ -1,7 +1,6 @@
-﻿using Protocolo.Framework.Database;
+using Protocolo.Framework.Database;
 using Game.ActionEffect;
 using Game.Spell;
-using PropertyChanged;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,23 +15,28 @@ namespace Game.Database.Structure
     [Table("npcresponse")]
     public sealed class NpcResponseDAO : DataAccessObject<NpcResponseDAO>
     {
+        private int _id;
+        private string _conditions;
+        private string _actions;
+
+
         [Key]
         public int Id
         {
-            get;
-            set;
+            get => _id;
+            set => SetProperty(ref _id, value);
         }
 
         public string Conditions
         {
-            get;
-            set;
+            get => _conditions;
+            set => SetProperty(ref _conditions, value);
         }
 
         public string Actions
         {
-            get;
-            set;
+            get => _actions;
+            set => SetProperty(ref _actions, value);
         }
 
         /// <summary>
@@ -44,7 +48,6 @@ namespace Game.Database.Structure
         /// 
         /// </summary>
         [Write(false)]
-        [DoNotNotify]
         public ActionList ActionsList
         {
             get

@@ -1,4 +1,4 @@
-﻿using Protocolo.Framework.Database;
+using Protocolo.Framework.Database;
 
 namespace Game.Database.Structure
 {
@@ -8,41 +8,49 @@ namespace Game.Database.Structure
     [Table("subareatemplate")]
     public sealed class SubAreaDAO : DataAccessObject<SubAreaDAO>
     {
+        private int _id;
+        private int _areaId;
+        private string _name;
+        private int _canConquest;
+        private int _defaultAlignment;
+        private int _premiumZone;
+
+
         [Key]
         public int Id
         {
-            get;
-            set;
+            get => _id;
+            set => SetProperty(ref _id, value);
         }
 
         public int AreaId
         {
-            get;
-            set;
+            get => _areaId;
+            set => SetProperty(ref _areaId, value);
         }
 
         public string Name
         {
-            get;
-            set;
+            get => _name;
+            set => SetProperty(ref _name, value);
         }
 
         public int CanConquest
         {
-            get;
-            set;
+            get => _canConquest;
+            set => SetProperty(ref _canConquest, value);
         }
 
         public int DefaultAlignment
         {
-            get;
-            set;
+            get => _defaultAlignment;
+            set => SetProperty(ref _defaultAlignment, value);
         }
 
         public int PremiumZone
         {
-            get;
-            set;
+            get => _premiumZone;
+            set => SetProperty(ref _premiumZone, value);
         }
     }
 }

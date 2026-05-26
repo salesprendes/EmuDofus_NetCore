@@ -1,4 +1,4 @@
-﻿using Protocolo.Framework.Database;
+using Protocolo.Framework.Database;
 using Game.ActionEffect;
 using Game.Condition;
 using Game.Entity;
@@ -14,25 +14,31 @@ namespace Game.Database.Structure
     [Table("maptrigger")]
     public sealed class MapTriggerDAO : DataAccessObject<MapTriggerDAO>
     {
+        private int _mapId;
+        private int _cellId;
+        private string _conditions;
+        private string _actions;
+
+
         public int MapId
         {
-            get;
-            set;
+            get => _mapId;
+            set => SetProperty(ref _mapId, value);
         }
         public int CellId
         {
-            get;
-            set;
+            get => _cellId;
+            set => SetProperty(ref _cellId, value);
         }
         public string Conditions
         {
-            get;
-            set;
+            get => _conditions;
+            set => SetProperty(ref _conditions, value);
         }
         public string Actions
         {
-            get;
-            set;
+            get => _actions;
+            set => SetProperty(ref _actions, value);
         }
 
         /// <summary>

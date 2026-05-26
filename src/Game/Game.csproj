@@ -12,8 +12,8 @@
     <LangVersion>latest</LangVersion>
     <!-- Disable auto-generated AssemblyInfo: project already has Properties\AssemblyInfo.cs -->
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <!-- CS0618/CS0612: obsolete APIs kept for compatibility. NU1701: legacy .NET Framework packages (Antlr, ExpressionEvaluator) loaded via compatibility shim. -->
-    <NoWarn>$(NoWarn);CS0618;CS0612;NU1701</NoWarn>
+    <!-- CS0618/CS0612: obsolete APIs kept for compatibility. -->
+    <NoWarn>$(NoWarn);CS0618;CS0612</NoWarn>
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
@@ -26,24 +26,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Fody weavers: build-time only -->
-    <PackageReference Include="Fody" Version="6.9.3" PrivateAssets="all" />
-    <PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="all" />
-
-    <!-- Runtime dependencies (inherited transitively from Protocolo, but explicit for clarity) -->
-    <PackageReference Include="MySql.Data" Version="9.2.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <!-- Runtime dependencies -->
+    <PackageReference Include="MySqlConnector" Version="2.5.0" />
 
     <!-- Serialization -->
     <PackageReference Include="protobuf-net" Version="3.2.56" />
-    <PackageReference Include="protobuf-net.Core" Version="3.2.56" />
-
-    <!-- Expression evaluator used in game condition parsing -->
-    <PackageReference Include="Z.Expressions.Eval" Version="6.3.9" />
-    <PackageReference Include="ExpressionEvaluator" Version="2.0.4.0" />
-    <PackageReference Include="Antlr" Version="3.5.0.2" />
-
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.0" />
   </ItemGroup>
 
   <ItemGroup>

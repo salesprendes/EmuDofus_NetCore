@@ -1,7 +1,6 @@
-﻿using Protocolo.Framework.Database;
+using Protocolo.Framework.Database;
 using Game.Database.Repository;
 using Game.Entity;
-using PropertyChanged;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,113 +15,143 @@ namespace Game.Database.Structure
     [Table("monstergrade")]
     public sealed class MonsterGradeDAO : DataAccessObject<MonsterGradeDAO>
     {
+        private long _id;
+        private int _monsterId;
+        private int _grade;
+        private int _level;
+        private int _ap;
+        private int _mp;
+        private int _maxLife;
+        private int _neutralResistance;
+        private int _earthResistance;
+        private int _fireResistance;
+        private int _waterResistance;
+        private int _airResistance;
+        private int _apDodgePercent;
+        private int _mpDodgePercent;
+        private int _wisdom;
+        private int _strenght;
+        private int _intelligence;
+        private int _chance;
+        private int _agility;
+        private int _initiative;
+        private int _maxInvocation;
+        private int _experience;
+
+
         [Key]
         public long Id
         {
-            get;
-            set;
+            get => _id;
+            set => SetProperty(ref _id, value);
         }
 
         public int MonsterId
         {
-            get;
-            set;
+            get => _monsterId;
+            set => SetProperty(ref _monsterId, value);
         }
 
         public int Grade
         {
-            get;
-            set;
+            get => _grade;
+            set => SetProperty(ref _grade, value);
         }
         
         public int Level
         {
-            get;
-            set;
+            get => _level;
+            set => SetProperty(ref _level, value);
         }
         public int AP
         {
-            get;
-            set;
+            get => _ap;
+            set => SetProperty(ref _ap, value);
         }
         public int MP
         {
-            get;
-            set;
+            get => _mp;
+            set => SetProperty(ref _mp, value);
         }
         public int MaxLife
         {
-            get;
-            set;
+            get => _maxLife;
+            set => SetProperty(ref _maxLife, value);
         }
         public int NeutralResistance
-        { 
-            get; set; 
+        {
+            get => _neutralResistance;
+            set => SetProperty(ref _neutralResistance, value);
         }
         public int EarthResistance
-        { 
-            get; set; 
+        {
+            get => _earthResistance;
+            set => SetProperty(ref _earthResistance, value);
         }
         public int FireResistance
-        { 
-            get; set; 
+        {
+            get => _fireResistance;
+            set => SetProperty(ref _fireResistance, value);
         }
         public int WaterResistance
-        { 
-            get; set; 
+        {
+            get => _waterResistance;
+            set => SetProperty(ref _waterResistance, value);
         }
         public int AirResistance
-        { 
-            get; set; 
+        {
+            get => _airResistance;
+            set => SetProperty(ref _airResistance, value);
         }
         public int APDodgePercent
         {
-            get; set; 
+            get => _apDodgePercent;
+            set => SetProperty(ref _apDodgePercent, value);
         }
         public int MPDodgePercent
         {
-            get;
-            set;
+            get => _mpDodgePercent;
+            set => SetProperty(ref _mpDodgePercent, value);
         }
         public int Wisdom
         {
-            get;
-            set;
+            get => _wisdom;
+            set => SetProperty(ref _wisdom, value);
         }
         public int Strenght
         {
-            get;
-            set;
+            get => _strenght;
+            set => SetProperty(ref _strenght, value);
         }
         public int Intelligence
         {
-            get;
-            set;
+            get => _intelligence;
+            set => SetProperty(ref _intelligence, value);
         }
         public int Chance
         {
-            get;
-            set;
+            get => _chance;
+            set => SetProperty(ref _chance, value);
         }
         public int Agility
         {
-            get;
-            set;
+            get => _agility;
+            set => SetProperty(ref _agility, value);
         }
         public int Initiative
         {
-            get;
-            set;
+            get => _initiative;
+            set => SetProperty(ref _initiative, value);
         }
         public int MaxInvocation
         {
-            get;
-            set;
+            get => _maxInvocation;
+            set => SetProperty(ref _maxInvocation, value);
         }
         public int Experience
         {
-            get;
-            set;
+            get => _experience;
+            set => SetProperty(ref _experience, value);
         }        
         /// <summary>
         /// 
@@ -133,7 +162,6 @@ namespace Game.Database.Structure
         /// </summary>
         /// <returns></returns>
         [Write(false)]
-        [DoNotNotify]
         public MonsterDAO Template
         {
             get

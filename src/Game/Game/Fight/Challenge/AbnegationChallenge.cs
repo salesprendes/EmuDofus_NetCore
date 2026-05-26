@@ -1,10 +1,5 @@
 ﻿using Game.Fight.Effect;
 using Game.Spell;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.Fight.Challenge
 {
@@ -34,8 +29,10 @@ namespace Game.Fight.Challenge
         /// <param name="castInfos"></param>
         public override void CheckSpell(AbstractFighter fighter, CastInfos castInfos)
         {
-            if(castInfos.EffectType == EffectEnum.AddLife && castInfos.Target != null && castInfos.Target.Team == fighter.Team)            
-                base.OnFailed(fighter.Name);            
+            if (castInfos.EffectType == EffectEnum.AddLife && castInfos.Target != null && castInfos.Target.Team == fighter.Team)
+            {
+                base.OnFailed(fighter.Name);
+            }
         }
     }
 }

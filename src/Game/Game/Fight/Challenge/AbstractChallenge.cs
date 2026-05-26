@@ -1,12 +1,6 @@
 ﻿using Game.Database.Structure;
 using Game.Fight.Effect;
 using Game.Network;
-using Game.Entity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.Fight.Challenge
 {
@@ -104,7 +98,7 @@ namespace Game.Fight.Challenge
             get;
             protected set;
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -199,14 +193,17 @@ namespace Game.Fight.Challenge
         /// </summary>
         public virtual void OnFailed(string name = "")
         {
-            if(!Success && !Failed)
+            if (!Success && !Failed)
             {
                 Success = false;
                 Failed = true;
                 base.CachedBuffer = true;
                 base.Dispatch(WorldMessage.FIGHT_CHALLENGE_FAILED(Id));
-                if(name != "")                
-                    base.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, InformationEnum.INFO_FIGHT_CHALLENGE_FAILED_DUE_TO, name));                
+                if (name != "")
+                {
+                    base.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, InformationEnum.INFO_FIGHT_CHALLENGE_FAILED_DUE_TO, name));
+                }
+
                 base.CachedBuffer = false;
             }
         }

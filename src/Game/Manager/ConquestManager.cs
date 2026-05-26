@@ -1,15 +1,15 @@
-﻿using Protocolo.Framework.Generic;
+﻿using Game.Area;
+using Game.Conquest;
 using Game.Database.Repository;
 using Game.Database.Structure;
-using Game.Area;
-using Game.Conquest;
 using Game.Entity;
+using Game.Map;
 using Game.Network;
+using Protocolo.Framework.Generic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Game.Map;
 
 namespace Game.Manager
 {
@@ -91,7 +91,9 @@ namespace Game.Manager
                 ApplyVillageDefaults(record);
                 m_bySubArea[record.SubAreaId] = new ConquestTerritory(record);
                 if (record.PrismMapId > 0)
+                {
                     m_prismMapBySubArea[record.SubAreaId] = record.PrismMapId;
+                }
             }
 
             WorldService.Instance.AddTimer(WorldConfig.PRISM_HONOR_GAIN_INTERVAL, GainPrismHonor);
@@ -104,7 +106,9 @@ namespace Game.Manager
             foreach (var territory in m_bySubArea.Values)
             {
                 if (territory.IsNeutral || territory.IsUnderAttack || !territory.IsPersisted)
+                {
                     continue;
+                }
 
                 territory.SetPrismHonor(territory.PrismHonor);
             }
@@ -119,15 +123,21 @@ namespace Game.Manager
         public ConquestTerritory GetByCharacterMap(CharacterEntity character)
         {
             if (character?.Map != null && s_villageByRoomMap.TryGetValue(character.Map.Id, out var village))
+            {
                 return GetBySubArea(village.TerritorySubAreaId);
+            }
 
             var subArea = character?.Map?.SubArea;
             if (subArea == null)
+            {
                 return null;
+            }
 
             var territory = GetBySubArea(subArea.Id);
             if (territory != null)
+            {
                 return territory;
+            }
 
             return GetByArea(subArea.Area.Id);
         }
@@ -135,22 +145,30 @@ namespace Game.Manager
         public ConquestTerritory GetByArea(int areaId)
         {
             if (!IsVillageArea(areaId))
+            {
                 return null;
+            }
 
             if (s_villageByArea.TryGetValue(areaId, out var village))
             {
                 var villageTerritory = GetBySubArea(village.TerritorySubAreaId);
                 if (villageTerritory != null)
+                {
                     return villageTerritory;
+                }
             }
 
             foreach (var territory in m_bySubArea.Values)
             {
                 if (!AreaManager.Instance.TryGetSubArea(territory.SubAreaId, out var subArea))
+                {
                     continue;
+                }
 
                 if (subArea.Area.Id == areaId)
+                {
                     return territory;
+                }
             }
 
             return null;
@@ -208,7 +226,9 @@ namespace Game.Manager
         {
             subAreaId = ResolveTerritorySubAreaId(subAreaId);
             if (!CanPlacePrism(character, subAreaId))
+            {
                 return false;
+            }
 
             var prismLevel = ConquestPrismEntity.DefaultLevel;
             var prismLife = ConquestPrismEntity.GetMaxLifeForLevel(prismLevel);
@@ -236,8 +256,12 @@ namespace Game.Manager
             DispatchAlignmentChanged(territory, false);
 
             if (AreaManager.Instance.TryGetSubArea(subAreaId, out var placedSubArea))
+            {
                 foreach (var map in MapManager.Instance.GetByAreaId(placedSubArea.Area.Id))
+                {
                     map.ScheduleConquestDoorUpdate();
+                }
+            }
 
             character.Map?.ScheduleConquestDoorUpdate();
 
@@ -249,7 +273,9 @@ namespace Game.Manager
             subAreaId = ResolveTerritorySubAreaId(subAreaId);
 
             if (!m_bySubArea.TryGetValue(subAreaId, out var territory))
+            {
                 return;
+            }
 
             territory.Destroy();
             m_bySubArea.Remove(subAreaId);
@@ -263,12 +289,18 @@ namespace Game.Manager
             {
                 WorldService.Instance.Dispatcher.Dispatch(WorldMessage.SUBAREA_ALIGNMENT_CHANGED(capturedSubAreaId, ALIGNMENT_NEUTRAL, false));
                 if (areaId > 0)
+                {
                     WorldService.Instance.Dispatcher.Dispatch(WorldMessage.AREA_ALIGNMENT_CHANGED(areaId, ALIGNMENT_NEUTRAL));
+                }
             });
 
             if (subArea != null)
+            {
                 foreach (var map in MapManager.Instance.GetByAreaId(subArea.Area.Id))
+                {
                     map.ScheduleConquestDoorUpdate();
+                }
+            }
 
             BroadcastConquestWorldData();
         }
@@ -276,13 +308,18 @@ namespace Game.Manager
         public void TerritoryCaptured(ConquestTerritory territory, Game.Map.MapInstance map)
         {
             if (territory == null)
+            {
                 return;
+            }
 
             if (map != null)
             {
                 m_prismMapBySubArea[territory.SubAreaId] = map.Id;
                 if (territory.PrismMapId <= 0)
+                {
                     territory.SetPrismPosition(map.Id, territory.PrismCellId >= 0 ? territory.PrismCellId : map.RandomFreeCell);
+                }
+
                 var mapRef = map;
                 WorldService.Instance.AddMessage(() =>
                     WorldService.Instance.Dispatcher.Dispatch(WorldMessage.CONQUEST_PRISM_DEAD(mapRef)));
@@ -292,8 +329,12 @@ namespace Game.Manager
 
             // Doors/prism must update on capture (neutral→conquered closes the building entrance)
             if (AreaManager.Instance.TryGetSubArea(territory.SubAreaId, out var capturedSubArea))
+            {
                 foreach (var areaMap in MapManager.Instance.GetByAreaId(capturedSubArea.Area.Id))
+                {
                     areaMap.ScheduleConquestDoorUpdate();
+                }
+            }
         }
 
         // Returns the existing territory for subAreaId, or creates a temporary unpersisted one
@@ -302,12 +343,19 @@ namespace Game.Manager
         {
             subAreaId = ResolveTerritorySubAreaId(subAreaId);
             if (m_bySubArea.TryGetValue(subAreaId, out var existing))
+            {
                 return existing;
+            }
 
             if (!AreaManager.Instance.TryGetSubArea(subAreaId, out var subArea))
+            {
                 return null;
+            }
+
             if (!IsConquerableSubArea(subArea))
+            {
                 return null;
+            }
 
             int prismLevel = ConquestPrismEntity.DefaultLevel;
             int prismLife = ConquestPrismEntity.GetMaxLifeForLevel(prismLevel);
@@ -329,14 +377,19 @@ namespace Game.Manager
             m_bySubArea[subAreaId] = territory;
 
             if (record.PrismMapId > 0)
+            {
                 m_prismMapBySubArea[subAreaId] = record.PrismMapId;
+            }
+
             return territory;
         }
 
         public void TerritoryDefended(ConquestTerritory territory, MapInstance map)
         {
             if (territory == null || map == null)
+            {
                 return;
+            }
 
             WorldService.Instance.AddMessage(() => WorldService.Instance.Dispatcher.Dispatch(WorldMessage.CONQUEST_PRISM_SURVIVED(map)));
         }
@@ -344,7 +397,9 @@ namespace Game.Manager
         public void TerritoryDefeated(ConquestTerritory territory, MapInstance map)
         {
             if (territory == null)
+            {
                 return;
+            }
 
             if (map != null)
             {
@@ -359,7 +414,9 @@ namespace Game.Manager
         public void TerritoryAttacked(ConquestTerritory territory, MapInstance map)
         {
             if (territory == null || map == null)
+            {
                 return;
+            }
 
             m_prismMapBySubArea[territory.SubAreaId] = map.Id;
             WorldService.Instance.AddMessage(() => WorldService.Instance.Dispatcher.Dispatch(WorldMessage.CONQUEST_PRISM_ATTACKED(map)));
@@ -410,7 +467,9 @@ namespace Game.Manager
         {
             var zones = GetWorldZoneSubAreas().ToArray();
             if (zones.Length == 0)
+            {
                 return 0;
+            }
 
             return (int)Math.Round((zones.Count(s => GetAlignmentForSubArea(s.Id) == alignmentId) * 100.0) / zones.Length);
         }
@@ -421,7 +480,9 @@ namespace Game.Manager
                 .Where(s => s.Area.Id == areaId && IsConquerableSubArea(s))
                 .ToArray();
             if (zones.Length == 0)
+            {
                 return 0;
+            }
 
             return (int)Math.Round((zones.Count(s => GetAlignmentForSubArea(s.Id) == alignmentId) * 100.0) / zones.Length);
         }
@@ -429,7 +490,9 @@ namespace Game.Manager
         public int GetRankMultiplicator(CharacterEntity character)
         {
             if (character == null)
+            {
                 return 1;
+            }
 
             return Math.Max(1, (int)Math.Round((character.AlignmentLevel / 2.5) + 1));
         }
@@ -437,10 +500,14 @@ namespace Game.Manager
         public bool CanAttack(ConquestTerritory territory, CharacterEntity character)
         {
             if (territory == null || !territory.CanAttack(character))
+            {
                 return false;
+            }
 
             if (HasAdjacentAlly(territory.SubAreaId, character.AlignmentId))
+            {
                 return true;
+            }
 
             return !m_bySubArea.Values.Any(t => t.AlignmentId == character.AlignmentId);
         }
@@ -449,16 +516,24 @@ namespace Game.Manager
         {
             var resolvedId = ResolveTerritorySubAreaId(subAreaId);
             if (s_villageByTerritorySubArea.TryGetValue(resolvedId, out var village))
+            {
                 return village.GetTemplateId(alignmentId);
+            }
+
             if (s_villageByPrismSubArea.TryGetValue(subAreaId, out village))
+            {
                 return village.GetTemplateId(alignmentId);
+            }
+
             return 0;
         }
 
         public ConquestPrismEntity CreatePrismEntityForMap(Game.Map.MapInstance map)
         {
             if (map == null)
+            {
                 return null;
+            }
 
             ConquestTerritory territory = null;
             int cellId = -1;
@@ -479,11 +554,15 @@ namespace Game.Manager
                 territory = m_bySubArea.Values.FirstOrDefault(candidate =>
                     candidate.PrismMapId == map.Id && candidate.PrismCellId >= 0);
                 if (territory != null)
+                {
                     cellId = territory.PrismCellId;
+                }
             }
 
             if (territory == null || cellId < 0)
+            {
                 return null;
+            }
 
             return new ConquestPrismEntity(GetPrismEntityId(territory.SubAreaId), territory, map.Id, cellId);
         }
@@ -491,13 +570,17 @@ namespace Game.Manager
         public ConquestPrismEntity CreatePrismEntityForFight(Game.Map.MapInstance map, ConquestTerritory territory)
         {
             if (map == null || territory == null)
+            {
                 return null;
+            }
 
             var mapPrism = CreatePrismEntityForMap(map);
             if (mapPrism != null)
             {
                 if (mapPrism.Territory?.SubAreaId == territory.SubAreaId)
+                {
                     return mapPrism;
+                }
 
                 mapPrism.Dispose();
             }
@@ -507,10 +590,14 @@ namespace Game.Manager
                 : map.RandomFreeCell;
 
             if (cellId < 0)
+            {
                 return null;
+            }
 
             if (territory.PrismMapId <= 0)
+            {
                 territory.SetPrismPosition(map.Id, cellId);
+            }
 
             m_prismMapBySubArea[territory.SubAreaId] = map.Id;
             return new ConquestPrismEntity(GetPrismEntityId(territory.SubAreaId), territory, map.Id, cellId);
@@ -523,13 +610,24 @@ namespace Game.Manager
             foreach (var subArea in AreaManager.Instance.SubAreas)
             {
                 if (subArea.Area == null)
+                {
                     continue;
+                }
+
                 if (s_villageAreaIds.Contains(subArea.Area.Id))
+                {
                     continue;
+                }
+
                 if (s_villageByPrismSubArea.ContainsKey(subArea.Id))
+                {
                     continue;
+                }
+
                 if (subArea.CanConquest || subArea.DefaultAlignment != 0)
+                {
                     ids.Add(subArea.Id);
+                }
             }
 
             foreach (var territory in m_bySubArea.Values)
@@ -544,7 +642,9 @@ namespace Game.Manager
             foreach (var id in ids)
             {
                 if (AreaManager.Instance.TryGetSubArea(id, out var subArea))
+                {
                     yield return subArea;
+                }
             }
         }
 
@@ -557,9 +657,13 @@ namespace Game.Manager
             if (territory != null)
             {
                 if (territory.PrismMapId > 0)
+                {
                     prismMap = territory.PrismMapId;
+                }
                 else if (m_prismMapBySubArea.TryGetValue(territory.SubAreaId, out var mapId))
+                {
                     prismMap = mapId;
+                }
             }
             var attackable = subArea.CanConquest && (territory == null || CanAttackForAlignment(territory, alignmentId)) ? 1 : 0;
 
@@ -581,20 +685,30 @@ namespace Game.Manager
         {
             var territory = GetBySubArea(subAreaId);
             if (territory != null)
+            {
                 return territory.AlignmentId;
+            }
 
             if (!AreaManager.Instance.TryGetSubArea(subAreaId, out var subArea))
+            {
                 return ALIGNMENT_NEUTRAL;
+            }
 
             if (subArea.Area != null && IsVillageArea(subArea.Area.Id))
+            {
                 return GetAlignmentForArea(subArea.Area.Id);
+            }
 
             // Conquerable subareas with no active territory are always neutral
             if (subArea.CanConquest)
+            {
                 return ALIGNMENT_NEUTRAL;
+            }
 
             if (subArea.DefaultAlignment != 0)
+            {
                 return subArea.DefaultAlignment;
+            }
 
             return ALIGNMENT_NEUTRAL;
         }
@@ -608,11 +722,15 @@ namespace Game.Manager
         public int GetMonsterGroupAlignment(int subAreaId)
         {
             if (!AreaManager.Instance.TryGetSubArea(subAreaId, out var subArea))
+            {
                 return -1;
+            }
 
             // Inherently aligned sub-areas (inner-city zones, always Bonta/Brakmar).
             if (subArea.DefaultAlignment != 0)
+            {
                 return subArea.DefaultAlignment;
+            }
 
             // Village/city areas that can be conquered (Bonta, Brakmar, Pandala cities).
             // Militia in these areas carry the territory's alignment.
@@ -650,7 +768,9 @@ namespace Game.Manager
         private static int ResolveTerritorySubAreaId(int subAreaId)
         {
             if (s_villageByPrismSubArea.TryGetValue(subAreaId, out var village))
+            {
                 return village.TerritorySubAreaId;
+            }
 
             return subAreaId;
         }
@@ -665,16 +785,25 @@ namespace Game.Manager
         private static void ApplyVillageDefaults(ConquestTerritoryDAO record)
         {
             if (record == null)
+            {
                 return;
+            }
 
             if (record.PrismLevel <= 0)
+            {
                 record.PrismLevel = ConquestPrismEntity.DefaultLevel;
+            }
 
             var maxLife = ConquestPrismEntity.GetMaxLifeForLevel(record.PrismLevel);
             if (record.MaxLife <= 0 || record.MaxLife == 3000)
+            {
                 record.MaxLife = maxLife;
+            }
+
             if (record.Life <= 0 || record.Life > record.MaxLife)
+            {
                 record.Life = record.MaxLife;
+            }
 
             if (s_villageByTerritorySubArea.TryGetValue(record.SubAreaId, out var village))
             {
@@ -695,7 +824,9 @@ namespace Game.Manager
         {
             subAreaId = ResolveTerritorySubAreaId(subAreaId);
             if (!s_nearSubAreas.TryGetValue(subAreaId, out var nearSubAreas))
+            {
                 return true;
+            }
 
             return nearSubAreas.Any(id => GetAlignmentForSubArea(id) == alignmentId);
         }
@@ -703,12 +834,19 @@ namespace Game.Manager
         private bool CanAttackForAlignment(ConquestTerritory territory, int alignmentId)
         {
             if (territory == null || territory.IsUnderAttack)
+            {
                 return false;
+            }
+
             if (alignmentId <= ALIGNMENT_NEUTRAL || territory.AlignmentId == alignmentId)
+            {
                 return false;
+            }
 
             if (HasAdjacentAlly(territory.SubAreaId, alignmentId))
+            {
                 return true;
+            }
 
             return !m_bySubArea.Values.Any(t => t.AlignmentId == alignmentId);
         }
@@ -716,7 +854,9 @@ namespace Game.Manager
         private void DispatchAlignmentChanged(ConquestTerritory territory, bool silent)
         {
             if (territory == null)
+            {
                 return;
+            }
 
             var subAreaId = territory.SubAreaId;
             var alignmentId = territory.AlignmentId;
@@ -727,7 +867,9 @@ namespace Game.Manager
             {
                 WorldService.Instance.Dispatcher.Dispatch(WorldMessage.SUBAREA_ALIGNMENT_CHANGED(subAreaId, alignmentId, silent));
                 if (areaId > 0)
+                {
                     WorldService.Instance.Dispatcher.Dispatch(WorldMessage.AREA_ALIGNMENT_CHANGED(areaId, alignmentId));
+                }
             });
 
             BroadcastConquestWorldData();
@@ -738,7 +880,7 @@ namespace Game.Manager
             WorldService.Instance.AddMessage(() =>
             {
                 //foreach (var character in EntityManager.Instance.OnlineCharacters)
-                    //character.SafeDispatch(WorldMessage.CONQUEST_WORLD_DATA(SerializeAs_WorldData(character)));
+                //character.SafeDispatch(WorldMessage.CONQUEST_WORLD_DATA(SerializeAs_WorldData(character)));
             });
         }
     }

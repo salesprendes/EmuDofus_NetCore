@@ -1,4 +1,4 @@
-﻿using Protocolo.Framework.Database;
+using Protocolo.Framework.Database;
 using Game.Database.Repository;
 using System;
 using System.Collections.Generic;
@@ -14,14 +14,19 @@ namespace Game.Database.Structure
     [Table("craftentry")]
     public sealed class CraftEntryDAO : DataAccessObject<CraftEntryDAO>
     {
+        private int _templateId;
+        private int _requiredId;
+        private int _requiredQuantity;
+
+
         /// <summary>
         /// 
         /// </summary>
         [Key]
         public int TemplateId
         {
-            get;
-            set;
+            get => _templateId;
+            set => SetProperty(ref _templateId, value);
         }
 
         /// <summary>
@@ -30,8 +35,8 @@ namespace Game.Database.Structure
         [Key]
         public int RequiredId
         {
-            get;
-            set;
+            get => _requiredId;
+            set => SetProperty(ref _requiredId, value);
         }
 
         /// <summary>
@@ -39,8 +44,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int RequiredQuantity
         {
-            get;
-            set;
+            get => _requiredQuantity;
+            set => SetProperty(ref _requiredQuantity, value);
         }
 
         /// <summary>

@@ -1,24 +1,34 @@
-﻿using System;
+using System;
 using Protocolo.Framework.Database;
-using PropertyChanged;
-
 namespace Login.Database.Structure
 {
     /// <summary>
     /// 
     /// </summary>
     [Table("account")]
-    [AddINotifyPropertyChangedInterface]
     public sealed class AccountDAO : DataAccessObject<AccountDAO>
     {
+        private long _id;
+        private string _name;
+        private string _pseudo;
+        private string _password;
+        private int _power;
+        private DateTime _creationDate;
+        private DateTime _lastConnectionDate;
+        private string _lastConnectionIP;
+        private DateTime _remainingSubscription;
+        private bool _banned;
+        private string _question;
+
+
         /// <summary>
         /// 
         /// </summary>
         [Key]
         public long Id
         {
-            get;
-            set;
+            get => _id;
+            set => SetProperty(ref _id, value);
         }
 
         /// <summary>
@@ -26,8 +36,8 @@ namespace Login.Database.Structure
         /// </summary>
         public string Name
         {
-            get;
-            set;
+            get => _name;
+            set => SetProperty(ref _name, value);
         }
 
         /// <summary>
@@ -35,8 +45,8 @@ namespace Login.Database.Structure
         /// </summary>
         public string Pseudo
         {
-            get;
-            set;
+            get => _pseudo;
+            set => SetProperty(ref _pseudo, value);
         }
 
         /// <summary>
@@ -44,8 +54,8 @@ namespace Login.Database.Structure
         /// </summary>
         public string Password
         {
-            get;
-            set;
+            get => _password;
+            set => SetProperty(ref _password, value);
         }
 
         /// <summary>
@@ -53,8 +63,8 @@ namespace Login.Database.Structure
         /// </summary>
         public int Power
         {
-            get;
-            set;
+            get => _power;
+            set => SetProperty(ref _power, value);
         }
 
         /// <summary>
@@ -62,8 +72,8 @@ namespace Login.Database.Structure
         /// </summary>
         public DateTime CreationDate
         {
-            get;
-            set;
+            get => _creationDate;
+            set => SetProperty(ref _creationDate, value);
         }
 
         /// <summary>
@@ -71,8 +81,8 @@ namespace Login.Database.Structure
         /// </summary>
         public DateTime LastConnectionDate
         {
-            get;
-            set;
+            get => _lastConnectionDate;
+            set => SetProperty(ref _lastConnectionDate, value);
         }
 
         /// <summary>
@@ -80,8 +90,8 @@ namespace Login.Database.Structure
         /// </summary>
         public string LastConnectionIP
         {
-            get;
-            set;
+            get => _lastConnectionIP;
+            set => SetProperty(ref _lastConnectionIP, value);
         }
 
         /// <summary>
@@ -89,8 +99,8 @@ namespace Login.Database.Structure
         /// </summary>
         public DateTime RemainingSubscription
         {
-            get;
-            set;
+            get => _remainingSubscription;
+            set => SetProperty(ref _remainingSubscription, value);
         }
 
         /// <summary>
@@ -98,8 +108,8 @@ namespace Login.Database.Structure
         /// </summary>
         public bool Banned
         {
-            get;
-            set;
+            get => _banned;
+            set => SetProperty(ref _banned, value);
         }
 
         /// <summary>
@@ -107,8 +117,8 @@ namespace Login.Database.Structure
         /// </summary>
         public string Question
         {
-            get;
-            set;
+            get => _question;
+            set => SetProperty(ref _question, value);
         }
     }
 }

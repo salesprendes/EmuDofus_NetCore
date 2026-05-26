@@ -100,7 +100,7 @@ namespace Game.Fight
                 }
 
                 foreach (var character in Team0.Fighters.OfType<CharacterEntity>())
-                    character.AddDishonour(1);
+                    character.ChangeDishonour(1);
             }
 
             base.OnFightStart();

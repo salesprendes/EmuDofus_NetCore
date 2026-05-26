@@ -1,6 +1,6 @@
 using Protocolo.Framework.Database;
 using Game.Database.Structure;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 
 namespace Game.Database.Repository
 {

@@ -51,7 +51,12 @@ namespace Game.Frame
         /// <param name="message"></param>
         private void WaypointUse(CharacterEntity character, string message)
         {
-            int mapId = int.Parse(message.Substring(2));
+            int mapId = -1;
+            if (!int.TryParse(message.Substring(2), out mapId))
+            {
+                character.SafeDispatch(WorldMessage.WAYPOINT_USE_ERROR());
+                return;
+            }
 
             character.AddMessage(() =>
             {

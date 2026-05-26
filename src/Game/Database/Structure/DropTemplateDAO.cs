@@ -1,6 +1,5 @@
-﻿using Protocolo.Framework.Database;
+using Protocolo.Framework.Database;
 using Game.Database.Repository;
-using PropertyChanged;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,41 +14,50 @@ namespace Game.Database.Structure
     [Table("droptemplate")]
     public sealed class DropTemplateDAO : DataAccessObject<DropTemplateDAO>
     {
+        private int _id;
+        private int _monsterId;
+        private string _monsterName;
+        private int _templateId;
+        private int _ppThreshold;
+        private int _max;
+        private double _rate;
+
+
         [Key]
         public int Id
         {
-            get;
-            set;
+            get => _id;
+            set => SetProperty(ref _id, value);
         }
         public int MonsterId
         {
-            get;
-            set;
+            get => _monsterId;
+            set => SetProperty(ref _monsterId, value);
         }
         public string MonsterName
         {
-            get;
-            set;
+            get => _monsterName;
+            set => SetProperty(ref _monsterName, value);
         }
         public int TemplateId
         {
-            get;
-            set;
+            get => _templateId;
+            set => SetProperty(ref _templateId, value);
         }
         public int PPThreshold
         {
-            get;
-            set;
+            get => _ppThreshold;
+            set => SetProperty(ref _ppThreshold, value);
         }
         public int Max
         {
-            get;
-            set;
+            get => _max;
+            set => SetProperty(ref _max, value);
         }
         public double Rate
         {
-            get;
-            set;
+            get => _rate;
+            set => SetProperty(ref _rate, value);
         }
 
         /// <summary>
@@ -57,7 +65,6 @@ namespace Game.Database.Structure
         /// </summary>
         private MonsterDAO m_monster;
         [Write(false)]
-        [DoNotNotify]
         public MonsterDAO Monster
         {
             get
@@ -73,7 +80,6 @@ namespace Game.Database.Structure
         /// </summary>
         private ItemTemplateDAO m_item;
         [Write(false)]
-        [DoNotNotify]
         public ItemTemplateDAO ItemTemplate
         {
             get

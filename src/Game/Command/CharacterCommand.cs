@@ -1,16 +1,14 @@
-﻿using System;
-using System.Text;
-using System.Linq;
-using Protocolo.Framework.Command;
-using Game.Database.Structure;
-using Game;
+﻿using Game.Action;
 using Game.Database.Repository;
-using Game.Entity;
+using Game.Database.Structure;
 using Game.Manager;
 using Game.Network;
 using Game.Spell;
-using Game.Action;
+using Protocolo.Framework.Command;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace Game.Command
 {
@@ -40,9 +38,9 @@ namespace Game.Command
         /// </summary>
         public sealed class TitleCommand : SubCommand<WorldCommandContext>
         {
-            private readonly string[] _aliases = 
+            private readonly string[] _aliases =
             {
-                "title"  
+                "title"
             };
 
             public override string[] Aliases => _aliases;
@@ -74,9 +72,9 @@ namespace Game.Command
         /// </summary>
         public sealed class SizeCommand : SubCommand<WorldCommandContext>
         {
-            private readonly string[] _aliases = 
+            private readonly string[] _aliases =
             {
-                "size"  
+                "size"
             };
 
             public override string[] Aliases => _aliases;
@@ -91,7 +89,7 @@ namespace Game.Command
             protected override void Process(WorldCommandContext context)
             {
                 int size = 0;
-                if (Int32.TryParse(context.TextCommandArgument.NextWord(), out size))
+                if (int.TryParse(context.TextCommandArgument.NextWord(), out size))
                 {
                     context.Character.DatabaseRecord.SkinSize = size;
                     context.Character.RefreshOnMap();
@@ -103,14 +101,11 @@ namespace Game.Command
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public sealed class EffectCommand : SubCommand<WorldCommandContext>
         {
-            private readonly string[] _aliases = 
+            private readonly string[] _aliases =
             {
-                "effect"  
+                "effect"
             };
 
             public override string[] Aliases => _aliases;
@@ -132,7 +127,7 @@ namespace Game.Command
                 }
 
                 var parameters = new Dictionary<string, string>();
-                foreach(var parameter in context.TextCommandArgument.NextWord().Split(','))
+                foreach (var parameter in context.TextCommandArgument.NextWord().Split(','))
                 {
                     if (parameter.Contains('='))
                     {
@@ -146,9 +141,9 @@ namespace Game.Command
 
         public sealed class MorphCommand : SubCommand<WorldCommandContext>
         {
-            private readonly string[] _aliases = 
+            private readonly string[] _aliases =
             {
-                "skin"  
+                "skin"
             };
 
             public override string[] Aliases => _aliases;
@@ -163,7 +158,7 @@ namespace Game.Command
             protected override void Process(WorldCommandContext context)
             {
                 int skinId = 0;
-                if(Int32.TryParse(context.TextCommandArgument.NextWord(), out skinId))
+                if (Int32.TryParse(context.TextCommandArgument.NextWord(), out skinId))
                 {
                     context.Character.DatabaseRecord.Skin = skinId;
                     context.Character.RefreshOnMap();
@@ -180,9 +175,9 @@ namespace Game.Command
         /// </summary>
         public sealed class WarnCommand : SubCommand<WorldCommandContext>
         {
-            private readonly string[] _aliases = 
+            private readonly string[] _aliases =
             {
-                "warn"  
+                "warn"
             };
 
             public override string[] Aliases => _aliases;
@@ -219,9 +214,9 @@ namespace Game.Command
         /// </summary>
         public sealed class EmoteCommand : SubCommand<WorldCommandContext>
         {
-            private readonly string[] _aliases = 
+            private readonly string[] _aliases =
             {
-                "emote"  
+                "emote"
             };
 
             public override string[] Aliases => _aliases;
@@ -236,14 +231,16 @@ namespace Game.Command
             protected override void Process(WorldCommandContext context)
             {
                 var emoteId = -1;
-                if(!Int32.TryParse(context.TextCommandArgument.NextWord(), out emoteId))
+                if (!Int32.TryParse(context.TextCommandArgument.NextWord(), out emoteId))
                 {
                     context.Character.Dispatch(WorldMessage.BASIC_CONSOLE_MESSAGE("Command format : character emote %emoteId%"));
                     return;
                 }
 
-                foreach(var entity in context.Character.Map.Entities)
+                foreach (var entity in context.Character.Map.Entities)
+                {
                     entity.AddMessage(() => entity.EmoteUse(emoteId));
+                }
             }
         }
 
@@ -252,9 +249,9 @@ namespace Game.Command
         /// </summary>
         public sealed class AlignmentResetCommand : SubCommand<WorldCommandContext>
         {
-            private readonly string[] _aliases = 
+            private readonly string[] _aliases =
             {
-                "alignmentreset"  
+                "alignmentreset"
             };
 
             public override string[] Aliases => _aliases;
@@ -277,9 +274,9 @@ namespace Game.Command
         /// </summary>
         public sealed class AlignmentCommand : SubCommand<WorldCommandContext>
         {
-            private readonly string[] _aliases = 
+            private readonly string[] _aliases =
             {
-                "alignment"  
+                "alignment"
             };
 
             public override string[] Aliases => _aliases;
@@ -294,7 +291,7 @@ namespace Game.Command
             protected override void Process(WorldCommandContext context)
             {
                 var alignmentId = -1;
-                if(!Int32.TryParse(context.TextCommandArgument.NextWord(), out alignmentId))
+                if (!Int32.TryParse(context.TextCommandArgument.NextWord(), out alignmentId))
                 {
                     context.Character.Dispatch(WorldMessage.BASIC_CONSOLE_MESSAGE("Command format : character alignment %alignementId%"));
                     return;
@@ -308,9 +305,9 @@ namespace Game.Command
         /// </summary>
         public sealed class AddHonorCommand : SubCommand<WorldCommandContext>
         {
-            private readonly string[] _aliases = 
+            private readonly string[] _aliases =
             {
-                "addhonor"  
+                "addhonor"
             };
 
             public override string[] Aliases => _aliases;
@@ -325,13 +322,13 @@ namespace Game.Command
             protected override void Process(WorldCommandContext context)
             {
                 var honorValue = -1;
-                if(!Int32.TryParse(context.TextCommandArgument.NextWord(), out honorValue))
+                if (!int.TryParse(context.TextCommandArgument.NextWord(), out honorValue))
                 {
                     context.Character.Dispatch(WorldMessage.BASIC_CONSOLE_MESSAGE("Command format : character addhonor %honorValue%"));
                     return;
                 }
 
-                context.Character.AddHonour(honorValue);                
+                context.Character.ChangeHonour(honorValue);
             }
         }
 
@@ -340,9 +337,9 @@ namespace Game.Command
         /// </summary>
         public sealed class KickCommand : SubCommand<WorldCommandContext>
         {
-            private readonly string[] _aliases = 
+            private readonly string[] _aliases =
             {
-                "kick"  
+                "kick"
             };
 
             public override string[] Aliases => _aliases;
@@ -385,9 +382,9 @@ namespace Game.Command
         /// </summary>
         public sealed class LifeCommand : SubCommand<WorldCommandContext>
         {
-            private readonly string[] _aliases = 
+            private readonly string[] _aliases =
             {
-                "life"  
+                "life"
             };
 
             public override string[] Aliases => _aliases;
@@ -411,9 +408,9 @@ namespace Game.Command
         /// </summary>
         public sealed class GuildCreateCommand : SubCommand<WorldCommandContext>
         {
-            private readonly string[] _aliases = 
+            private readonly string[] _aliases =
             {
-                "guild"  
+                "guild"
             };
 
             public override string[] Aliases => _aliases;
@@ -437,13 +434,13 @@ namespace Game.Command
                 }
             }
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
         public sealed class TeleportMeCommand : SubCommand<WorldCommandContext>
         {
-            private readonly string[] _aliases = 
+            private readonly string[] _aliases =
             {
                 "teleme"
             };
@@ -484,7 +481,7 @@ namespace Game.Command
                         character.Teleport(mapId, cellId);
                         context.Character.SafeDispatch(WorldMessage.BASIC_CONSOLE_MESSAGE("Player teleported successfully."));
                     });
-                });         
+                });
             }
         }
 
@@ -493,7 +490,7 @@ namespace Game.Command
         /// </summary>
         public sealed class TeleportToCommand : SubCommand<WorldCommandContext>
         {
-            private readonly string[] _aliases = 
+            private readonly string[] _aliases =
             {
                 "teleto"
             };
@@ -508,12 +505,12 @@ namespace Game.Command
             }
 
             protected override void Process(WorldCommandContext context)
-            {                
-                string characterName = context.TextCommandArgument.NextWord();                
-                WorldService.Instance.AddMessage(() => 
+            {
+                string characterName = context.TextCommandArgument.NextWord();
+                WorldService.Instance.AddMessage(() =>
                     {
                         var character = EntityManager.Instance.GetCharacterByName(characterName);
-                        if(character == null)
+                        if (character == null)
                         {
                             context.Character.SafeDispatch(WorldMessage.BASIC_CONSOLE_MESSAGE("Player not found."));
                             return;
@@ -533,7 +530,7 @@ namespace Game.Command
                                 context.Character.CloseCurrentInteraction();
                                 context.Character.Teleport(mapId, cellId);
                             });
-                    });                
+                    });
             }
         }
 
@@ -542,7 +539,7 @@ namespace Game.Command
         /// </summary>
         public sealed class ResetSpellCommand : SubCommand<WorldCommandContext>
         {
-            private readonly string[] _aliases = 
+            private readonly string[] _aliases =
             {
                 "resetspell"
             };
@@ -575,13 +572,13 @@ namespace Game.Command
                 });
             }
         }
- 
+
         /// <summary>
         /// 
         /// </summary>
         public sealed class TeleportCommand : SubCommand<WorldCommandContext>
         {
-            private readonly string[] _aliases = 
+            private readonly string[] _aliases =
             {
                 "tele"
             };
@@ -598,7 +595,7 @@ namespace Game.Command
             protected override void Process(WorldCommandContext context)
             {
                 int mapId;
-                if(int.TryParse(context.TextCommandArgument.NextWord(), out mapId))
+                if (int.TryParse(context.TextCommandArgument.NextWord(), out mapId))
                 {
                     var map = MapManager.Instance.GetById(mapId);
                     if (map != null)
@@ -608,7 +605,7 @@ namespace Game.Command
                         {
                             var cell = map.GetCell(cellId);
                             if (cell == null || !cell.Walkable)
-                            {                                
+                            {
                                 context.Character.Dispatch(WorldMessage.BASIC_CONSOLE_MESSAGE("Null cell or not walkable"));
                                 return;
                             }
@@ -667,9 +664,9 @@ namespace Game.Command
                         var message = new StringBuilder("Online players " + ClientManager.Instance.Clients.Count() + " :\n");
 
                         int i = 1;
-                        foreach(var client in ClientManager.Instance.Clients)
+                        foreach (var client in ClientManager.Instance.Clients)
                         {
-                            if(client.CurrentCharacter != null)
+                            if (client.CurrentCharacter != null)
                             {
                                 message.Append(i++ + " : account(" + client.Account.Name + ") " + client.CurrentCharacter.Name + " map(" + client.CurrentCharacter.MapId + ") ip(" + client.Ip + ")\n");
                             }
@@ -703,9 +700,11 @@ namespace Game.Command
                 {
                     if (level > context.Character.Level)
                     {
-                        while (level > context.Character.Level)                        
+                        while (level > context.Character.Level)
+                        {
                             context.Character.LevelUp();
-                        
+                        }
+
                         context.Character.Dispatch(WorldMessage.CHARACTER_NEW_LEVEL(context.Character.Level));
                         context.Character.Dispatch(WorldMessage.SPELLS_LIST(context.Character.SpellBook));
                         context.Character.Dispatch(WorldMessage.ACCOUNT_STATS(context.Character));
@@ -739,14 +738,16 @@ namespace Game.Command
 
             protected override void Process(WorldCommandContext context)
             {
-                if(!context.Character.HasGameAction(GameActionTypeEnum.FIGHT))
+                if (!context.Character.HasGameAction(GameActionTypeEnum.FIGHT))
                 {
                     context.Character.Dispatch(WorldMessage.BASIC_CONSOLE_MESSAGE("Unable to execute this command out of fight."));
                     return;
                 }
 
                 foreach (var fighter in context.Character.Team.OpponentTeam.AliveFighters)
+                {
                     fighter.Life = 0;
+                }
             }
         }
 
@@ -781,7 +782,9 @@ namespace Game.Command
                 }
 
                 foreach (var fighter in target.Team.OpponentTeam.AliveFighters)
+                {
                     fighter.Life = 0;
+                }
             }
         }
 
@@ -836,8 +839,10 @@ namespace Game.Command
                     if (itemTemplate != null)
                     {
                         int quantity = 1;
-                        if (!int.TryParse(context.TextCommandArgument.NextWord(), out quantity) || quantity == templateId)                        
-                            quantity = 1;                        
+                        if (!int.TryParse(context.TextCommandArgument.NextWord(), out quantity) || quantity == templateId)
+                        {
+                            quantity = 1;
+                        }
 
                         var instance = itemTemplate.Create(context.Character.Id, (int)context.Character.Type, quantity, ItemSlotEnum.SLOT_INVENTORY, true);
                         if (instance != null)

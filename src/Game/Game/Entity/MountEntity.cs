@@ -1,11 +1,11 @@
-﻿using System;
-using System.Text;
-using Game.Network;
-using Game.Database.Structure;
-using System.Threading;
+﻿using Game.Database.Structure;
 using Game.Manager;
 using Game.Mount;
+using Game.Network;
 using Game.Stats;
+using System;
+using System.Text;
+using System.Threading;
 
 namespace Game.Entity
 {
@@ -37,7 +37,7 @@ namespace Game.Entity
         public const int MAX_ENERGY = 2000;
 
         private static long NextId = -10000;
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -119,9 +119,15 @@ namespace Game.Entity
             get
             {
                 if (Tired >= 220 && Tired < 230)
+                {
                     return 1;
+                }
+
                 if (Tired >= 230 && Tired < 240)
+                {
                     return 2;
+                }
+
                 return 0;
             }
         }
@@ -134,19 +140,40 @@ namespace Game.Entity
             get
             {
                 if (Tired <= 170)
+                {
                     return 4;
+                }
+
                 if (Tired <= 180)
+                {
                     return 5;
+                }
+
                 if (Tired <= 200)
+                {
                     return 6;
+                }
+
                 if (Tired <= 210)
+                {
                     return 7;
+                }
+
                 if (Tired <= 220)
+                {
                     return 8;
+                }
+
                 if (Tired <= 230)
+                {
                     return 10;
+                }
+
                 if (Tired <= 240)
+                {
                     return 12;
+                }
+
                 return 0;
             }
         }
@@ -166,7 +193,7 @@ namespace Game.Entity
             Stamina >= 7500 &&
             Reproduction < MAX_REPRODUCTION &&
             Level >= 5;
-        
+
         public bool Pregnant => m_fecondation == null;
 
         public bool Ridable => Maturity == Template.MaxMaturity && !Wild;
@@ -202,7 +229,7 @@ namespace Game.Entity
         }
 
         public bool Sex => m_record.Sex;
-        public int TemplateId => m_record.TemplateId;        
+        public int TemplateId => m_record.TemplateId;
         public MountTemplateDAO Template => m_record.Template;
 
         /// <summary>
@@ -230,9 +257,12 @@ namespace Game.Entity
         public GenericStats GetStatistics()
         {
             var statistics = new GenericStats();
-            foreach (var effect in Template.RandomEffects)            
-                statistics.AddEffect(effect.Type, effect.Random * Level);            
-            return statistics;         
+            foreach (var effect in Template.RandomEffects)
+            {
+                statistics.AddEffect(effect.Type, effect.Random * Level);
+            }
+
+            return statistics;
         }
 
         /// <summary>
@@ -240,7 +270,7 @@ namespace Game.Entity
         /// </summary>
         /// <param name="capacity"></param>
         /// <returns></returns>
-        public bool HasCapacity(MountCapacityEnum capacity) 
+        public bool HasCapacity(MountCapacityEnum capacity)
             => (Capacity & capacity) == capacity;
 
         /// <summary>
@@ -249,10 +279,14 @@ namespace Game.Entity
         /// <returns></returns>
         public string SerializeAs_MountLightInfos()
         {
-            if (HasCapacity(MountCapacityEnum.CHAMELEON))            
-                return TemplateId.ToString() + ",-1,-1,-1";            
-            else            
-                return TemplateId.ToString();            
+            if (HasCapacity(MountCapacityEnum.CHAMELEON))
+            {
+                return TemplateId.ToString() + ",-1,-1,-1";
+            }
+            else
+            {
+                return TemplateId.ToString();
+            }
         }
 
         /// <summary>

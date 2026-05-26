@@ -52,8 +52,19 @@ namespace Game.Frame
                 return;
             }
 
-            var spellId = int.Parse(data[0]);
-            var position = int.Parse(data[1]);
+            int spellId = -1;
+            if (!int.TryParse(data[0], out spellId))
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
+            int position = -1;
+            if (!int.TryParse(data[1], out position))
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
 
             character.AddMessage(() =>
                 {

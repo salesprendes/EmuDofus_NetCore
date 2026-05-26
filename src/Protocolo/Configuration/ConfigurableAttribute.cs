@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Protocolo.Framework.Configuration
 {
@@ -17,7 +13,7 @@ namespace Protocolo.Framework.Configuration
         /// </summary>
         public string Name
         {
-            get; 
+            get;
             set;
         }
 

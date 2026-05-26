@@ -1,30 +1,23 @@
-﻿using System;
-using Protocolo.Framework.Network;
-using Game.Entity;
-using Game;
+﻿using Game.Entity;
 using Game.Network;
+using Protocolo.Framework.Network;
+using System;
 
 namespace Game.Frame
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class MapFrame : AbstractNetworkFrame<MapFrame, CharacterEntity, string>
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
         public override Action<CharacterEntity, string> GetHandler(string message)
         {
             if (message.Length < 2)
+            {
                 return null;
+            }
 
             switch (message[0])
             {
                 case 'e':
-                    switch(message[1])
+                    switch (message[1])
                     {
                         case 'D': // onDirection
                             return EmoteDirection;
@@ -47,17 +40,19 @@ namespace Game.Frame
                     break;
 
                 case 'G':
-                    switch(message[1])
+                    switch (message[1])
                     {
                         case 'P': // alignment
                             if (message.Length < 3)
+                            {
                                 return null;
+                            }
 
                             switch (message[2])
                             {
                                 case '+':
                                     return AlignmentEnable;
-                                    
+
                                 case '-':
                                     return AlignmentDisable;
 
@@ -71,68 +66,52 @@ namespace Game.Frame
 
             return null;
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
+
         private void EmoteDirection(CharacterEntity character, string message)
         {
+            int direction = -1;
+            if (!int.TryParse(message.Substring(2), out direction))
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
             character.AddMessage(() =>
                 {
-                    character.ChangeDirection(int.Parse(message.Substring(2)));
+                    character.ChangeDirection(direction);
                 });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void EmoteUse(CharacterEntity character, string message)
         {
+            int emoteId = -1;
+            if (!int.TryParse(message.Substring(2), out emoteId))
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
             character.AddMessage(() =>
                 {
-                    character.EmoteUse(int.Parse(message.Substring(2)));
+                    character.EmoteUse(emoteId);
                 });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void AlignmentDisableCost(CharacterEntity character, string message)
         {
             character.SafeDispatch(WorldMessage.ALIGNMENT_DISABLE_COST((character.Honour / 100) * 5));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void AlignmentDisable(CharacterEntity character, string message)
         {
             character.AddMessage(() => character.DisableAlignment());
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void AlignmentEnable(CharacterEntity character, string message)
         {
             character.AddMessage(() => character.EnableAlignment());
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="actor"></param>
-        /// <param name="message"></param>
         private void FightList(CharacterEntity character, string message)
         {
             character.AddMessage(() =>
@@ -144,27 +123,31 @@ namespace Game.Frame
             });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="actor"></param>
-        /// <param name="message"></param>
         private void FightDetails(CharacterEntity character, string message)
         {
             if (message.Length < 3)
+            {
                 return;
+            }
 
-            var fightId = int.Parse(message.Substring(2));
+            int fightId = -1;
+            if (!int.TryParse(message.Substring(2), out fightId))
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
 
             character.AddMessage(() =>
+            {
+                var fight = character.Map.FightManager.GetFight(fightId);
+
+                if (fight == null)
                 {
-                    var fight = character.Map.FightManager.GetFight(fightId);
+                    return;
+                }
 
-                    if (fight == null)
-                        return;
-
-                    character.Dispatch(WorldMessage.FIGHT_DETAILS(fight));
-                });
+                character.Dispatch(WorldMessage.FIGHT_DETAILS(fight));
+            });
         }
     }
 }

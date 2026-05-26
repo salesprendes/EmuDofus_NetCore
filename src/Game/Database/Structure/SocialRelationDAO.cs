@@ -1,5 +1,4 @@
-﻿using Protocolo.Framework.Database;
-using PropertyChanged;
+using Protocolo.Framework.Database;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,28 +22,32 @@ namespace Game.Database.Structure
     [Table("socialrelation")]
     public sealed class SocialRelationDAO : DataAccessObject<SocialRelationDAO>
     {
+        private long _accountId;
+        private string _pseudo;
+        private int _typeId;
+
+
         [Key]
         public long AccountId
         {
-            get;
-            set;
+            get => _accountId;
+            set => SetProperty(ref _accountId, value);
         }
 
         [Key]
         public string Pseudo
         {
-            get;
-            set;
+            get => _pseudo;
+            set => SetProperty(ref _pseudo, value);
         }
 
         public int TypeId
         {
-            get;
-            set;
+            get => _typeId;
+            set => SetProperty(ref _typeId, value);
         }
         
         [Write(false)]
-        [DoNotNotify]
         public SocialRelationTypeEnum Type => (SocialRelationTypeEnum)TypeId;
     }
 }

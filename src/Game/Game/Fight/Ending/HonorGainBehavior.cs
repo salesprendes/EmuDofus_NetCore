@@ -53,11 +53,11 @@ namespace Game.Fight.Ending
                             if (honour < 0)
                                 honour = 0;
                         }
-                        winner.SubstractDishonour(1);
+                        winner.ChangeDishonour(-1);
                     }
                     else
                         dishonour = 1;
-                    winner.AddHonour(honour);
+                    winner.ChangeHonour(honour);
                 }
 
                 fight.Result.AddResult(fighter, FightEndTypeEnum.END_WINNER, false, 0, 0, honour, dishonour);
@@ -90,7 +90,7 @@ namespace Game.Fight.Ending
                                 honour = (int)Math.Abs(Math.Round(raw));
                             }
                         }
-                        loser.SubstractHonour(honour);
+                        loser.ChangeHonour(-honour);
                     }
                     else
                         dishonour = 1;

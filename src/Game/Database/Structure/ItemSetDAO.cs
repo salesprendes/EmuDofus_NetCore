@@ -1,4 +1,4 @@
-﻿using Protocolo.Framework.Database;
+using Protocolo.Framework.Database;
 using Game.Spell;
 using Game.Stats;
 using System;
@@ -15,14 +15,25 @@ namespace Game.Database.Structure
     [Table("itemset")]
     public sealed class ItemSetDAO : DataAccessObject<ItemSetDAO>
     {
+        private int _id;
+        private string _name;
+        private string _effects2;
+        private string _effects3;
+        private string _effects4;
+        private string _effects5;
+        private string _effects6;
+        private string _effects7;
+        private string _effects8;
+
+
         /// <summary>
         /// 
         /// </summary>
         [Key]
         public int Id
         {
-            get;
-            set;
+            get => _id;
+            set => SetProperty(ref _id, value);
         }
 
         /// <summary>
@@ -30,8 +41,8 @@ namespace Game.Database.Structure
         /// </summary>
         public string Name
         {
-            get;
-            set;
+            get => _name;
+            set => SetProperty(ref _name, value);
         }
 
         /// <summary>
@@ -39,8 +50,8 @@ namespace Game.Database.Structure
         /// </summary>
         public string Effects2
         {
-            get;
-            set;
+            get => _effects2;
+            set => SetProperty(ref _effects2, value);
         }
 
         /// <summary>
@@ -48,8 +59,8 @@ namespace Game.Database.Structure
         /// </summary>
         public string Effects3
         {
-            get;
-            set;
+            get => _effects3;
+            set => SetProperty(ref _effects3, value);
         }
 
         /// <summary>
@@ -57,8 +68,8 @@ namespace Game.Database.Structure
         /// </summary>
         public string Effects4
         {
-            get;
-            set;
+            get => _effects4;
+            set => SetProperty(ref _effects4, value);
         }
 
         /// <summary>
@@ -66,8 +77,8 @@ namespace Game.Database.Structure
         /// </summary>
         public string Effects5
         {
-            get;
-            set;
+            get => _effects5;
+            set => SetProperty(ref _effects5, value);
         }
 
         /// <summary>
@@ -75,8 +86,8 @@ namespace Game.Database.Structure
         /// </summary>
         public string Effects6
         {
-            get;
-            set;
+            get => _effects6;
+            set => SetProperty(ref _effects6, value);
         }
 
         /// <summary>
@@ -84,8 +95,8 @@ namespace Game.Database.Structure
         /// </summary>
         public string Effects7
         {
-            get;
-            set;
+            get => _effects7;
+            set => SetProperty(ref _effects7, value);
         }
 
         /// <summary>
@@ -93,8 +104,8 @@ namespace Game.Database.Structure
         /// </summary>
         public string Effects8
         {
-            get;
-            set;
+            get => _effects8;
+            set => SetProperty(ref _effects8, value);
         }
 
         /// <summary>

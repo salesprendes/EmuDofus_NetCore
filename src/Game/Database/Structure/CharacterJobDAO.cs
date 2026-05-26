@@ -1,4 +1,4 @@
-﻿using Protocolo.Framework.Database;
+using Protocolo.Framework.Database;
 using Game.Entity;
 using Game.Job;
 using Game.Manager;
@@ -9,6 +9,13 @@ namespace Game.Database.Structure
     [Table("characterjob")]
     public sealed class CharacterJobDAO : DataAccessObject<CharacterJobDAO>
     {
+        private long _id;
+        private int _jobId;
+        private int _level;
+        private long _experience;
+        private int _options;
+
+
         /// <summary>
         /// 
         /// </summary>
@@ -45,8 +52,8 @@ namespace Game.Database.Structure
         [Key]
         public long Id
         {
-            get;
-            set;
+            get => _id;
+            set => SetProperty(ref _id, value);
         }
 
         /// <summary>
@@ -55,8 +62,8 @@ namespace Game.Database.Structure
         [Key]
         public int JobId
         {
-            get;
-            set;
+            get => _jobId;
+            set => SetProperty(ref _jobId, value);
         }
 
         /// <summary>
@@ -86,8 +93,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int Level
         {
-            get;
-            set;
+            get => _level;
+            set => SetProperty(ref _level, value);
         }
 
         /// <summary>
@@ -95,8 +102,8 @@ namespace Game.Database.Structure
         /// </summary>
         public long Experience
         {
-            get;
-            set;
+            get => _experience;
+            set => SetProperty(ref _experience, value);
         }
 
         /// <summary>
@@ -104,8 +111,8 @@ namespace Game.Database.Structure
         /// </summary>
         public int Options
         {
-            get;
-            set;
+            get => _options;
+            set => SetProperty(ref _options, value);
         }
 
         /// <summary>

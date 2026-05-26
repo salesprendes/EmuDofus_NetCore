@@ -1,12 +1,10 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Protocolo.Framework.Database;
 using Game.Database.Repository;
 using System;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using PropertyChanged;
-
 namespace Game.Database.Structure
 {
     /// <summary>
@@ -208,83 +206,100 @@ namespace Game.Database.Structure
     [Table("npctemplate")]
     public sealed class NpcTemplateDAO : DataAccessObject<NpcTemplateDAO>
     {
+        private int _id;
+        private string _name;
+        private int _bonusValue;
+        private int _gfxID;
+        private int _scaleX;
+        private int _scaleY;
+        private int _sex;
+        private int _color1;
+        private int _color2;
+        private int _color3;
+        private string _entityLook;
+        private int _extraClip;
+        private int _customArtwork;
+        private string _sell;
+        private string _exchange;
+
+
         [Key]
         public int Id
         {
-            get;
-            set;
+            get => _id;
+            set => SetProperty(ref _id, value);
         }
         public string Name
         {
-            get;
-            set;
+            get => _name;
+            set => SetProperty(ref _name, value);
         }
         public int BonusValue
         {
-            get;
-            set;
+            get => _bonusValue;
+            set => SetProperty(ref _bonusValue, value);
         }
         public int GfxID
         {
-            get;
-            set;
+            get => _gfxID;
+            set => SetProperty(ref _gfxID, value);
         }
         public int ScaleX
         {
-            get;
-            set;
+            get => _scaleX;
+            set => SetProperty(ref _scaleX, value);
         }
         public int ScaleY
         {
-            get;
-            set;
+            get => _scaleY;
+            set => SetProperty(ref _scaleY, value);
         }
         public int Sex
         {
-            get;
-            set;
+            get => _sex;
+            set => SetProperty(ref _sex, value);
         }
         public int Color1
         {
-            get;
-            set;
+            get => _color1;
+            set => SetProperty(ref _color1, value);
         }
         public int Color2
         {
-            get;
-            set;
+            get => _color2;
+            set => SetProperty(ref _color2, value);
         }
         public int Color3
         {
-            get;
-            set;
+            get => _color3;
+            set => SetProperty(ref _color3, value);
         }
 
         public string EntityLook
         {
-            get;
-            set;
+            get => _entityLook;
+            set => SetProperty(ref _entityLook, value);
         }
 
         public int ExtraClip
         {
-            get;
-            set;
+            get => _extraClip;
+            set => SetProperty(ref _extraClip, value);
         }
         public int CustomArtwork
         {
-            get;
-            set;
+            get => _customArtwork;
+            set => SetProperty(ref _customArtwork, value);
         }
         public string Sell
         {
-            get;
-            set;
+            get => _sell;
+            set => SetProperty(ref _sell, value);
         }
         public string Exchange
         {
-            get;
-            set;
+            get => _exchange;
+            set => SetProperty(ref _exchange, value);
         }
 
         /// <summary>
@@ -292,7 +307,6 @@ namespace Game.Database.Structure
         /// </summary>
         private string m_chatName;
         [Write(false)]
-        [DoNotNotify]
         public string ChatName
         {
             get
@@ -317,7 +331,6 @@ namespace Game.Database.Structure
         /// </summary>
         /// <returns></returns>
         [Write(false)]
-        [DoNotNotify]
         public List<RewardEntry> Rewards
         {
             get
@@ -342,7 +355,6 @@ namespace Game.Database.Structure
         /// </summary>
         /// <returns></returns>
         [Write(false)]
-        [DoNotNotify]
         public List<ItemTemplateDAO> ShopList
         {
             get
