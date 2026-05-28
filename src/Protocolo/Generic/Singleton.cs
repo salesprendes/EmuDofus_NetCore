@@ -6,12 +6,7 @@ using System.Text;
 
 namespace Protocolo.Framework.Generic
 {
-    /// <summary>
-    ///
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public abstract class Singleton<T>
-        where T : class, new()
+    public abstract class Singleton<T> where T : class, new()
     {
         /// <summary>
         ///

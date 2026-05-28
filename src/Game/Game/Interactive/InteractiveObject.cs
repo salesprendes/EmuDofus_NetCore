@@ -132,69 +132,41 @@ namespace Game.Interactive
         INTERACTIVE_SLIDING_MINE_CART = 205,
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public abstract class InteractiveObject : MessageDispatcher
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public const int FRAME_NORMAL = 0;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool CanWalkThrough
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public MapInstance Map
         {
             get;
             private set;
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
+
         public int CellId
         {
             get;
             private set;
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
+
         public bool IsActive
         {
             get;
             protected set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         protected int m_frameId;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="cellId"></param>
         public InteractiveObject(MapInstance map, int cellId, bool canWalkThrough = false)
         {
             CanWalkThrough = canWalkThrough;
             Map = map;
             CellId = cellId;
-
-            // STARTS ON ACTIVE STATE ? YA NIGGAE
             IsActive = true;
             m_frameId = 0;
         }

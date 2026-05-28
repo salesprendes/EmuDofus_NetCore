@@ -1,6 +1,6 @@
 ﻿using Game.Fight;
 using Game.Fight.AI;
-using Game.Fight.AI.Brain;
+using Game.Fight.AI.Core;
 using Game.Spell;
 using Game.Stats;
 using Game.Network;
@@ -82,7 +82,7 @@ namespace Game.Entity
             SpellBook = new SpellBook((int)EntityTypeEnum.TYPE_MONSTER_FIGHTER, 0);
 
             Invocator = source;
-            CurrentBrain = new PassiveAIBrain(this);
+            SetBrain(AIProfile.Passive);
         }
 
         public override void JoinFight(AbstractFight fight, FightTeam team)

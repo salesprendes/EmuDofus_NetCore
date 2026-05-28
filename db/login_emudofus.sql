@@ -11,7 +11,7 @@
  Target Server Version : 80407 (8.4.7)
  File Encoding         : 65001
 
- Date: 23/05/2026 13:24:40
+ Date: 28/05/2026 19:51:10
 */
 
 SET NAMES utf8mb4;
@@ -40,7 +40,7 @@ CREATE TABLE `account`  (
 -- ----------------------------
 -- Records of account
 -- ----------------------------
-INSERT INTO `account` VALUES (1, 'test', 'AIdemu', 'test', 1000, '2026-05-08 19:30:10', '2026-05-23 13:11:26', '127.0.0.1', '2026-05-08 20:30:13', 0, 'test', 'test');
+INSERT INTO `account` VALUES (1, 'test', 'AIdemu', 'test', 1000, '2026-05-08 19:30:10', '2026-05-28 19:43:07', '127.0.0.1', '2026-05-08 20:30:13', 0, 'test', 'test');
 INSERT INTO `account` VALUES (2, 'test2', 'test', 'test', 1000, '2000-01-01 00:00:00', '2026-05-19 22:09:49', '127.0.0.1', '2000-01-01 00:00:00', 0, '', '');
 
 -- ----------------------------
@@ -63,8 +63,6 @@ CREATE TABLE `characterinstance`  (
   `Intelligence` int NOT NULL,
   `Agility` int NOT NULL,
   `Chance` int NOT NULL,
-  `Ap` int NOT NULL,
-  `Mp` int NOT NULL,
   `Life` int NOT NULL,
   `Energy` int NOT NULL,
   `SpellPoint` int NOT NULL,
@@ -103,6 +101,8 @@ CREATE TABLE `characterinstance`  (
 -- ----------------------------
 -- Records of characterinstance
 -- ----------------------------
+INSERT INTO `characterinstance` VALUES (10000, 1, 'Aidemu', 9, 15395354, 0, 0, 91, 100, 900, 900, 900, 900, 900, 900, 1050, 1000, 969, 0, 10348, 357, 8192, 2221571, 1, 0, 1, 0, 200, 1, 43606, 951, 126, b'0', 0, '', 1376255, 1, -1, 1, 10, 0, 18000, 0, b'0', '10297,10349,10317,7411,8037,951');
+INSERT INTO `characterinstance` VALUES (10001, 1, 'testt', 5, -1, -1, -1, 50, 100, 0, 0, 0, 0, 0, 0, 1, 1000, 184, 995, 10347, 254, 8192, 4, 1, 0, 1, 0, 200, 0, 0, 10298, 286, b'0', 0, '', 1376255, 1, -1, 0, 0, 0, 0, 0, b'0', '');
 
 -- ----------------------------
 -- Table structure for gameservers

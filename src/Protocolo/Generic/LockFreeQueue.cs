@@ -1,46 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 
 namespace Protocolo.Framework.Generic
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
     internal sealed class SingleLinkNode<T>
     {
         public SingleLinkNode<T> Next;
         public T Item;
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
     public sealed class LockFreeQueue<T> : IEnumerable<T>
     {
         private SingleLinkNode<T> m_head;
         private SingleLinkNode<T> m_tail;
         private int m_count;
 
-        /// <summary>
-        /// Default constructor.
-        /// </summary>
         public LockFreeQueue()
         {
             m_head = new SingleLinkNode<T>();
             m_tail = m_head;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="items"></param>
-        public LockFreeQueue(IEnumerable<T> items)
-            : this()
+        public LockFreeQueue(IEnumerable<T> items) : this()
         {
             foreach (var item in items)
             {
@@ -48,18 +30,11 @@ namespace Protocolo.Framework.Generic
             }
         }
 
-        /// <summary>
-        /// Gets the number of elements contained in the queue.
-        /// </summary>
         public int Count
         {
             get { return Volatile.Read(ref m_count); }
         }
 
-        /// <summary>
-        /// Adds an object to the end of the queue.
-        /// </summary>
-        /// <param name="item">the object to add to the queue</param>
         public void Enqueue(T item)
         {
             SingleLinkNode<T> oldTail = null;
@@ -92,10 +67,6 @@ namespace Protocolo.Framework.Generic
             Interlocked.Increment(ref m_count);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public T TryDequeue()
         {
             T item;
@@ -103,17 +74,6 @@ namespace Protocolo.Framework.Generic
             return item;
         }
 
-        /// <summary>
-        /// Removes and returns the object at the beginning of the queue.
-        /// </summary>
-        /// <param name="item">
-        /// when the method returns, contains the object removed from the beginning of the queue,
-        /// if the queue is not empty; otherwise it is the default value for the element type
-        /// </param>
-        /// <returns>
-        /// true if an object from removed from the beginning of the queue;
-        /// false if the queue is empty
-        /// </returns>
         public bool TryDequeue(out T item)
         {
             item = default(T);
@@ -131,7 +91,9 @@ namespace Protocolo.Framework.Generic
                     if (oldHead == oldTail)
                     {
                         if (oldHeadNext == null)
+                        {
                             return false;
+                        }
 
                         Interlocked.CompareExchange<SingleLinkNode<T>>(ref m_tail, oldHeadNext, oldTail);
                     }
@@ -149,10 +111,6 @@ namespace Protocolo.Framework.Generic
             return true;
         }
 
-        /// <summary>
-        /// Removes and returns the object at the beginning of the queue.
-        /// </summary>
-        /// <returns>the object that is removed from the beginning of the queue</returns>
         public T Dequeue()
         {
             T result;

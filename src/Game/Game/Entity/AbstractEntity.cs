@@ -671,16 +671,13 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="actionType"></param>
         public virtual void StopAction(GameActionTypeEnum actionType, params object[] args)
         {
             if (CurrentAction != null && CurrentAction.Type == actionType)
             {
                 if (!CurrentAction.IsFinished)
                     CurrentAction.Stop(args);
+
                 if(CurrentAction != null && CurrentAction.Type == actionType)
                     CurrentAction = null;
             }
@@ -689,15 +686,10 @@ namespace Game.Entity
             {
                 case GameActionTypeEnum.MAP:
                     Map?.DestroyEntity(this);
-                    break;
+                break;
             }
         }
-         
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="actionType"></param>
-        /// <param name="args"></param>
+
         public virtual void AbortAction(GameActionTypeEnum actionType, params object[] args)
         {
             if (CurrentAction != null && CurrentAction.Type == actionType && CurrentAction.CanAbort)

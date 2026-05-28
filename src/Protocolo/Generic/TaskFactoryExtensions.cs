@@ -224,10 +224,8 @@ namespace Protocolo.Framework.Generic
             // Create the task to be returned to the caller. And ensure
             // that when everything is done, the enumerator is cleaned up.
             var trs = new TaskCompletionSource<object>(state, creationOptions);
-            trs.Task.ContinueWith(_ => enumerator.Dispose(), CancellationToken.None,
-                                  TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
+            trs.Task.ContinueWith(_ => enumerator.Dispose(), CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
 
-            // This will be called every time more work can be done.
             Action<Task> recursiveBody = null;
             Action<Task> body = recursiveBody;
             recursiveBody = antecedent =>
@@ -288,28 +286,14 @@ namespace Protocolo.Framework.Generic
             return trs.Task;
         }
 
-        /// <summary>
-        /// Asynchronously iterates through an enumerable of tasks.
-        /// </summary>
-        /// <param name = "factory">The target factory.</param>
-        /// <param name = "source">The enumerable containing the tasks to be iterated through.</param>
-        /// <returns>A Task that represents the complete asynchronous operation.</returns>
-        public static Task Iterate(
-            this TaskFactory factory,
-            IEnumerable<object> source)
+        public static Task Iterate(this TaskFactory factory, IEnumerable<object> source)
         {
-            if (factory == null) throw new ArgumentNullException("factory");
-            return Iterate(factory, source, null, factory.CancellationToken, factory.CreationOptions,
-                           factory.GetTargetScheduler());
+            if (factory == null)
+                throw new ArgumentNullException("factory");
+
+            return Iterate(factory, source, null, factory.CancellationToken, factory.CreationOptions, factory.GetTargetScheduler());
         }
 
-        /// <summary>
-        /// Asynchronously iterates through an enumerable of tasks.
-        /// </summary>
-        /// <param name = "factory">The target factory.</param>
-        /// <param name = "source">The enumerable containing the tasks to be iterated through.</param>
-        /// <param name = "cancellationToken">The cancellation token used to cancel the iteration.</param>
-        /// <returns>A Task that represents the complete asynchronous operation.</returns>
         public static Task Iterate(
             this TaskFactory factory,
             IEnumerable<object> source,
@@ -320,21 +304,12 @@ namespace Protocolo.Framework.Generic
                            factory.GetTargetScheduler());
         }
 
-        /// <summary>
-        /// Asynchronously iterates through an enumerable of tasks.
-        /// </summary>
-        /// <param name = "factory">The target factory.</param>
-        /// <param name = "source">The enumerable containing the tasks to be iterated through.</param>
-        /// <param name = "creationOptions">Options that control the task's behavior.</param>
-        /// <returns>A Task that represents the complete asynchronous operation.</returns>
-        public static Task Iterate(
-            this TaskFactory factory,
-            IEnumerable<object> source,
-            TaskCreationOptions creationOptions)
+        public static Task Iterate(this TaskFactory factory, IEnumerable<object> source, TaskCreationOptions creationOptions)
         {
-            if (factory == null) throw new ArgumentNullException("factory");
-            return Iterate(factory, source, null, factory.CancellationToken, creationOptions,
-                           factory.GetTargetScheduler());
+            if (factory == null)
+                throw new ArgumentNullException("factory");
+
+            return Iterate(factory, source, null, factory.CancellationToken, creationOptions, factory.GetTargetScheduler());
         }
 
         /// <summary>

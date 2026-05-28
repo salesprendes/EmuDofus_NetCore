@@ -203,6 +203,7 @@ namespace Game.Entity
             Statistics.Merge(guild.Statistics.BaseStatistics);
             SpellBook = SpellBookFactory.Instance.Create(this);
             Storage = new TaxCollectorInventory(this);
+            RefreshBrain();
         }
 
         /// <summary>

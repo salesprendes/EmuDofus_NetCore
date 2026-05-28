@@ -448,12 +448,15 @@ namespace Game.Map
         /// <returns></returns>
         public static double GetX(MapInstance map, int cell)
         {
+            if (map?.Cells == null)
+                return -1000;
+
             if (!CellPoints.TryGetValue(map.Cells.Count, out var grid))
             {
                 GenerateGrid(map.Width, map.Cells.Count);
                 CellPoints.TryGetValue(map.Cells.Count, out grid);
             }
-            return (grid != null && cell < grid.Length) ? grid[cell].X : -1000;
+            return (grid != null && cell >= 0 && cell < grid.Length) ? grid[cell].X : -1000;
         }
 
         /// <summary>
@@ -464,12 +467,15 @@ namespace Game.Map
         /// <returns></returns>
         public static double GetY(MapInstance map, int cell)
         {
+            if (map?.Cells == null)
+                return -1000;
+
             if (!CellPoints.TryGetValue(map.Cells.Count, out var grid))
             {
                 GenerateGrid(map.Width, map.Cells.Count);
                 CellPoints.TryGetValue(map.Cells.Count, out grid);
             }
-            return (grid != null && cell < grid.Length) ? grid[cell].Y : -1000;
+            return (grid != null && cell >= 0 && cell < grid.Length) ? grid[cell].Y : -1000;
         }
 
         /// <summary>
@@ -536,6 +542,9 @@ namespace Game.Map
         /// <returns></returns>
         public static int[] GetDirectionChanges(MapInstance map)
         {
+            if (map == null)
+                return new int[0];
+
             if (MapDirections.TryGetValue(map.Width, out var cached))
                 return cached;
 
@@ -663,6 +672,9 @@ namespace Game.Map
         /// <returns></returns>
         public static MovementPath IsValidPath(AbstractEntity entity, MapInstance map, int currentCell, string encodedPath)
         {
+            if (entity == null || map == null || string.IsNullOrEmpty(encodedPath))
+                return null;
+
             MovementPath decodedPath = DecodePath(map, currentCell, encodedPath);
 
             if(decodedPath.TransitCells.Count < 2)
@@ -701,7 +713,7 @@ namespace Game.Map
         /// <returns></returns>
         public static MovementPath IsValidPath(AbstractFight fight, AbstractFighter fighter, int currentCell, string encodedPath)
         {
-            if (encodedPath == "")
+            if (fight?.Map == null || fighter == null || string.IsNullOrEmpty(encodedPath))
                 return null;
 
             var decodedPath = DecodePath(fight.Map, currentCell, encodedPath);

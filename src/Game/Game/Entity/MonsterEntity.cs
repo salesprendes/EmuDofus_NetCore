@@ -2,95 +2,53 @@
 using Game.Fight;
 using Game.Fight.AI;
 using Game.Manager;
+using Game.Network;
 using Game.Spell;
 using Game.Stats;
-using Game.Network;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.Entity
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class MonsterEntity : AIFighter
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public override int MapId
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override int BaseLife => Grade.MaxLife;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override int CellId
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override string Name => Grade.MonsterId.ToString();
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override int Level
         {
             get { return Grade.Level; }
-            set {  }
+            set { }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override int SkinBase => Grade.Template.GfxId;
-
-        /// <summary>
-        /// 
-        /// </summary>
         public override int SkinSizeBase => Grade.Template.SkinSize > 0 ? Grade.Template.SkinSize : 100;
-
-        /// <summary>
-        /// 
-        /// </summary>
         public override bool CanDrop => Invocator != null && Grade.Id == 285;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override int RealLife
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override int Restriction
         {
             get;
             set;
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
+
         public MonsterGradeDAO Grade
         {
             get;
@@ -101,15 +59,22 @@ namespace Game.Entity
         {
             get
             {
-                if (MapId <= 0) return -1;
+                if (MapId <= 0)
+                {
+                    return -1;
+                }
+
                 var map = MapManager.Instance.GetById(MapId);
-                if (map?.SubArea == null) return -1;
+                if (map?.SubArea == null)
+                {
+                    return -1;
+                }
+
                 return ConquestManager.Instance.GetMonsterGroupAlignment(map.SubArea.Id);
             }
         }
 
-        public MonsterEntity(long id, MonsterGradeDAO monsterGrade, AbstractFighter invocator = null, bool staticInvocation = false)
-            : base(EntityTypeEnum.TYPE_MONSTER_FIGHTER, id, staticInvocation)
+        public MonsterEntity(long id, MonsterGradeDAO monsterGrade, AbstractFighter invocator = null, bool staticInvocation = false) : base(EntityTypeEnum.TYPE_MONSTER_FIGHTER, id, staticInvocation)
         {
             Grade = monsterGrade;
 
@@ -119,6 +84,7 @@ namespace Game.Entity
             RealLife = MaxLife;
             SkinSize = SkinSizeBase;
             Invocator = invocator;
+            RefreshBrain();
         }
 
         public override void JoinFight(AbstractFight fight, FightTeam team)
@@ -127,11 +93,6 @@ namespace Game.Entity
             base.JoinFight(fight, team);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="operation"></param>
-        /// <param name="message"></param>
         public override void SerializeAs_GameMapInformations(OperatorEnum operation, StringBuilder message)
         {
             message.Append(Cell.Id).Append(';');
@@ -158,5 +119,4 @@ namespace Game.Entity
         }
     }
 }
-
 

@@ -1826,6 +1826,16 @@ namespace Game.Fight
 
         public FightSpellLaunchResultEnum CanLaunchSpell(AbstractFighter fighter, SpellLevel spellLevel, int spellId, int cellId, int castCell)
         {
+            if (fighter == null
+                || spellLevel == null
+                || Map == null
+                || fighter.Cell == null
+                || fighter.Statistics == null
+                || fighter.StateManager == null)
+            {
+                return FightSpellLaunchResultEnum.RESULT_ERROR;
+            }
+
             if (LoopState != FightLoopStateEnum.STATE_WAIT_TURN && LoopState != FightLoopStateEnum.STATE_WAIT_AI)
             {
                 return FightSpellLaunchResultEnum.RESULT_ERROR;
@@ -1862,7 +1872,7 @@ namespace Game.Fight
             }
 
             var distance = Pathfinding.GoalDistance(Map, cellId, castCell);
-            var maxPo = spellLevel.AllowPOBoost ? spellLevel.MaxPO + fighter.Statistics.GetTotal(EffectEnum.AddPO) : spellLevel.MaxPO;
+            var maxPo = spellLevel.AllowPOBoost && spellLevel.MaxPO != 0 ? spellLevel.MaxPO + fighter.Statistics.GetTotal(EffectEnum.AddPO) : spellLevel.MaxPO;
 
             if (maxPo < spellLevel.MinPO)
             {
@@ -1898,7 +1908,7 @@ namespace Game.Fight
             {
                 if (spellLevel.Effects.Any(effect => effect.TypeEnum == EffectEnum.Invocation || effect.TypeEnum == EffectEnum.InvocDouble))
                 {
-                    var invocationCount = fighter.Team.AliveFighters.Count(f => f.Invocator == fighter && !f.StaticInvocation);
+                    var invocationCount = fighter.Team?.AliveFighters?.Count(f => f.Invocator == fighter && !f.StaticInvocation) ?? 0;
                     if (invocationCount >= fighter.Statistics.GetTotal(EffectEnum.AddInvocationMax))
                     {
                         fighter.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_MAX_INVOCATION_REACHED, fighter.Statistics.GetTotal(EffectEnum.AddInvocationMax)));
@@ -1914,7 +1924,7 @@ namespace Game.Fight
                 targetId = target.Id;
             }
 
-            if (!fighter.SpellManager.CanLaunchSpell(spellLevel, spellId, targetId))
+            if (fighter.SpellManager == null || !fighter.SpellManager.CanLaunchSpell(spellLevel, spellId, targetId))
             {
                 return FightSpellLaunchResultEnum.RESULT_WRONG_TARGET;
             }
@@ -1930,6 +1940,11 @@ namespace Game.Fight
         /// <returns></returns>
         public bool CanUseWeapon(AbstractFighter fighter, ItemDAO weapon, int cellId)
         {
+            if (fighter == null || weapon?.Template == null || fighter.Cell == null || fighter.Statistics == null)
+            {
+                return false;
+            }
+
             var template = weapon.Template;
 
             if (LoopState != FightLoopStateEnum.STATE_WAIT_TURN)
@@ -2182,6 +2197,11 @@ namespace Game.Fight
         /// <param name="castCellId"></param>
         public void TryLaunchSpell(AbstractFighter fighter, int spellId, int castCellId, int actionTime = 5000)
         {
+            if (fighter == null)
+            {
+                return;
+            }
+
             AddMessage(() =>
             {
                 if (LoopState == FightLoopStateEnum.STATE_WAIT_END || LoopState == FightLoopStateEnum.STATE_ENDED)
@@ -2230,6 +2250,17 @@ namespace Game.Fight
                     if (WorldConfig.LOG_DEBUG)
                     {
                         Logger.Debug("Fight::TryLaunchSpell unnknow spellId : " + fighter.Name);
+                    }
+
+                    fighter.Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                    return;
+                }
+
+                if (fighter.Cell == null)
+                {
+                    if (WorldConfig.LOG_DEBUG)
+                    {
+                        Logger.Debug("Fight::TryLaunchSpell null fighter cell : " + fighter.Name);
                     }
 
                     fighter.Dispatch(WorldMessage.BASIC_NO_OPERATION());
@@ -2651,6 +2682,11 @@ namespace Game.Fight
         /// <returns></returns>
         public void Move(AbstractEntity entity, int cellId, string path)
         {
+            if (entity == null)
+            {
+                return;
+            }
+
             AddMessage(() =>
             {
                 if (LoopState != FightLoopStateEnum.STATE_WAIT_TURN)
@@ -2665,7 +2701,13 @@ namespace Game.Fight
                     return;
                 }
 
-                var fighter = (AbstractFighter)entity;
+                var fighter = entity as AbstractFighter;
+                if (fighter?.Cell == null)
+                {
+                    Logger.Debug("Fight::Move invalid fighter : " + entity.Name);
+                    return;
+                }
+
                 var movementPath = Pathfinding.IsValidPath(this, fighter, fighter.Cell.Id, path);
 
                 if (movementPath == null)

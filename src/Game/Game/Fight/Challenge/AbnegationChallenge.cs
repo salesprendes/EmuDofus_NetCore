@@ -3,16 +3,9 @@ using Game.Spell;
 
 namespace Game.Fight.Challenge
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class AbnegationChallenge : AbstractChallenge
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        public AbnegationChallenge()
-            : base(ChallengeTypeEnum.ABNEGATION)
+        public AbnegationChallenge() : base(ChallengeTypeEnum.ABNEGATION)
         {
             BasicDropBonus = 10;
             BasicXpBonus = 10;
@@ -22,11 +15,6 @@ namespace Game.Fight.Challenge
 
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
-        /// <param name="castInfos"></param>
         public override void CheckSpell(AbstractFighter fighter, CastInfos castInfos)
         {
             if (castInfos.EffectType == EffectEnum.AddLife && castInfos.Target != null && castInfos.Target.Team == fighter.Team)

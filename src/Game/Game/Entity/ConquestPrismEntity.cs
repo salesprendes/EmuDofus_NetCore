@@ -1,7 +1,7 @@
 using Game.Action;
 using Game.Conquest;
 using Game.Fight.AI;
-using Game.Fight.AI.Brain;
+using Game.Fight.AI.Core;
 using Game.Manager;
 using Game.Network;
 using Game.Spell;
@@ -79,6 +79,11 @@ namespace Game.Entity
 
         public override int AlignmentId => Territory?.AlignmentId ?? 0;
 
+        public override bool CanBeMoved()
+        {
+            return false;
+        }
+
         public int Alignment => AlignmentId;
 
         public int MonsterId => AlignmentId == ALIGNMENT_BRAKMAR ? BRAKMAR_MONSTER_ID : BONTA_MONSTER_ID;
@@ -97,7 +102,7 @@ namespace Game.Entity
 
             Statistics = CreateStats(Level);
             SpellBook = new SpellBook((int)EntityTypeEnum.TYPE_MONSTER_FIGHTER, ((long)MonsterId << 32) | (uint)Grade);
-            CurrentBrain = new DefaultAIBrain(this);
+            SetBrain(AIProfile.Default);
 
             Skin = SkinBase;
             SkinSize = SkinSizeBase;

@@ -447,6 +447,8 @@ namespace Game.Fight
 
             SetChatChannel(ChatChannelEnum.CHANNEL_TEAM, () => null);
             SetChatChannel(ChatChannelEnum.CHANNEL_GENERAL, () => MovementHandler == null ? default(Action<string>) : MovementHandler.Dispatch);
+
+            CurrentAction = null;
             StopAction(GameActionTypeEnum.FIGHT);
                         
             if (SpellManager != null)
@@ -454,11 +456,13 @@ namespace Game.Fight
                 SpellManager.Dispose();
                 SpellManager = null;
             }
+
             if (StateManager != null)
             {
                 StateManager.Dispose();
                 StateManager = null;
             }
+
             if (BuffManager != null)
             {
                 BuffManager.Dispose();
@@ -474,11 +478,7 @@ namespace Game.Fight
             TurnReady = false;
             Invocator = null;
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
+
         public virtual FightActionResultEnum BeginTurn()
         {
             TurnPass = false;
@@ -597,28 +597,16 @@ namespace Game.Fight
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="heal"></param>
         public void CalculHeal(ref int heal)
         {
             heal = (int)Math.Floor((double)heal * (100 + Statistics.GetTotal(EffectEnum.AddIntelligence)) / 100 + Statistics.GetTotal(EffectEnum.AddHealCare));
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="cHitRate"></param>
+        
         public void CalculCriticalHitRate(ref int cHitRate)
         {
             cHitRate = (int)(cHitRate * Math.E * 1.1 / Math.Log(Statistics.GetTotal(EffectEnum.AddAgility) + 12));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="damageEffect"></param>
         public int CalculArmor(EffectEnum damageEffect)
         {
             switch (damageEffect)
@@ -627,24 +615,19 @@ namespace Game.Fight
                 case EffectEnum.StealEarth:
                 case EffectEnum.DamageNeutral:
                 case EffectEnum.StealNeutral:
-                    return (Statistics.GetTotal(EffectEnum.AddArmorEarth) * Math.Max(1 + Statistics.GetTotal(EffectEnum.AddStrength) / 100, 1 + Statistics.GetTotal(EffectEnum.AddStrength) / 200 + Statistics.GetTotal(EffectEnum.AddIntelligence) / 200)) +
-                           (Statistics.GetTotal(EffectEnum.AddArmor) * Math.Max(1 + Statistics.GetTotal(EffectEnum.AddStrength) / 100, 1 + Statistics.GetTotal(EffectEnum.AddStrength) / 200 + Statistics.GetTotal(EffectEnum.AddIntelligence) / 200));
+                    return (Statistics.GetTotal(EffectEnum.AddArmorEarth) * Math.Max(1 + Statistics.GetTotal(EffectEnum.AddStrength) / 100, 1 + Statistics.GetTotal(EffectEnum.AddStrength) / 200 + Statistics.GetTotal(EffectEnum.AddIntelligence) / 200)) + (Statistics.GetTotal(EffectEnum.AddArmor) * Math.Max(1 + Statistics.GetTotal(EffectEnum.AddStrength) / 100, 1 + Statistics.GetTotal(EffectEnum.AddStrength) / 200 + Statistics.GetTotal(EffectEnum.AddIntelligence) / 200));
 
                 case EffectEnum.DamageFire:
                 case EffectEnum.StealFire:
-                    return (Statistics.GetTotal(EffectEnum.AddArmorFire) * Math.Max(1 + Statistics.GetTotal(EffectEnum.AddIntelligence) / 100, 1 + Statistics.GetTotal(EffectEnum.AddIntelligence) / 200 + Statistics.GetTotal(EffectEnum.AddIntelligence) / 200)) +
-                           (Statistics.GetTotal(EffectEnum.AddArmor) * Math.Max(1 + Statistics.GetTotal(EffectEnum.AddIntelligence) / 100, 1 + Statistics.GetTotal(EffectEnum.AddIntelligence) / 200 + Statistics.GetTotal(EffectEnum.AddIntelligence) / 200));
+                    return (Statistics.GetTotal(EffectEnum.AddArmorFire) * Math.Max(1 + Statistics.GetTotal(EffectEnum.AddIntelligence) / 100, 1 + Statistics.GetTotal(EffectEnum.AddIntelligence) / 200 + Statistics.GetTotal(EffectEnum.AddIntelligence) / 200)) + (Statistics.GetTotal(EffectEnum.AddArmor) * Math.Max(1 + Statistics.GetTotal(EffectEnum.AddIntelligence) / 100, 1 + Statistics.GetTotal(EffectEnum.AddIntelligence) / 200 + Statistics.GetTotal(EffectEnum.AddIntelligence) / 200));
 
                 case EffectEnum.DamageAir:
                 case EffectEnum.StealAir:
-                    return (Statistics.GetTotal(EffectEnum.AddArmorAir) * Math.Max(1 + Statistics.GetTotal(EffectEnum.AddAgility) / 100, 1 + Statistics.GetTotal(EffectEnum.AddAgility) / 200 + Statistics.GetTotal(EffectEnum.AddIntelligence) / 200)) +
-                           (Statistics.GetTotal(EffectEnum.AddArmor) * Math.Max(1 + Statistics.GetTotal(EffectEnum.AddAgility) / 100, 1 + Statistics.GetTotal(EffectEnum.AddAgility) / 200 + Statistics.GetTotal(EffectEnum.AddIntelligence) / 200));
+                    return (Statistics.GetTotal(EffectEnum.AddArmorAir) * Math.Max(1 + Statistics.GetTotal(EffectEnum.AddAgility) / 100, 1 + Statistics.GetTotal(EffectEnum.AddAgility) / 200 + Statistics.GetTotal(EffectEnum.AddIntelligence) / 200)) + (Statistics.GetTotal(EffectEnum.AddArmor) * Math.Max(1 + Statistics.GetTotal(EffectEnum.AddAgility) / 100, 1 + Statistics.GetTotal(EffectEnum.AddAgility) / 200 + Statistics.GetTotal(EffectEnum.AddIntelligence) / 200));
 
                 case EffectEnum.DamageWater:
                 case EffectEnum.StealWater:
-                    return (Statistics.GetTotal(EffectEnum.AddArmorWater) * Math.Max(1 + Statistics.GetTotal(EffectEnum.AddChance) / 100, 1 + Statistics.GetTotal(EffectEnum.AddChance) / 200 + Statistics.GetTotal(EffectEnum.AddIntelligence) / 200)) +
-                           (Statistics.GetTotal(EffectEnum.AddArmor) * Math.Max(1 + Statistics.GetTotal(EffectEnum.AddChance) / 100, 1 + Statistics.GetTotal(EffectEnum.AddChance) / 200 + Statistics.GetTotal(EffectEnum.AddIntelligence) / 200));
-
+                    return (Statistics.GetTotal(EffectEnum.AddArmorWater) * Math.Max(1 + Statistics.GetTotal(EffectEnum.AddChance) / 100, 1 + Statistics.GetTotal(EffectEnum.AddChance) / 200 + Statistics.GetTotal(EffectEnum.AddIntelligence) / 200)) + (Statistics.GetTotal(EffectEnum.AddArmor) * Math.Max(1 + Statistics.GetTotal(EffectEnum.AddChance) / 100, 1 + Statistics.GetTotal(EffectEnum.AddChance) / 200 + Statistics.GetTotal(EffectEnum.AddIntelligence) / 200));
             }
 
             return 0;
@@ -718,19 +701,12 @@ namespace Game.Fight
 
             return reality;
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
+        
         public virtual void OnKill(AbstractFighter target)
         {
             FireEvent(EntityEventType.FIGHT_KILL, target);
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
+        
         public void OnDeath(AbstractFighter killer)
         {
             if (!DeclaredDead)
@@ -744,12 +720,7 @@ namespace Game.Fight
                 }
             }
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="cell"></param>
-        /// <returns></returns>
+        
         public FightActionResultEnum SetCell(FightCell cell)
         {
             if (IsFighterDead)            
@@ -786,11 +757,7 @@ namespace Game.Fight
             
             return FightActionResultEnum.RESULT_NOTHING;
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="actionType"></param>
+        
         public override void StartAction(GameActionTypeEnum actionType)
         {
             switch(actionType)
@@ -819,11 +786,6 @@ namespace Game.Fight
             base.StartAction(actionType);
         }
         
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="actionType"></param>
-        /// <param name="args"></param>
         public override void AbortAction(GameActionTypeEnum actionType, params object[] args)
         {
             switch(actionType)
@@ -835,28 +797,15 @@ namespace Game.Fight
             }
 
             base.AbortAction(actionType, args);
-        }  
+        }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="operation"></param>
-        /// <param name="message"></param>
         public abstract override void SerializeAs_GameMapInformations(OperatorEnum operation, StringBuilder message);
         
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <returns></returns>
         public int CompareTo(IFightObstacle obj)
         {
             return Priority.CompareTo(obj.Priority);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override void Dispose()
         {
             Fight = null;
@@ -869,11 +818,13 @@ namespace Game.Fight
                 SpellManager.Dispose();
                 SpellManager = null;
             }
+
             if (StateManager != null)
             {
                 StateManager.Dispose();
                 StateManager = null;
             }
+
             if (BuffManager != null)
             {
                 BuffManager.Dispose();

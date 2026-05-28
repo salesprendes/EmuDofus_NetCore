@@ -15,6 +15,7 @@ namespace Game.Database.Structure
         private string _kamas;
         private int _aggressionRange;
         private int _race;
+        private int _aiProfile;
 
 
         [Key]
@@ -63,6 +64,20 @@ namespace Game.Database.Structure
         {
             get => _race;
             set => SetProperty(ref _race, value);
+        }
+
+        [Write(false)]
+        public int AiProfile
+        {
+            get => _aiProfile;
+            set => SetProperty(ref _aiProfile, value);
+        }
+
+        [Write(false)]
+        public int ai_profile
+        {
+            get => _aiProfile;
+            set => SetProperty(ref _aiProfile, value);
         }
 
 
@@ -152,4 +167,3 @@ namespace Game.Database.Structure
         }
     }
 }
-
