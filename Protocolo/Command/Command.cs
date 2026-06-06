@@ -1,126 +1,152 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
-using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Protocolo.Framework.Command
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <typeparam name="C"></typeparam>
     public abstract class Command<C> where C : CommandContext
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        private readonly IList<SubCommand<C>> m_subCommands = new List<SubCommand<C>>(); 
+        private readonly List<SubCommand<C>> m_subCommands = new List<SubCommand<C>>();
 
-        /// <summary>
-        /// 
-        /// </summary>
         public abstract string[] Aliases { get; }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public abstract string Description { get; }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="context"></param>
-        /// <returns></returns>
+        public IReadOnlyList<SubCommand<C>> SubCommands => m_subCommands;
+
+        public string PrimaryAlias => Aliases.FirstOrDefault() ?? GetType().Name;
+
+        internal bool MatchesAlias(string alias)
+        {
+            return !string.IsNullOrEmpty(alias) &&
+                   Aliases.Any(commandAlias => string.Equals(commandAlias, alias, StringComparison.OrdinalIgnoreCase));
+        }
+
         protected virtual bool CanExecute(C context)
         {
             return true;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="context"></param>
         protected virtual void Process(C context)
         {
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
-        public void Serialize(StringBuilder message, string parent = "")
+        public void Serialize(StringBuilder message)
         {
-            if (m_subCommands.Count != 0)
-                message.Append("[").Append(Aliases.First()).Append("]").Append('\n');
-            else
-                message.Append(parent).Append(Aliases.First()).Append(" : ").Append(Description).Append('\n');
-            foreach(var subCommand in m_subCommands)            
-                subCommand.Serialize(message, Aliases.First() + " ");
+            Serialize(message, null, "");
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="context"></param>
-        /// <returns></returns>
+        public void Serialize(StringBuilder message, string parent)
+        {
+            Serialize(message, null, parent);
+        }
+
+        public void Serialize(StringBuilder message, C context)
+        {
+            Serialize(message, context, "");
+        }
+
+        public void Serialize(StringBuilder message, C context, string parent)
+        {
+            if (context != null && !CanExecute(context))
+                return;
+
+            var visibleSubCommands = context == null
+                ? m_subCommands
+                : m_subCommands.Where(subCommand => subCommand.CanExecute(context)).ToList();
+
+            if (m_subCommands.Count > 0)
+            {
+                if (visibleSubCommands.Count == 0)
+                    return;
+
+                message.Append("[").Append(PrimaryAlias).Append("]").Append('\n');
+            }
+            else
+            {
+                message.Append(parent).Append(PrimaryAlias).Append(" : ").Append(Description).Append('\n');
+            }
+
+            foreach (var subCommand in visibleSubCommands)
+                subCommand.Serialize(message, context, PrimaryAlias + " ");
+        }
+
         public bool Execute(C context)
         {
-            if (CanExecute(context))
+            if (!CanExecute(context))
             {
-                string word = context.TextCommandArgument.NextWord();
-                if (word != null)
-                {
-                    foreach (var subCommand in m_subCommands)
-                    {
-                        if (subCommand.Aliases.Contains(word))
-                        {
-                            if (subCommand.CanExecute(context))
-                            {
-                                return subCommand.Execute(context);
-                            }
-                        }
-                    }
-                }
-
-                context.TextCommandArgument.Position--;
-
-                Process(context);
+                OnCanExecuteFailed(context);
                 return true;
             }
 
-            return false;
+            if (context.TextCommandArgument.TryPeekWord(out var word))
+            {
+                var subCommand = m_subCommands.FirstOrDefault(command => command.MatchesAlias(word));
+                if (subCommand != null)
+                {
+                    context.TextCommandArgument.NextWord();
+                    return subCommand.Execute(context);
+                }
+            }
+
+            Process(context);
+            return true;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
+        protected virtual void OnCanExecuteFailed(C context)
+        {
+        }
+
         internal void RegisterNestedSubCommands()
         {
-            var type = GetType();
-            var nestedClasses = type.GetNestedTypes(BindingFlags.Public);
-            if (nestedClasses.Length > 0)
+            var nestedClasses = GetType().GetNestedTypes(BindingFlags.Public);
+            foreach (var nestedType in nestedClasses)
             {
-                foreach (var nestedType in nestedClasses)
+                if (!nestedType.IsAbstract && nestedType.IsSubclassOf(typeof(SubCommand<C>)))
                 {
-                    if (nestedType.IsSubclassOf(typeof(SubCommand<C>)) && !nestedType.IsAbstract)
-                    {
-                        var subCommand = Activator.CreateInstance(nestedType) as SubCommand<C>;
-                        if(subCommand != null)
-                            m_subCommands.Add(subCommand);
-                    }
+                    var subCommand = Activator.CreateInstance(nestedType) as SubCommand<C>;
+                    if (subCommand != null)
+                        AddSubCommand(subCommand);
                 }
             }
         }
+
+        private void AddSubCommand(SubCommand<C> subCommand)
+        {
+            ValidateSubCommandAliases(subCommand);
+
+            foreach (var alias in subCommand.Aliases)
+            {
+                if (m_subCommands.Any(command => command.MatchesAlias(alias)))
+                    throw new Exception(string.Format("El comando `{0}` ya tiene un subcomando con el alias `{1}`.", PrimaryAlias, alias));
+            }
+
+            subCommand.RegisterNestedSubCommands();
+            m_subCommands.Add(subCommand);
+        }
+
+        private void ValidateSubCommandAliases(SubCommand<C> subCommand)
+        {
+            if (subCommand.Aliases == null || subCommand.Aliases.Length == 0)
+                throw new Exception(string.Format("El subcomando `{0}` debe tener al menos un alias.", subCommand.GetType().FullName));
+
+            foreach (var alias in subCommand.Aliases)
+            {
+                if (string.IsNullOrWhiteSpace(alias))
+                    throw new Exception(string.Format("El subcomando `{0}` tiene un alias vacio.", subCommand.GetType().FullName));
+            }
+
+            var duplicateAlias = subCommand.Aliases
+                .GroupBy(alias => alias, StringComparer.OrdinalIgnoreCase)
+                .FirstOrDefault(group => group.Count() > 1);
+
+            if (duplicateAlias != null)
+                throw new Exception(string.Format("El subcomando `{0}` tiene repetido el alias `{1}`.", subCommand.GetType().FullName, duplicateAlias.Key));
+        }
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <typeparam name="C"></typeparam>
     public abstract class SubCommand<C> : Command<C> where C : CommandContext
     {
     }

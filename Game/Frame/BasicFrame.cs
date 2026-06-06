@@ -217,7 +217,7 @@ namespace Game.Frame
         /// <param name="message"></param>
         private void BasicCommand(CharacterEntity character, string message)
         {
-            if (character.Account.Power < 1)
+            if (!WorldCommandPermissions.HasRole(character, StaffRole.Moderator))
             {
                 Logger.Error("BasicFrame::BasicCommand player trying to use an admin command : " + character.Name + " -> " + message);
                 return;
@@ -1075,7 +1075,7 @@ namespace Game.Frame
 
         private void BasicAdminMapTeleport(CharacterEntity character, string message)
         {
-            if (character.Account.Power < 1)
+            if (!WorldCommandPermissions.HasRole(character, StaffRole.GameMaster))
                 return;
 
             // message format: BaM<x>,<y>
