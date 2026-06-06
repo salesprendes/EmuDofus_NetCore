@@ -77,7 +77,7 @@ namespace Game.Exchange
             m_distant = distant;
             if (m_local.Inventory == null || m_distant.Inventory == null)
             {
-                Logger.Debug("EntityExchange : exchange with an entity that hasnt an inventory.");
+                Logger.Debug("EntityExchange: se ha intentado intercambiar con una entidad sin inventario.");
             }
             m_exchangedItems = new Dictionary<long, Dictionary<long, int>>()
             {

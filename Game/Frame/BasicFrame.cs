@@ -217,9 +217,10 @@ namespace Game.Frame
         /// <param name="message"></param>
         private void BasicCommand(CharacterEntity character, string message)
         {
-            if (!WorldCommandPermissions.HasRole(character, StaffRole.Moderator))
+            if (!WorldCommandPermissions.CanUseStaffConsole(character))
             {
-                Logger.Error("BasicFrame::BasicCommand player trying to use an admin command : " + character.Name + " -> " + message);
+                Logger.Warn("BasicFrame::BasicCommand jugador sin permisos ha intentado usar la consola: " + character.Name + " -> " + message);
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
@@ -228,9 +229,9 @@ namespace Game.Frame
             character.AddMessage(() =>
                 {
                     if (!WorldService.Instance.CommandManager.Execute(new WorldCommandContext(character, command)))
-                        character.Dispatch(WorldMessage.BASIC_CONSOLE_MESSAGE("Unknow command, type help to lists them all."));
+                        character.Dispatch(WorldMessage.BASIC_CONSOLE_MESSAGE("Comando no reconocido. Escribe help para ver la lista."));
                     else
-                        Logger.Info("[CONSOLE COMMAND] name=" + character.Name + " ip=" + character.Ip + " command=" + command);
+                        Logger.Info("[COMANDO CONSOLA] nombre=" + character.Name + " ip=" + character.Ip + " comando=" + command);
                 });
         }
 
@@ -1076,7 +1077,11 @@ namespace Game.Frame
         private void BasicAdminMapTeleport(CharacterEntity character, string message)
         {
             if (!WorldCommandPermissions.HasRole(character, StaffRole.GameMaster))
+            {
+                Logger.Warn("BasicFrame::BasicAdminMapTeleport jugador sin permisos ha intentado usar teletransporte de mapa: " + character.Name + " -> " + message);
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
+            }
 
             // message format: BaM<x>,<y>
             var parts = message.Substring(3).Split(',');

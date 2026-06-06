@@ -340,7 +340,7 @@ namespace Game.Frame
 
             if (!Enum.IsDefined(typeof(ExchangeTypeEnum), exchangeTypeId))
             {
-                Logger.Debug("ExchangeFrame::Request unknow exchangeType : " + exchangeTypeId + " " + character.Name);
+                Logger.Debug("ExchangeFrame::Request tipo de intercambio desconocido: " + exchangeTypeId + " " + character.Name);
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
@@ -350,7 +350,7 @@ namespace Game.Frame
                 var exchangeType = (ExchangeTypeEnum)exchangeTypeId;
                 if (!character.CanGameAction(GameActionTypeEnum.EXCHANGE))
                 {
-                    Logger.Debug("ExchangeFrame::Request character cant start an exchange, cheat ? : " + character.Name);
+                    Logger.Debug("ExchangeFrame::Request el personaje no puede iniciar un intercambio en este momento: " + character.Name);
                     character.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_YOU_ARE_AWAY));
                     return;
                 }
@@ -362,7 +362,7 @@ namespace Game.Frame
                 if (distantEntity == null)
                 {
                     var entityIds = string.Join(", ", character.Map.Entities.Select(e => e.Id + "(" + e.Type + ")"));
-                    Logger.Debug("ExchangeFrame::Request unknow entity " + exchangeActorId + " map=" + character.Map.Id + " entities=[" + entityIds + "] player=" + character.Name);
+                    Logger.Debug("ExchangeFrame::Request entidad desconocida " + exchangeActorId + " map=" + character.Map.Id + " entities=[" + entityIds + "] jugador=" + character.Name);
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
@@ -786,6 +786,5 @@ namespace Game.Frame
         }
     }
 }
-
 
 

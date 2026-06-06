@@ -65,7 +65,7 @@ namespace Protocolo.Framework.Network
                     {
                         if (m_messageQueue.Count > MaxMessageSize)
                         {
-                            Logger.Warn("Client kicked due to oversized packet : " + Ip);
+                            Logger.Warn("Cliente expulsado por enviar un paquete demasiado grande: " + Ip);
                             Disconnect();
                             stopReceiving = true;
                         }
@@ -102,7 +102,7 @@ namespace Protocolo.Framework.Network
 
             if (DebugEnabled)
             {
-                Logger.Debug("Server : " + message);
+                Logger.Debug("Servidor: " + message);
             }
 
             var byteCount = Encoding.UTF8.GetByteCount(message);
@@ -118,7 +118,7 @@ namespace Protocolo.Framework.Network
                 CumulatedPacketInOneSecond++;
                 if (CumulatedPacketInOneSecond > 25)
                 {
-                    Logger.Warn("Client kicked due to packet spam : " + Ip);
+                    Logger.Warn("Cliente expulsado por spam de paquetes: " + Ip);
                     Disconnect();
                     return false;
                 }

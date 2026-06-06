@@ -1120,7 +1120,7 @@ namespace Game.Map
                 }
                 else
                 {
-                    Logger.Error("MapInstance::SpawnEntity : an entity with the same id alrezdy exists : " + entity.Name);
+                    Logger.Error("MapInstance::SpawnEntity: ya existe una entidad con el mismo id: " + entity.Name);
 
                     WorldService.Instance.AddUpdatable(entity);
                 }

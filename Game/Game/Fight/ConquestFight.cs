@@ -32,8 +32,8 @@ namespace Game.Fight
                   prism.Id,
                   territory.AlignmentId,
                   prism.MapCellId,
-                  WorldConfig.PVT_START_TIMEOUT,
-                  WorldConfig.PVT_TURN_TIME,
+                  60000,
+                  30000,
                   false, true, new HonorGainBehavior())
         {
             CanDefend = true;
@@ -47,7 +47,7 @@ namespace Game.Fight
             JoinFight(Attacker, Team0);
             JoinFight(Prism, Team1);
 
-            AddTimer(WorldConfig.PVT_TELEPORT_DEFENDERS_TIMEOUT, TeleportDefenders, true);
+            AddTimer(45000, TeleportDefenders, true);
 
             ConquestManager.Instance.TerritoryAttacked(territory, map);
         }

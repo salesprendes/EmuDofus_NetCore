@@ -121,14 +121,15 @@ namespace Game.Entity.Inventory
                     Entity.Statistics.UnMerge(item.IsBoostEquiped ? StatsType.TYPE_BOOST : StatsType.TYPE_ITEM,
                         item.Statistics);
                 item.SlotId = (int)ItemSlotEnum.SLOT_INVENTORY;
+                InventoryItemRepository.Instance.RemoveOwnerReference(item);
                 yield return base.RemoveItem(item.Id, item.Quantity);
             }
             CachedBuffer = false;
             m_entityLookRefresh = true;
-        }    
- 
+        }
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="itemId"></param>
         /// <param name="quantity"></param>
@@ -140,7 +141,10 @@ namespace Game.Entity.Inventory
                 return null;
 
             if (item.IsEquiped)
-                MoveItem(item, ItemSlotEnum.SLOT_INVENTORY);            
+                MoveItem(item, ItemSlotEnum.SLOT_INVENTORY);
+
+            if (quantity >= item.Quantity)
+                InventoryItemRepository.Instance.RemoveOwnerReference(item);
 
             return base.RemoveItem(itemId, quantity);
         }
@@ -194,13 +198,29 @@ namespace Game.Entity.Inventory
             }
             else if (!item.IsEquiped && ItemDAO.IsEquipedSlot(slot))
             {
+                bool isLivingStandaloneEquip = false;
+
                 if ((ItemTypeEnum)item.Template.Type == ItemTypeEnum.TYPE_OBJET_VIVANT)
                 {
-                    AssociateLivingItem(item, slot);
-                    return;
+                    var targetInSlot = Items.Find(entry => entry.Slot == slot && entry.Id != item.Id);
+                    if (targetInSlot != null)
+                    {
+                        AssociateLivingItem(item, slot);
+                        return;
+                    }
+
+                    // Slot is empty: validate using LivingType and allow standalone equip
+                    var livingType = GetLivingEffectValue(item, EffectEnum.LivingType);
+                    var validSlots = ItemTemplateDAO.GetSlotByType((ItemTypeEnum)livingType);
+                    if ((validSlots & slot) != slot)
+                    {
+                        DispatchLivingAssociationError(InformationEnum.INFO_LIVING_ITEM_CANT_EQUIP);
+                        return;
+                    }
+                    isLivingStandaloneEquip = true;
                 }
 
-                if (!ItemTemplateDAO.CanPlaceInSlot((ItemTypeEnum)item.Template.Type, slot))
+                if (!isLivingStandaloneEquip && !ItemTemplateDAO.CanPlaceInSlot((ItemTypeEnum)item.Template.Type, slot))
                 {
                     base.Dispatch(WorldMessage.OBJECT_MOVE_ERROR());
                     return;
@@ -570,7 +590,7 @@ namespace Game.Entity.Inventory
                 return;
             }
 
-            var now = DateTime.Now;
+            DateTime now = DateTime.Now;
             var metadataChanged = EnsureLivingReceptionStats(associatedItem, now);
             if (associatedItem.RefreshTemporaryExchangeLock(now))
                 metadataChanged = true;

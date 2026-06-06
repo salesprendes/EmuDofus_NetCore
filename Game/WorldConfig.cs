@@ -26,7 +26,7 @@ namespace Game
                 case CharacterBreedEnum.BREED_SADIDAS: return 255;
                 case CharacterBreedEnum.BREED_SRAM: return 219;
                 case CharacterBreedEnum.BREED_XELOR: return 286;
-                default: throw new Exception("Unknow breedId " + breed);
+                default: throw new Exception("BreedId desconocido: " + breed);
             }
         }
 
@@ -46,7 +46,7 @@ namespace Game
                 case CharacterBreedEnum.BREED_SADIDAS: return 10279;
                 case CharacterBreedEnum.BREED_SRAM: return 10285;
                 case CharacterBreedEnum.BREED_XELOR: return 10298;
-                default: throw new Exception("Unknow breedId " + breed);
+                default: throw new Exception("BreedId desconocido: " + breed);
             }
         }
 
@@ -118,9 +118,7 @@ namespace Game
         [Configurable()]
         public static int SPAWN_CHECK_INTERVAL = 1 * 60 * 1000;
 
-        // Delay range before a NEW monster group respawns after the player wins a fight.
-        // Ankama never published exact timers; community consensus for 1.29 was ~5–10 min.
-        // Keep both values configurable so they can be tuned per server.
+
         [Configurable()]
         public static int MONSTER_REPOP_DELAY_MIN = 5 * 60 * 1000;   // 5 minutes
         [Configurable()]
@@ -172,15 +170,9 @@ namespace Game
         [Configurable()]
         public static double REGEN_TIMER = 1500;
 
-        [Configurable()]
-        public static int PVT_TELEPORT_DEFENDERS_TIMEOUT = 45000;
-        [Configurable()]
-        public static int PVT_START_TIMEOUT = 60000;
-        [Configurable()]
-        public static int PVT_TURN_TIME = 30000;
+
 
         [Configurable()]
-
         public static int PVM_MAX_STAR_BONUS = 1000;
         [Configurable()]
         public static int PVM_STAR_BONUS_PERCENT_SECONDS = 10;

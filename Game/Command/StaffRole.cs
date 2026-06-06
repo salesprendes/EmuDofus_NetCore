@@ -24,6 +24,11 @@ namespace Game.Command
                    character.Account.Power >= (int)role;
         }
 
+        public static bool CanUseStaffConsole(CharacterEntity character)
+        {
+            return HasRole(character, StaffRole.Moderator);
+        }
+
         public static string GetDisplayName(StaffRole role)
         {
             switch (role)
@@ -32,13 +37,13 @@ namespace Game.Command
                     return "Moderador";
 
                 case StaffRole.GameMaster:
-                    return "GameMaster";
+                    return "Game Master";
 
                 case StaffRole.Administrator:
                     return "Administrador";
 
                 default:
-                    return "player";
+                    return "Jugador";
             }
         }
     }

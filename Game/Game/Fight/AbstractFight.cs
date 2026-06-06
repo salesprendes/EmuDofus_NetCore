@@ -982,22 +982,22 @@ namespace Game.Fight
         {
             if (infos.Target == null)
             {
-                Logger.Debug("AddProcessingTarget first (Null target)");
+                Logger.Debug("AddProcessingTarget: se procesa primero porque el objetivo es nulo.");
                 m_processingTargets.AddFirst(infos);
             }
             else if (CurrentProcessingFighter == infos.Target)
             {
-                Logger.Debug("AddProcessingTarget first (CurrentProcessingFighter) : " + infos.Target.Name);
+                Logger.Debug("AddProcessingTarget: se procesa primero porque coincide con el luchador en curso: " + infos.Target.Name);
                 m_processingTargets.AddFirst(infos);
             }
             else if (CurrentProcessingFighter == null && CurrentFighter == infos.Target)
             {
-                Logger.Debug("AddProcessingTarget first (CurrentFighter) : " + infos.Target.Name);
+                Logger.Debug("AddProcessingTarget: se procesa primero porque coincide con el luchador actual: " + infos.Target.Name);
                 m_processingTargets.AddFirst(infos);
             }
             else
             {
-                Logger.Debug("AddProcessingTarget last : " + infos.Target.Name);
+                Logger.Debug("AddProcessingTarget: se envia al final de la cola: " + infos.Target.Name);
                 m_processingTargets.AddLast(infos);
             }
         }
@@ -1053,7 +1053,7 @@ namespace Game.Fight
 
                         if (State != FightStateEnum.STATE_FIGHTING)
                         {
-                            Logger.Debug("FightBase::TrySpectate cannot spectate placement " + character.Name);
+                            Logger.Debug("FightBase::TrySpectate no se puede espectar durante la fase de colocacion: " + character.Name);
                             character.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_FIGHT_SPECTATOR_LOCKED));
                             return;
                         }
@@ -1087,7 +1087,7 @@ namespace Game.Fight
 
                     if (State != FightStateEnum.STATE_PLACEMENT)
                     {
-                        Logger.Debug("FightBase::TryJoin fight already started " + character.Name);
+                        Logger.Debug("FightBase::TryJoin el combate ya ha comenzado: " + character.Name);
                         character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                         return;
                     }
@@ -1102,7 +1102,7 @@ namespace Game.Fight
 
                     if (!team.CanJoinBeforeStart(character))
                     {
-                        Logger.Debug("FightBase::TryJoin cannot join team before start " + character.Name);
+                        Logger.Debug("FightBase::TryJoin no puede unirse a ese equipo antes de empezar: " + character.Name);
                         character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                         return;
                     }
@@ -1208,7 +1208,7 @@ namespace Game.Fight
 
                 if (WorldConfig.LOG_DEBUG)
                 {
-                    Logger.Debug("Fight::Disconnect fighter disconnected: " + fighter.Name);
+                    Logger.Debug("Fight::Disconnect luchador desconectado: " + fighter.Name);
                 }
 
                 if (fighter.DisconnectedTurnLeft == 0)
@@ -1248,7 +1248,7 @@ namespace Game.Fight
 
             if (fighter.IsFighterDead)
             {
-                Logger.Debug("FightBase::KillFighter on " + fighter.Name);
+                Logger.Debug("FightBase::KillFighter eliminando a: " + fighter.Name);
 
                 if (quit)
                 {
@@ -1488,7 +1488,7 @@ namespace Game.Fight
 
                         if (CurrentFighter.EndTurn() == FightActionResultEnum.RESULT_END)
                         {
-                            Logger.Debug("Fight::EndTurn turn finished and caused the end.");
+                            Logger.Debug("Fight::EndTurn el turno ha terminado y eso ha cerrado el combate.");
                             return;
                         }
                     }
@@ -1647,7 +1647,7 @@ namespace Game.Fight
                             {
                                 if (!CurrentProcessingFighter.IsFighterDead)
                                 {
-                                    Logger.Debug("Processing effect : " + CurrentProcessingFighter.Name);
+                                    Logger.Debug("Procesando efecto de: " + CurrentProcessingFighter.Name);
                                     var effectResult = EffectManager.Instance.TryApplyEffect(castInfos);
                                     if (effectResult == FightActionResultEnum.RESULT_END)
                                     {
@@ -1683,7 +1683,7 @@ namespace Game.Fight
                                 if (CurrentSubAction != null)
                                 {
                                     LoopState = FightLoopStateEnum.STATE_WAIT_SUBACTION;
-                                    Logger.Debug("FightBase::Update waiting for subaction");
+                                    Logger.Debug("FightBase::Update esperando a que termine una subaccion.");
                                     break;
                                 }
                             }
@@ -1736,7 +1736,7 @@ namespace Game.Fight
                                 switch (result)
                                 {
                                     case FightActionResultEnum.RESULT_END:
-                                        Logger.Debug("FightBase::Update end of fight after subAction.");
+                                        Logger.Debug("FightBase::Update el combate ha terminado tras la subaccion.");
                                     return;
 
                                     case FightActionResultEnum.RESULT_DEATH:
@@ -1824,7 +1824,7 @@ namespace Game.Fight
                     LoopState = FightLoopStateEnum.STATE_WAIT_END;
                     LoopEndState = FightEndStateEnum.STATE_END_ERROR;
                 }
-                Logger.Error("Fight ended error : type=" + Type + " message=" + ex.ToString());
+                Logger.Error("Error al cerrar el combate: tipo=" + Type + " detalle=" + ex.ToString());
             }
         }
 
@@ -1977,25 +1977,25 @@ namespace Game.Fight
 
             if (LoopState != FightLoopStateEnum.STATE_WAIT_TURN)
             {
-                Logger.Debug("Fight::CanUseWeapon trying to cast spell withouth being in turn wait phase : " + fighter.Name);
+                Logger.Debug("Fight::CanUseWeapon se ha intentado usar un arma fuera de la fase de espera del turno: " + fighter.Name);
                 return false;
             }
 
             if (CurrentFighter != fighter)
             {
-                Logger.Debug("Fight::CanUseWeapon fighter try to use weapon but its not his turn : " + fighter.Name);
+                Logger.Debug("Fight::CanUseWeapon el luchador ha intentado usar un arma fuera de su turno: " + fighter.Name);
                 return false;
             }
 
             if (GetCell(cellId) == null)
             {
-                Logger.Debug("Fight::CanUseWeapon null cast cell : " + fighter.Name);
+                Logger.Debug("Fight::CanUseWeapon la celda de lanzamiento es nula: " + fighter.Name);
                 return false;
             }
 
             if (fighter.AP < template.APCost)
             {
-                Logger.Debug("Fight::CanUseWeapon not enought AP : " + fighter.Name);
+                Logger.Debug("Fight::CanUseWeapon no tiene PA suficientes: " + fighter.Name);
                 return false;
             }
 
@@ -2003,7 +2003,7 @@ namespace Game.Fight
             // MaxDurability == 0 means the weapon has unlimited charges (no tracking).
             if (weapon.IsEthereal && weapon.MaxDurability > 0 && weapon.Durability == 0)
             {
-                Logger.Debug("Fight::CanUseWeapon ethereal weapon has no durability left : " + fighter.Name);
+                Logger.Debug("Fight::CanUseWeapon el arma eterea ya no tiene durabilidad: " + fighter.Name);
                 return false;
             }
 
@@ -2017,7 +2017,7 @@ namespace Game.Fight
 
             if (distance > poMax || distance < template.POMin)
             {
-                Logger.Debug("Fight::CanUseWeapon target cell not in range : " + fighter.Name);
+                Logger.Debug("Fight::CanUseWeapon la celda objetivo esta fuera de alcance: " + fighter.Name);
                 return false;
             }
 
@@ -2041,14 +2041,14 @@ namespace Game.Fight
 
                     if (State != FightStateEnum.STATE_FIGHTING)
                     {
-                        Logger.Debug("Fight::TryUseWeapon fight is not in fighting state : " + fighter.Name);
+                        Logger.Debug("Fight::TryUseWeapon el combate no esta en estado de lucha: " + fighter.Name);
                         fighter.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                         return;
                     }
 
                     if (m_currentApCost != -1)
                     {
-                        Logger.Debug("Fight::TryUseWeapon fight already processing spell launch and not finished : " + fighter.Name);
+                        Logger.Debug("Fight::TryUseWeapon el combate ya esta procesando otro lanzamiento y aun no ha terminado: " + fighter.Name);
                         fighter.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                         return;
                     }
@@ -2063,7 +2063,7 @@ namespace Game.Fight
 
                     if (!CanUseWeapon(fighter, weapon, cellId))
                     {
-                        Logger.Debug("Fight::TryUseWeapon unable to use weapon : " + fighter.Name);
+                        Logger.Debug("Fight::TryUseWeapon no se puede usar el arma: " + fighter.Name);
                         fighter.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                         return;
                     }
@@ -2242,7 +2242,7 @@ namespace Game.Fight
                 {
                     if (WorldConfig.LOG_DEBUG)
                     {
-                        Logger.Debug("Fight::TryLaunchSpell fight is not in fighting state : " + fighter.Name);
+                        Logger.Debug("Fight::TryLaunchSpell el combate no esta en estado de lucha: " + fighter.Name);
                     }
 
                     fighter.Dispatch(WorldMessage.BASIC_NO_OPERATION());
@@ -2253,7 +2253,7 @@ namespace Game.Fight
                 {
                     if (WorldConfig.LOG_DEBUG)
                     {
-                        Logger.Debug("Fight::TryLaunchSpell fight already processing spell launch and not finished : " + fighter.Name);
+                        Logger.Debug("Fight::TryLaunchSpell el combate ya esta procesando otro lanzamiento y aun no ha terminado: " + fighter.Name);
                     }
 
                     fighter.Dispatch(WorldMessage.BASIC_NO_OPERATION());
@@ -2264,7 +2264,7 @@ namespace Game.Fight
                 {
                     if (WorldConfig.LOG_DEBUG)
                     {
-                        Logger.Debug("Fight::TryLaunchSpell empty spellbook : " + fighter.Name);
+                        Logger.Debug("Fight::TryLaunchSpell el grimorio esta vacio: " + fighter.Name);
                     }
 
                     fighter.Dispatch(WorldMessage.BASIC_NO_OPERATION());
@@ -2277,7 +2277,7 @@ namespace Game.Fight
                 {
                     if (WorldConfig.LOG_DEBUG)
                     {
-                        Logger.Debug("Fight::TryLaunchSpell unnknow spellId : " + fighter.Name);
+                        Logger.Debug("Fight::TryLaunchSpell hechizo desconocido: " + fighter.Name);
                     }
 
                     fighter.Dispatch(WorldMessage.BASIC_NO_OPERATION());
@@ -2288,7 +2288,7 @@ namespace Game.Fight
                 {
                     if (WorldConfig.LOG_DEBUG)
                     {
-                        Logger.Debug("Fight::TryLaunchSpell null fighter cell : " + fighter.Name);
+                        Logger.Debug("Fight::TryLaunchSpell la celda del luchador es nula: " + fighter.Name);
                     }
 
                     fighter.Dispatch(WorldMessage.BASIC_NO_OPERATION());
@@ -2300,7 +2300,7 @@ namespace Game.Fight
                 {
                     if (WorldConfig.LOG_DEBUG)
                     {
-                        Logger.Debug("Fight::TryLaunchSpell unable to launch spell : " + fighter.Name + " reason=" + launchResult);
+                        Logger.Debug("Fight::TryLaunchSpell no se puede lanzar el hechizo: " + fighter.Name + " motivo=" + launchResult);
                     }
 
                     fighter.Dispatch(WorldMessage.BASIC_NO_OPERATION());
@@ -2719,20 +2719,20 @@ namespace Game.Fight
             {
                 if (LoopState != FightLoopStateEnum.STATE_WAIT_TURN)
                 {
-                    Logger.Debug("Fight::Move trying to move withouth being in turn wait phase : " + entity.Name);
+                    Logger.Debug("Fight::Move se ha intentado mover fuera de la fase de espera del turno: " + entity.Name);
                     return;
                 }
 
                 if (entity != CurrentFighter)
                 {
-                    Logger.Debug("Fight::Move not his turn : " + entity.Name);
+                    Logger.Debug("Fight::Move no es su turno: " + entity.Name);
                     return;
                 }
 
                 var fighter = entity as AbstractFighter;
                 if (fighter?.Cell == null)
                 {
-                    Logger.Debug("Fight::Move invalid fighter : " + entity.Name);
+                    Logger.Debug("Fight::Move luchador no valido: " + entity.Name);
                     return;
                 }
 
@@ -2740,20 +2740,20 @@ namespace Game.Fight
 
                 if (movementPath == null)
                 {
-                    Logger.Debug("Fight::Move null movement path : " + entity.Name);
+                    Logger.Debug("Fight::Move la ruta de movimiento es nula: " + entity.Name);
                     return;
                 }
 
                 if (movementPath.MovementLength <= 0 || movementPath.EndCell == fighter.Cell.Id)
                 {
-                    Logger.Debug("Fight::Move empty movement path : " + entity.Name);
+                    Logger.Debug("Fight::Move la ruta de movimiento esta vacia: " + entity.Name);
                     return;
                 }
 
                 // Pas assez de point de mouvement
                 if (movementPath.MovementLength > fighter.MP)
                 {
-                    Logger.Debug("Fight::Move no enought mp to move : " + entity.Name);
+                    Logger.Debug("Fight::Move no tiene PM suficientes para moverse: " + entity.Name);
                     return;
                 }
 

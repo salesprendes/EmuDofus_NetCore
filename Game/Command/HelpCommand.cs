@@ -1,4 +1,3 @@
-﻿using Protocolo.Framework.Command;
 using Game.Network;
 using System.Text;
 
@@ -16,12 +15,17 @@ namespace Game.Command
 
         protected override void Process(WorldCommandContext context)
         {
+            context.Character.Dispatch(WorldMessage.BASIC_CONSOLE_MESSAGE(BuildHelpMessage(context)));
+        }
+
+        private static string BuildHelpMessage(WorldCommandContext context)
+        {
             StringBuilder message = new StringBuilder();
-            foreach(var command in WorldService.Instance.CommandManager.Commands)  
-                if(!typeof(SubCommand<WorldCommandContext>).IsAssignableFrom(command.GetType()))
-                    command.Serialize(message, context);
-            context.Character.Dispatch(WorldMessage.BASIC_CONSOLE_MESSAGE(message.ToString()));
+
+            foreach (var command in WorldService.Instance.CommandManager.Commands)
+                command.Serialize(message, context);
+
+            return message.ToString();
         }
     }
 }
-

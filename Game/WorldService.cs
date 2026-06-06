@@ -107,7 +107,7 @@ namespace Game
             {
                 if (WorldConfig.LOG_DEBUG)
                 {
-                    Logger.Debug("Client : " + message);
+                    Logger.Debug("Cliente: " + message);
                 }
 
                 var character = client.CurrentCharacter;
@@ -150,14 +150,14 @@ namespace Game
                     }
                     catch (Exception ex)
                     {
-                        Logger.Error("WorldService::SaveWorld error : " + ex.Message);
+                        Logger.Error("WorldService::SaveWorld error: " + ex.Message);
                     }
                     finally
                     {
                         updateTimer.Stop();
                         AddMessage(() =>
                         {
-                            Logger.Info($"WorldService : World update performed in : {updateTimer.ElapsedMilliseconds} ms");
+                            Logger.Info($"WorldService: guardado del mundo completado en {updateTimer.ElapsedMilliseconds} ms");
                             RPCManager.Instance.UpdateState(GameStateEnum.ONLINE);
                             Dispatcher.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_WORLD_SAVING_FINISHED));
                         });
@@ -182,7 +182,7 @@ namespace Game
             finally
             {
                 timer.Stop();
-                Logger.Info($"WorldService : Guardado completado en {timer.ElapsedMilliseconds} ms");
+                Logger.Info($"WorldService: guardado completado en {timer.ElapsedMilliseconds} ms");
             }
         }
 

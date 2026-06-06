@@ -288,14 +288,14 @@ namespace Game.Frame
             var distantEntity = character.Map.GetEntity(victimId);
             if (distantEntity == null)
             {
-                Logger.Debug("GameActionFrame::AlignmentAggression unknow victimId " + character.Name);
+                Logger.Debug("GameActionFrame::AlignmentAggression id de victima desconocido: " + character.Name);
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
             if (distantEntity.Type != EntityTypeEnum.TYPE_CHARACTER)
             {
-                Logger.Debug("GameActionFrame::AlignmentAggression trying to aggro non taxcollector entity : " + character.Name);
+                Logger.Debug("GameActionFrame::AlignmentAggression se ha intentado agredir a una entidad no valida: " + character.Name);
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
@@ -324,7 +324,7 @@ namespace Game.Frame
         {
             if (character.Map.FightTeam0Cells.Count == 0 || character.Map.FightTeam1Cells.Count == 0)
             {
-                character.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, InformationEnum.INFO_SERVER_MESSAGE, "Cell pattern not found, unable to fight here"));
+                character.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, InformationEnum.INFO_SERVER_MESSAGE, "En este mapa no hay celdas de combate configuradas."));
                 return;
             }
 
@@ -340,14 +340,14 @@ namespace Game.Frame
             var distantEntity = character.Map.GetEntity(taxcollectorId);
             if (distantEntity == null)
             {
-                Logger.Debug("GameActionFrame::TaxcollectorAggression unknow taxcollectorId " + character.Name);
+                Logger.Debug("GameActionFrame::TaxcollectorAggression id de recaudador desconocido: " + character.Name);
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
             
             if (distantEntity.Type != EntityTypeEnum.TYPE_TAX_COLLECTOR)
             {
-                Logger.Debug("GameActionFrame::TaxCollectorAggression trying to aggro non taxcollector entity : " + character.Name);
+                Logger.Debug("GameActionFrame::TaxCollectorAggression se ha intentado agredir a una entidad que no es recaudador: " + character.Name);
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
@@ -372,7 +372,7 @@ namespace Game.Frame
         {
             if (character.Map.FightTeam0Cells.Count == 0 || character.Map.FightTeam1Cells.Count == 0)
             {
-                character.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, InformationEnum.INFO_SERVER_MESSAGE, "Cell pattern not found, unable to fight here"));
+                character.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, InformationEnum.INFO_SERVER_MESSAGE, "En este mapa no hay celdas de combate configuradas."));
                 return;
             }
 
@@ -389,7 +389,7 @@ namespace Game.Frame
             var prism = distantEntity as ConquestPrismEntity;
             if (prism == null)
             {
-                Logger.Debug("GameActionFrame::PrismAggression unknow prismId " + character.Name);
+                Logger.Debug("GameActionFrame::PrismAggression id de prisma desconocido: " + character.Name);
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
@@ -485,7 +485,7 @@ namespace Game.Frame
 
             if(fight == null)
             {
-                Logger.Debug("GameActionFrame::ChallengeJoin unknow fight : " + character.Name);
+                Logger.Debug("GameActionFrame::ChallengeJoin combate desconocido: " + character.Name);
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
@@ -499,7 +499,7 @@ namespace Game.Frame
             long leaderId = -1;
             if(!long.TryParse(fightData[1], out leaderId))
             {                
-                Logger.Debug("GameActionFrame::ChallengeJoin unknow leaderId : " + character.Name);
+                Logger.Debug("GameActionFrame::ChallengeJoin id de lider desconocido: " + character.Name);
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
@@ -537,7 +537,7 @@ namespace Game.Frame
             var cellId = -1;
             if(!int.TryParse(spellData[1], out cellId))
             {
-                Logger.Debug("GameActionFrame::SpellLaunch wrong packet content : " + character.Name);
+                Logger.Debug("GameActionFrame::SpellLaunch contenido del paquete invalido: " + character.Name);
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
@@ -574,7 +574,7 @@ namespace Game.Frame
         {
             if (character.Map.FightTeam0Cells.Count == 0 || character.Map.FightTeam1Cells.Count == 0)
             {
-                character.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, InformationEnum.INFO_SERVER_MESSAGE, "Cell pattern not found, unable to fight here"));
+                character.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, InformationEnum.INFO_SERVER_MESSAGE, "En este mapa no hay celdas de combate configuradas."));
                 return;
             }
 
@@ -596,14 +596,14 @@ namespace Game.Frame
             var distantEntity = character.Map.GetEntity(distantEntityId);
             if(distantEntity == null)
             {
-                Logger.Debug("GameActionFrame::ChallengeRequest unknow distantEntityId " + character.Name);
+                Logger.Debug("GameActionFrame::ChallengeRequest id de entidad objetivo desconocido: " + character.Name);
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
             if(distantEntity.Type != EntityTypeEnum.TYPE_CHARACTER)
             {
-                Logger.Debug("GameActionFrame::ChallengeRequest trying to challenge non player entity : " + character.Name);
+                Logger.Debug("GameActionFrame::ChallengeRequest se ha intentado retar a una entidad que no es jugador: " + character.Name);
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
@@ -626,7 +626,7 @@ namespace Game.Frame
         {
             if(character.MovementHandler == null)
             {
-                Logger.Debug("GameActionFrame::MapMovement entity is not on a map : " + character.Name);
+                Logger.Debug("GameActionFrame::MapMovement la entidad no esta en ningun mapa: " + character.Name);
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
@@ -643,7 +643,7 @@ namespace Game.Frame
             // A Dofus 1.29 map has at most 560 cells (14x40); each path step is 3 chars.
             if (path.Length > 560 * 3)
             {
-                Logger.Debug("GameActionFrame::MapMovement oversized path from : " + character.Name);
+                Logger.Debug("GameActionFrame::MapMovement ruta demasiado larga recibida de: " + character.Name);
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
@@ -694,14 +694,14 @@ namespace Game.Frame
                     var action = character.CurrentAction;
                     if (action == null)
                     {
-                        Logger.Debug("GameActionFrame::GameActionFinish entity has empty action : " + character.Name);
+                        Logger.Debug("GameActionFrame::GameActionFinish la entidad no tiene accion activa: " + character.Name);
                         character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                         return;
                     }
 
                     if ((int)action.Type != actionId)
                     {
-                        Logger.Debug("GameActionFrame::GameActionAbort wrong action id : " + character.Name);
+                        Logger.Debug("GameActionFrame::GameActionAbort id de accion incorrecto: " + character.Name);
                         character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                         return;
                     }
@@ -735,7 +735,7 @@ namespace Game.Frame
                 
                 if ((int)action.Type != actionId)
                 {
-                    Logger.Debug("GameActionFrame::GameActionFinish wrong action id : " + character.Name);
+                    Logger.Debug("GameActionFrame::GameActionFinish id de accion incorrecto: " + character.Name);
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }

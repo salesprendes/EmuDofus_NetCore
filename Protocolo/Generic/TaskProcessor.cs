@@ -58,7 +58,7 @@ namespace Protocolo.Framework.Generic
                 m_running = false;
                 m_queueTimer.Reset();
                 LastUpdate = 0;
-                Logger.Info($"TaskQueue[{Name}] stopped.");
+                Logger.Info($"TaskQueue[{Name}] detenida.");
             });
         }
 
@@ -114,7 +114,7 @@ namespace Protocolo.Framework.Generic
 
         private void InternalStart()
         {
-            Logger.Info($"TaskQueue[{Name}] started.");
+            Logger.Info($"TaskQueue[{Name}] iniciada.");
             while (m_running)
                 InternalUpdate();
         }
@@ -134,7 +134,7 @@ namespace Protocolo.Framework.Generic
                     try { timer.Tick(LastUpdate); }
                     catch (Exception ex)
                     {
-                        Logger.Error($"TaskQueue[{Name}] timer [{timer.GetType().Name}] failed: {ex}");
+                        Logger.Error($"TaskQueue[{Name}] fallo en el temporizador [{timer.GetType().Name}]: {ex}");
                     }
                     if (timer.OneShot)
                         m_timerList.RemoveAt(i);
@@ -148,7 +148,7 @@ namespace Protocolo.Framework.Generic
                 try { m_updatableObjects[i].Update(updateDelta); }
                 catch (Exception ex)
                 {
-                    Logger.Error($"TaskQueue[{Name}] object [{m_updatableObjects[i].GetType().Name}] update failed: {ex}");
+                    Logger.Error($"TaskQueue[{Name}] fallo al actualizar el objeto [{m_updatableObjects[i].GetType().Name}]: {ex}");
                 }
             }
 
@@ -159,7 +159,7 @@ namespace Protocolo.Framework.Generic
                 try { msg(); }
                 catch (Exception ex)
                 {
-                    Logger.Error($"TaskQueue[{Name}] message failed: {ex}");
+                    Logger.Error($"TaskQueue[{Name}] fallo al procesar un mensaje: {ex}");
                 }
             }
 
@@ -174,7 +174,7 @@ namespace Protocolo.Framework.Generic
                     try { msg(); }
                     catch (Exception ex)
                     {
-                        Logger.Error($"TaskQueue[{Name}] message failed: {ex}");
+                        Logger.Error($"TaskQueue[{Name}] fallo al procesar un mensaje: {ex}");
                     }
                 }
             }

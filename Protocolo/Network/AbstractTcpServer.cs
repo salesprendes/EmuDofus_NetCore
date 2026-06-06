@@ -62,7 +62,7 @@ namespace Protocolo.Framework.Network
         protected void Start(string host, int port, int backLog = 500)
         {
             if (string.IsNullOrWhiteSpace(host))
-                throw new ArgumentException("Host is required.", nameof(host));
+                throw new ArgumentException("El host es obligatorio.", nameof(host));
 
             if (port <= 0 || port > ushort.MaxValue)
                 throw new ArgumentOutOfRangeException(nameof(port));
@@ -80,7 +80,7 @@ namespace Protocolo.Framework.Network
             for (var i = 0; i < acceptWorkers; i++)
                 StartAccept(null);
 
-            Logger.Info(GetType().Name + " listening on " + host + ":" + port);
+            Logger.Info(GetType().Name + " escuchando en " + host + ":" + port);
         }
 
         public void Send(TClient client, byte[] data)
@@ -231,7 +231,7 @@ namespace Protocolo.Framework.Network
             }
             catch (Exception ex)
             {
-                Logger.Warn("StartReceive error for " + client.Ip + " : " + ex.Message);
+                Logger.Warn("Error en StartReceive para " + client.Ip + " : " + ex.Message);
                 Disconnect(saea);
             }
         }
@@ -325,7 +325,7 @@ namespace Protocolo.Framework.Network
             }
             catch (Exception ex)
             {
-                Logger.Warn("Socket receive handler failure for " + client.Ip + " : " + ex.Message);
+                Logger.Warn("Fallo en el handler de recepcion del socket para " + client.Ip + " : " + ex.Message);
                 Disconnect(saea);
                 return;
             }

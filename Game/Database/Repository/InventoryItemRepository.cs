@@ -6,14 +6,8 @@ using System.Linq;
 
 namespace Game.Database.Repository
 {
-    /// <summary>
-    ///
-    /// </summary>
     public sealed class InventoryItemRepository : Repository<InventoryItemRepository, ItemDAO>
     {
-        /// <summary>
-        ///
-        /// </summary>
         public long NextItemId
         {
             get
@@ -23,7 +17,7 @@ namespace Game.Database.Repository
             }
         }
 
-        private long m_nextItemId;
+        private long m_nextItemId = 1;
         private Dictionary<long, ItemDAO> m_itemById;
         private Dictionary<long, List<ItemDAO>> m_itemsByOwner;
 
@@ -35,33 +29,31 @@ namespace Game.Database.Repository
 
         private static long OwnerKey(int ownerType, long ownerId) => ((long)ownerType << 48) | (ownerId & 0x0000FFFFFFFFFFFFL);
 
+        public override void Initialize(Protocolo.Framework.Database.SqlManager sqlManager)
+        {
+            base.Initialize(sqlManager);
+            foreach (var item in m_dataObjects)
+            {
+                var key = OwnerKey(item.OwnerType, item.OwnerId);
+                if (!m_itemsByOwner.TryGetValue(key, out var list))
+                {
+                    list = new List<ItemDAO>();
+                    m_itemsByOwner[key] = list;
+                }
+                list.Add(item);
+            }
+        }
+
         public override void OnObjectAdded(ItemDAO item)
         {
             if (item.Id >= m_nextItemId)
                 m_nextItemId = item.Id + 1;
-
             m_itemById[item.Id] = item;
-
-            var key = OwnerKey(item.OwnerType, item.OwnerId);
-            if (!m_itemsByOwner.TryGetValue(key, out var list))
-            {
-                list = new List<ItemDAO>();
-                m_itemsByOwner[key] = list;
-            }
-            list.Add(item);
         }
 
         public override void OnObjectRemoved(ItemDAO item)
         {
             m_itemById.Remove(item.Id);
-
-            var key = OwnerKey(item.OwnerType, item.OwnerId);
-            if (m_itemsByOwner.TryGetValue(key, out var list))
-            {
-                list.Remove(item);
-                if (list.Count == 0)
-                    m_itemsByOwner.Remove(key);
-            }
         }
 
         public ItemDAO GetById(long itemId)
@@ -78,12 +70,45 @@ namespace Game.Database.Repository
             return Enumerable.Empty<ItemDAO>();
         }
 
+        public void AddOwnerReference(ItemDAO item)
+        {
+            lock (m_syncLock)
+            {
+                var key = OwnerKey(item.OwnerType, item.OwnerId);
+                if (!m_itemsByOwner.TryGetValue(key, out var list))
+                {
+                    list = new List<ItemDAO>();
+                    m_itemsByOwner[key] = list;
+                }
+                if (!list.Contains(item))
+                    list.Add(item);
+            }
+        }
+
+        public void RemoveOwnerReference(ItemDAO item)
+        {
+            lock (m_syncLock)
+            {
+                var key = OwnerKey(item.OwnerType, item.OwnerId);
+                if (m_itemsByOwner.TryGetValue(key, out var list))
+                {
+                    list.Remove(item);
+                    if (list.Count == 0)
+                        m_itemsByOwner.Remove(key);
+                }
+            }
+        }
+
         public void EntityRemoved(int type, long id)
         {
             var key = OwnerKey(type, id);
-            if (!m_itemsByOwner.TryGetValue(key, out var list))
-                return;
-            base.Removed(list.ToArray());
+            lock (m_syncLock)
+            {
+                if (!m_itemsByOwner.TryGetValue(key, out var list))
+                    return;
+                m_itemsByOwner.Remove(key);
+                base.Removed(list.ToArray());
+            }
         }
 
         public override void InsertAll(MySqlConnector.MySqlConnection connection, MySqlConnector.MySqlTransaction transaction)
@@ -116,7 +141,6 @@ namespace Game.Database.Repository
             instance.SlotId = (int)slot;
 
             base.Created(instance);
-
             return instance;
         }
     }

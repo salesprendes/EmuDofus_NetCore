@@ -19,7 +19,7 @@ namespace Game.Fight.Effect.Type
                 case EffectEnum.SubAPDodgeable:
                 case EffectEnum.SubMPDodgeable:
                     showValue = -CastInfos.Value1;
-                    break;
+                break;
 
                 default:
                     showValue = CastInfos.Value1;
@@ -37,11 +37,7 @@ namespace Game.Fight.Effect.Type
 
             return base.ApplyEffect(ref damageValue, damageInfos);
         }
-
-        /// <summary>
-        /// Retire le boost
-        /// </summary>
-        /// <returns></returns>
+        
         public override FightActionResultEnum RemoveEffect()
         {
             Target.Statistics.GetEffect(CastInfos.EffectType).Boosts -= CastInfos.Value1;
@@ -58,16 +54,15 @@ namespace Game.Fight.Effect.Type
                     case EffectEnum.SubAPDodgeable:
                     case EffectEnum.SubMP:
                     case EffectEnum.SubMPDodgeable:
-                        Target.Fight.Dispatch(WorldMessage.GAME_ACTION(CastInfos.EffectType, Target.Id,
-                            Target.Id + "," + CastInfos.Value1 + "," + 1));
-                        break;
+                        Target.Fight.Dispatch(WorldMessage.GAME_ACTION(CastInfos.EffectType, Target.Id, Target.Id + "," + CastInfos.Value1 + "," + 1));
+                    break;
+
                     case EffectEnum.AddAP:
                     case EffectEnum.AddAPBis:
                     case EffectEnum.AddMP:
                     case EffectEnum.MPBonus:
-                        Target.Fight.Dispatch(WorldMessage.GAME_ACTION(CastInfos.EffectType, Target.Id,
-                            Target.Id + "," + (-CastInfos.Value1) + "," + 1));
-                        break;
+                        Target.Fight.Dispatch(WorldMessage.GAME_ACTION(CastInfos.EffectType, Target.Id, Target.Id + "," + (-CastInfos.Value1) + "," + 1));
+                    break;
                 }
             }
 

@@ -33,7 +33,7 @@ namespace Game.Interactive.Type
         {
             m_paddock = map.Paddock;
             if (m_paddock == null)
-                Logger.Info("null paddock on map " + map.Id);
+                Logger.Info("No hay cercado asociado al mapa " + map.Id);
         }
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace Game.Interactive.Type
             }
             else
             {
-                // Trying to access to an in sale paddock, almost cheating no ?
+                // Intento de entrar en un cercado en venta.
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
             }
         }
@@ -95,9 +95,9 @@ namespace Game.Interactive.Type
             }
             else
             {
-                // Trying to buy a public or already owned paddock, cheating for sure :)))
+                // Intento invalido de comprar un cercado publico o que ya tiene dueño.
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
-                Logger.Info("PaddockDoor::Buy() trying to buy a free or already owned paddock " + character.Name);
+                Logger.Info("PaddockDoor::Buy() se ha intentado comprar un cercado publico o ya comprado: " + character.Name);
             }
         }
     }

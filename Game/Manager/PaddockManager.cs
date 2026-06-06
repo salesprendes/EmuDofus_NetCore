@@ -29,7 +29,7 @@ namespace Game.Manager
                 m_paddockByMap.Add(paddock.MapId, new Paddock(paddock));
                 count++;
             }
-            Logger.Info("PaddockManager : " + count + " Paddocks loaded.");
+            Logger.Info("PaddockManager: " + count + " cercados cargados.");
         }
 
         public Paddock GetByMapId(int mapId)

@@ -44,11 +44,10 @@ namespace Game.ActionEffect
             }
             catch(Exception e)
             {
-                Logger.Error("ActionList::Deserialize failed, check the script syntax, data=" + data, e);
+                Logger.Error("ActionList::Deserialize ha fallado. Revisa la sintaxis del script. data=" + data, e);
             }
             return list;
         }
     }
 }
-
 

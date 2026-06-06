@@ -34,7 +34,7 @@ namespace Protocolo.Framework.Network
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error("Frame handler error :  " + ex.ToString());
+                    Logger.Error("Error en el manejador del frame: " + ex.ToString());
                 }
                 return true;
             }

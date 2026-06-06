@@ -1,24 +1,28 @@
 namespace Game.Command
 {
-    public sealed partial class PacketCommand
+    public sealed class PacketSendCommand : WorldStaffCommand
     {
-        public sealed class PacketSendCommand : WorldStaffSubCommand
+        private readonly string[] _aliases =
         {
-            private readonly string[] _aliases =
+            "paquete", "packet", "send"
+        };
+
+        public override string[] Aliases => _aliases;
+
+        public override string Description => "Envia un paquete raw al cliente. Uso: %rawString%";
+
+        protected override StaffRole RequiredRole => StaffRole.Administrator;
+
+        protected override void Process(WorldCommandContext context)
+        {
+            var packet = context.TextCommandArgument.ReadRemainingText();
+            if (string.IsNullOrEmpty(packet))
             {
-                "send"
-            };
-
-            public override string[] Aliases => _aliases;
-
-            public override string Description => "Envia un paquete raw al cliente. Uso: %rawString%";
-
-            protected override StaffRole RequiredRole => StaffRole.Administrator;
-
-            protected override void Process(WorldCommandContext context)
-            {
-                context.Character.Dispatch(context.TextCommandArgument.NextWord());
+                context.Character.Dispatch(Game.Network.WorldMessage.BASIC_CONSOLE_MESSAGE("Formato: paquete %rawString%"));
+                return;
             }
+
+            context.Character.Dispatch(packet);
         }
     }
 }

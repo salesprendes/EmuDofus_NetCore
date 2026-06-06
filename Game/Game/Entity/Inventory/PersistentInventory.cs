@@ -1,11 +1,6 @@
 ﻿using Game.Database.Repository;
 using Game.Database.Structure;
-using Game.Network;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.Entity.Inventory
 {
@@ -13,7 +8,7 @@ namespace Game.Entity.Inventory
     /// 
     /// </summary>
     public class PersistentInventory : AbstractInventory
-    {     
+    {
         /// <summary>
         /// 
         /// </summary>
@@ -62,7 +57,7 @@ namespace Game.Entity.Inventory
             OwnerType = ownerType;
             OwnerId = ownerId;
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -71,6 +66,7 @@ namespace Game.Entity.Inventory
         {
             item.OwnerId = OwnerId;
             item.OwnerType = OwnerType;
+            InventoryItemRepository.Instance.AddOwnerReference(item);
         }
     }
 }

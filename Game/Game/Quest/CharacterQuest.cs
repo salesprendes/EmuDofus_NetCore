@@ -147,7 +147,7 @@ namespace Game.Quest
             }
             catch(Exception e)
             {
-                Logger.Error("CharacterQuest::OnEntityEvent failed to update quest", e);
+                Logger.Error("CharacterQuest::OnEntityEvent error al actualizar la mision", e);
             }
         }
     }

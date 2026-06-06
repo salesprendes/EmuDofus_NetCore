@@ -1,20 +1,20 @@
-﻿using Game.Database.Structure;
-using Game.Action;
+﻿using Game.Action;
+using Game.Auction;
+using Game.Conquest;
+using Game.Database.Structure;
 using Game.Entity;
 using Game.Exchange;
 using Game.Fight;
+using Game.Guild;
+using Game.Interactive;
+using Game.Job;
+using Game.Manager;
+using Game.Quest;
 using Game.Spell;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Game.Guild;
-using Game.Auction;
-using Game.Manager;
-using Game.Job;
-using Game.Interactive;
-using Game.Quest;
-using Game.Conquest;
 
 namespace Game.Network
 {
@@ -110,9 +110,9 @@ namespace Game.Network
 
         INFO_GUILD_KICKED_HIMSELF = 176,
         INFO_GUILD_KICKED = 177,
-        
+
         INFO_CONTRACT_FAILED = 179,
-        
+
         INFO_AUCTION_TOO_MANY_ITEMS = 59,
         INFO_AUCTION_RARE = 60,
         INFO_AUCTION_ADD_INVALID_TYPE = 61,
@@ -128,7 +128,7 @@ namespace Game.Network
         ERROR_PLAYER_AWAY_MESSAGE = 14,
 
         ERROR_UNABLE_LEARN_SPELL = 7,
-        
+
         ERROR_CONDITIONS_UNSATISFIED = 19,
 
         ERROR_STORAGE_ALREADY_IN_USE = 20,
@@ -181,7 +181,7 @@ namespace Game.Network
 
         PVP_PRISM_DESTROYED = 154,
     }
-    
+
     /// <summary>
     /// 
     /// </summary>
@@ -207,7 +207,7 @@ namespace Game.Network
         MESSAGE_CONNECTION_CLOSED_DUE_TO_MAINTENANCE = 4,
         MESSAGE_KICKED = 18,
     }
-    
+
     /// <summary>
     /// 
     /// </summary>
@@ -628,7 +628,7 @@ namespace Game.Network
             var message = new StringBuilder("As", 200);
             message
                 .Append(character.Experience).Append(',')
-                .Append(character.ExperienceFloorCurrent).Append(',') 
+                .Append(character.ExperienceFloorCurrent).Append(',')
                 .Append(character.ExperienceFloorNext).Append('|');
 
             message.Append(character.Kamas).Append('|');
@@ -872,7 +872,7 @@ namespace Game.Network
         {
             return "GDZ" + (char)op + cell + ";" + length + ";" + color;
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -919,7 +919,7 @@ namespace Game.Network
         /// <returns></returns>
         public static string OBJECT_ADD_SUCCESS(ItemDAO item)
         {
-            return "OAKO"  + item.ToString();
+            return "OAKO" + item.ToString();
         }
 
         /// <summary>
@@ -964,7 +964,7 @@ namespace Game.Network
         {
             return "OM" + guid + "|" + (slot == (int)ItemSlotEnum.SLOT_INVENTORY ? "" : slot.ToString());
         }
-              
+
         /// <summary>
         /// 
         /// </summary>
@@ -1176,7 +1176,7 @@ namespace Game.Network
         {
             return "Gc-" + fightId;
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -1220,7 +1220,7 @@ namespace Game.Network
         /// <returns></returns>
         public static string FIGHT_COORDINATE_INFORMATIONS(params AbstractFighter[] fighters)
         {
-            var message = new StringBuilder("GIC");            
+            var message = new StringBuilder("GIC");
             foreach (var fighter in fighters)
             {
                 message.Append('|');
@@ -1344,7 +1344,7 @@ namespace Game.Network
         /// <param name="operation"></param>
         /// <param name="teamId"></param>
         /// <returns></returns>
-        public static string FIGHT_OPTION(FightOptionTypeEnum type , bool blocked, long teamId)
+        public static string FIGHT_OPTION(FightOptionTypeEnum type, bool blocked, long teamId)
         {
             return "Go" + (blocked ? "+" : "-") + (char)type + teamId;
         }
@@ -1357,8 +1357,8 @@ namespace Game.Network
         public static string FIGHT_LIST(IEnumerable<AbstractFight> fights)
         {
             var message = new StringBuilder("fL");
-            foreach (var fight in fights)            
-                fight.SerializeAs_FightList(message);  
+            foreach (var fight in fights)
+                fight.SerializeAs_FightList(message);
             return message.ToString();
         }
 
@@ -1556,7 +1556,7 @@ namespace Game.Network
         public static string PARTY_MEMBER_LIST(params CharacterEntity[] members)
         {
             var message = new StringBuilder("PM+");
-            foreach(var member in members)
+            foreach (var member in members)
             {
                 member.SerializeAs_PartyMemberInformations(message);
                 message.Append("|");
@@ -1632,7 +1632,7 @@ namespace Game.Network
         public static string GUILD_MEMBERS_INFORMATIONS(IEnumerable<GuildMember> members)
         {
             var message = new StringBuilder("gIM+", members.Count() * 40);
-            foreach(var member in members)
+            foreach (var member in members)
             {
                 member.SerializeAs_GuildMemberInformations(message);
             }
@@ -1666,7 +1666,7 @@ namespace Game.Network
         {
             return "gIG" + (isActive ? "1" : "0") + "|" + level + "|" + experienceFloorCurrent + "|" + experience + "|" + experienceFloorNext;
         }
-        
+
 
         /// <summary>
         /// 
@@ -1694,7 +1694,7 @@ namespace Game.Network
         {
             return "gJEa";
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -1771,7 +1771,7 @@ namespace Game.Network
         {
             return "gJKa" + distantCharacterName;
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -1801,7 +1801,7 @@ namespace Game.Network
         {
             return "gn";
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -1819,7 +1819,7 @@ namespace Game.Network
         {
             return "gCK";
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -1853,7 +1853,7 @@ namespace Game.Network
         /// <param name="stats"></param>
         /// <returns></returns>
         public static string GUILD_BOOST_INFORMATIONS(int boostPoint, int taxCollectorPrice, GuildStatistics stats)
-        { 
+        {
             var message = new StringBuilder("gIB", 50);
             message.Append(stats.MaxTaxcollector).Append('|');
             message.Append(0).Append('|'); // currentTaxCollectorCount
@@ -1916,7 +1916,7 @@ namespace Game.Network
             message.Append(taxCollector.Map.Y).Append('|');
             message.Append(farmer).Append('|');
             message.Append(taxCollector.ExperienceGathered);
-            foreach(var farmedItem in taxCollector.FarmedItems)
+            foreach (var farmedItem in taxCollector.FarmedItems)
             {
                 message.Append(';');
                 message.Append(farmedItem.Key).Append(','); // templateId
@@ -1941,14 +1941,14 @@ namespace Game.Network
                 if (taxCollector.HasGameAction(GameActionTypeEnum.FIGHT))
                 {
                     message.Append('1').Append(';');
-                    message.Append(WorldConfig.PVT_TELEPORT_DEFENDERS_TIMEOUT - taxCollector.Fight.UpdateTime).Append(';');
+                    message.Append(45000 - taxCollector.Fight.UpdateTime).Append(';');
                 }
                 else
                 {
                     message.Append('0').Append(';');
                     message.Append('0').Append(';');
                 }
-                message.Append(WorldConfig.PVT_TELEPORT_DEFENDERS_TIMEOUT).Append(';');
+                message.Append(45000).Append(';');
                 message.Append('7').Append('|'); // allowed players to join            
             }
             message.Remove(message.Length - 1, 1);
@@ -1966,7 +1966,7 @@ namespace Game.Network
         {
             return "gAA" + name + "|1|" + mapX + "|" + mapY;
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -2040,14 +2040,14 @@ namespace Game.Network
         public static string GUILD_TAXCOLLECTOR_DEFENDER_JOIN(long taxCollectorId, params GuildMember[] members)
         {
             var message = new StringBuilder("gITP+").Append(Util.EncodeBase36(taxCollectorId));
-            foreach(var member in members)
+            foreach (var member in members)
             {
                 message.Append('|');
                 member.SerializeAs_TaxCollectorDefender(message);
             }
             return message.ToString();
         }
-             
+
         /// <summary>
         /// 
         /// </summary>
@@ -2068,7 +2068,7 @@ namespace Game.Network
         {
             return "DV";
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -2121,7 +2121,7 @@ namespace Game.Network
         public static string AUCTION_HOUSE_AUCTION_LIST(int templateId, IEnumerable<AuctionCategory> entries)
         {
             var message = new StringBuilder("EHl").Append(templateId);
-            foreach(var entry in entries)
+            foreach (var entry in entries)
             {
                 message.Append(entry.SerializeAs_BuyExchange());
             }
@@ -2236,7 +2236,7 @@ namespace Game.Network
                     continue;
 
                 var price = 0;
-                if(waypointMapId != character.MapId)
+                if (waypointMapId != character.MapId)
                     price = 10 * (Math.Abs(waypointMap.X - character.Map.X) + Math.Abs(waypointMap.Y - character.Map.Y) - 1);
                 message.Append('|').Append(waypointMapId).Append(';').Append(price);
             }
@@ -2316,7 +2316,7 @@ namespace Game.Network
         public static string EXCHANGE_PERSONAL_SHOP_ITEMS_LIST(IEnumerable<ItemDAO> items)
         {
             var message = new StringBuilder("EL");
-            foreach(var item in items)
+            foreach (var item in items)
             {
                 message.Append(item.Id).Append(';');
                 message.Append(item.Quantity).Append(';');
@@ -2382,7 +2382,7 @@ namespace Game.Network
         {
             return "ILS" + interval;
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -2427,7 +2427,7 @@ namespace Game.Network
                 characterFriend.SerializeAs_FriendInformations(playerPseudo, message);
             return message.ToString();
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -2477,11 +2477,11 @@ namespace Game.Network
                 message.Append('|');
                 message.Append(friend.Pseudo);
                 var characterFriend = EntityManager.Instance.GetCharacterByNickname(friend.Pseudo);
-                if(characterFriend != null)                
+                if (characterFriend != null)
                 {
                     characterFriend.SerializeAs_FriendInformations(character.Account.Pseudo, message);
-                    if (characterFriend.NotifyOnFriendConnection)                    
-                        characterFriend.SafeDispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, InformationEnum.INFO_FRIEND_ONLINE, character.Name));                    
+                    if (characterFriend.NotifyOnFriendConnection)
+                        characterFriend.SafeDispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, InformationEnum.INFO_FRIEND_ONLINE, character.Name));
                 }
             }
             return message.ToString();
@@ -2495,13 +2495,13 @@ namespace Game.Network
         public static string FRIENDS_LIST(string playerPseudo, IEnumerable<SocialRelationDAO> friends)
         {
             var message = new StringBuilder("FL");
-            foreach(var friend in friends)
+            foreach (var friend in friends)
             {
                 message.Append('|');
                 message.Append(friend.Pseudo);
                 var characterFriend = EntityManager.Instance.GetCharacterByNickname(friend.Pseudo);
-                if(characterFriend != null)                
-                    characterFriend.SerializeAs_FriendInformations(playerPseudo, message);                
+                if (characterFriend != null)
+                    characterFriend.SerializeAs_FriendInformations(playerPseudo, message);
             }
             return message.ToString();
         }
@@ -2539,8 +2539,8 @@ namespace Game.Network
                 message.Append('|');
                 message.Append(ennemy.Pseudo);
                 var characterEnnemy = EntityManager.Instance.GetCharacterByNickname(ennemy.Pseudo);
-                if (characterEnnemy != null)                
-                    characterEnnemy.SerializeAs_EnnemyInformations(character.Account.Pseudo, message);                
+                if (characterEnnemy != null)
+                    characterEnnemy.SerializeAs_EnnemyInformations(character.Account.Pseudo, message);
             }
             return message.ToString();
         }
@@ -2694,7 +2694,7 @@ namespace Game.Network
         public static string JOB_XP(List<CharacterJobDAO> jobs)
         {
             var message = new StringBuilder("JXK");
-            foreach(var job in jobs)
+            foreach (var job in jobs)
             {
                 if (job.JobId != (int)JobIdEnum.JOB_BASE)
                 {
@@ -2705,7 +2705,7 @@ namespace Game.Network
                     message.Append(job.ExperienceFloorNext).Append('|');
                 }
             }
-            if(jobs.Count > 1)
+            if (jobs.Count > 1)
                 message.Remove(message.Length - 1, 1);
             return message.ToString();
         }
@@ -2794,7 +2794,7 @@ namespace Game.Network
         /// <returns></returns>
         public static string CRAFT_TEMPLATE_CREATED(int templateId)
         {
-            return "EcK;" + templateId; 
+            return "EcK;" + templateId;
         }
 
         /// <summary>

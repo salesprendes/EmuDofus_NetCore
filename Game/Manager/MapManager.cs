@@ -68,7 +68,7 @@ namespace Game.Manager
                 for (int i = 1; i < instances.Count; i++)
                     instances[i].FreeRawData();
 
-            Logger.Info("MapManager : " + m_mapById.Count + " MapInstance loaded.");
+            Logger.Info("MapManager: " + m_mapById.Count + " mapas cargados.");
         }
 
         public MapInstance GetById(int id)

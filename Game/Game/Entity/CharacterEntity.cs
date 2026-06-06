@@ -4,6 +4,7 @@ using Game.Database.Structure;
 using Game.Entity.Inventory;
 using Game.Exchange;
 using Game.Fight;
+using Game.Fight.AI.Core;
 using Game.Frame;
 using Game.Guild;
 using Game.Interactive.Type;
@@ -972,12 +973,12 @@ namespace Game.Entity
                 }
                 else
                 {
-                    Logger.Info("CharacterEntity::() mount equipped by not owned " + Name);
+                    Logger.Info("CharacterEntity::() montura equipada sin pertenecer al personaje: " + Name);
                 }
             }
             else
             {
-                Logger.Info("CharacterEntity::() unknow mount equipped " + Name);
+                Logger.Info("CharacterEntity::() montura equipada desconocida: " + Name);
                 EquippedMount = -1;
             }
         }
@@ -2034,23 +2035,15 @@ namespace Game.Entity
             StartAction(GameActionTypeEnum.PRISM_AGGRESSION);
         }
 
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="experience"></param>
         public void AddExperience(long experience)
         {
             Experience += experience;
 
             var currentLevel = Level;
-
             while (Experience > ExperienceFloorNext)
-            {
                 LevelUp();
-            }
 
-            if (Level != currentLevel)
+            if (Level != currentLevel && IsConnected)
             {
                 CachedBuffer = true;
                 Dispatch(WorldMessage.CHARACTER_NEW_LEVEL(Level));
@@ -2060,9 +2053,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void LevelUp()
         {
             Level++;
@@ -2071,14 +2061,9 @@ namespace Game.Entity
             Life = MaxLife;
 
             if (Level == 100)
-            {
                 Statistics.AddBase(EffectEnum.AddAP, 1);
-            }
 
-            if (SpellBook != null)
-            {
-                SpellBook.GenerateLevelUpSpell(Breed, Level);
-            }
+            SpellBook?.GenerateLevelUpSpell(Breed, Level);
         }
 
         /// <summary>

@@ -3,22 +3,14 @@ using System;
 using System.Text;
 
 namespace Game.Network
-{    
-    /// <summary>
-    /// 
-    /// </summary>
+{
     public class MessageDispatcher : Updatable
     {
-        /// <summary>
-        /// 
-        /// </summary>
         private event Action<string> OnMessage;
         private int m_cached = 0;
         private StringBuilder m_buffer = new StringBuilder();
+        public bool IsConnected => OnMessage != null;
         
-        /// <summary>
-        /// 
-        /// </summary>
         public bool CachedBuffer
         {
             get

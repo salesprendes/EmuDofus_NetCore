@@ -60,7 +60,7 @@ namespace Game.RPC
         /// </summary>
         public void Initialize()
         {
-            Logger.Info("RPCManager initializing...");
+            Logger.Info("RPCManager iniciando...");
 
             Connect();
         }
@@ -84,7 +84,7 @@ namespace Game.RPC
         {
             AddMessage(() => 
             {
-                Logger.Info("RPCManager connecting...");
+                Logger.Info("RPCManager conectando...");
 
                 m_rpcConnection.Connect(WorldConfig.RPC_IP, WorldConfig.RPC_PORT);
             });
@@ -95,7 +95,7 @@ namespace Game.RPC
         /// </summary>
         private void OnConnected()
         {
-            Logger.Info("RPCManager connected, sending credentials.");
+            Logger.Info("RPCManager conectado, enviando credenciales.");
 
             AuthState = AuthStateEnum.NEGOTIATING;
 
@@ -107,7 +107,7 @@ namespace Game.RPC
         /// </summary>
         private void OnDisconnected()
         {
-            Logger.Warn($"RPCManager disconnected. Reconnecting in {m_reconnectDelay / 1000}s...");
+            Logger.Warn($"RPCManager desconectado. Reintentando conexion en {m_reconnectDelay / 1000}s...");
             AddTimer(m_reconnectDelay, Connect, oneshot: true);
             m_reconnectDelay = Math.Min(m_reconnectDelay * 2, ReconnectDelayMax);
         }
@@ -148,7 +148,7 @@ namespace Game.RPC
                     {
                         AuthState = AuthStateEnum.SUCCESS;
                         m_reconnectDelay = 5000;
-                        Logger.Info("RPCManager authentification success.");
+                        Logger.Info("RPCManager autenticado correctamente.");
                         Send(new IdUpdateMessage(WorldConfig.GAME_ID));
                         Send(new StateUpdateMessage(GameStateEnum.ONLINE));
 
@@ -160,7 +160,7 @@ namespace Game.RPC
                     else
                     {
                         AuthState = AuthStateEnum.FAILED;
-                        Logger.Error("RPCManager authentification failed : wrong credentials.");
+                        Logger.Error("RPCManager autenticacion fallida: credenciales incorrectas.");
                     }
                     break;
 

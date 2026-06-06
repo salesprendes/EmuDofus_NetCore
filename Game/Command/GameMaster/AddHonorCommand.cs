@@ -3,85 +3,82 @@ using Game.Network;
 
 namespace Game.Command
 {
-    public sealed partial class CharacterCommand
+    public sealed class AddHonorCommand : WorldStaffCommand
     {
-        public sealed class AddHonorCommand : WorldStaffSubCommand
+        private readonly string[] _aliases =
         {
-            private readonly string[] _aliases =
+            "honor", "addhonor"
+        };
+
+        public override string[] Aliases => _aliases;
+
+        public override string Description => "Da o quita honor a tu personaje o a otro jugador. Uso: %honorValue% [%playerName%]";
+
+        protected override StaffRole RequiredRole => StaffRole.GameMaster;
+
+        protected override void Process(WorldCommandContext context)
+        {
+            var firstArgument = context.TextCommandArgument.NextWord();
+            if (string.IsNullOrEmpty(firstArgument))
             {
-                "addhonor"
-            };
+                SendFormat(context);
+                return;
+            }
 
-            public override string[] Aliases => _aliases;
-
-            public override string Description => "Da o quita honor a tu personaje o a otro jugador. Uso: %honorValue% [%playerName%]";
-
-            protected override StaffRole RequiredRole => StaffRole.GameMaster;
-
-            protected override void Process(WorldCommandContext context)
+            int honorValue;
+            var targetName = string.Empty;
+            if (int.TryParse(firstArgument, out honorValue))
             {
-                var firstArgument = context.TextCommandArgument.NextWord();
-                if (string.IsNullOrEmpty(firstArgument))
+                targetName = context.TextCommandArgument.NextWord();
+            }
+            else
+            {
+                targetName = firstArgument;
+                if (!int.TryParse(context.TextCommandArgument.NextWord(), out honorValue))
                 {
                     SendFormat(context);
                     return;
                 }
+            }
 
-                int honorValue;
-                var targetName = string.Empty;
-                if (int.TryParse(firstArgument, out honorValue))
-                {
-                    targetName = context.TextCommandArgument.NextWord();
-                }
-                else
-                {
-                    targetName = firstArgument;
-                    if (!int.TryParse(context.TextCommandArgument.NextWord(), out honorValue))
-                    {
-                        SendFormat(context);
-                        return;
-                    }
-                }
+            if (string.IsNullOrEmpty(targetName))
+            {
+                ApplyHonor(context, context.Character, honorValue);
+                return;
+            }
 
-                if (string.IsNullOrEmpty(targetName))
+            WorldService.Instance.AddMessage(() =>
+            {
+                var target = EntityManager.Instance.GetCharacterByName(targetName);
+                if (target == null)
                 {
-                    ApplyHonor(context, context.Character, honorValue);
+                    context.Character.SafeDispatch(WorldMessage.BASIC_CONSOLE_MESSAGE("Jugador no encontrado."));
                     return;
                 }
 
-                WorldService.Instance.AddMessage(() =>
+                if (target.Id != context.Character.Id && target.Account.Power >= context.Character.Account.Power)
                 {
-                    var target = EntityManager.Instance.GetCharacterByName(targetName);
-                    if (target == null)
-                    {
-                        context.Character.SafeDispatch(WorldMessage.BASIC_CONSOLE_MESSAGE("Player not found."));
-                        return;
-                    }
+                    context.Character.SafeDispatch(WorldMessage.BASIC_CONSOLE_MESSAGE("No puedes cambiar el honor de un miembro del staff con un rango igual o superior."));
+                    return;
+                }
 
-                    if (target.Id != context.Character.Id && target.Account.Power >= context.Character.Account.Power)
-                    {
-                        context.Character.SafeDispatch(WorldMessage.BASIC_CONSOLE_MESSAGE("Unable to change the honor of a staff member with equal or higher power."));
-                        return;
-                    }
+                target.AddMessage(() => ApplyHonor(context, target, honorValue));
+            });
+        }
 
-                    target.AddMessage(() => ApplyHonor(context, target, honorValue));
-                });
-            }
+        private static void ApplyHonor(WorldCommandContext context, Entity.CharacterEntity target, int honorValue)
+        {
+            target.ChangeHonour(honorValue);
 
-            private static void ApplyHonor(WorldCommandContext context, Entity.CharacterEntity target, int honorValue)
-            {
-                target.ChangeHonour(honorValue);
+            if (target.Id == context.Character.Id)
+                context.Character.Dispatch(WorldMessage.BASIC_CONSOLE_MESSAGE("Honor cambiado correctamente."));
+            else
+                context.Character.SafeDispatch(WorldMessage.BASIC_CONSOLE_MESSAGE("El honor del jugador se ha cambiado correctamente."));
+        }
 
-                if (target.Id == context.Character.Id)
-                    context.Character.Dispatch(WorldMessage.BASIC_CONSOLE_MESSAGE("Honor changed successfully."));
-                else
-                    context.Character.SafeDispatch(WorldMessage.BASIC_CONSOLE_MESSAGE("Player honor changed successfully."));
-            }
-
-            private static void SendFormat(WorldCommandContext context)
-            {
-                context.Character.Dispatch(WorldMessage.BASIC_CONSOLE_MESSAGE("Command format : character addhonor %honorValue% [%playerName%]"));
-            }
+        private static void SendFormat(WorldCommandContext context)
+        {
+            context.Character.Dispatch(WorldMessage.BASIC_CONSOLE_MESSAGE("Formato: honor %honorValue% [%playerName%]"));
         }
     }
 }

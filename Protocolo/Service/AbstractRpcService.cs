@@ -29,7 +29,7 @@ namespace Protocolo.RPC.Service
         public void RegisterHandler(int messageId, Action<TClient, AbstractRcpMessage> handler)
         {
             if (m_handlers.ContainsKey(messageId))
-                throw new InvalidOperationException(string.Format("RPCService::RegisterHandler already registered handler for messageId = {0}", messageId));
+                throw new InvalidOperationException(string.Format("RPCService::RegisterHandler ya tiene un handler registrado para messageId = {0}", messageId));
             else
                 m_handlers.Add(messageId, handler);
         }
@@ -38,7 +38,7 @@ namespace Protocolo.RPC.Service
         {
             if (!m_handlers.TryGetValue(message.Id, out var handler))
             {
-                Logger.Debug(string.Format("RPCService::HandlerMessage unregistered handler for messageId={0}", message.Id));
+                Logger.Debug(string.Format("RPCService::HandleMessage handler no registrado para messageId={0}", message.Id));
             }
             else
                 AddMessage(() => handler(client, message));
@@ -70,7 +70,7 @@ namespace Protocolo.RPC.Service
             }
             catch (Exception ex)
             {
-                Logger.Warn(string.Format("RPCService::OnDataReceived invalid payload from {0}: {1}", client.Ip, ex.Message));
+                Logger.Warn(string.Format("RPCService::OnDataReceived carga invalida desde {0}: {1}", client.Ip, ex.Message));
                 Disconnect(client);
             }
         }

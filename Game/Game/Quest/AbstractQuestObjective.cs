@@ -43,9 +43,8 @@ namespace Game.Quest
                 case QuestObjectiveType.FIND_NPC: return new FindNpcObjective(record);
                 case QuestObjectiveType.KILL_MONSTER: return new KillMonsterObjective(record);
             }
-            throw new Exception("AbstractQuestObjective::FromType unknow typeId=" + record.Type);
+            throw new Exception("AbstractQuestObjective::FromType tipo de objetivo desconocido: " + record.Type);
         }
     }
 }
-
 

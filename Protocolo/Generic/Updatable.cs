@@ -126,7 +126,7 @@ namespace Protocolo.Framework.Generic
                     }
                     catch (Exception ex)
                     {
-                        Logger.Error("TaskQueue[" + GetType().Name + "] timer update failed [" + timer.GetType().Name + "] : " + ex.ToString());
+                        Logger.Error("TaskQueue[" + GetType().Name + "] fallo al actualizar el temporizador [" + timer.GetType().Name + "]: " + ex.ToString());
                     }
                     if (timer.OneShot)
                         RemoveTimer(timer);
@@ -142,7 +142,7 @@ namespace Protocolo.Framework.Generic
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error("UpdatableObject[" + GetType().Name + "] update failed : " + ex.ToString());
+                    Logger.Error("UpdatableObject[" + GetType().Name + "] fallo al actualizarse: " + ex.ToString());
                 }
             }
 
@@ -155,7 +155,7 @@ namespace Protocolo.Framework.Generic
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error("UpdatableObject[" + GetType().Name + "] message failed to process : " + ex.ToString());
+                    Logger.Error("UpdatableObject[" + GetType().Name + "] fallo al procesar un mensaje: " + ex.ToString());
                 }
             }
         }

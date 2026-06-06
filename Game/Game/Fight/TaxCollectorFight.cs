@@ -48,8 +48,7 @@ namespace Game.Fight
         /// <summary>
         /// 
         /// </summary>
-        public TaxCollectorFight(MapInstance map, long id, CharacterEntity attacker, TaxCollectorEntity taxCollector)
-            : base(FightTypeEnum.TYPE_PVT, map, id, attacker.Id, 0, attacker.CellId, taxCollector.Id, 0, taxCollector.CellId, WorldConfig.PVT_START_TIMEOUT, WorldConfig.PVT_TURN_TIME)
+        public TaxCollectorFight(MapInstance map, long id, CharacterEntity attacker, TaxCollectorEntity taxCollector) : base(FightTypeEnum.TYPE_PVT, map, id, attacker.Id, 0, attacker.CellId, taxCollector.Id, 0, taxCollector.CellId, 60000, 30000)
         {
             CanDefend = true;
             Attacker = attacker;
@@ -58,7 +57,7 @@ namespace Game.Fight
             JoinFight(Attacker, Team0);
             JoinFight(TaxCollector, Team1);
 
-            AddTimer(WorldConfig.PVT_TELEPORT_DEFENDERS_TIMEOUT, TeleportDefenders, true);
+            AddTimer(45000, TeleportDefenders, true);
         }
 
         /// <summary>

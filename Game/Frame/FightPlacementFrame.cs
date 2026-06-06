@@ -81,7 +81,7 @@ namespace Game.Frame
 
                     if (!character.IsLeader)
                     {
-                        Logger.Debug("GameFightPlacement::Option non leader player wants to lock : " + character.Name);
+                        Logger.Debug("GameFightPlacement::Option un jugador que no es lider ha intentado bloquear opciones: " + character.Name);
                         character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                         return;
                     }
@@ -126,7 +126,7 @@ namespace Game.Frame
 
                     if (character.TurnReady)
                     {
-                        Logger.Debug("GameFightPlacement::Placement turn ready, unable to move anymore : " + character.Name);
+                        Logger.Debug("GameFightPlacement::Placement el jugador ya marco listo y no puede moverse: " + character.Name);
                         character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                         return;
                     }
@@ -134,7 +134,7 @@ namespace Game.Frame
                     int cellId = -1;
                     if (!int.TryParse(message.Substring(2), out cellId) || cellId < 0)
                     {
-                        Logger.Debug("GameFightPlacement::Placement unable to parse cell id : " + character.Name);
+                        Logger.Debug("GameFightPlacement::Placement no se pudo leer la celda indicada: " + character.Name);
                         character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                         return;
                     }
@@ -166,7 +166,7 @@ namespace Game.Frame
 
                 if (!character.IsLeader)
                 {
-                    Logger.Debug("FightPlacement::Quit non leader player trying to kick : " + character.Name);
+                    Logger.Debug("FightPlacement::Quit un jugador que no es lider ha intentado expulsar a otro: " + character.Name);
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
@@ -174,7 +174,7 @@ namespace Game.Frame
                 long fighterId = -1;
                 if (!long.TryParse(message.Substring(2), out fighterId))
                 {
-                    Logger.Debug("FightPlacement::Quit unable to parse fighterId : " + character.Name);
+                    Logger.Debug("FightPlacement::Quit no se pudo leer el id del luchador: " + character.Name);
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
@@ -188,7 +188,7 @@ namespace Game.Frame
 
                 if (selectedFighter.IsLeader)
                 {
-                    Logger.Debug("FightPlacement::Quit unable to kick leader : " + character.Name);
+                    Logger.Debug("FightPlacement::Quit no se puede expulsar al lider: " + character.Name);
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
@@ -251,6 +251,5 @@ namespace Game.Frame
         }
     }
 }
-
 
 
