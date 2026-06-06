@@ -1,241 +1,500 @@
 using Game.Entity;
-using Game.Fight;
+using Game.Fight.Effect;
 using Game.Fight.AI.Core;
 using Game.Fight.AI.Evaluation;
+using Game.Map;
 using Game.Spell;
+using Protocolo.Framework.Generic.Logging;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Game.Fight.AI.Bosses.Mechanics
 {
     /// <summary>
-    /// Mecánica del Kralamoure Géant (template 423).
+    /// Kralamar Giant server-side mechanic.
     ///
-    /// Resumen del combate (confirmado en DB game_emudofus.sql):
+    /// Dofus Retro flow:
+    ///   Water -> Quaternary tentacle
+    ///   Fire  -> Tertiary tentacle
+    ///   Earth -> Secondary tentacle
+    ///   Air   -> Primary tentacle
     ///
-    ///   • El Kralamar tiene 4 "humores" elementales representados por los estados 35-38:
-    ///       Estado 35 = Humor Fuego  → invoca Tentáculo Primario   (template 424, hechizo 1107)
-    ///       Estado 36 = Humor Agua   → invoca Tentáculo Cuaternario (template 1090, hechizo 1110)
-    ///       Estado 37 = Humor Aire   → invoca Tentáculo Terciario   (template 1091, hechizo 1109)
-    ///       Estado 38 = Humor Tierra → invoca Tentáculo Secundario  (template 1092, hechizo 1108)
-    ///
-    ///   • El hechizo "Kraken" (1103) cicla los humores (elimina todos y aplica el siguiente)
-    ///     y se lanza sobre la celda propia (MinPO=MaxPO=0). También cura 500 HP y hace 200 de daño.
-    ///
-    ///   • El hechizo "Skupehagua Paralizante" (1105) causa daño de agua + drena PM al objetivo.
-    ///
-    ///   • El hechizo "Vulnerabilidad de la Turbera" (1106) se activa cuando el estado 34 está
-    ///     presente (condición gestionada por el motor de combate, normalmente al caer todos los
-    ///     tentáculos). Aplica vulnerabilidad masiva a todos los elementos en AoE.
-    ///
-    ///   • El hechizo "Turba Aplastante" (1279) se lanza sobre la propia celda y aplica los
-    ///     estados 6 (raíz) y 7 (gravedad) al Kralamar, bloqueando teletransportación enemiga.
-    ///
-    ///   Cómo matar al Kralamar Gigante:
-    ///     1. El Kralamar lanza Kraken → cambia de humor elemental.
-    ///     2. Según el humor activo, invoca un tipo de tentáculo.
-    ///     3. Los jugadores deben matar los tentáculos; al caer todos el motor aplica el estado 34.
-    ///     4. Con estado 34, el Kralamar puede lanzar Vulnerabilidad → el grupo lo puede dañar
-    ///        masivamente aprovechando las resistencias reducidas.
-    ///     5. Repetir hasta derrotarlo.
+    /// Only one tentacle is prepared between two Kralamar turns. Hitting the boss
+    /// with another elemental attack before the pending tentacle is summoned, or
+    /// hitting with the wrong element, breaks the sequence and leaves Kraken as
+    /// the boss punishment/benefit spell.
     /// </summary>
     public sealed class KralamarMechanic : IBossMechanic
     {
-        // ─── Template IDs confirmados en DB (tabla monstruos_template) ─────────────
-        private static readonly HashSet<int> TentacleTemplateIds = new HashSet<int>
+        private static readonly ILogger Logger = LogManager.GetLogger(typeof(KralamarMechanic));
+
+        static KralamarMechanic()
         {
-            424,   // Tentacule Primaire
-            425,   // Tentacule Kralamoure (nombre alternativo en tabla drops)
-            1090,  // Tentáculo Cuaternario (invocado por hechizo 1110)
-            1091,  // Tentáculo Terciario   (invocado por hechizo 1109)
-            1092,  // Tentáculo Secundario  (invocado por hechizo 1108)
+            FighterStateManager.RegisterCodeManagedState((int)FighterStateEnum.STATE_KRALAMAR_DESIRE_KILL);
+            FighterStateManager.RegisterCodeManagedState((int)FighterStateEnum.STATE_KRALAMAR_DESIRE_PARALYZE);
+            FighterStateManager.RegisterCodeManagedState((int)FighterStateEnum.STATE_KRALAMAR_DESIRE_CURSE);
+            FighterStateManager.RegisterCodeManagedState((int)FighterStateEnum.STATE_KRALAMAR_DESIRE_POISON);
+        }
+
+        private const int KralamarTemplateId = 423;
+
+        private const int SpellKraken = 1103;
+        private const int SpellSkupehagua = 1105;
+        private const int SpellVulnerabilidad = 1106;
+        private const int SpellInvocPrimario = 1107;
+        private const int SpellInvocSecundario = 1108;
+        private const int SpellInvocTerciario = 1109;
+        private const int SpellInvocCuaternario = 1110;
+        private const int SpellTurba = 1279;
+
+        private const int TentaculoPrimario = 424;
+        private const int TentaculoCuaternario = 1090;
+        private const int TentaculoTerciario = 1091;
+        private const int TentaculoSecundario = 1092;
+
+        private static readonly HashSet<int> RequiredTentacleTemplateIds = new HashSet<int>
+        {
+            TentaculoCuaternario,
+            TentaculoTerciario,
+            TentaculoSecundario,
+            TentaculoPrimario
         };
 
-        // ─── IDs de hechizo confirmados en DB (tabla monstruos_hechizos monster=423) ─
-        private const int SpellKraken          = 1103; // Kraken           — auto-cast (PO 0-0)
-        private const int SpellSkupehagua      = 1105; // Skupehagua       — ataque de agua a distancia (PO 4-22)
-        private const int SpellVulnerabilidad  = 1106; // Vulnerabilidad   — auto-cast; requiere estado 34
-        private const int SpellInvocPrimario   = 1107; // Invocar Tent. Primario   — requiere estado 35
-        private const int SpellInvocSecundario = 1108; // Invocar Tent. Secundario — requiere estado 38
-        private const int SpellInvocTerciario  = 1109; // Invocar Tent. Terciario  — requiere estado 37
-        private const int SpellInvocCuaternario= 1110; // Invocar Tent. Cuaternario— requiere estado 36
-        private const int SpellTurba           = 1279; // Turba Aplastante — auto-cast (PO 0-0)
+        private static readonly TentacleStep[] SummonOrder =
+        {
+            new TentacleStep(KralamarElement.Water, SpellInvocCuaternario, TentaculoCuaternario, "Cuaternario", FighterStateEnum.STATE_KRALAMAR_DESIRE_PARALYZE),
+            new TentacleStep(KralamarElement.Fire,  SpellInvocTerciario,   TentaculoTerciario,   "Terciario",   FighterStateEnum.STATE_KRALAMAR_DESIRE_CURSE),
+            new TentacleStep(KralamarElement.Earth, SpellInvocSecundario,  TentaculoSecundario,  "Secundario",  FighterStateEnum.STATE_KRALAMAR_DESIRE_POISON),
+            new TentacleStep(KralamarElement.Air,   SpellInvocPrimario,    TentaculoPrimario,    "Primario",    FighterStateEnum.STATE_KRALAMAR_DESIRE_KILL)
+        };
 
-        // ─── Umbrales de fase ────────────────────────────────────────────────────────
-        private const double HpThresholdEnrage = 0.40; // < 40% HP → modo enrage
+        private readonly object m_sync = new object();
+        private int m_expectedStep;
+        private TentacleStep m_pendingTentacle;
+        private bool m_punishmentPending;
+        private int m_lastActivatingSpellId = -1;
 
-        // ─────────────────────────────────────────────────────────────────────────────
+        public void OnKralamarTurnStart(AbstractFighter kralamar)
+        {
+            lock (m_sync)
+            {
+                ConfirmPendingTentacle(kralamar);
+            }
+        }
+
+        public void OnDamageReceived(AbstractFighter kralamar, CastInfos castInfos, int damageBeforeResistance)
+        {
+            if (!IsKralamar(kralamar) || castInfos == null || damageBeforeResistance <= 0)
+            {
+                Logger.Warn("[Kralamar] OnDamageReceived ignorado: isKralamar=" + IsKralamar(kralamar) + " castInfos=" + (castInfos != null) + " dmg=" + damageBeforeResistance + " effectType=" + castInfos?.EffectType);
+                return;
+            }
+
+            if (!TryGetElement(castInfos.EffectType, out KralamarElement element))
+            {
+                Logger.Warn("[Kralamar] Efecto " + castInfos.EffectType + " (id=" + (int)castInfos.EffectType + ") no reconocido como elemental.");
+                return;
+            }
+
+            Logger.Warn("[Kralamar] Golpe elemental recibido: " + element + " step=" + m_expectedStep + " spellId=" + castInfos.SpellId + " dmg=" + damageBeforeResistance);
+
+            lock (m_sync)
+            {
+                ConfirmPendingTentacle(kralamar);
+
+                if (m_pendingTentacle != null)
+                {
+                    if (castInfos.SpellId == m_lastActivatingSpellId)
+                        return;
+
+                    if (element == m_pendingTentacle.Element)
+                        return;
+
+                    Logger.Warn("[Kralamar] Secuencia rota: tentaculo pendiente=" + m_pendingTentacle.Name + " elemento nuevo=" + element);
+                    BreakSequence(kralamar, element);
+                    return;
+                }
+
+                var expected = SummonOrder[m_expectedStep];
+                if (element != expected.Element)
+                {
+                    Logger.Warn("[Kralamar] Elemento incorrecto: esperado=" + expected.Element + " recibido=" + element);
+                    BreakSequence(kralamar, element);
+                    return;
+                }
+
+                m_pendingTentacle = expected;
+                m_lastActivatingSpellId = castInfos.SpellId;
+                m_punishmentPending = false;
+                m_expectedStep = (m_expectedStep + 1) % SummonOrder.Length;
+                kralamar.StateManager?.ForceAddState(expected.DesireState);
+                Logger.Warn("[Kralamar] Tentaculo pendiente activado: " + expected.Name + " (spell=" + expected.SpellId + " estado=" + (int)expected.DesireState + ")");
+            }
+        }
 
         public IEnumerable<AIDecision> Evaluate(AIContext context)
         {
             if (context?.Fighter == null)
                 yield break;
 
-            int livingTentacles = CountLivingTentacles(context);
-            double hpRatio = context.Fighter.MaxLife > 0
-                ? (double)context.Fighter.Life / context.Fighter.MaxLife
-                : 1.0;
+            var pendingTentacle = GetPendingTentacle(context.Fighter);
+            var punishmentPending = ConsumePunishment();
 
-            bool enragePhase = hpRatio <= HpThresholdEnrage || livingTentacles == 0;
-
-            // ══════════════════════════════════════════════════════════════════════
-            // 1. INVOCACIÓN DE TENTÁCULOS
-            //    Cada hechizo de invocación (1107-1110) requiere uno de los estados
-            //    de humor elemental (35-38).  El motor rechaza automáticamente los que
-            //    no cumplen la condición → proponemos los cuatro y el motor elige.
-            // ══════════════════════════════════════════════════════════════════════
-            if (!enragePhase || livingTentacles < 2)
+            if (punishmentPending)
             {
-                var summonPriority = livingTentacles == 0
-                    ? AIDecisionPriority.Critical
-                    : AIDecisionPriority.High;
-
-                var summonSpellIds = new[]
-                {
-                    SpellInvocPrimario,
-                    SpellInvocSecundario,
-                    SpellInvocTerciario,
-                    SpellInvocCuaternario
-                };
-
-                var movement = new MovementEvaluator();
-                foreach (var spellId in summonSpellIds)
-                {
-                    var spell = FindSpell(context, spellId);
-                    if (spell == null || spell.APCost > context.CurrentAP)
-                        continue;
-
-                    // CanCastFromCurrentCell verifica el estado requerido via SpellManager
-                    var cell = movement.GetBestSummonCell(context, spell);
-                    if (!cell.HasValue)
-                        continue;
-
-                    yield return new AIDecision
-                    {
-                        Type     = AIDecisionType.Summon,
-                        Priority = summonPriority,
-                        Score    = 300 + (4 - livingTentacles) * 60,
-                        SpellId  = spellId,
-                        CellId   = (short)cell.Value,
-                        Reason   = "Kralamar invoca tentáculo (humor-gate resuelto por motor)"
-                    };
-                }
+                foreach (var punishment in EvaluatePunishment(context))
+                    yield return punishment;
             }
 
-            // ══════════════════════════════════════════════════════════════════════
-            // 2. KRAKEN (auto-cast)
-            //    Cicla los humores elementales; también cura +500 HP y hace 200 dmg.
-            //    Prioridad Alta cuando hay tentáculos (prepara la siguiente invocación).
-            //    Prioridad Normal en fase de enrage (ya no necesita ciclar).
-            // ══════════════════════════════════════════════════════════════════════
-            var krakenSpell = FindSpell(context, SpellKraken);
-            if (krakenSpell != null && krakenSpell.APCost <= context.CurrentAP)
+            if (pendingTentacle != null)
             {
-                // PO 0-0 → lanza sobre la propia celda
-                if (SpellEvaluator.CanCastFromCurrentCell(context, krakenSpell, context.CurrentCellId))
-                {
-                    yield return new AIDecision
-                    {
-                        Type     = AIDecisionType.CastSpell,
-                        Priority = livingTentacles > 0
-                                    ? AIDecisionPriority.High
-                                    : AIDecisionPriority.Normal,
-                        Score    = enragePhase ? 160 : 240,
-                        SpellId  = SpellKraken,
-                        CellId   = (short)context.CurrentCellId,
-                        Reason   = "Kraken — cicla humor elemental"
-                    };
-                }
+                foreach (var summon in EvaluatePendingSummon(context, pendingTentacle))
+                    yield return summon;
+
+                yield break;
             }
 
-            // ══════════════════════════════════════════════════════════════════════
-            // 3. VULNERABILIDAD DE LA TURBERA (auto-cast, requiere estado 34)
-            //    Estado 34 es aplicado por el motor cuando caen todos los tentáculos.
-            //    CanCastFromCurrentCell delega en SpellManager que comprueba el estado;
-            //    si el estado 34 no está activo, el hechizo simplemente no se lanzará.
-            // ══════════════════════════════════════════════════════════════════════
-            var vulnSpell = FindSpell(context, SpellVulnerabilidad);
-            if (vulnSpell != null && vulnSpell.APCost <= context.CurrentAP)
+            if (punishmentPending)
+                yield break;
+
+            if (CanCastVulnerability(context))
             {
-                if (SpellEvaluator.CanCastFromCurrentCell(context, vulnSpell, context.CurrentCellId))
+                var vulnerability = FindSpell(context, SpellVulnerabilidad);
+                if (vulnerability != null
+                    && vulnerability.APCost <= context.CurrentAP
+                    && SpellEvaluator.CanCastFromCurrentCell(context, vulnerability, context.CurrentCellId))
                 {
                     yield return new AIDecision
                     {
-                        Type     = AIDecisionType.Buff,
+                        Type = AIDecisionType.Buff,
                         Priority = AIDecisionPriority.Critical,
-                        Score    = 600,
-                        SpellId  = SpellVulnerabilidad,
-                        CellId   = (short)context.CurrentCellId,
-                        Reason   = "Vulnerabilidad — debilita resistencias de todos los enemigos"
+                        Score = 900,
+                        SpellId = SpellVulnerabilidad,
+                        TargetId = context.Fighter.Id,
+                        CellId = (short)context.CurrentCellId,
+                        Reason = "Kralamar vulnerability window"
                     };
                 }
             }
 
-            // ══════════════════════════════════════════════════════════════════════
-            // 4. SKUPEHAGUA PARALIZANTE (ataque a distancia, PO 4-22)
-            //    Daño de agua + drenaje de PM → debilita movilidad enemiga.
-            //    Target prioritario: el más peligroso, luego el más cercano.
-            // ══════════════════════════════════════════════════════════════════════
-            var skupSpell = FindSpell(context, SpellSkupehagua);
-            if (skupSpell != null && skupSpell.APCost <= context.CurrentAP)
+            foreach (var decision in EvaluateKraken(context, AIDecisionPriority.High, 240, "Kraken - vitality upkeep"))
+                yield return decision;
+
+            foreach (var decision in EvaluateSkupehagua(context))
+                yield return decision;
+
+            foreach (var decision in EvaluateTurba(context))
+                yield return decision;
+        }
+
+        private IEnumerable<AIDecision> EvaluatePendingSummon(AIContext context, TentacleStep pendingTentacle)
+        {
+            if (HasLivingTentacle(context.Fighter, pendingTentacle.TemplateId))
             {
-                var target = TargetEvaluator.GetMostDangerousEnemy(context)
-                          ?? TargetEvaluator.GetNearestEnemy(context);
-
-                if (target?.Cell != null && !target.IsFighterDead
-                    && SpellEvaluator.CanCastFromCurrentCell(context, skupSpell, target.Cell.Id))
-                {
-                    int skupScore = 180
-                        + TargetEvaluator.ScoreLowHp(target)
-                        + TargetEvaluator.ScorePriorityTarget(target) / 3;
-
-                    yield return new AIDecision
-                    {
-                        Type     = AIDecisionType.Debuff,
-                        Priority = AIDecisionPriority.High,
-                        Score    = skupScore,
-                        SpellId  = SpellSkupehagua,
-                        TargetId = target.Id,
-                        CellId   = (short)target.Cell.Id,
-                        Reason   = "Skupehagua — daño agua + drenaje de PM"
-                    };
-                }
-
-                // Si no puede alcanzar el objetivo óptimo, prueba con cualquier enemigo
-                if (!context.Enemies.Any(e => e?.Cell != null && !e.IsFighterDead
-                    && SpellEvaluator.CanCastFromCurrentCell(context, skupSpell, e.Cell.Id)))
-                {
-                    // Intenta acercarse para alcanzar rango (delegamos al MovementEvaluator del Brain)
-                }
+                Logger.Warn("[Kralamar] Tentaculo " + pendingTentacle.Name + " (id=" + pendingTentacle.TemplateId + ") ya esta vivo en el equipo. El grupo del monstruo incluye los tentaculos desde el inicio?");
+                ClearPendingTentacle(context.Fighter);
+                yield break;
             }
 
-            // ══════════════════════════════════════════════════════════════════════
-            // 5. TURBA APLASTANTE (auto-cast)
-            //    Aplica estados de raíz/gravedad sobre el Kralamar y bloquea
-            //    hechizos de teletransporte en un área (descripción DB).
-            //    Solo útil cuando hay enemigos vivos; coste bajo en PA.
-            // ══════════════════════════════════════════════════════════════════════
-            var turbaSpell = FindSpell(context, SpellTurba);
-            if (turbaSpell != null && turbaSpell.APCost <= context.CurrentAP
-                && context.Enemies.Any(e => e != null && !e.IsFighterDead))
+            var spell = FindSpell(context, pendingTentacle.SpellId);
+            if (spell == null)
             {
-                if (SpellEvaluator.CanCastFromCurrentCell(context, turbaSpell, context.CurrentCellId))
-                {
-                    yield return new AIDecision
-                    {
-                        Type     = AIDecisionType.Buff,
-                        Priority = AIDecisionPriority.Normal,
-                        Score    = 100,
-                        SpellId  = SpellTurba,
-                        CellId   = (short)context.CurrentCellId,
-                        Reason   = "Turba Aplastante — bloquea teletransporte enemigo"
-                    };
-                }
+                Logger.Warn("[Kralamar] Hechizo de invocacion " + pendingTentacle.SpellId + " (" + pendingTentacle.Name + ") no encontrado en el grimorio del Kralamar.");
+                yield break;
+            }
+
+            if (spell.APCost > context.CurrentAP)
+            {
+                Logger.Warn("[Kralamar] Sin PA para invocar " + pendingTentacle.Name + ": necesita " + spell.APCost + " tiene " + context.CurrentAP);
+                yield break;
+            }
+
+            var cell = new MovementEvaluator().GetBestSummonCell(context, spell);
+            if (!cell.HasValue)
+            {
+                Logger.Warn("[Kralamar] GetBestSummonCell no encontro celda valida para " + pendingTentacle.Name + " (spellId=" + pendingTentacle.SpellId + " minPO=" + spell.MinPO + " maxPO=" + spell.MaxPO + " InLine=" + spell.InLine + " LOS=" + spell.LOS + " EmptyCell=" + spell.EmptyCell + ")");
+                yield break;
+            }
+
+            yield return new AIDecision
+            {
+                Type = AIDecisionType.Summon,
+                Priority = AIDecisionPriority.Critical,
+                Score = 1000,
+                SpellId = pendingTentacle.SpellId,
+                CellId = (short)cell.Value,
+                Reason = "Kralamar summons " + pendingTentacle.Name + " tentacle"
+            };
+        }
+
+        private IEnumerable<AIDecision> EvaluatePunishment(AIContext context)
+        {
+            foreach (var kraken in EvaluateKraken(context, AIDecisionPriority.Critical, 800, "Kraken - broken tentacle sequence"))
+                yield return kraken;
+
+            foreach (var turba in EvaluateTurba(context, AIDecisionPriority.High, 500))
+                yield return turba;
+        }
+
+        private IEnumerable<AIDecision> EvaluateKraken(AIContext context, AIDecisionPriority priority, int score, string reason)
+        {
+            var spell = FindSpell(context, SpellKraken);
+            if (spell == null || spell.APCost > context.CurrentAP)
+                yield break;
+
+            if (!SpellEvaluator.CanCastFromCurrentCell(context, spell, context.CurrentCellId))
+                yield break;
+
+            yield return new AIDecision
+            {
+                Type = AIDecisionType.CastSpell,
+                Priority = priority,
+                Score = score,
+                SpellId = SpellKraken,
+                CellId = (short)context.CurrentCellId,
+                Reason = reason
+            };
+        }
+
+        private IEnumerable<AIDecision> EvaluateSkupehagua(AIContext context)
+        {
+            var spell = FindSpell(context, SpellSkupehagua);
+            if (spell == null || spell.APCost > context.CurrentAP)
+                yield break;
+
+            var target = TargetEvaluator.GetMostDangerousEnemy(context) ?? TargetEvaluator.GetNearestEnemy(context);
+
+            if (target?.Cell == null || target.IsFighterDead)
+                yield break;
+
+            if (!SpellEvaluator.CanCastFromCurrentCell(context, spell, target.Cell.Id))
+                yield break;
+
+            yield return new AIDecision
+            {
+                Type = AIDecisionType.Debuff,
+                Priority = AIDecisionPriority.High,
+                Score = 220 + TargetEvaluator.ScoreLowHp(target) + TargetEvaluator.ScorePriorityTarget(target) / 3,
+                SpellId = SpellSkupehagua,
+                TargetId = target.Id,
+                CellId = (short)target.Cell.Id,
+                Reason = "Skupehagua - water damage and MP pressure"
+            };
+        }
+
+        private IEnumerable<AIDecision> EvaluateTurba(AIContext context, AIDecisionPriority priority = AIDecisionPriority.Normal, int score = 120)
+        {
+            var spell = FindSpell(context, SpellTurba);
+            if (spell == null || spell.APCost > context.CurrentAP)
+                yield break;
+
+            if (!context.Enemies.Any(e => e != null && !e.IsFighterDead))
+                yield break;
+
+            if (!SpellEvaluator.CanCastFromCurrentCell(context, spell, context.CurrentCellId))
+                yield break;
+
+            yield return new AIDecision
+            {
+                Type = AIDecisionType.Buff,
+                Priority = priority,
+                Score = score,
+                SpellId = SpellTurba,
+                TargetId = context.Fighter.Id,
+                CellId = (short)context.CurrentCellId,
+                Reason = "Turba Aplastante"
+            };
+        }
+
+        private TentacleStep GetPendingTentacle(AbstractFighter kralamar)
+        {
+            lock (m_sync)
+            {
+                ConfirmPendingTentacle(kralamar);
+                return m_pendingTentacle;
             }
         }
 
-        private static int CountLivingTentacles(AIContext context) => context.Allies.Count(a => a != null && !a.IsFighterDead && TentacleTemplateIds.Contains(GetMonsterId(a)));
-        private static int GetMonsterId(AbstractFighter fighter) => (fighter as MonsterEntity)?.Grade?.MonsterId ?? 0;
-        private static SpellLevel FindSpell(AIContext context, int spellId) => context.SpellBook.AllSpells.FirstOrDefault(s => s?.SpellId == spellId);
+        private bool ConsumePunishment()
+        {
+            lock (m_sync)
+            {
+                if (!m_punishmentPending)
+                    return false;
+
+                m_punishmentPending = false;
+                return true;
+            }
+        }
+
+        private void ClearPendingTentacle(AbstractFighter kralamar = null)
+        {
+            lock (m_sync)
+            {
+                if (m_pendingTentacle != null)
+                    kralamar?.StateManager?.ForceRemoveState(m_pendingTentacle.DesireState);
+                m_pendingTentacle = null;
+                m_lastActivatingSpellId = -1;
+            }
+        }
+
+        private void ConfirmPendingTentacle(AbstractFighter kralamar)
+        {
+            if (m_pendingTentacle != null && HasLivingTentacle(kralamar, m_pendingTentacle.TemplateId))
+            {
+                kralamar.StateManager?.ForceRemoveState(m_pendingTentacle.DesireState);
+                m_pendingTentacle = null;
+                m_lastActivatingSpellId = -1;
+            }
+        }
+
+        private void BreakSequence(AbstractFighter kralamar = null, KralamarElement triggerElement = KralamarElement.None)
+        {
+            if (m_pendingTentacle != null)
+                kralamar?.StateManager?.ForceRemoveState(m_pendingTentacle.DesireState);
+
+            m_pendingTentacle = null;
+            m_lastActivatingSpellId = -1;
+            m_punishmentPending = true;
+
+            // El tentáculo a invocar corresponde al elemento que rompió la secuencia.
+            // Si ese tentáculo ya está vivo, busca el siguiente disponible.
+            var stepIdx = triggerElement != KralamarElement.None
+                ? FindStepForElement(triggerElement)
+                : -1;
+
+            if (stepIdx < 0 || HasLivingTentacle(kralamar, SummonOrder[stepIdx].TemplateId))
+                stepIdx = FindNextAvailableStep(kralamar, stepIdx >= 0 ? (stepIdx + 1) % SummonOrder.Length : 0);
+
+            if (stepIdx >= 0)
+            {
+                var step = SummonOrder[stepIdx];
+                m_pendingTentacle = step;
+                m_expectedStep = (stepIdx + 1) % SummonOrder.Length;
+                kralamar?.StateManager?.ForceAddState(step.DesireState);
+                Logger.Warn("[Kralamar] Secuencia rota: tentaculo asignado=" + step.Name + " (elemento=" + triggerElement + ")");
+            }
+            else
+            {
+                m_expectedStep = 0;
+                Logger.Warn("[Kralamar] Secuencia rota: todos los tentaculos ya estan vivos, solo castigo.");
+            }
+        }
+
+        private int FindStepForElement(KralamarElement element)
+        {
+            for (int i = 0; i < SummonOrder.Length; i++)
+                if (SummonOrder[i].Element == element)
+                    return i;
+            return -1;
+        }
+
+        private int FindNextAvailableStep(AbstractFighter kralamar, int startFrom)
+        {
+            for (int i = 0; i < SummonOrder.Length; i++)
+            {
+                var idx = (startFrom + i) % SummonOrder.Length;
+                if (!HasLivingTentacle(kralamar, SummonOrder[idx].TemplateId))
+                    return idx;
+            }
+            return -1;
+        }
+
+        private static bool CanCastVulnerability(AIContext context)
+        {
+            if (!HasAllRequiredTentacles(context))
+                return false;
+
+            return context.Enemies.Any(f =>
+                f?.StateManager?.HasState(FighterStateEnum.STATE_KRALAMAR_QUATERNARY_INK) == true);
+        }
+
+        private static bool HasAllRequiredTentacles(AIContext context)
+        {
+            return RequiredTentacleTemplateIds.All(templateId =>
+                context.Allies.Any(f => GetMonsterId(f) == templateId && !f.IsFighterDead));
+        }
+
+        private static bool TryGetElement(EffectEnum effectType, out KralamarElement element)
+        {
+            switch (effectType)
+            {
+                case EffectEnum.DamageWater:
+                case EffectEnum.StealWater:
+                case EffectEnum.DamageLifeWater:
+                    element = KralamarElement.Water;
+                    return true;
+
+                case EffectEnum.DamageFire:
+                case EffectEnum.StealFire:
+                case EffectEnum.DamageLifeFire:
+                    element = KralamarElement.Fire;
+                    return true;
+
+                case EffectEnum.DamageEarth:
+                case EffectEnum.StealEarth:
+                case EffectEnum.DamageLifeEarth:
+                    element = KralamarElement.Earth;
+                    return true;
+
+                case EffectEnum.DamageAir:
+                case EffectEnum.StealAir:
+                case EffectEnum.DamageLifeAir:
+                    element = KralamarElement.Air;
+                    return true;
+
+                default:
+                    element = KralamarElement.None;
+                return false;
+            }
+        }
+
+        private static bool HasLivingTentacle(AbstractFighter kralamar, int templateId)
+        {
+            return kralamar?.Team?.AliveFighters != null
+                && kralamar.Team.AliveFighters.Any(f => GetMonsterId(f) == templateId && !f.IsFighterDead);
+        }
+
+        private static bool IsKralamar(AbstractFighter fighter)
+        {
+            return GetMonsterId(fighter) == KralamarTemplateId;
+        }
+
+        private static int GetMonsterId(AbstractFighter fighter)
+        {
+            return (fighter as MonsterEntity)?.Grade?.MonsterId ?? 0;
+        }
+
+        private static SpellLevel FindSpell(AIContext context, int spellId)
+        {
+            return context.SpellBook.AllSpells.FirstOrDefault(s => s?.SpellId == spellId);
+        }
+
+        private enum KralamarElement
+        {
+            None,
+            Water,
+            Fire,
+            Earth,
+            Air
+        }
+
+        private sealed class TentacleStep
+        {
+            public KralamarElement Element { get; }
+            public int SpellId { get; }
+            public int TemplateId { get; }
+            public string Name { get; }
+            public FighterStateEnum DesireState { get; }
+
+            public TentacleStep(KralamarElement element, int spellId, int templateId, string name, FighterStateEnum desireState)
+            {
+                Element = element;
+                SpellId = spellId;
+                TemplateId = templateId;
+                Name = name;
+                DesireState = desireState;
+            }
+        }
     }
 }

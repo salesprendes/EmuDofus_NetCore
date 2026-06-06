@@ -16,9 +16,6 @@ using Game.Conquest;
 
 namespace Game.Map
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class FightManager : MessageDispatcher
     {
         /// <summary>
@@ -190,8 +187,7 @@ namespace Game.Map
         /// </summary>
         /// <param name="fightId"></param>
         /// <returns></returns>
-        public AbstractFight GetFight(long fightId) => 
-            m_fightList.ContainsKey(fightId) ? m_fightList[fightId] : null;
+        public AbstractFight GetFight(long fightId) => m_fightList.ContainsKey(fightId) ? m_fightList[fightId] : null;
 
         /// <summary>
         /// 

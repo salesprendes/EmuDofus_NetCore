@@ -70,7 +70,13 @@ namespace Game.Frame
         private void EmoteDirection(CharacterEntity character, string message)
         {
             int direction = -1;
-            if (!int.TryParse(message.Substring(2), out direction))
+            if (message.Length < 3 || !int.TryParse(message.Substring(2), out direction))
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
+            if (direction < 0 || direction > 7)
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -85,7 +91,7 @@ namespace Game.Frame
         private void EmoteUse(CharacterEntity character, string message)
         {
             int emoteId = -1;
-            if (!int.TryParse(message.Substring(2), out emoteId))
+            if (message.Length < 3 || !int.TryParse(message.Substring(2), out emoteId))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;

@@ -6,10 +6,7 @@ namespace Game.Fight.AI.Profiles
 {
     public sealed class SummonerBrain : AIBrain
     {
-        public SummonerBrain(AIFighter fighter)
-            : base(fighter)
-        {
-        }
+        public SummonerBrain(AIFighter fighter) : base(fighter) {}
 
         protected override IEnumerable<AIDecision> Evaluate(AIContext context)
         {

@@ -1,9 +1,9 @@
-﻿using Protocolo.Framework.Command;
+using Game.Database.Repository;
+using Game.Database.Structure;
+using Protocolo.Framework.Command;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.Command
 {
@@ -19,31 +19,38 @@ namespace Game.Command
         {
             base.Process(context);
         }
+    }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public sealed class SpawnMonsterCommand : SubCommand<WorldCommandContext>
+    public sealed class SpawnMonsterCommand : Command<WorldCommandContext>
+    {
+        private static readonly string[] m_aliases = { "spawn" };
+
+        public override string[] Aliases => m_aliases;
+
+        public override string Description => "Spawn a monster group: .spawn <monsterId> [cantidad]";
+
+        protected override bool CanExecute(WorldCommandContext context)
         {
-            private readonly string[] _aliases = 
-            {
-                "spawn"
-            };
+            return true;
+        }
 
-            public override string[] Aliases => _aliases;
+        protected override void Process(WorldCommandContext context)
+        {
+            if (!int.TryParse(context.TextCommandArgument.NextWord(), out var monsterId))
+                return;
 
-            public override string Description => "Spawn a monsters group.";
+            var monster = MonsterRepository.Instance.GetById(monsterId);
+            if (monster == null || !monster.Grades.Any())
+                return;
 
-            protected override bool CanExecute(WorldCommandContext context)
-            {
-                return true;
-            }
+            List<MonsterGradeDAO> grades = monster.Grades.ToList();
+            MonsterGradeDAO grade = grades[Util.Next(0, grades.Count)];
 
-            protected override void Process(WorldCommandContext context)
-            {
-                //context.Character.Map.SpawnMonsters(context.Character.CellId);
-            }
+            string countStr = context.TextCommandArgument.NextWord();
+            int count = string.IsNullOrEmpty(countStr) ? Util.Next(1, 7) : Math.Max(1, int.Parse(countStr));
+
+            List<MonsterSpawnDAO> spawns = Enumerable.Range(0, count).Select(_ => new MonsterSpawnDAO { GradeId = (int)grade.Id, Probability = 1.0 }).ToList();
+            context.Character.Map.SpawnMonsters(spawns);
         }
     }
 }
-

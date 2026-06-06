@@ -105,7 +105,7 @@ namespace Game.Fight.AI.Evaluation
                     continue;
 
                 var distance = context.TurnCache.Cells.GetDistance(cellId, target.Cell.Id);
-                if (distance >= currentDistance)
+                if (distance > currentDistance)
                     continue;
 
                 var score = (currentDistance - distance) * 60 - RiskEvaluator.ScoreCellRisk(context, cellId, true);

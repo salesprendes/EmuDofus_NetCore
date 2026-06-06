@@ -1,4 +1,6 @@
 ﻿using Game.Action;
+using Game.Fight.AI;
+using Game.Fight.AI.Core;
 using Game.Spell;
 using Game.Network;
 using System;
@@ -67,6 +69,12 @@ namespace Game.Fight.Effect.Type
 
             // caster statistics increase damages
             caster.CalculDamages(castInfos.EffectType, ref damageJet);
+
+            //para boss de dungeon generalmente, kralamar, kimbo, rasgabola
+            if (!castInfos.IsPoison && !castInfos.IsReflect && !castInfos.IsTrap && damageJet > 0 && target is AIFighter aiTarget && aiTarget.CurrentBrain is IDamageReceivedBrain damageReceiver)
+            {
+                damageReceiver.OnDamageReceived(castInfos, damageJet);
+            }
 
             // target statistics reduce incomming damages
             target.CalculReduceDamages(castInfos.EffectType, ref damageJet);
@@ -151,5 +159,3 @@ namespace Game.Fight.Effect.Type
         }
     }
 }
-
-

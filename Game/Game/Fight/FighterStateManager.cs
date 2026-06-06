@@ -1,12 +1,9 @@
 ﻿using Game.Action;
 using Game.Fight.Effect;
-using Game.Spell;
 using Game.Network;
+using Game.Spell;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.Fight
 {
@@ -23,13 +20,25 @@ namespace Game.Fight
         STATE_WEAKENED = 42,
         STATE_ALTRUISM = 50,
         STATE_STEALTH = 600,
+        STATE_KRALAMAR_PRIMARY_INK = 31,
+        STATE_KRALAMAR_SECONDARY_INK = 32,
+        STATE_KRALAMAR_TERTIARY_INK = 33,
+        STATE_KRALAMAR_QUATERNARY_INK = 34,
+        STATE_KRALAMAR_DESIRE_KILL = 35,
+        STATE_KRALAMAR_DESIRE_PARALYZE = 36,
+        STATE_KRALAMAR_DESIRE_CURSE = 37,
+        STATE_KRALAMAR_DESIRE_POISON = 38,
     }
-    
+
     /// <summary>
     /// 
     /// </summary>
     public sealed class FighterStateManager : IDisposable
     {
+        private static readonly HashSet<int> BossMechanicStateIds = new HashSet<int>();
+
+        public static void RegisterCodeManagedState(int stateId) => BossMechanicStateIds.Add(stateId);
+
         private AbstractFighter m_fighter;
         private Dictionary<FighterStateEnum, AbstractSpellBuff> m_states = new Dictionary<FighterStateEnum, AbstractSpellBuff>();
 
@@ -75,6 +84,9 @@ namespace Game.Fight
         /// <param name="buff"></param>
         public void AddState(AbstractSpellBuff buff)
         {
+            if (BossMechanicStateIds.Contains(buff.CastInfos.Value3))
+                return;
+
             buff.CastInfos.SubEffect = EffectEnum.AddState;
 
             if (buff.Caster.Fight.State == FightStateEnum.STATE_FIGHTING)
@@ -112,24 +124,23 @@ namespace Game.Fight
         /// <param name="buff"></param>
         public void RemoveState(AbstractSpellBuff buff)
         {
+            if (BossMechanicStateIds.Contains(buff.CastInfos.Value3))
+                return;
+
             if (buff.Caster.Fight.State == FightStateEnum.STATE_FIGHTING)
             {
                 switch (buff.CastInfos.EffectType)
                 {
                     case EffectEnum.Stealth:
-
                         m_fighter.Fight.Dispatch(WorldMessage.GAME_ACTION(EffectEnum.Stealth, m_fighter.Id, m_fighter.Id.ToString()));
                         m_fighter.Fight.Dispatch(WorldMessage.GAME_ACTION(GameActionTypeEnum.MAP_TELEPORT, m_fighter.Id, m_fighter.Id + "," + m_fighter.Cell.Id));
 
                         m_states.Remove(FighterStateEnum.STATE_STEALTH);
-
-                        return;
+                    return;
 
                     default:
-
                         m_fighter.Fight.Dispatch(WorldMessage.GAME_ACTION(EffectEnum.AddState, m_fighter.Id, m_fighter.Id + "," + buff.CastInfos.Value3 + ",0"));
-
-                        break;
+                    break;
                 }
             }
 
@@ -151,10 +162,40 @@ namespace Game.Fight
         /// <summary>
         /// 
         /// </summary>
+        /// <summary>
+        /// Applies a state directly without requiring a spell buff — used for boss mechanics
+        /// that need to set game states (like Kralamar's "Ganas") via code.
+        /// Also dispatches the state-change network message to clients.
+        /// </summary>
+        public void ForceAddState(FighterStateEnum state)
+        {
+            if (HasState(state))
+                return;
+
+            m_states[state] = null;
+
+            if (m_fighter?.Fight?.State == FightStateEnum.STATE_FIGHTING)
+                m_fighter.Fight.Dispatch(WorldMessage.GAME_ACTION(EffectEnum.AddState, m_fighter.Id, m_fighter.Id + "," + (int)state + ",1"));
+        }
+
+        /// <summary>
+        /// Removes a state that was applied via <see cref="ForceAddState"/>.
+        /// </summary>
+        public void ForceRemoveState(FighterStateEnum state)
+        {
+            if (!HasState(state))
+                return;
+
+            m_states.Remove(state);
+
+            if (m_fighter?.Fight?.State == FightStateEnum.STATE_FIGHTING)
+                m_fighter.Fight.Dispatch(WorldMessage.GAME_ACTION(EffectEnum.AddState, m_fighter.Id, m_fighter.Id + "," + (int)state + ",0"));
+        }
+
         public void Clear()
         {
             foreach (var state in m_states.Values)
-                state.RemoveEffect();
+                state?.RemoveEffect();
 
             m_states.Clear();
         }

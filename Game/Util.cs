@@ -3,6 +3,7 @@ using Game.Fight;
 using Protocolo.Framework.Utils;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Game
 {
@@ -103,69 +104,51 @@ namespace Game
 
         public static long CalculPVMExperience(IEnumerable<MonsterEntity> monsters, IEnumerable<AbstractFighter> droppers, int level, int wisdom, double challengeBonus = 1.0, int ageBonus = 0)
         {
-            long monstersExperience = 0;
-            int monstersTotalLevel = 0;
-            int monstersMaxLevel = 0;
-            int monsterCount = 0;
-            foreach (var m in monsters)
-            {
-                monstersExperience += m.Grade.Experience;
-                monstersTotalLevel += m.Grade.Level;
-                if (m.Grade.Level > monstersMaxLevel)
-                {
-                    monstersMaxLevel = m.Grade.Level;
-                }
-
-                monsterCount++;
-            }
-
-            if (monsterCount == 0)
+            if (level <= 0 || monsters == null || droppers == null)
             {
                 return 0;
             }
 
-            int playersTotalLevel = 0;
-            int dropperCount = 0;
-            foreach (var p in droppers)
-            {
-                playersTotalLevel += p.Level;
-                dropperCount++;
-            }
-            if (dropperCount == 0)
+            List<MonsterEntity> monstruosValidos = monsters.Where(monstruo => monstruo?.Grade != null).ToList();
+            List<AbstractFighter> luchadoresRecompensables = droppers.Where(luchador => luchador != null).ToList();
+
+            if (!monstruosValidos.Any() || !luchadoresRecompensables.Any())
             {
                 return 0;
             }
 
-            double totalLevelDeltaRate = 1;
-            if (playersTotalLevel - 5 > monstersTotalLevel)
+            List<AbstractFighter> jugadores = luchadoresRecompensables.Where(luchador => luchador.Type == EntityTypeEnum.TYPE_CHARACTER).ToList();
+
+            List<AbstractFighter> participantesGrupo = jugadores.Any() ? jugadores : luchadoresRecompensables;
+
+            long experienciaBase = monstruosValidos.Sum(monstruo => (long)monstruo.Grade.Experience);
+            int nivelTotalMonstruos = monstruosValidos.Sum(monstruo => monstruo.Grade.Level);
+            int nivelMonstruoMasAlto = monstruosValidos.Max(monstruo => monstruo.Grade.Level);
+            int nivelTotalJugadores = participantesGrupo.Sum(jugador => jugador.Level);
+            int nivelJugadorMasAlto = participantesGrupo.Max(jugador => jugador.Level);
+            int cantidadParticipantesGrupo = participantesGrupo.Count(jugador => jugador.Level * 3 >= nivelJugadorMasAlto);
+
+            if (experienciaBase <= 0 || nivelTotalMonstruos <= 0 || nivelMonstruoMasAlto <= 0 || nivelTotalJugadores <= 0 || cantidadParticipantesGrupo <= 0)
             {
-                totalLevelDeltaRate = monstersTotalLevel / (double)playersTotalLevel;
-            }
-            else if (playersTotalLevel + 10 < monstersTotalLevel)
-            {
-                totalLevelDeltaRate = (playersTotalLevel + 10) / (double)monstersTotalLevel;
+                return 0;
             }
 
-            double levelDeltaRate = 1;
-            if (level - 5 > monstersTotalLevel)
-            {
-                levelDeltaRate = monstersTotalLevel / (double)level;
-            }
-            else if (level + 10 < monstersTotalLevel)
-            {
-                levelDeltaRate = (level + 10) / (double)monstersTotalLevel;
-            }
+            double coeficienteNivelTotal = nivelTotalMonstruos > nivelTotalJugadores + 10 ? (nivelTotalJugadores + 10) / (double)nivelTotalMonstruos : nivelTotalJugadores > nivelTotalMonstruos + 5 ? nivelTotalMonstruos / (double)nivelTotalJugadores : 1.0;
 
-            var a = Math.Min(level, Math.Truncate(2.5 * monstersMaxLevel));
-            var b = Math.Truncate(a / (double)level * 100);
-            var c = Math.Truncate(a / (double)playersTotalLevel * 100);
-            var d = Math.Truncate(monstersExperience * WorldConfig.PVM_RATE_GROUP[0] * levelDeltaRate);
-            var e = Math.Truncate(monstersExperience * WorldConfig.PVM_RATE_GROUP[Math.Min(WorldConfig.PVM_RATE_GROUP.Length - 1, dropperCount - 1)] * totalLevelDeltaRate);
-            var g = Math.Truncate(c / 100 * e);
-            var i = (1.0 + ageBonus / 100.0) * challengeBonus;
-            var j = Math.Truncate((g * (100 + wisdom) / 100.0) * i);
+            var limiteNivelMonstruoMasAlto = Math.Truncate(nivelMonstruoMasAlto * 2.5);
+            var coeficienteMonstruoMasAlto = nivelTotalJugadores > limiteNivelMonstruoMasAlto ? limiteNivelMonstruoMasAlto / nivelTotalJugadores : 1.0;
 
-            return (long)Math.Truncate(j * WorldConfig.RATE_XP);
+            var indiceCoeficienteGrupo = Math.Min(WorldConfig.PVM_RATE_GROUP.Length - 1, cantidadParticipantesGrupo - 1);
+            var coeficienteGrupo = WorldConfig.PVM_RATE_GROUP[indiceCoeficienteGrupo];
+            var coeficienteRepartoPersonaje = level / (double)nivelTotalJugadores;
+
+            var xpGrupo = Math.Truncate(experienciaBase * coeficienteGrupo * coeficienteNivelTotal * coeficienteMonstruoMasAlto);
+            var xpPersonaje = Math.Truncate(coeficienteRepartoPersonaje * xpGrupo);
+            var coeficienteSabiduria = (100 + wisdom) / 100.0;
+            var coeficienteBonusCombate = (1.0 + ageBonus / 100.0) * challengeBonus;
+            var xpFinal = Math.Truncate(xpPersonaje * coeficienteSabiduria * coeficienteBonusCombate);
+
+            return (long)Math.Truncate(xpFinal * WorldConfig.RATE_XP);
         }
     }
 }

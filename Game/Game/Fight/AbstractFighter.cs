@@ -1,16 +1,10 @@
-﻿using Game.Frame;
-using Game.Action;
+﻿using Game.Action;
 using Game.Entity;
 using Game.Map;
+using Game.Network;
 using Game.Spell;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Game.Manager;
-using Game.Network;
-using Game.Database.Structure;
 
 namespace Game.Fight
 {
@@ -24,7 +18,7 @@ namespace Game.Fight
         /// <summary>
         /// 
         /// </summary>
-        public FightObstacleTypeEnum  ObstacleType => FightObstacleTypeEnum.TYPE_FIGHTER;
+        public FightObstacleTypeEnum ObstacleType => FightObstacleTypeEnum.TYPE_FIGHTER;
 
         /// <summary>
         /// 
@@ -44,7 +38,7 @@ namespace Game.Fight
         #endregion
 
         #region AbstractEntity
-               
+
         /// <summary>
         /// 
         /// </summary>
@@ -62,11 +56,11 @@ namespace Game.Fight
         {
             get;
         }
-               
+
         /// <summary>
         /// 
         /// </summary>
-        public abstract override  int CellId
+        public abstract override int CellId
         {
             get;
             set;
@@ -109,7 +103,7 @@ namespace Game.Fight
             get;
             set;
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -147,7 +141,7 @@ namespace Game.Fight
         #endregion
 
         #region Fighter
-                
+
         /// <summary>
         /// 
         /// </summary>
@@ -185,7 +179,7 @@ namespace Game.Fight
         }
 
         #endregion
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -194,7 +188,7 @@ namespace Game.Fight
             get;
             protected set;
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -203,7 +197,7 @@ namespace Game.Fight
             get;
             private set;
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -344,7 +338,7 @@ namespace Game.Fight
         /// 
         /// </summary>
         public bool DeclaredDead { get; private set; }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -414,7 +408,7 @@ namespace Game.Fight
             Team = team;
             TurnReady = false;
             TurnPass = false;
-                       
+
             Team.AddFighter(this);
             Team.AddUpdatable(this);
             Team.AddHandler(Dispatch);
@@ -422,20 +416,20 @@ namespace Game.Fight
             if (Life < 1)
                 Life = 1;
 
-            if(Fight.State == FightStateEnum.STATE_PLACEMENT)
+            if (Fight.State == FightStateEnum.STATE_PLACEMENT)
                 SetCell(Team.FreePlace);
 
             SetChatChannel(ChatChannelEnum.CHANNEL_TEAM, () => Team.Dispatch);
             StartAction(GameActionTypeEnum.FIGHT);
-        }       
-                
+        }
+
         /// <summary>
         /// 
         /// </summary>
         public virtual void EndFight(bool win = false)
         {
             if (!IsSpectating)
-            {  
+            {
                 Team.RemoveFighter(this);
                 Team.RemoveUpdatable(this);
                 Team.RemoveHandler(Dispatch);
@@ -450,7 +444,7 @@ namespace Game.Fight
 
             CurrentAction = null;
             StopAction(GameActionTypeEnum.FIGHT);
-                        
+
             if (SpellManager != null)
             {
                 SpellManager.Dispose();
@@ -468,6 +462,9 @@ namespace Game.Fight
                 BuffManager.Dispose();
                 BuffManager = null;
             }
+
+            Skin = SkinBase;
+            SkinSize = SkinSizeBase;
 
             SetCell(null);
             Cell = null;
@@ -487,7 +484,7 @@ namespace Game.Fight
             var buffResult = BuffManager.BeginTurn();
             if (buffResult != FightActionResultEnum.RESULT_NOTHING)
                 return buffResult;
-            
+
             return Cell.BeginTurn(this);
         }
 
@@ -508,7 +505,7 @@ namespace Game.Fight
         /// </summary>
         /// <returns></returns>
         public virtual FightActionResultEnum EndTurn()
-        {            
+        {
             SpellManager.EndTurn();
 
             return BuffManager.EndTurn();
@@ -527,26 +524,22 @@ namespace Game.Fight
                 case EffectEnum.StealEarth:
                 case EffectEnum.DamageNeutral:
                 case EffectEnum.StealNeutral:
-                    jet = (int)Math.Floor((double)jet * (100 + Statistics.GetTotal(EffectEnum.AddStrength) + Statistics.GetTotal(EffectEnum.AddDamagePercent)) / 100 +
-                                                  Statistics.GetTotal(EffectEnum.AddDamagePhysic) + Statistics.GetTotal(EffectEnum.AddDamage));
+                    jet = (int)Math.Floor((double)jet * (100 + Statistics.GetTotal(EffectEnum.AddStrength) + Statistics.GetTotal(EffectEnum.AddDamagePercent)) / 100 + Statistics.GetTotal(EffectEnum.AddDamagePhysic) + Statistics.GetTotal(EffectEnum.AddDamage));
                     break;
 
                 case EffectEnum.DamageFire:
                 case EffectEnum.StealFire:
-                    jet = (int)Math.Floor((double)jet * (100 + Statistics.GetTotal(EffectEnum.AddIntelligence) + Statistics.GetTotal(EffectEnum.AddDamagePercent)) / 100 +
-                                           Statistics.GetTotal(EffectEnum.AddDamageMagic) + Statistics.GetTotal(EffectEnum.AddDamage));
+                    jet = (int)Math.Floor((double)jet * (100 + Statistics.GetTotal(EffectEnum.AddIntelligence) + Statistics.GetTotal(EffectEnum.AddDamagePercent)) / 100 + Statistics.GetTotal(EffectEnum.AddDamageMagic) + Statistics.GetTotal(EffectEnum.AddDamage));
                     break;
 
                 case EffectEnum.DamageAir:
                 case EffectEnum.StealAir:
-                    jet = (int)Math.Floor((double)jet * (100 + Statistics.GetTotal(EffectEnum.AddAgility) + Statistics.GetTotal(EffectEnum.AddDamagePercent)) / 100 +
-                                           Statistics.GetTotal(EffectEnum.AddDamageMagic) + Statistics.GetTotal(EffectEnum.AddDamage));
+                    jet = (int)Math.Floor((double)jet * (100 + Statistics.GetTotal(EffectEnum.AddAgility) + Statistics.GetTotal(EffectEnum.AddDamagePercent)) / 100 + Statistics.GetTotal(EffectEnum.AddDamageMagic) + Statistics.GetTotal(EffectEnum.AddDamage));
                     break;
 
                 case EffectEnum.DamageWater:
                 case EffectEnum.StealWater:
-                    jet = (int)Math.Floor((double)jet * (100 + Statistics.GetTotal(EffectEnum.AddChance) + Statistics.GetTotal(EffectEnum.AddDamagePercent)) / 100 +
-                                           Statistics.GetTotal(EffectEnum.AddDamageMagic) + Statistics.GetTotal(EffectEnum.AddDamage));
+                    jet = (int)Math.Floor((double)jet * (100 + Statistics.GetTotal(EffectEnum.AddChance) + Statistics.GetTotal(EffectEnum.AddDamagePercent)) / 100 + Statistics.GetTotal(EffectEnum.AddDamageMagic) + Statistics.GetTotal(EffectEnum.AddDamage));
                     break;
             }
         }
@@ -602,7 +595,7 @@ namespace Game.Fight
         {
             heal = (int)Math.Floor((double)heal * (100 + Statistics.GetTotal(EffectEnum.AddIntelligence)) / 100 + Statistics.GetTotal(EffectEnum.AddHealCare));
         }
-        
+
         public void CalculCriticalHitRate(ref int cHitRate)
         {
             cHitRate = (int)(cHitRate * Math.E * 1.1 / Math.Log(Statistics.GetTotal(EffectEnum.AddAgility) + 12));
@@ -663,7 +656,7 @@ namespace Game.Fight
                     var chance = 0.5 * ((double)dodgeAPCaster / dodgeAPTarget) * percentLastAP;
                     var percentChance = chance * 100;
 
-                    if (percentChance > 100) 
+                    if (percentChance > 100)
                         percentChance = 90;
                     else if (percentChance < 10)
                         percentChance = 10;
@@ -681,7 +674,7 @@ namespace Game.Fight
 
                 for (int i = 0; i < lostPoint; i++)
                 {
-                    var actualMP = MP - reality; 
+                    var actualMP = MP - reality;
                     var realMP = MP;
                     if (realMP == 0)
                         realMP = 1;
@@ -690,7 +683,7 @@ namespace Game.Fight
                     var chance = 0.5 * ((double)dodgeMPCaster / dodgeMPTarget) * percentLastMP;
                     var percentChance = chance * 100;
 
-                    if (percentChance > 100) 
+                    if (percentChance > 100)
                         percentChance = 90;
                     else if (percentChance < 10)
                         percentChance = 10;
@@ -702,12 +695,12 @@ namespace Game.Fight
 
             return reality;
         }
-        
+
         public virtual void OnKill(AbstractFighter target)
         {
             FireEvent(EntityEventType.FIGHT_KILL, target);
         }
-        
+
         public void OnDeath(AbstractFighter killer)
         {
             if (!DeclaredDead)
@@ -721,11 +714,11 @@ namespace Game.Fight
                 }
             }
         }
-        
+
         public FightActionResultEnum SetCell(FightCell cell)
         {
-            if (IsFighterDead)            
-                return FightActionResultEnum.RESULT_DEATH;            
+            if (IsFighterDead)
+                return FightActionResultEnum.RESULT_DEATH;
 
             if (Cell != null)
             {
@@ -755,13 +748,13 @@ namespace Game.Fight
 
             if (Fight.State != FightStateEnum.STATE_FIGHTING)
                 return FightActionResultEnum.RESULT_NOTHING;
-            
+
             return FightActionResultEnum.RESULT_NOTHING;
         }
-        
+
         public override void StartAction(GameActionTypeEnum actionType)
         {
-            switch(actionType)
+            switch (actionType)
             {
                 case GameActionTypeEnum.FIGHT:
                     StopAction(GameActionTypeEnum.MAP);
@@ -786,14 +779,14 @@ namespace Game.Fight
 
             base.StartAction(actionType);
         }
-        
+
         public override void AbortAction(GameActionTypeEnum actionType, params object[] args)
         {
-            switch(actionType)
+            switch (actionType)
             {
                 case GameActionTypeEnum.FIGHT:
-                    if(Fight != null)                    
-                        Fight.FighterDisconnect(this);                    
+                    if (Fight != null)
+                        Fight.FighterDisconnect(this);
                     break;
             }
 
@@ -801,7 +794,7 @@ namespace Game.Fight
         }
 
         public abstract override void SerializeAs_GameMapInformations(OperatorEnum operation, StringBuilder message);
-        
+
         public int CompareTo(IFightObstacle obj)
         {
             return Priority.CompareTo(obj.Priority);

@@ -1,78 +1,202 @@
 using Game.Entity;
 using Game.Fight.AI.Core;
 using Game.Fight.AI.Evaluation;
+using Game.Map;
+using Game.Spell;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Game.Fight.AI.Bosses
 {
-    /// <summary>
-    /// Cerebro de los tentáculos del Kralamoure Géant.
-    ///
-    /// Los tentáculos tienen un papel defensivo/de apoyo:
-    ///   • Tentáculo Primario  (424) — hechizos 261 + 1096
-    ///   • Tentáculo Secundario(1092), Terciario (1091), Cuaternario (1090) — hechizos similares
-    ///
-    /// Comportamiento por fases (detectadas a través del Kralamar aliado):
-    ///   FASE PROTECCIÓN  (Kralamar HP > 40%): prioridad en debuff + ataque moderado.
-    ///   FASE ENRAGE      (Kralamar HP ≤ 40%): prioridad máxima en todo; los tentáculos
-    ///                    se vuelven agresivos para proteger al jefe.
-    ///
-    /// Los tentáculos son invocaciones estáticas (no se mueven): la lógica de movimiento
-    /// se omite salvo que haya posibilidad de mejorar el ángulo de ataque.
-    /// </summary>
     public sealed class KralamarTentacleBrain : AIBrain
     {
-        // Template IDs del Kralamar — tentáculos usan esto para detectar al jefe
         private const int KralamarTemplateId = 423;
 
-        public KralamarTentacleBrain(AIFighter fighter)
-            : base(fighter)
-        {
-        }
+        private const int TentaculoPrimario = 424;
+        private const int TentaculoCuaternario = 1090;
+        private const int TentaculoTerciario = 1091;
+        private const int TentaculoSecundario = 1092;
+
+        private const int SpellKrakenPrimario = 1096;
+        private const int SpellKrakenSecundario = 1097;
+        private const int SpellKrakenTerciario = 1098;
+        private const int SpellKrakenCuaternario = 1099;
+
+        public KralamarTentacleBrain(AIFighter fighter): base(fighter) {}
 
         protected override IEnumerable<AIDecision> Evaluate(AIContext context)
         {
-            // Detectar fase del Kralamar (jefe aliado con template 423)
-            var kralamardHpRatio = GetKralamarHpRatio(context);
-            bool enragePhase = kralamardHpRatio <= 0.40;
+            int? characteristicSpellId = GetCharacteristicSpellId(Fighter);
 
-            // ── Debuff: prioridad siempre presente (drena PA/PM del jugador más peligroso)
+            if (characteristicSpellId.HasValue)
+            {
+                var spell = context.SpellBook.AllSpells.FirstOrDefault(s => s?.SpellId == characteristicSpellId.Value);
+                if (spell != null)
+                {
+                    var projectedAP = context.CurrentAP;
+
+                    if (spell.APCost > projectedAP)
+                    {
+                        var motivation = FindNaturalMotivationSpell(context, characteristicSpellId.Value);
+                        if (motivation != null)
+                        {
+                            projectedAP = projectedAP - motivation.APCost + GetAPBonus(motivation);
+
+                            yield return new AIDecision
+                            {
+                                Type = AIDecisionType.Buff,
+                                Priority = AIDecisionPriority.Critical,
+                                Score = 1200,
+                                SpellId = motivation.SpellId,
+                                TargetId = Fighter.Id,
+                                CellId = (short)context.CurrentCellId,
+                                Reason = "Tentaculo intenta utilizar boost de PA"
+                            };
+                        }
+                    }
+
+                    var target = spell.APCost <= projectedAP ? GetBestTargetForSpell(context, spell, projectedAP) : null;
+
+                    if (target?.Cell != null)
+                    {
+                        yield return new AIDecision
+                        {
+                            Type = AIDecisionType.CastSpell,
+                            Priority = AIDecisionPriority.Critical,
+                            Score = 1000,
+                            SpellId = characteristicSpellId.Value,
+                            TargetId = target.Id,
+                            CellId = (short)target.Cell.Id,
+                            Reason = "Tentaculo characteristic spell"
+                        };
+                    }
+                }
+            }
+
+            var kralamarHpRatio = GetKralamarHpRatio(context);
+            var enragePhase = kralamarHpRatio <= 0.40;
+
             foreach (var decision in new DebuffEvaluator().Evaluate(context))
             {
-                if (decision != null)
-                {
-                    // Elevar prioridad en fase de enrage
-                    if (enragePhase && decision.Priority < AIDecisionPriority.High)
-                        decision.Priority = AIDecisionPriority.High;
-                    yield return decision;
-                }
+                if (decision == null)
+                    continue;
+
+                if (enragePhase && decision.Priority < AIDecisionPriority.High)
+                    decision.Priority = AIDecisionPriority.High;
+
+                yield return decision;
             }
 
-            // ── Ataque: siempre activo
-            foreach (var decision in new AttackEvaluator().Evaluate(context))
+            foreach (AIDecision decision in new AttackEvaluator().Evaluate(context))
             {
-                if (decision != null)
-                {
-                    if (enragePhase && decision.Priority < AIDecisionPriority.High)
-                        decision.Priority = AIDecisionPriority.High;
-                    yield return decision;
-                }
+                if (decision == null)
+                    continue;
+
+                if (enragePhase && decision.Priority < AIDecisionPriority.High)
+                    decision.Priority = AIDecisionPriority.High;
+
+                yield return decision;
             }
 
-            // ── Movimiento: solo si los tentáculos no son invocaciones estáticas
-            //    En Dofus 1.29 los tentáculos del Kralamar son StaticInvocation=false
-            //    (efecto 181, no InvocationStatic), por lo que sí pueden moverse si tienen PM.
             if (!Fighter.StaticInvocation && context.CurrentMP > 0)
             {
                 foreach (var decision in new MovementEvaluator().Evaluate(context))
+                {
                     yield return decision;
+                }
             }
         }
 
-        /// <summary>
-        /// Busca al Kralamar Gigante entre los aliados y devuelve su ratio de HP.
-        /// Devuelve 1.0 si no se encuentra (sin información → asumir fase normal).
-        /// </summary>
+        private static AbstractFighter GetBestTargetForSpell(AIContext context, SpellLevel spell, int projectedAP)
+        {
+            if (context?.Fight?.Map == null || context.Fighter?.Cell == null || spell == null)
+                return null;
+
+            return context.Enemies
+                .Where(enemy => enemy?.Cell != null && !enemy.IsFighterDead)
+                .Where(enemy => CanCastFromCurrentCell(context, spell, enemy.Cell.Id, projectedAP))
+                .OrderByDescending(TargetEvaluator.ScorePriorityTarget)
+                .ThenBy(enemy => Pathfinding.GoalDistance(context.Fight.Map, context.Fighter.Cell.Id, enemy.Cell.Id))
+                .FirstOrDefault();
+        }
+
+        private static bool CanCastFromCurrentCell(AIContext context, SpellLevel spell, int castCell, int projectedAP)
+        {
+            if (context?.Fighter == null || spell == null)
+                return false;
+
+            var fighter = context.Fighter;
+            if (projectedAP < spell.APCost
+                || fighter.Cell == null
+                || fighter.Statistics == null
+                || fighter.IsFighterDead)
+                return false;
+
+            if (spell.RequiredLevel > 0 && fighter.Level < spell.RequiredLevel)
+                return false;
+
+            if (fighter.StateManager != null
+                && (fighter.StateManager.HasState(FighterStateEnum.STATE_WEAKENED)
+                    || fighter.StateManager.HasState(FighterStateEnum.STATE_CARRIED)))
+                return false;
+
+            return SpellEvaluator.CanReachCell(context, spell, context.CurrentCellId, castCell);
+        }
+
+        private static SpellLevel FindNaturalMotivationSpell(AIContext context, int characteristicSpellId)
+        {
+            if (context?.SpellBook?.AllSpells == null)
+                return null;
+
+            return context.SpellBook.AllSpells.Where(spell => spell != null && spell.SpellId != characteristicSpellId).Where(spell => GetAPBonus(spell) > 0).Where(spell => !AISpellBook.HasDamageEffect(spell)).Where(spell => SpellEvaluator.CanCastFromCurrentCell(context, spell, context.CurrentCellId)).OrderByDescending(GetAPBonus).ThenBy(spell => spell.APCost).FirstOrDefault();
+        }
+
+        private static int GetAPBonus(SpellLevel spell)
+        {
+            if (spell?.Effects == null)
+                return 0;
+
+            var bonus = 0;
+            foreach (var effect in spell.Effects)
+            {
+                if (effect == null)
+                    continue;
+
+                if (effect.TypeEnum != EffectEnum.AddAP && effect.TypeEnum != EffectEnum.AddAPBis)
+                    continue;
+
+                if (effect.Value1 > 0)
+                    bonus += effect.Value1;
+                else if (effect.Value2 > 0)
+                    bonus += effect.Value2;
+                else if (effect.Value3 > 0)
+                    bonus += effect.Value3;
+            }
+
+            return bonus;
+        }
+
+        private static int? GetCharacteristicSpellId(AbstractFighter fighter)
+        {
+            switch ((fighter as MonsterEntity)?.Grade?.MonsterId ?? 0)
+            {
+                case TentaculoPrimario:
+                    return SpellKrakenPrimario;
+
+                case TentaculoSecundario:
+                    return SpellKrakenSecundario;
+
+                case TentaculoTerciario:
+                    return SpellKrakenTerciario;
+
+                case TentaculoCuaternario:
+                    return SpellKrakenCuaternario;
+
+                default:
+                    return null;
+            }
+        }
+
         private static double GetKralamarHpRatio(AIContext context)
         {
             foreach (var ally in context.Allies)
@@ -80,8 +204,7 @@ namespace Game.Fight.AI.Bosses
                 if (ally == null || ally.IsFighterDead)
                     continue;
 
-                var monsterId = (ally as MonsterEntity)?.Grade?.MonsterId ?? 0;
-                if (monsterId == KralamarTemplateId && ally.MaxLife > 0)
+                if ((ally as MonsterEntity)?.Grade?.MonsterId == KralamarTemplateId && ally.MaxLife > 0)
                     return (double)ally.Life / ally.MaxLife;
             }
 

@@ -10,13 +10,12 @@ namespace Protocolo.Framework.Generic.Logging
     {
         private readonly string _name;
 
-        // Unbounded, single-reader: callers just TryWrite and return — no locking on the hot path.
-        private static readonly Channel<LogEntry> _channel =
-            Channel.CreateUnbounded<LogEntry>(new UnboundedChannelOptions
-            {
-                SingleReader = true,
-                AllowSynchronousContinuations = false
-            });
+
+        private static readonly Channel<LogEntry> _channel = Channel.CreateUnbounded<LogEntry>(new UnboundedChannelOptions
+        {
+            SingleReader = true,
+            AllowSynchronousContinuations = false
+        });
 
         private static string _currentDate = string.Empty;
         private static StreamWriter _fileWriter;
@@ -33,8 +32,8 @@ namespace Protocolo.Framework.Generic.Logging
         public ServerLogger(string name) => _name = name;
 
         public void Debug(object message) => Enqueue("DEBUG", message);
-        public void Info(object message)  => Enqueue("INFO",  message);
-        public void Warn(object message, Exception exception = null)  => Enqueue("WARN",  Combine(message, exception));
+        public void Info(object message) => Enqueue("INFO", message);
+        public void Warn(object message, Exception exception = null) => Enqueue("WARN", Combine(message, exception));
         public void Error(object message, Exception exception = null) => Enqueue("ERROR", Combine(message, exception));
         public void Fatal(object message, Exception exception = null) => Enqueue("FATAL", Combine(message, exception));
 
@@ -48,7 +47,6 @@ namespace Protocolo.Framework.Generic.Logging
         private static object Combine(object message, Exception exception) =>
             exception is null ? message : $"{message}{Environment.NewLine}{exception}";
 
-        // Background thread: single consumer — no locks needed for console or file.
         private static void DrainQueue()
         {
             var reader = _channel.Reader;
@@ -66,11 +64,11 @@ namespace Protocolo.Framework.Generic.Logging
         {
             Console.ForegroundColor = level switch
             {
-                "DEBUG" => ConsoleColor.DarkGray,
-                "WARN"  => ConsoleColor.Yellow,
+                "DEBUG" => ConsoleColor.DarkGreen,
+                "WARN" => ConsoleColor.Yellow,
                 "ERROR" => ConsoleColor.Red,
                 "FATAL" => ConsoleColor.DarkRed,
-                _       => ConsoleColor.White
+                _ => ConsoleColor.White
             };
             Console.WriteLine(line);
             Console.ResetColor();

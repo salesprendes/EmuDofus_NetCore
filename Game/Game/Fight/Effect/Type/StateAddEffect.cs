@@ -6,16 +6,8 @@ using System.Threading.Tasks;
 
 namespace Game.Fight.Effect.Type
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class StateAddEffect : AbstractSpellEffect
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="CastInfos"></param>
-        /// <returns></returns>
         public override FightActionResultEnum ApplyEffect(CastInfos CastInfos)
         {
             if (CastInfos.Target == null)

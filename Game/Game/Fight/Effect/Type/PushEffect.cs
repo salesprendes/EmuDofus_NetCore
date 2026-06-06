@@ -1,4 +1,5 @@
 ﻿using Game.Action;
+using Game.Entity;
 using Game.Map;
 using Game.Spell;
 using System;
@@ -59,6 +60,9 @@ namespace Game.Fight.Effect.Type
         /// <returns></returns>
         public static FightActionResultEnum ApplyPush(CastInfos castInfos, AbstractFighter target, DirectionEnum direction, int length)
         {
+            if (IsGiantKralamar(target))
+                return FightActionResultEnum.RESULT_NOTHING;
+
             var currentCell = target.Cell;
             
             for (int i = 0; i < length; i++)
@@ -133,7 +137,10 @@ namespace Game.Fight.Effect.Type
 
             return DamageEffect.ApplyDamages(subInfos, target, ref damageValue);
         }
+
+        private static bool IsGiantKralamar(AbstractFighter target)
+        {
+            return (target as MonsterEntity)?.Grade?.MonsterId == 423;
+        }
     }
 }
-
-

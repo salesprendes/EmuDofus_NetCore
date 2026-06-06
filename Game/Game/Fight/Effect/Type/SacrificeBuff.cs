@@ -7,38 +7,18 @@ using System.Threading.Tasks;
 
 namespace Game.Fight.Effect.Type
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class SacrificeBuff : AbstractSpellBuff
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="castInfos"></param>
-        /// <param name="target"></param>
-        public SacrificeBuff(CastInfos castInfos, AbstractFighter target)
-            : base(castInfos, target, ActiveType.ACTIVE_ATTACKED_AFTER_JET, DecrementType.TYPE_ENDTURN)
-        {
-        }
+        public SacrificeBuff(CastInfos castInfos, AbstractFighter target) : base(castInfos, target, ActiveType.ACTIVE_ATTACKED_AFTER_JET, DecrementType.TYPE_ENDTURN) {}
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="damageValue"></param>
-        /// <param name="damageInfos"></param>
-        /// <returns></returns>
         public override FightActionResultEnum ApplyEffect(ref int damageValue, CastInfos damageInfos = null)
         {
-            //
             if (damageInfos.IsReflect || damageInfos.IsReturnedDamages || damageInfos.IsPoison)
                 return FightActionResultEnum.RESULT_NOTHING;
 
-            // mort
             if(Caster.IsFighterDead)
             {
                 Target.BuffManager.RemoveBuff(this);
-
                 return FightActionResultEnum.RESULT_NOTHING;
             }
 
@@ -54,7 +34,6 @@ namespace Game.Fight.Effect.Type
             if (TeleportEffect.ApplyTeleport(casterTeleport) == FightActionResultEnum.RESULT_END)
                 return FightActionResultEnum.RESULT_END;
 
-            // cancel damages
             damageValue = 0;
 
             var damageJet = damageInfos.RandomJet;

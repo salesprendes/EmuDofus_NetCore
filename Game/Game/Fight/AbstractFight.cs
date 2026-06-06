@@ -1875,6 +1875,30 @@ namespace Game.Fight
                 return FightSpellLaunchResultEnum.RESULT_ERROR;
             }
 
+            if (spellLevel.Conditions != null)
+            {
+                foreach (var stateId in spellLevel.Conditions)
+                {
+                    if (!fighter.StateManager.HasState((FighterStateEnum)stateId))
+                    {
+                        Logger.Debug("[CanLaunchSpell] Bloqueado: spell=" + spellLevel.SpellId + " requiere estado=" + stateId + " fighter=" + fighter.Id);
+                        return FightSpellLaunchResultEnum.RESULT_ERROR;
+                    }
+                }
+            }
+
+            if (spellLevel.TargetZones != null)
+            {
+                foreach (var stateId in spellLevel.TargetZones)
+                {
+                    if (fighter.StateManager.HasState((FighterStateEnum)stateId))
+                    {
+                        Logger.Debug("[CanLaunchSpell] Bloqueado: spell=" + spellLevel.SpellId + " estado prohibido=" + stateId + " fighter=" + fighter.Id);
+                        return FightSpellLaunchResultEnum.RESULT_ERROR;
+                    }
+                }
+            }
+
             var distance = Pathfinding.GoalDistance(Map, cellId, castCell);
             var maxPo = spellLevel.AllowPOBoost && spellLevel.MaxPO != 0 ? spellLevel.MaxPO + fighter.Statistics.GetTotal(EffectEnum.AddPO) : spellLevel.MaxPO;
 

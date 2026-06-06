@@ -1,23 +1,10 @@
-﻿using Game.Spell;
 using Game.Network;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Game.Spell;
 
 namespace Game.Fight.Effect.Type
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class SkinChangeEffect : AbstractSpellEffect
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="castInfos"></param>
-        /// <returns></returns>
         public override FightActionResultEnum ApplyEffect(CastInfos castInfos)
         {
             if (castInfos.Target == null)
@@ -34,15 +21,10 @@ namespace Game.Fight.Effect.Type
 
             return FightActionResultEnum.RESULT_NOTHING;
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="castInfos"></param>
-        /// <returns></returns>
+        
         public static FightActionResultEnum ApplySkinChange(CastInfos castInfos)
         {
-            if (castInfos.Value1 == -1 && castInfos.Value2 == -1 && castInfos.Value3 == -1)
+            if (castInfos.Value1 <= 0 && castInfos.Value2 <= 0 && castInfos.Value3 <= 0)
             {
                 castInfos.Target.BuffManager.RemoveSkin();
             }
@@ -53,12 +35,11 @@ namespace Game.Fight.Effect.Type
 
                 castInfos.Value3 = castInfos.Target.Skin;
                 castInfos.Target.Skin = newSkin;
-                castInfos.Target.Fight.Dispatch(WorldMessage.GAME_ACTION(EffectEnum.ChangeSkin, castInfos.Caster.Id, castInfos.Target.Id + "," + currentSkin + "," + newSkin + "," + castInfos.Duration + 1));
+
+                castInfos.Target.Fight.Dispatch(WorldMessage.GAME_ACTION(EffectEnum.ChangeSkin, castInfos.Caster.Id, castInfos.Target.Id + "," + currentSkin + "," + newSkin + "," + (castInfos.Duration + 1)));
             }
 
             return FightActionResultEnum.RESULT_NOTHING;
         }
     }
 }
-
-

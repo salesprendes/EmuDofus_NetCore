@@ -1,11 +1,12 @@
 ﻿using Game.Entity;
 using Game.Fight.Challenge;
+using Game.Fight.Ending;
 using Game.Map;
 using Game.Network;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Game.Fight.Ending;
 
 namespace Game.Fight
 {
@@ -31,6 +32,8 @@ namespace Game.Fight
             get;
             private set;
         }
+
+        internal IEnumerable<MonsterEntity> KilledMonsters => Team1.Fighters.OfType<MonsterEntity>().Where(fighter => fighter.Invocator == null && fighter.IsFighterDead);
 
         /// <summary>
         /// 

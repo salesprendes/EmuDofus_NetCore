@@ -88,20 +88,15 @@ namespace Game.Fight.Ending
         {
             if (arguments.Fight.WinnerTeam != arguments.Fight.Team1) return 0;
             var monsterFight = arguments.Fight as MonsterFight;
-            var winnerMonsters = arguments.Fight.WinnerTeam.Fighters
-                .OfType<MonsterEntity>()
-                .Where(f => f.Invocator == null);
-            var loserFighters = arguments.Fight.LoserTeam.Fighters
-                .Where(f => f.Invocator == null);
-            var fullXp = Util.CalculPVMExperience(
-                winnerMonsters,
-                loserFighters,
-                fighter.Level,
-                fighter.Statistics.GetTotal(EffectEnum.AddWisdom),
-                1.0,
-                monsterFight?.MonsterGroup.AgeBonus ?? 0);
+            if (monsterFight == null) return 0;
 
-            return (long)(fullXp * 0.1);
+            var killedMonsters = monsterFight.KilledMonsters.ToList();
+            if (killedMonsters.Count == 0) return 0;
+
+            var loserFighters = arguments.Fight.LoserTeam.Fighters
+                .Where(f => f.Invocator == null && !arguments.Fight.Result.HasResult(f));
+
+            return Util.CalculPVMExperience(killedMonsters, loserFighters, fighter.Level, fighter.Statistics.GetTotal(EffectEnum.AddWisdom), 1.0, monsterFight?.MonsterGroup.AgeBonus ?? 0);
         }
     }
 }

@@ -55,7 +55,7 @@ namespace Game.Command
             protected override void Process(WorldCommandContext context)
             {
                 int titleId = 0;
-                if (Int32.TryParse(context.TextCommandArgument.NextWord(), out titleId))
+                if (int.TryParse(context.TextCommandArgument.NextWord(), out titleId))
                 {
                     context.Character.TitleId = titleId;
                     context.Character.RefreshOnMap();
@@ -120,7 +120,7 @@ namespace Game.Command
             protected override void Process(WorldCommandContext context)
             {
                 int effectId = 0;
-                if (!Int32.TryParse(context.TextCommandArgument.NextWord(), out effectId))
+                if (!int.TryParse(context.TextCommandArgument.NextWord(), out effectId))
                 {
                     context.Character.Dispatch(WorldMessage.BASIC_CONSOLE_MESSAGE("Command format : character effect %effectId%"));
                     return;
@@ -158,7 +158,7 @@ namespace Game.Command
             protected override void Process(WorldCommandContext context)
             {
                 int skinId = 0;
-                if (Int32.TryParse(context.TextCommandArgument.NextWord(), out skinId))
+                if (int.TryParse(context.TextCommandArgument.NextWord(), out skinId))
                 {
                     context.Character.DatabaseRecord.Skin = skinId;
                     context.Character.RefreshOnMap();
@@ -231,7 +231,7 @@ namespace Game.Command
             protected override void Process(WorldCommandContext context)
             {
                 var emoteId = -1;
-                if (!Int32.TryParse(context.TextCommandArgument.NextWord(), out emoteId))
+                if (!int.TryParse(context.TextCommandArgument.NextWord(), out emoteId))
                 {
                     context.Character.Dispatch(WorldMessage.BASIC_CONSOLE_MESSAGE("Command format : character emote %emoteId%"));
                     return;
@@ -291,7 +291,7 @@ namespace Game.Command
             protected override void Process(WorldCommandContext context)
             {
                 var alignmentId = -1;
-                if (!Int32.TryParse(context.TextCommandArgument.NextWord(), out alignmentId))
+                if (!int.TryParse(context.TextCommandArgument.NextWord(), out alignmentId))
                 {
                     context.Character.Dispatch(WorldMessage.BASIC_CONSOLE_MESSAGE("Command format : character alignment %alignementId%"));
                     return;
@@ -696,7 +696,7 @@ namespace Game.Command
             protected override void Process(WorldCommandContext context)
             {
                 int level;
-                if (Int32.TryParse(context.TextCommandArgument.NextWord(), out level))
+                if (int.TryParse(context.TextCommandArgument.NextWord(), out level))
                 {
                     if (level > context.Character.Level)
                     {
@@ -833,7 +833,7 @@ namespace Game.Command
             protected override void Process(WorldCommandContext context)
             {
                 int templateId;
-                if (Int32.TryParse(context.TextCommandArgument.NextWord(), out templateId))
+                if (int.TryParse(context.TextCommandArgument.NextWord(), out templateId))
                 {
                     var itemTemplate = ItemTemplateRepository.Instance.GetById(templateId);
                     if (itemTemplate != null)

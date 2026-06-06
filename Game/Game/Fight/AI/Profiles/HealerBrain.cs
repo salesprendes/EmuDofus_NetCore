@@ -13,19 +13,19 @@ namespace Game.Fight.AI.Profiles
 
         protected override IEnumerable<AIDecision> Evaluate(AIContext context)
         {
-            foreach (var decision in new HealEvaluator().Evaluate(context))
+            foreach (AIDecision decision in new HealEvaluator().Evaluate(context))
             {
                 decision.Score += 120;
                 yield return decision;
             }
 
-            foreach (var decision in new BuffEvaluator().Evaluate(context))
+            foreach (AIDecision decision in new BuffEvaluator().Evaluate(context))
             {
                 decision.Score += 40;
                 yield return decision;
             }
 
-            foreach (var decision in new AttackEvaluator().Evaluate(context))
+            foreach (AIDecision decision in new AttackEvaluator().Evaluate(context))
                 yield return decision;
 
             var awayCell = new MovementEvaluator().GetBestCellAwayFromEnemies(context);

@@ -1,12 +1,9 @@
-﻿using System;
+﻿using Game.Database.Structure;
+using Game.Entity;
+using Game.Manager;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Game.Database.Structure;
-using Game.Entity;
-using Game.Spell;
-using Game.Manager;
 
 namespace Game.Fight.Ending
 {
@@ -14,8 +11,8 @@ namespace Game.Fight.Ending
         where T : AbstractFighter
     {
         protected abstract long GetAdditionalKamas(AbstractFight fight);
-        protected abstract IEnumerable<ItemDAO> GetAdditionalLoot(AbstractFight fight); 
-        protected abstract IEnumerable<AbstractFighter> GetAdditionalDroppers(AbstractFight fight); 
+        protected abstract IEnumerable<ItemDAO> GetAdditionalLoot(AbstractFight fight);
+        protected abstract IEnumerable<AbstractFighter> GetAdditionalDroppers(AbstractFight fight);
         protected abstract long GetTargetKamas(EndingArguments<T> arguments, T fighter);
         protected abstract IEnumerable<ItemDAO> GetTargetItems(EndingArguments<T> arguments, T fighter);
         protected abstract long GetExperienceWon(EndingArguments<T> arguments, AbstractFighter fighter);
@@ -26,7 +23,7 @@ namespace Game.Fight.Ending
         {
             long kamasLoot = GetAdditionalKamas(fight);
             var itemLoot = new List<ItemDAO>(GetAdditionalLoot(fight));
-            
+
             var droppers = fight
                 .WinnerTeam
                 .Fighters
@@ -67,7 +64,7 @@ namespace Game.Fight.Ending
                             character.Inventory.AddItem(item);
                         character.Inventory.AddKamas(kamasWon);
                         character.AddExperience(xpWon);
-                     break;
+                        break;
 
                     case EntityTypeEnum.TYPE_MONSTER_FIGHTER:
                         var monsterFight = fight as MonsterFight;
@@ -121,6 +118,8 @@ namespace Game.Fight.Ending
 
             foreach (var loserCharacter in fight.LoserTeam.Fighters.OfType<CharacterEntity>().Where(f => f.Invocator == null))
             {
+                if (fight.Result.HasResult(loserCharacter)) continue;
+
                 var xpWon = GetLoserExperienceWon(arguments, loserCharacter);
                 if (xpWon <= 0) continue;
                 loserCharacter.CachedBuffer = true;
@@ -131,5 +130,4 @@ namespace Game.Fight.Ending
         }
     }
 }
-
 

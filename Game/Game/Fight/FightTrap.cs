@@ -1,17 +1,12 @@
 ﻿using Game.Fight.Effect;
 using Game.Network;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.Fight
 {
     public sealed class FightTrap : AbstractActivableObject
     {
-        public FightTrap(AbstractFight fight, AbstractFighter caster, CastInfos effect, int cell) : base(FightObstacleTypeEnum.TYPE_TRAP, ActiveType.ACTIVE_ENDMOVE, fight, caster, effect, cell, 0, 306, true, false, true) {}
-        
+        public FightTrap(AbstractFight fight, AbstractFighter caster, CastInfos effect, int cell) : base(FightObstacleTypeEnum.TYPE_TRAP, ActiveType.ACTIVE_ENDMOVE, fight, caster, effect, cell, 0, 306, true, false, true) { }
+
         public override void AppearForAll()
         {
             Hide = false;

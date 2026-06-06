@@ -73,7 +73,7 @@ namespace Game.Frame
         private void DialogCreate(CharacterEntity character, string message)
         {
             long npcId = -1;
-            if (!long.TryParse(message.Substring(2), out npcId))
+            if (message.Length < 3 || !long.TryParse(message.Substring(2), out npcId))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -112,6 +112,12 @@ namespace Game.Frame
         /// <param name="message"></param>
         private void GameActionStart(CharacterEntity character, string message)
         {
+            if (message.Length < 5)
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
             var actionId = -1;
             if (!int.TryParse(message.Substring(2, 3), out actionId))
             {
@@ -198,6 +204,7 @@ namespace Game.Frame
         /// <param name="message"></param>
         private void GameSkillUse(CharacterEntity character, string message)
         {
+            if (message.Length <= 5) { character.Dispatch(WorldMessage.BASIC_NO_OPERATION()); return; }
             var skillData = message.Substring(5).Split(';');
             if (skillData.Length < 2 || !int.TryParse(skillData[0], out var cellId) || !int.TryParse(skillData[1], out var skillId))
             {
@@ -263,8 +270,16 @@ namespace Game.Frame
             if (character.Map.FightTeam0Cells.Count == 0 || character.Map.FightTeam1Cells.Count == 0)
                 return;
 
+            if (message.Length <= 5) { character.Dispatch(WorldMessage.BASIC_NO_OPERATION()); return; }
+
             long victimId = -1;
             if (!long.TryParse(message.Substring(5), out victimId))
+            {
+                character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
+            if (victimId == character.Id)
             {
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -313,6 +328,8 @@ namespace Game.Frame
                 return;
             }
 
+            if (message.Length <= 5) { character.Dispatch(WorldMessage.BASIC_NO_OPERATION()); return; }
+
             long taxcollectorId = -1;
             if (!long.TryParse(message.Substring(5), out taxcollectorId))
             {
@@ -359,6 +376,8 @@ namespace Game.Frame
                 return;
             }
 
+            if (message.Length <= 5) { character.Dispatch(WorldMessage.BASIC_NO_OPERATION()); return; }
+
             long prismId = -1;
             if (!long.TryParse(message.Substring(5), out prismId))
             {
@@ -393,6 +412,7 @@ namespace Game.Frame
 
         private void GamePrismUse(CharacterEntity character, string message)
         {
+            if (message.Length <= 5) { character.Dispatch(WorldMessage.BASIC_NO_OPERATION()); return; }
             long prismId = -1;
             if (!long.TryParse(message.Substring(5), out prismId))
             {
@@ -434,6 +454,7 @@ namespace Game.Frame
         /// <param name="message"></param>
         private void GameWeaponUse(CharacterEntity character, string message)
         {
+            if (message.Length <= 5) { character.Dispatch(WorldMessage.BASIC_NO_OPERATION()); return; }
             var cellId = -1;
             if(!int.TryParse(message.Substring(5), out cellId))
             {
@@ -451,6 +472,7 @@ namespace Game.Frame
         /// <param name="message"></param>
         private void GameFightJoin(CharacterEntity character, string message)
         {
+            if (message.Length <= 5) { character.Dispatch(WorldMessage.BASIC_NO_OPERATION()); return; }
             var fightData = message.Substring(5).Split(';');
             int fightId = -1;
             if (!int.TryParse(fightData[0], out fightId))
@@ -492,7 +514,7 @@ namespace Game.Frame
         /// <param name="message"></param>
         private void GameFightSpellLaunch(CharacterEntity character, string message)
         {
-            if(!message.Contains(';'))
+            if (message.Length <= 5 || !message.Contains(';'))
             {
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -555,9 +577,17 @@ namespace Game.Frame
                 character.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, InformationEnum.INFO_SERVER_MESSAGE, "Cell pattern not found, unable to fight here"));
                 return;
             }
-            
+
+            if (message.Length <= 5) { character.Dispatch(WorldMessage.BASIC_NO_OPERATION()); return; }
+
             long distantEntityId = -1;
             if(!long.TryParse(message.Substring(5), out distantEntityId))
+            {
+                character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
+            if (distantEntityId == character.Id)
             {
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -600,15 +630,32 @@ namespace Game.Frame
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
-                        
+
+            if (message.Length <= 5)
+            {
+                character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
+            var path = message.Substring(5);
+
+            // Limit path length to prevent processing of artificially long paths.
+            // A Dofus 1.29 map has at most 560 cells (14x40); each path step is 3 chars.
+            if (path.Length > 560 * 3)
+            {
+                Logger.Debug("GameActionFrame::MapMovement oversized path from : " + character.Name);
+                character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
             switch(character.MovementHandler.FieldType)
             {
                 case FieldTypeEnum.TYPE_MAP:
-                    character.MovementHandler.Move(character, character.CellId, message.Substring(5));
+                    character.MovementHandler.Move(character, character.CellId, path);
                     break;
                 case FieldTypeEnum.TYPE_FIGHT:
                     var fighter = (AbstractFighter)character;
-                    fighter.Fight.Move(character, fighter.Cell.Id, message.Substring(5));
+                    fighter.Fight.Move(character, fighter.Cell.Id, path);
                     break;
             }
         }
@@ -634,7 +681,7 @@ namespace Game.Frame
             }
 
             var actionId = -1;
-            if (!int.TryParse(abortData[0].Substring(3), out actionId))
+            if (abortData[0].Length < 3 || !int.TryParse(abortData[0].Substring(3), out actionId))
             {
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;

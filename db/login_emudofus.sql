@@ -1,17 +1,17 @@
 /*
  Navicat Premium Dump SQL
 
- Source Server         : local
+ Source Server         : localhost
  Source Server Type    : MySQL
- Source Server Version : 80407 (8.4.7)
+ Source Server Version : 80403 (8.4.3)
  Source Host           : localhost:3306
  Source Schema         : login_emudofus
 
  Target Server Type    : MySQL
- Target Server Version : 80407 (8.4.7)
+ Target Server Version : 80403 (8.4.3)
  File Encoding         : 65001
 
- Date: 28/05/2026 19:51:10
+ Date: 06/06/2026 12:21:47
 */
 
 SET NAMES utf8mb4;
@@ -40,8 +40,8 @@ CREATE TABLE `account`  (
 -- ----------------------------
 -- Records of account
 -- ----------------------------
-INSERT INTO `account` VALUES (1, 'test', 'AIdemu', 'test', 1000, '2026-05-08 19:30:10', '2026-05-28 19:43:07', '127.0.0.1', '2026-05-08 20:30:13', 0, 'test', 'test');
-INSERT INTO `account` VALUES (2, 'test2', 'test', 'test', 1000, '2000-01-01 00:00:00', '2026-05-19 22:09:49', '127.0.0.1', '2000-01-01 00:00:00', 0, '', '');
+INSERT INTO `account` VALUES (1, 'test', 'test', 'test', 1000, '2026-05-08 19:30:10', '2026-06-06 12:12:55', '127.0.0.1', '2026-05-08 20:30:13', 0, 'test', 'test');
+INSERT INTO `account` VALUES (2, 'test2', 'test', 'test', 1000, '2000-01-01 00:00:00', '2026-06-01 03:48:21', '127.0.0.1', '2000-01-01 00:00:00', 0, '', '');
 
 -- ----------------------------
 -- Table structure for characterinstance
@@ -101,8 +101,6 @@ CREATE TABLE `characterinstance`  (
 -- ----------------------------
 -- Records of characterinstance
 -- ----------------------------
-INSERT INTO `characterinstance` VALUES (10000, 1, 'Aidemu', 9, 15395354, 0, 0, 91, 100, 900, 900, 900, 900, 900, 900, 1050, 1000, 969, 0, 10348, 357, 8192, 2221571, 1, 0, 1, 0, 200, 1, 43606, 951, 126, b'0', 0, '', 1376255, 1, -1, 1, 10, 0, 18000, 0, b'0', '10297,10349,10317,7411,8037,951');
-INSERT INTO `characterinstance` VALUES (10001, 1, 'testt', 5, -1, -1, -1, 50, 100, 0, 0, 0, 0, 0, 0, 1, 1000, 184, 995, 10347, 254, 8192, 4, 1, 0, 1, 0, 200, 0, 0, 10298, 286, b'0', 0, '', 1376255, 1, -1, 0, 0, 0, 0, 0, b'0', '');
 
 -- ----------------------------
 -- Table structure for gameservers
@@ -116,7 +114,7 @@ CREATE TABLE `gameservers`  (
   `FreePlaces` int NOT NULL DEFAULT 0,
   `Ip` varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '127.0.0.1',
   PRIMARY KEY (`Id`) USING BTREE
-) ENGINE = MyISAM AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+) ENGINE = MyISAM AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of gameservers

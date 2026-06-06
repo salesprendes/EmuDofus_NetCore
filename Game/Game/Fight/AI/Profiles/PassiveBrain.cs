@@ -6,10 +6,7 @@ namespace Game.Fight.AI.Profiles
 {
     public class PassiveBrain : AIBrain
     {
-        public PassiveBrain(AIFighter fighter)
-            : base(fighter)
-        {
-        }
+        public PassiveBrain(AIFighter fighter) : base(fighter) {}
 
         protected override IEnumerable<AIDecision> Evaluate(AIContext context)
         {
