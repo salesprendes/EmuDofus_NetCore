@@ -45,7 +45,7 @@ namespace Game.Fight.AI.Profiles
             // way to the adjacent cell rather than stopping short.
             var aggressiveCell = movement.GetBestCellForAggressiveApproach(context);
             if (aggressiveCell.HasValue)
-                yield return AIDecision.Move(aggressiveCell.Value, 150, AIDecisionPriority.High, "Aggressive move to attack");
+                yield return AIDecision.Move(aggressiveCell.Value, 150, AIDecisionPriority.High, "Agresivo se mueve para atacar");
 
             // ── 3. Fallback: close in using full PM even if no spell can be cast ────
             //
@@ -54,7 +54,7 @@ namespace Game.Fight.AI.Profiles
             // advances as far as possible so next turn it can attack.
             var nearCell = movement.GetBestCellNearEnemy(context);
             if (nearCell.HasValue)
-                yield return AIDecision.Move(nearCell.Value, 100, AIDecisionPriority.Low, "Aggressive approach");
+                yield return AIDecision.Move(nearCell.Value, 100, AIDecisionPriority.Low, "Acercamiento agresivo");
         }
     }
 }

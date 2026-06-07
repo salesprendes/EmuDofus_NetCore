@@ -50,7 +50,7 @@ namespace Game.Fight.AI.Bosses
                                 SpellId = motivation.SpellId,
                                 TargetId = Fighter.Id,
                                 CellId = (short)context.CurrentCellId,
-                                Reason = "Tentaculo intenta utilizar boost de PA"
+                                Reason = "Tentaculo intenta utilizar bonificacion de PA"
                             };
                         }
                     }
@@ -67,7 +67,7 @@ namespace Game.Fight.AI.Bosses
                             SpellId = characteristicSpellId.Value,
                             TargetId = target.Id,
                             CellId = (short)target.Cell.Id,
-                            Reason = "Tentaculo characteristic spell"
+                            Reason = "Tentaculo hechizo caracteristico"
                         };
                     }
                 }
@@ -216,12 +216,12 @@ namespace Game.Fight.AI.Bosses
             if (!WorldConfig.LOG_DEBUG || decision == null)
                 return;
 
-            Logger.Debug("[AI][KralamarTentacle] Fighter=" + (Fighter?.Id ?? 0)
-                + " Template=" + ((Fighter as MonsterEntity)?.Grade?.MonsterId ?? 0)
+            Logger.Debug("[IA][TentaculoKralamar] Luchador=" + (Fighter?.Id ?? 0)
+                + " Plantilla=" + ((Fighter as MonsterEntity)?.Grade?.MonsterId ?? 0)
                 + " Decision=" + decision.Type
-                + " Priority=" + decision.Priority
-                + " Score=" + decision.Score
-                + " Reason=" + decision.Reason);
+                + " Prioridad=" + decision.Priority
+                + " Puntuacion=" + decision.Score
+                + " Motivo=" + decision.Reason);
         }
     }
 }

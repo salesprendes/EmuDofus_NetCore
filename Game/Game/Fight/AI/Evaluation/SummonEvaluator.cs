@@ -34,7 +34,7 @@ namespace Game.Fight.AI.Evaluation
                     Score = 180 + (maxInvocations - currentInvocations) * 20,
                     SpellId = spell.SpellId,
                     CellId = (short)cellId.Value,
-                    Reason = "Useful summon cell"
+                    Reason = "Celda de invocacion util"
                 };
             }
         }

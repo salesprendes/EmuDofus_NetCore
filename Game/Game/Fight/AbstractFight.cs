@@ -1881,7 +1881,7 @@ namespace Game.Fight
                 {
                     if (!fighter.StateManager.HasState((FighterStateEnum)stateId))
                     {
-                        Logger.Debug("[CanLaunchSpell] Bloqueado: spell=" + spellLevel.SpellId + " requiere estado=" + stateId + " fighter=" + fighter.Id);
+                        Logger.Debug("[CanLaunchSpell] Bloqueado: hechizo=" + spellLevel.SpellId + " requiere estado=" + stateId + " luchador=" + fighter.Id);
                         return FightSpellLaunchResultEnum.RESULT_ERROR;
                     }
                 }
@@ -1893,7 +1893,7 @@ namespace Game.Fight
                 {
                     if (fighter.StateManager.HasState((FighterStateEnum)stateId))
                     {
-                        Logger.Debug("[CanLaunchSpell] Bloqueado: spell=" + spellLevel.SpellId + " estado prohibido=" + stateId + " fighter=" + fighter.Id);
+                        Logger.Debug("[CanLaunchSpell] Bloqueado: hechizo=" + spellLevel.SpellId + " estado prohibido=" + stateId + " luchador=" + fighter.Id);
                         return FightSpellLaunchResultEnum.RESULT_ERROR;
                     }
                 }

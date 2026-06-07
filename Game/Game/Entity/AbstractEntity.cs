@@ -27,6 +27,7 @@ namespace Game.Entity
     public enum EntityTypeEnum
     {
         // SPECIAL TYPES BDD ITEMS
+        TYPE_HOUSE_CHEST = -23,
         TYPE_STORAGE = -22,
         TYPE_AUCTION_HOUSE = -21,
         TYPE_BANK = -20,

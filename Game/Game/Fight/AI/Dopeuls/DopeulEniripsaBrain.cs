@@ -32,7 +32,7 @@ namespace Game.Fight.AI.Dopeuls
             {
                 var awayCell = movement.GetBestCellAwayFromEnemies(context);
                 if (awayCell.HasValue)
-                    yield return AIDecision.Move(awayCell.Value, 200, AIDecisionPriority.Critical, "Eniripsa flee (critical HP)");
+                    yield return AIDecision.Move(awayCell.Value, 200, AIDecisionPriority.Critical, "Eniripsa huye (vida critica)");
             }
 
             // 2 & 3. Healing — self gets boosted score when below SelfHealThreshold
@@ -61,7 +61,7 @@ namespace Game.Fight.AI.Dopeuls
             // 5. Stay away from enemies (support positioning)
             var awayFromEnemies = movement.GetBestCellAwayFromEnemies(context);
             if (awayFromEnemies.HasValue)
-                yield return AIDecision.Move(awayFromEnemies.Value, 120, AIDecisionPriority.Normal, "Eniripsa defensive positioning");
+                yield return AIDecision.Move(awayFromEnemies.Value, 120, AIDecisionPriority.Normal, "Eniripsa posicionamiento defensivo");
 
             var target = TargetEvaluator.GetNearestEnemy(context);
             if (target?.Cell != null)
@@ -69,7 +69,7 @@ namespace Game.Fight.AI.Dopeuls
                 var preferredCell = movement.GetBestCellForPreferredDistance(
                     context, target, PreferredMinDistance, PreferredMaxDistance);
                 if (preferredCell.HasValue)
-                    yield return AIDecision.Move(preferredCell.Value, 80, AIDecisionPriority.Low, "Eniripsa preferred distance");
+                    yield return AIDecision.Move(preferredCell.Value, 80, AIDecisionPriority.Low, "Eniripsa distancia preferida");
             }
         }
     }

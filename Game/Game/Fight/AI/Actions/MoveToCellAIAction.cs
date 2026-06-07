@@ -26,7 +26,7 @@ namespace Game.Fight.AI.Actions
         public AIActionResult Execute(AIContext context)
         {
             if (!IsPreparedPathStillValid(context) && !TryPreparePath(context))
-                return AIActionResult.Fail("Move no longer valid");
+                return AIActionResult.Fail("El movimiento ya no es valido");
 
             context.Fight.Move(context.Fighter, context.Fighter.Cell.Id, m_path);
             return AIActionResult.Ok(EstimatedDelayMs, "Move queued");

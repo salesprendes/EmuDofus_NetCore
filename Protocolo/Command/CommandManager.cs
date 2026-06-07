@@ -8,9 +8,7 @@ namespace Protocolo.Framework.Command
     public sealed class CommandManager<C> where C : CommandContext
     {
         private readonly List<Command<C>> m_commands = new List<Command<C>>();
-        private readonly IDictionary<string, Command<C>> m_commandsByAlias =
-            new Dictionary<string, Command<C>>(StringComparer.OrdinalIgnoreCase);
-
+        private readonly IDictionary<string, Command<C>> m_commandsByAlias = new Dictionary<string, Command<C>>(StringComparer.OrdinalIgnoreCase);
         public IReadOnlyList<Command<C>> Commands => m_commands;
 
         public CommandManager()
@@ -73,10 +71,7 @@ namespace Protocolo.Framework.Command
 
         private static bool CanRegister(Type type)
         {
-            return type != null &&
-                   !type.IsAbstract &&
-                   type.IsSubclassOf(typeof(Command<C>)) &&
-                   !typeof(SubCommand<C>).IsAssignableFrom(type);
+            return type != null && !type.IsAbstract && type.IsSubclassOf(typeof(Command<C>)) && !typeof(SubCommand<C>).IsAssignableFrom(type);
         }
 
         private void ValidateAliases(Command<C> command)

@@ -1,11 +1,5 @@
-using Protocolo.Framework.Database;
 using Game.Guild;
-using Game.Stats;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Protocolo.Framework.Database;
 
 namespace Game.Database.Structure
 {

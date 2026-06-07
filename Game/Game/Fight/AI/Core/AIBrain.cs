@@ -36,7 +36,7 @@ namespace Game.Fight.AI.Core
             {
                 if (!CanThink())
                 {
-                    tail.LinkWith(new DecisionAIAction(Fighter, null, AIDecision.EndTurn("Fighter cannot play")));
+                    tail.LinkWith(new DecisionAIAction(Fighter, null, AIDecision.EndTurn("Luchador no puede jugar")));
                     return;
                 }
 
@@ -47,7 +47,7 @@ namespace Game.Fight.AI.Core
                 var decisions = SelectDecisions(context);
 
                 if (decisions.Count == 0)
-                    decisions.Add(AIDecision.EndTurn("No valid decision"));
+                    decisions.Add(AIDecision.EndTurn("Sin decision valida"));
 
                 var linkedActions = 0;
                 var queuedEndTurn = false;
@@ -83,14 +83,14 @@ namespace Game.Fight.AI.Core
                 }
 
                 if (linkedActions == 0 || !queuedEndTurn)
-                    tail.LinkWith(new DecisionAIAction(Fighter, context, AIDecision.EndTurn("Turn budget complete")));
+                    tail.LinkWith(new DecisionAIAction(Fighter, context, AIDecision.EndTurn("Limite de turno completado")));
             }
             catch (Exception ex)
             {
                 if (WorldConfig.LOG_DEBUG)
-                    Logger.Debug("[AI] Fighter=" + (Fighter?.Id ?? 0) + " failed to evaluate: " + ex);
+                    Logger.Debug("[IA] Luchador=" + (Fighter?.Id ?? 0) + " fallo al evaluar: " + ex);
 
-                tail.LinkWith(new DecisionAIAction(Fighter, null, AIDecision.EndTurn("AI evaluation failed")));
+                tail.LinkWith(new DecisionAIAction(Fighter, null, AIDecision.EndTurn("Fallo al evaluar IA")));
             }
         }
 
@@ -108,7 +108,7 @@ namespace Game.Fight.AI.Core
 
         protected virtual IEnumerable<AIDecision> GetFallbackDecisions(AIContext context)
         {
-            yield return AIDecision.EndTurn("Fallback end turn");
+            yield return AIDecision.EndTurn("Fin de turno de respaldo");
         }
 
         protected virtual void LogDecision(AIContext context, AIDecision decision)
@@ -116,12 +116,12 @@ namespace Game.Fight.AI.Core
             if (!WorldConfig.LOG_DEBUG || decision == null)
                 return;
 
-            Logger.Debug("[AI] Fighter=" + (Fighter?.Id ?? 0)
-                + " Phase=" + (context?.CurrentPhase.ToString() ?? "?")
+            Logger.Debug("[IA] Luchador=" + (Fighter?.Id ?? 0)
+                + " Fase=" + (context?.CurrentPhase.ToString() ?? "?")
                 + " Decision=" + decision.Type
-                + " Priority=" + decision.Priority
-                + " Score=" + decision.Score
-                + " Reason=" + decision.Reason);
+                + " Prioridad=" + decision.Priority
+                + " Puntuacion=" + decision.Score
+                + " Motivo=" + decision.Reason);
         }
 
         /// <summary>

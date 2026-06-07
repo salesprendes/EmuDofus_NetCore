@@ -3,6 +3,7 @@ using Game.Area;
 using Game.Database.Repository;
 using Game.Database.Structure;
 using Game.Entity;
+using Game.House;
 using Game.Interactive;
 using Game.Interactive.Type;
 using Game.Job;
@@ -369,9 +370,19 @@ namespace Game.Map
 
         public Paddock Paddock => m_paddock;
 
+        public HouseInstance House => m_house;
+
+        public HouseInstance GetHouseByOutsideCellId(int cellId)
+        {
+            if (m_housesOutside == null) return null;
+            foreach (var house in m_housesOutside)
+                if (house.CellIdOutside == cellId) return house;
+            return null;
+        }
+
         /// <summary>
-        /// 
-        /// </summary>       
+        ///
+        /// </summary>
         private Dictionary<long, AbstractEntity> m_entityById;
         private Dictionary<string, AbstractEntity> m_entityByName;
         private Dictionary<int, AnimatedDoor> m_animatedDoorByCellId;
@@ -381,6 +392,8 @@ namespace Game.Map
         private List<InteractiveObject> m_interactiveObjects;
         private SubAreaInstance m_subArea;
         private Paddock m_paddock;
+        private HouseInstance m_house;
+        private List<HouseInstance> m_housesOutside;
         private bool m_subInstance;
         private int m_playerCount;
         private bool m_initialized;
@@ -431,6 +444,8 @@ namespace Game.Map
             m_initialized = false;
 
             m_paddock = PaddockManager.Instance.GetByMapId(Id);
+            m_house = HouseManager.Instance.GetByInsideMapId(Id);
+            m_housesOutside = HouseManager.Instance.GetAllByOutsideMapId(Id);
 
             FightManager = new FightManager(this);
             SubArea.AddUpdatable(this);
@@ -970,7 +985,7 @@ namespace Game.Map
                 if (m_monsterGroups.Count >= WorldConfig.SPAWN_MAX_GROUP_PER_MAP)
                     return;
 
-                Logger.Debug($"[MapInstance] Map {Id}: spawning new group.");
+                Logger.Debug($"[MapInstance] Mapa {Id}: creando nuevo grupo.");
 
                 SpawnMonsters(excludedCell);
             }, oneshot: true);
@@ -1141,6 +1156,7 @@ namespace Game.Map
             SendMapInformations(entity);
             SendInteractiveData(entity);
             SendPaddockInformations(entity);
+            SendHouseInformations(entity);
             entity.Dispatch(WorldMessage.GAME_DATA_SUCCESS());
             SendAnimatedDoorRuntimeStates(entity);
 
@@ -1222,6 +1238,19 @@ namespace Game.Map
             {
                 m_paddock.SendInformations(entity);
             }
+        }
+
+        public void SendHouseInformations(AbstractEntity entity)
+        {
+            if (!(entity is CharacterEntity character))
+                return;
+
+            if (m_house != null)
+                m_house.SendInformationsTo(character);
+
+            if (m_housesOutside != null)
+                foreach (var house in m_housesOutside)
+                    house.SendInformationsTo(character);
         }
 
         /// <summary>
@@ -1545,7 +1574,7 @@ namespace Game.Map
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="character"></param>
         /// <param name="cellId"></param>
@@ -1649,21 +1678,11 @@ namespace Game.Map
             SetEntityCell(entity, cellId);
         }
 
-        /// <summary>
-        /// Nulls the raw string fields that are only needed during construction/cloning.
-        /// Call this from MapManager after all Clone() calls for this map are complete.
-        /// Do NOT call on maps that are still used as Clone() sources (m_creationIds).
-        /// </summary>
         public void FreeRawData()
         {
-            // Only the encoded cell string is safe to drop — DataKey and CreateTime
-            // are sent on every GDM packet when a player enters the map.
             Data = null;
         }
-
-        /// <summary>
-        ///
-        /// </summary>
+        
         public new void Dispose()
         {
             SubArea.RemoveUpdatable(this);

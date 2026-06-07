@@ -30,7 +30,7 @@ namespace Game.Fight.AI.Profiles
 
             var awayCell = new MovementEvaluator().GetBestCellAwayFromEnemies(context);
             if (awayCell.HasValue)
-                yield return AIDecision.Move(awayCell.Value, 80, AIDecisionPriority.Low, "Healer safe distance");
+                yield return AIDecision.Move(awayCell.Value, 80, AIDecisionPriority.Low, "Curador distancia segura");
         }
     }
 }

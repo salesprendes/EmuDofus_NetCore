@@ -109,7 +109,7 @@ namespace Game.Frame
                         character.Dispatch(WorldMessage.CONQUEST_PRISM_FIGHT_DEFENDERS(fight, (conquestFight != null ? conquestFight.AllDefenders : fight.Team1.Fighters.OfType<CharacterEntity>()).ToArray()));
 
                         var timer = Math.Max(0, (int)(fight.StartTime - fight.UpdateTime));
-                        character.Dispatch(WorldMessage.CONQUEST_PRISM_INFOS_JOINED(timer, WorldConfig.PVP_START_TIMEOUT, 7));
+                        character.Dispatch(WorldMessage.CONQUEST_PRISM_INFOS_JOINED(timer, 60000, 7));
                         break;
 
                     case 'V':

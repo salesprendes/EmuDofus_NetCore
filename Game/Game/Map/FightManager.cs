@@ -1,18 +1,13 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using Protocolo.Framework.Generic;
-using Game;
+﻿using Game.Action;
+using Game.Condition;
+using Game.Database.Repository;
+using Game.Database.Structure;
 using Game.Entity;
 using Game.Fight;
-using Game.Map;
-using Game.Network;
-using Game.Database.Structure;
-using Game.Database.Repository;
 using Game.Manager;
-using Game.Condition;
-using Game.Action;
-using Game.Conquest;
+using Game.Network;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Game.Map
 {
@@ -64,8 +59,8 @@ namespace Game.Map
         /// <param name="defender"></param>
         public void StartChallenge(CharacterEntity attacker, CharacterEntity defender)
         {
-            if(CanStartFight(attacker))
-                Add(new ChallengerFight(m_map, m_fightId++, attacker, defender));            
+            if (CanStartFight(attacker))
+                Add(new ChallengerFight(m_map, m_fightId++, attacker, defender));
         }
 
         /// <summary>
@@ -97,16 +92,11 @@ namespace Game.Map
             return false;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="monsterGroup"></param>
         public bool StartMonsterFight(CharacterEntity character, MonsterGroupEntity monsterGroup)
         {
             if (!CanStartFight(character))
                 return false;
-            
+
             if (!character.CanGameAction(GameActionTypeEnum.FIGHT))
             {
                 character.Dispatch(WorldMessage.IM_ERROR_MESSAGE(InformationEnum.ERROR_YOU_ARE_AWAY));
@@ -116,15 +106,10 @@ namespace Game.Map
             monsterGroup.StopAction(GameActionTypeEnum.MAP_MOVEMENT);
             monsterGroup.StopAction(GameActionTypeEnum.MAP);
             Add(new MonsterFight(m_map, m_fightId++, character, monsterGroup));
-            
+
             return true;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="attacker"></param>
-        /// <param name="taxCollector"></param>
         public bool StartTaxCollectorAggression(CharacterEntity attacker, TaxCollectorEntity taxCollector)
         {
             if (!CanStartFight(attacker))
@@ -162,15 +147,9 @@ namespace Game.Map
             return true;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fightType"></param>
-        /// <param name="state"></param>
-        /// <param name="character"></param>
         public void ExecuteFightActions(FightTypeEnum fightType, FightStateEnum state, CharacterEntity character)
         {
-            foreach(var fightAction in m_fightActions.Where(faction => faction.Fight == fightType && faction.State == state))
+            foreach (var fightAction in m_fightActions.Where(faction => faction.Fight == fightType && faction.State == state))
             {
                 if (ConditionParser.Instance.Check(fightAction.Conditions, character))
                 {
@@ -182,17 +161,9 @@ namespace Game.Map
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fightId"></param>
-        /// <returns></returns>
-        public AbstractFight GetFight(long fightId) => m_fightList.ContainsKey(fightId) ? m_fightList[fightId] : null;
+        public AbstractFight GetFight(long fightId) => m_fightList.TryGetValue(fightId, out AbstractFight value) ? value : null;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fight"></param>
+
         private void Add(AbstractFight fight)
         {
             fight.Start();

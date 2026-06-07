@@ -2,9 +2,6 @@ using Protocolo.Framework.Database;
 
 namespace Game.Database.Structure
 {
-    /// <summary>
-    /// 
-    /// </summary>
     [Table("experiencetemplate")]
     public sealed class ExperienceTemplateDAO : DataAccessObject<ExperienceTemplateDAO>
     {

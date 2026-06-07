@@ -21,7 +21,7 @@ namespace Game.Quest.Impl
             }
             catch(Exception e)
             {
-                Logger.Warn("Quest::FindNpcObjective wrong parameter type, param=" + record.Parameters, e);
+                Logger.Warn("Quest::FindNpcObjective tipo de parametro incorrecto, parametro=" + record.Parameters, e);
             }
         }
 

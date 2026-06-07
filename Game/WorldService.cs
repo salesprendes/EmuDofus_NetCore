@@ -8,6 +8,7 @@ using Game.RPC;
 using Protocolo.Framework.Command;
 using Protocolo.Framework.Configuration;
 using Protocolo.Framework.Configuration.Providers;
+using Protocolo.Framework.Generic.Logging;
 using Protocolo.Framework.Network;
 using Protocolo.RPC.Protocol;
 using System;
@@ -42,6 +43,8 @@ namespace Game
             ConfigurationManager.RegisterAttributes();
             ConfigurationManager.Add(new JsonConfigurationProvider(archivo_configuracion), true);
             ConfigurationManager.Load();
+
+            LogManager.ConfigureLevels(WorldConfig.LOG_LEVEL, WorldConfig.LOG_CONSOLE_LEVEL, WorldConfig.LOG_FILE_LEVEL);
             WorldClient.DebugEnabled = WorldConfig.LOG_DEBUG;
 
             CommandManager = new CommandManager<WorldCommandContext>();
@@ -63,6 +66,7 @@ namespace Game
             NpcManager.Instance.Initialize();
             SpawnManager.Instance.Initialize();
             PaddockManager.Instance.Initialize();
+            HouseManager.Instance.Initialize();
             MapManager.Instance.Initialize();
             GuildManager.Instance.Initialize();
             EntityManager.Instance.Initialize();
@@ -150,7 +154,7 @@ namespace Game
                     }
                     catch (Exception ex)
                     {
-                        Logger.Error("WorldService::SaveWorld error: " + ex.Message);
+                        Logger.Error("WorldService::SaveWorld error al guardar el mundo: " + ex.Message);
                     }
                     finally
                     {
@@ -177,7 +181,7 @@ namespace Game
             }
             catch (Exception ex)
             {
-                Logger.Error($"WorldService::SaveWorldSync error: {ex}");
+                Logger.Error($"WorldService::SaveWorldSync error al guardar el mundo: {ex}");
             }
             finally
             {

@@ -86,7 +86,7 @@ namespace Game.Fight.AI.Bosses.Mechanics
         {
             if (!IsKralamar(kralamar) || castInfos == null || damageBeforeResistance <= 0)
             {
-                Logger.Warn("[Kralamar] OnDamageReceived ignorado: isKralamar=" + IsKralamar(kralamar) + " castInfos=" + (castInfos != null) + " dmg=" + damageBeforeResistance + " effectType=" + castInfos?.EffectType);
+                Logger.Warn("[Kralamar] OnDamageReceived ignorado: esKralamar=" + IsKralamar(kralamar) + " infoLanzamiento=" + (castInfos != null) + " danio=" + damageBeforeResistance + " tipoEfecto=" + castInfos?.EffectType);
                 return;
             }
 
@@ -96,7 +96,7 @@ namespace Game.Fight.AI.Bosses.Mechanics
                 return;
             }
 
-            Logger.Warn("[Kralamar] Golpe elemental recibido: " + element + " step=" + m_expectedStep + " spellId=" + castInfos.SpellId + " dmg=" + damageBeforeResistance);
+            Logger.Warn("[Kralamar] Golpe elemental recibido: " + element + " paso=" + m_expectedStep + " hechizoId=" + castInfos.SpellId + " danio=" + damageBeforeResistance);
 
             lock (m_sync)
             {
@@ -128,7 +128,7 @@ namespace Game.Fight.AI.Bosses.Mechanics
                 m_punishmentPending = false;
                 m_expectedStep = (m_expectedStep + 1) % SummonOrder.Length;
                 kralamar.StateManager?.ForceAddState(expected.DesireState);
-                Logger.Warn("[Kralamar] Tentaculo pendiente activado: " + expected.Name + " (spell=" + expected.SpellId + " estado=" + (int)expected.DesireState + ")");
+                Logger.Warn("[Kralamar] Tentaculo pendiente activado: " + expected.Name + " (hechizo=" + expected.SpellId + " estado=" + (int)expected.DesireState + ")");
             }
         }
 
@@ -172,7 +172,7 @@ namespace Game.Fight.AI.Bosses.Mechanics
                         SpellId = SpellVulnerabilidad,
                         TargetId = context.Fighter.Id,
                         CellId = (short)context.CurrentCellId,
-                        Reason = "Kralamar vulnerability window"
+                        Reason = "Kralamar ventana de vulnerabilidad"
                     };
                 }
             }
@@ -212,7 +212,7 @@ namespace Game.Fight.AI.Bosses.Mechanics
             var cell = new MovementEvaluator().GetBestSummonCell(context, spell);
             if (!cell.HasValue)
             {
-                Logger.Warn("[Kralamar] GetBestSummonCell no encontro celda valida para " + pendingTentacle.Name + " (spellId=" + pendingTentacle.SpellId + " minPO=" + spell.MinPO + " maxPO=" + spell.MaxPO + " InLine=" + spell.InLine + " LOS=" + spell.LOS + " EmptyCell=" + spell.EmptyCell + ")");
+                Logger.Warn("[Kralamar] GetBestSummonCell no encontro celda valida para " + pendingTentacle.Name + " (hechizoId=" + pendingTentacle.SpellId + " poMin=" + spell.MinPO + " poMax=" + spell.MaxPO + " enLinea=" + spell.InLine + " lineaVision=" + spell.LOS + " celdaVacia=" + spell.EmptyCell + ")");
                 yield break;
             }
 
@@ -223,7 +223,7 @@ namespace Game.Fight.AI.Bosses.Mechanics
                 Score = 1000,
                 SpellId = pendingTentacle.SpellId,
                 CellId = (short)cell.Value,
-                Reason = "Kralamar summons " + pendingTentacle.Name + " tentacle"
+                Reason = "Kralamar invoca tentaculo " + pendingTentacle.Name
             };
         }
 
@@ -278,7 +278,7 @@ namespace Game.Fight.AI.Bosses.Mechanics
                 SpellId = SpellSkupehagua,
                 TargetId = target.Id,
                 CellId = (short)target.Cell.Id,
-                Reason = "Skupehagua - water damage and MP pressure"
+                Reason = "Skupehagua - danio de agua y presion de PM"
             };
         }
 

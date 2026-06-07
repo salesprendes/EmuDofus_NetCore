@@ -1,6 +1,7 @@
 ﻿using Protocolo.Framework.Configuration;
 using Protocolo.Framework.Configuration.Providers;
 using Protocolo.Framework.Network;
+using Protocolo.Framework.Generic.Logging;
 using Protocolo.RPC.Protocol;
 using Login.Database;
 using Login.Database.Repository;
@@ -51,6 +52,15 @@ namespace Login
         [Configurable("LogDebugEnabled")]
         public static bool LogDebugEnabled = true;
 
+        [Configurable("LogLevel")]
+        public static string LogLevel = "Info";
+
+        [Configurable("LogConsoleLevel")]
+        public static string LogConsoleLevel = "";
+
+        [Configurable("LogFileLevel")]
+        public static string LogFileLevel = "";
+
         public ConfigurationManager ConfigurationManager
         {
             get;
@@ -72,6 +82,7 @@ namespace Login
             ConfigurationManager.RegisterAttributes();
             ConfigurationManager.Add(new JsonConfigurationProvider(configPath), true);
             ConfigurationManager.Load();
+            LogManager.ConfigureLevels(AuthService.LogLevel, AuthService.LogConsoleLevel, AuthService.LogFileLevel);
             AuthClient.DebugEnabled = AuthService.LogDebugEnabled;
             AuthDbMgr.Instance.Initialize();
             AuthRPCService.Instance.Start();

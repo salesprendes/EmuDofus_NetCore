@@ -12,9 +12,9 @@ namespace Game.Fight.AI.Profiles
         {
             var move = new MovementEvaluator().GetBestCellNearEnemy(context);
             if (move.HasValue)
-                yield return AIDecision.Move(move.Value, 30, AIDecisionPriority.Low, "Passive blocking movement");
+                yield return AIDecision.Move(move.Value, 30, AIDecisionPriority.Low, "Movimiento pasivo de bloqueo");
 
-            yield return AIDecision.EndTurn("Passive profile");
+            yield return AIDecision.EndTurn("Perfil pasivo");
         }
     }
 }

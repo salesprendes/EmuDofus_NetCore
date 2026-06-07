@@ -4,15 +4,9 @@ namespace Game.Command
 {
     public sealed class SizeCommand : WorldStaffCommand
     {
-        private readonly string[] _aliases =
-        {
-            "tamano", "size"
-        };
-
+        private readonly string[] _aliases = { "tamano", "size" };
         public override string[] Aliases => _aliases;
-
         public override string Description => "Cambia el tamano visual de tu personaje. Uso: %size%";
-
         protected override StaffRole RequiredRole => StaffRole.GameMaster;
 
         protected override void Process(WorldCommandContext context)

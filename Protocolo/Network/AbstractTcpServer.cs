@@ -9,12 +9,7 @@ using System.Net.Sockets;
 
 namespace Protocolo.Framework.Network
 {
-    /// <summary>
-    /// Base async TCP server used by Login, Game and RPC.
-    /// </summary>
-    public abstract class AbstractTcpServer<TServer, TClient> : TaskProcessor<TServer>, IServer<TClient>
-        where TServer : AbstractTcpServer<TServer, TClient>, new()
-        where TClient : AbstractTcpClient<TClient>, new()
+    public abstract class AbstractTcpServer<TServer, TClient> : TaskProcessor<TServer>, IServer<TClient> where TServer : AbstractTcpServer<TServer, TClient>, new() where TClient : AbstractTcpClient<TClient>, new()
     {
         public const int MAX_CLIENT = 10000;
 
@@ -325,7 +320,7 @@ namespace Protocolo.Framework.Network
             }
             catch (Exception ex)
             {
-                Logger.Warn("Fallo en el handler de recepcion del socket para " + client.Ip + " : " + ex.Message);
+                Logger.Warn("Fallo en el manejador de recepcion del socket para " + client.Ip + " : " + ex.Message);
                 Disconnect(saea);
                 return;
             }

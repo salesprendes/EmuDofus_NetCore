@@ -21,7 +21,7 @@ namespace Game.Fight.AI.Evaluation
                 {
                     var fleeCell = GetBestCellAwayFromEnemies(context);
                     if (fleeCell.HasValue)
-                        yield return AIDecision.Move(fleeCell.Value, 120, AIDecisionPriority.Low, "Melee flee — low HP");
+                        yield return AIDecision.Move(fleeCell.Value, 120, AIDecisionPriority.Low, "Huida cuerpo a cuerpo - vida baja");
                     yield break;
                 }
 
@@ -30,7 +30,7 @@ namespace Game.Fight.AI.Evaluation
                     var forcedCell = GetBestCellForMaxApproach(context);
                     if (forcedCell.HasValue)
                     {
-                        yield return AIDecision.Move(forcedCell.Value, 120, AIDecisionPriority.Low, "Force approach vs ranged enemy");
+                        yield return AIDecision.Move(forcedCell.Value, 120, AIDecisionPriority.Low, "Forzar acercamiento contra enemigo a distancia");
                         yield break;
                     }
                 }
@@ -38,23 +38,23 @@ namespace Game.Fight.AI.Evaluation
                 var meleeAttackCell = GetBestCellForAggressiveApproach(context);
                 if (meleeAttackCell.HasValue)
                 {
-                    yield return AIDecision.Move(meleeAttackCell.Value, 100, AIDecisionPriority.Low, "Melee approach to attack");
+                    yield return AIDecision.Move(meleeAttackCell.Value, 100, AIDecisionPriority.Low, "Acercamiento cuerpo a cuerpo para atacar");
                     yield break;
                 }
 
                 var meleeNearCell = GetBestCellNearEnemy(context);
                 if (meleeNearCell.HasValue)
-                    yield return AIDecision.Move(meleeNearCell.Value, 60, AIDecisionPriority.Low, "Close in for melee");
+                    yield return AIDecision.Move(meleeNearCell.Value, 60, AIDecisionPriority.Low, "Acercarse para cuerpo a cuerpo");
             }
             else
             {
                 var attackCell = GetBestCellForDistanceAttack(context);
                 if (attackCell.HasValue)
-                    yield return AIDecision.Move(attackCell.Value, 100, AIDecisionPriority.Low, "Move to cast a spell");
+                    yield return AIDecision.Move(attackCell.Value, 100, AIDecisionPriority.Low, "Moverse para lanzar hechizo");
 
                 var nearCell = GetBestCellNearEnemy(context);
                 if (nearCell.HasValue)
-                    yield return AIDecision.Move(nearCell.Value, 60, AIDecisionPriority.Low, "Move closer to target");
+                    yield return AIDecision.Move(nearCell.Value, 60, AIDecisionPriority.Low, "Acercarse al objetivo");
             }
         }
 

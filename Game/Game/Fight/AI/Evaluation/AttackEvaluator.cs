@@ -53,7 +53,7 @@ namespace Game.Fight.AI.Evaluation
                             SpellId = spell.SpellId,
                             TargetId = enemy.Id,
                             CellId = (short)targetCellId,
-                            Reason = killScore > 0 ? "Killing blow" : "Damage spell"
+                            Reason = killScore > 0 ? "Golpe mortal" : "Hechizo de danio"
                         };
 
                         continue; // ya cubierto por el pase 1
@@ -110,7 +110,7 @@ namespace Game.Fight.AI.Evaluation
                             SpellId = spell.SpellId,
                             TargetId = enemy.Id,
                             CellId = (short)targetCellId,
-                            Reason = killScore > 0 ? "Killing blow after move" : "Attack after movement"
+                            Reason = killScore > 0 ? "Golpe mortal tras movimiento" : "Ataque tras movimiento"
                         };
                     }
                 }

@@ -4,6 +4,7 @@ namespace Protocolo.Framework.Generic.Logging
 {
     public interface ILogger
     {
+        bool IsEnabled(LogLevel level);
         void Debug(object message);
         void Info(object message);
         void Warn(object message, Exception exception = null);

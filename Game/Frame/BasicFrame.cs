@@ -227,12 +227,12 @@ namespace Game.Frame
             var command = message.Substring(2);
 
             character.AddMessage(() =>
-                {
-                    if (!WorldService.Instance.CommandManager.Execute(new WorldCommandContext(character, command)))
-                        character.Dispatch(WorldMessage.BASIC_CONSOLE_MESSAGE("Comando no reconocido. Escribe help para ver la lista."));
-                    else
-                        Logger.Info("[COMANDO CONSOLA] nombre=" + character.Name + " ip=" + character.Ip + " comando=" + command);
-                });
+            {
+                if (!WorldService.Instance.CommandManager.Execute(new WorldCommandContext(character, command)))
+                    character.Dispatch(WorldMessage.BASIC_CONSOLE_MESSAGE("Comando no reconocido. Escribe help para ver la lista."));
+                else
+                    Logger.Info("[COMANDO CONSOLA] nombre=" + character.Name + " ip=" + character.Ip + " comando=" + command);
+            });
         }
 
         /// <summary>

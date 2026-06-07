@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Protocolo.Framework.Generic.Logging;
 using Protocolo.Framework.Network;
+using System;
+using System.Collections.Generic;
 
 namespace Protocolo.RPC.Service
 {
-    public abstract class AbstractRpcService<TServer, TClient, TMessageBuilder> : AbstractTcpServer<TServer, TClient>
-        where TServer : AbstractRpcService<TServer, TClient, TMessageBuilder>, new()
-        where TClient : AbstractRpcClient<TClient>, new()
-        where TMessageBuilder : RpcMessageBuilder, new ()
+    public abstract class AbstractRpcService<TServer, TClient, TMessageBuilder> : AbstractTcpServer<TServer, TClient> where TServer : AbstractRpcService<TServer, TClient, TMessageBuilder>, new() where TClient : AbstractRpcClient<TClient>, new() where TMessageBuilder : RpcMessageBuilder, new()
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public RpcMessageBuilder MessageBuilder
         {
             get;
@@ -29,7 +24,7 @@ namespace Protocolo.RPC.Service
         public void RegisterHandler(int messageId, Action<TClient, AbstractRcpMessage> handler)
         {
             if (m_handlers.ContainsKey(messageId))
-                throw new InvalidOperationException(string.Format("RPCService::RegisterHandler ya tiene un handler registrado para messageId = {0}", messageId));
+                throw new InvalidOperationException(string.Format("RPCService::RegisterHandler ya tiene un manejador registrado para mensajeId={0}", messageId));
             else
                 m_handlers.Add(messageId, handler);
         }
@@ -38,7 +33,7 @@ namespace Protocolo.RPC.Service
         {
             if (!m_handlers.TryGetValue(message.Id, out var handler))
             {
-                Logger.Debug(string.Format("RPCService::HandleMessage handler no registrado para messageId={0}", message.Id));
+                Logger.Debug(string.Format("RPCService::HandleMessage manejador no registrado para mensajeId={0}", message.Id));
             }
             else
                 AddMessage(() => handler(client, message));
@@ -47,16 +42,10 @@ namespace Protocolo.RPC.Service
         protected override void OnClientConnected(TClient client)
         {
             client.MessageBuilder = MessageBuilder;
-
-            // execute in thread context
             AddMessage(() => OnRPCClientConnected(client));
         }
 
-        protected override void OnClientDisconnected(TClient client)
-        {
-            // execute in thread context
-            AddMessage(() => OnRPCClientDisconnected(client));
-        }
+        protected override void OnClientDisconnected(TClient client) => AddMessage(() => OnRPCClientDisconnected(client));
 
         protected override void OnDataReceived(TClient client, byte[] buffer, int offset, int count)
         {

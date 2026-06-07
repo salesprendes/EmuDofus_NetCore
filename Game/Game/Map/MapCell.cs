@@ -8,10 +8,10 @@ namespace Game.Map
     public sealed class MapCell
     {
         public int Id;
-
         public bool Walkable { get; }
-
         public bool LineOfSight;
+        public short LayerObject1Num { get; }
+        public short LayerObject2Num { get; }
 
         public InteractiveObject InteractiveObject
         {
@@ -31,9 +31,12 @@ namespace Game.Map
             bool walkable = ((data[2] & 56) >> 3) > 0;
             LineOfSight = (data[0] & 1) == 1;
 
+            LayerObject1Num = (short)(((data[0] & 4) << 11) + ((data[4] & 1) << 12) + (data[5] << 6) + data[6]);
+            LayerObject2Num = (short)(((data[0] & 2) << 12) + ((data[7] & 1) << 12) + (data[8] << 6) + data[9]);
+
             if ((data[7] & 2) >> 1 == 1)
             {
-                int interactiveObjectId = ((data[0] & 2) << 12) + ((data[7] & 1) << 12) + (data[8] << 6) + data[9];
+                int interactiveObjectId = LayerObject2Num;
                 if (InteractiveObjectManager.Instance.Exists(interactiveObjectId))
                 {
                     InteractiveObject = InteractiveObjectManager.Instance.Generate(interactiveObjectId, map, Id);

@@ -180,7 +180,7 @@ namespace Game.Frame
             {
                 if (!character.HasGameAction(GameActionTypeEnum.EXCHANGE))
                 {
-                    Logger.Debug("ExchangeFrame::Leave entity is not in an exchange : " + character.Name);
+                    Logger.Debug("ExchangeFrame::Leave la entidad no esta en un intercambio: " + character.Name);
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
@@ -231,7 +231,7 @@ namespace Game.Frame
             {
                 if (!character.HasGameAction(GameActionTypeEnum.EXCHANGE))
                 {
-                    Logger.Debug("ExchangeFrame::Leave entity is not in an exchange : " + character.Name);
+                    Logger.Debug("ExchangeFrame::Leave la entidad no esta en un intercambio: " + character.Name);
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
@@ -265,7 +265,7 @@ namespace Game.Frame
             {
                 if (!character.HasGameAction(GameActionTypeEnum.EXCHANGE))
                 {
-                    Logger.Debug("ExchangeFrame::Leave entity is not in an exchange : " + character.Name);
+                    Logger.Debug("ExchangeFrame::Leave la entidad no esta en un intercambio: " + character.Name);
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
@@ -299,7 +299,7 @@ namespace Game.Frame
                 {
                     if (!character.HasGameAction(GameActionTypeEnum.EXCHANGE))
                     {
-                        Logger.Debug("ExchangeFrame::Leave entity is not in an exchange, cheat ? : " + character.Name);
+                        Logger.Debug("ExchangeFrame::Leave la entidad no esta en un intercambio, posible trampa: " + character.Name);
                         character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                         return;
                     }
@@ -362,7 +362,7 @@ namespace Game.Frame
                 if (distantEntity == null)
                 {
                     var entityIds = string.Join(", ", character.Map.Entities.Select(e => e.Id + "(" + e.Type + ")"));
-                    Logger.Debug("ExchangeFrame::Request entidad desconocida " + exchangeActorId + " map=" + character.Map.Id + " entities=[" + entityIds + "] jugador=" + character.Name);
+                    Logger.Debug("ExchangeFrame::Request entidad desconocida " + exchangeActorId + " mapa=" + character.Map.Id + " entidades=[" + entityIds + "] jugador=" + character.Name);
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
@@ -442,7 +442,7 @@ namespace Game.Frame
             {
                 if (!character.HasGameAction(GameActionTypeEnum.EXCHANGE))
                 {
-                    Logger.Debug("ExchangeFrame:Accept entity not in an exchange request : " + character.Name);
+                    Logger.Debug("ExchangeFrame::Accept la entidad no tiene solicitud de intercambio: " + character.Name);
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
@@ -450,7 +450,7 @@ namespace Game.Frame
                 var action = character.CurrentAction;
                 if (!(action is GamePlayerExchangeAction))
                 {
-                    Logger.Debug("ExchangeFrame::Accept entity is not in a player exchange : " + character.Name);
+                    Logger.Debug("ExchangeFrame::Accept la entidad no esta en un intercambio entre jugadores: " + character.Name);
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
@@ -458,7 +458,7 @@ namespace Game.Frame
                 var playerExchangeAction = (GamePlayerExchangeAction)action;
                 if (character.Id != playerExchangeAction.DistantEntity.Id)
                 {
-                    Logger.Debug("ExchangeFrame::Accept player cannot accept an exchange is he is the one who requested it : " + character.Name);
+                    Logger.Debug("ExchangeFrame::Accept el jugador no puede aceptar un intercambio que el mismo solicito: " + character.Name);
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
@@ -478,7 +478,7 @@ namespace Game.Frame
             {
                 if (!character.HasGameAction(GameActionTypeEnum.EXCHANGE))
                 {
-                    Logger.Debug("ExchangeFrame::Leave entity is not in an exchange : " + character.Name);
+                    Logger.Debug("ExchangeFrame::Leave la entidad no esta en un intercambio: " + character.Name);
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
@@ -498,7 +498,7 @@ namespace Game.Frame
                 {
                     if (!character.HasGameAction(GameActionTypeEnum.EXCHANGE))
                     {
-                        Logger.Debug("ExchangeFrame::Validate entity is not in a exchange : " + character.Name);
+                        Logger.Debug("ExchangeFrame::Validate la entidad no esta en un intercambio: " + character.Name);
                         character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                         return;
                     }
@@ -559,7 +559,7 @@ namespace Game.Frame
             {
                 if (!character.HasGameAction(GameActionTypeEnum.EXCHANGE))
                 {
-                    Logger.Debug("ExchangeFrame::Sell entity is not in an exchange : " + character.Name);
+                    Logger.Debug("ExchangeFrame::Sell la entidad no esta en un intercambio: " + character.Name);
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
@@ -613,7 +613,7 @@ namespace Game.Frame
             {
                 if (!character.HasGameAction(GameActionTypeEnum.EXCHANGE))
                 {
-                    Logger.Debug("ExchangeFrame::Buy entity not in an exchange : " + character.Name);
+                    Logger.Debug("ExchangeFrame::Buy la entidad no esta en un intercambio: " + character.Name);
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
@@ -646,7 +646,7 @@ namespace Game.Frame
             {
                 if (!character.HasGameAction(GameActionTypeEnum.EXCHANGE))
                 {
-                    Logger.Debug("ExchangeFrame::MoveGold entity not in an exchange : " + character.Name);
+                    Logger.Debug("ExchangeFrame::MoveGold la entidad no esta en un intercambio: " + character.Name);
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
@@ -709,7 +709,7 @@ namespace Game.Frame
             {
                 if (!character.HasGameAction(GameActionTypeEnum.EXCHANGE))
                 {
-                    Logger.Debug("ExchangeFrame::MoveObject entity not in an exchange : " + character.Name);     
+                    Logger.Debug("ExchangeFrame::MoveObject la entidad no esta en un intercambio: " + character.Name);     
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
@@ -740,7 +740,7 @@ namespace Game.Frame
             {
                 if (!character.HasGameAction(GameActionTypeEnum.EXCHANGE))
                 {
-                    Logger.Debug("ExchangeFrame::MoveObject entity not in an exchange : " + character.Name);
+                    Logger.Debug("ExchangeFrame::MoveObject la entidad no esta en un intercambio: " + character.Name);
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
@@ -768,7 +768,7 @@ namespace Game.Frame
             {
                 if (!character.HasGameAction(GameActionTypeEnum.EXCHANGE))
                 {
-                    Logger.Debug("ExchangeFrame::MoveObject entity not in an exchange : " + character.Name);
+                    Logger.Debug("ExchangeFrame::MoveObject la entidad no esta en un intercambio: " + character.Name);
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
@@ -786,5 +786,3 @@ namespace Game.Frame
         }
     }
 }
-
-

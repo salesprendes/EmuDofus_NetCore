@@ -125,6 +125,7 @@ namespace Game.Database.Structure
             {
                 if (m_template == null) 
                     m_template = JobManager.Instance.GetById(JobId);
+
                 return m_template;
             }
         }

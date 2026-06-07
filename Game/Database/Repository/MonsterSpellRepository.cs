@@ -41,7 +41,7 @@ namespace Game.Database.Repository
             var key = MakeKey(monsterId, gradeId);
             if (m_spellsByKey.TryGetValue(key, out var list))
                 return list;
-            Logger.Info($"[MonsterSpell] MonsterId={monsterId} GradeId={gradeId} no tiene hechizos en la tabla monstruos_hechizos.");
+            Logger.Info($"[MonsterSpell] monstruoId={monsterId} gradoId={gradeId} no tiene hechizos en la tabla monstruos_hechizos.");
             return Enumerable.Empty<MonsterSpellDAO>();
         }
     }

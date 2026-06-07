@@ -41,7 +41,7 @@ namespace Game.Fight.AI.Actions
         public virtual AIActionResult Execute(AIContext context)
         {
             if (!CanExecute(context))
-                return AIActionResult.Fail("Spell no longer castable");
+                return AIActionResult.Fail("El hechizo ya no se puede lanzar");
 
             var targetCell = GetTargetCell(context);
             context.Fight.TryLaunchSpell(context.Fighter, Decision.SpellId.Value, targetCell, LaunchDelayMs);

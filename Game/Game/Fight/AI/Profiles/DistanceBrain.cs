@@ -37,17 +37,17 @@ namespace Game.Fight.AI.Profiles
                 {
                     var awayCell = movement.GetBestCellAwayFromEnemies(context);
                     if (awayCell.HasValue)
-                        yield return AIDecision.Move(awayCell.Value, 180, AIDecisionPriority.High, "Keep distance");
+                        yield return AIDecision.Move(awayCell.Value, 180, AIDecisionPriority.High, "Mantener distancia");
                 }
 
                 var preferredCell = movement.GetBestCellForPreferredDistance(context, nearest, PreferredMinDistance, PreferredMaxDistance);
                 if (preferredCell.HasValue)
-                    yield return AIDecision.Move(preferredCell.Value, 100, AIDecisionPriority.Low, "Preferred ranged distance");
+                    yield return AIDecision.Move(preferredCell.Value, 100, AIDecisionPriority.Low, "Distancia de ataque preferida");
             }
 
             var castCell = movement.GetBestCellForDistanceAttack(context);
             if (castCell.HasValue)
-                yield return AIDecision.Move(castCell.Value, 130, AIDecisionPriority.Normal, "Ranged casting cell");
+                yield return AIDecision.Move(castCell.Value, 130, AIDecisionPriority.Normal, "Celda de lanzamiento a distancia");
         }
     }
 }

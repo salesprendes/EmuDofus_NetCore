@@ -7,16 +7,9 @@ namespace Game.Manager
 {
     public sealed class MapManager : Singleton<MapManager>
     {
-        // All base map instances, keyed by map ID
         private readonly Dictionary<int, MapInstance> m_mapById;
-
-        // O(1) coordinate lookup — built once in Initialize(), never mutated after
         private readonly Dictionary<long, MapInstance> m_mapByCoord;
-
-        // Per-player creation pools: each player gets their own isolated sub-instance
         private readonly Dictionary<int, ObjectPool<MapInstance>> m_creationPools;
-
-        // Balanced fixed instances: N pre-created copies, player routed to least populated
         private readonly Dictionary<int, List<MapInstance>> m_balancedInstances;
         private readonly HashSet<int> m_balancedIds;
 

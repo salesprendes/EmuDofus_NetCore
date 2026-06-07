@@ -33,7 +33,7 @@ namespace Game.Fight.AI.Bosses
                 {
                     var away = movement.GetBestCellAwayFromEnemies(context);
                     if (away.HasValue)
-                        yield return AIDecision.Move(away.Value, 140, AIDecisionPriority.High, "Royal Blop keeps mid range");
+                        yield return AIDecision.Move(away.Value, 140, AIDecisionPriority.High, "Blop Real mantiene distancia media");
                 }
             }
         }

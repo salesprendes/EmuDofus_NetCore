@@ -19,7 +19,7 @@ namespace Game.Fight.AI.TaxCollectors
         {
             if (!HasUsableContext(context))
             {
-                yield return AIDecision.EndTurn("TaxCollector invalid context");
+                yield return AIDecision.EndTurn("Recaudador contexto invalido");
                 yield break;
             }
 
@@ -28,13 +28,13 @@ namespace Game.Fight.AI.TaxCollectors
 
             if (m_lastMode == TaxCollectorDefenseMode.CannotAct)
             {
-                yield return AIDecision.EndTurn("TaxCollector cannot act");
+                yield return AIDecision.EndTurn("Recaudador no puede actuar");
                 yield break;
             }
 
             if (context.Enemies == null || context.Enemies.Count == 0)
             {
-                yield return AIDecision.EndTurn("TaxCollector has no attackers");
+                yield return AIDecision.EndTurn("Recaudador no tiene atacantes");
                 yield break;
             }
 
@@ -45,7 +45,7 @@ namespace Game.Fight.AI.TaxCollectors
 
             if (decisions.Count == 0)
             {
-                yield return AIDecision.EndTurn("TaxCollector no useful action");
+                yield return AIDecision.EndTurn("Recaudador sin accion util");
                 yield break;
             }
 
@@ -55,7 +55,7 @@ namespace Game.Fight.AI.TaxCollectors
 
         protected override IEnumerable<AIDecision> GetFallbackDecisions(AIContext context)
         {
-            yield return AIDecision.EndTurn("TaxCollector fallback end turn");
+            yield return AIDecision.EndTurn("Recaudador fin de turno de respaldo");
         }
 
         protected override void LogDecision(AIContext context, AIDecision decision)
@@ -63,14 +63,14 @@ namespace Game.Fight.AI.TaxCollectors
             if (!WorldConfig.LOG_DEBUG || decision == null)
                 return;
 
-            Logger.Debug("[AI][TaxCollector] Fighter=" + (Fighter?.Id ?? 0)
-                + " Mode=" + m_lastMode
+            Logger.Debug("[IA][Recaudador] Luchador=" + (Fighter?.Id ?? 0)
+                + " Modo=" + m_lastMode
                 + " Decision=" + decision.Type
-                + " Priority=" + decision.Priority
-                + " Score=" + decision.Score
-                + " Spell=" + (decision.SpellId?.ToString() ?? "-")
-                + " Target=" + (decision.TargetId?.ToString() ?? "-")
-                + " Reason=" + decision.Reason);
+                + " Prioridad=" + decision.Priority
+                + " Puntuacion=" + decision.Score
+                + " Hechizo=" + (decision.SpellId?.ToString() ?? "-")
+                + " Objetivo=" + (decision.TargetId?.ToString() ?? "-")
+                + " Motivo=" + decision.Reason);
         }
 
         private static TaxCollectorDefenseMode CalculateDefenseMode(AIContext context)

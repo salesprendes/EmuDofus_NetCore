@@ -39,7 +39,7 @@ namespace Game.Fight
        /// <param name="aggressor"></param>
        /// <param name="victim"></param>
         public AlignmentFight(MapInstance map, long id, AbstractFighter aggressor, CharacterEntity victim)
-            : base(FightTypeEnum.TYPE_AGGRESSION, map, id, aggressor.Id, aggressor.AlignmentId, aggressor.CellId, victim.Id, victim.AlignmentId, victim.CellId, WorldConfig.AGGRESSION_START_TIMEOUT, WorldConfig.AGGRESSION_TURN_TIME, false, true, new HonorGainBehavior())
+            : base(FightTypeEnum.TYPE_AGGRESSION, map, id, aggressor.Id, aggressor.AlignmentId, aggressor.CellId, victim.Id, victim.AlignmentId, victim.CellId, 60000, 30000, false, true, new HonorGainBehavior())
         {
             IsNeutralAgression = victim.AlignmentId == (int)ConquestManager.AlignmentTypeEnum.ALIGNMENT_NEUTRAL;
 
@@ -55,7 +55,7 @@ namespace Game.Fight
         /// <param name="monsters"></param>
         /// <param name="victim"></param>
         public AlignmentFight(MapInstance map, long id, MonsterGroupEntity monsters, CharacterEntity victim)
-            : base(FightTypeEnum.TYPE_AGGRESSION, map, id, monsters.Id, monsters.AlignmentId, monsters.CellId, victim.Id, victim.AlignmentId, victim.CellId, WorldConfig.AGGRESSION_START_TIMEOUT, WorldConfig.AGGRESSION_TURN_TIME, false, true)
+            : base(FightTypeEnum.TYPE_AGGRESSION, map, id, monsters.Id, monsters.AlignmentId, monsters.CellId, victim.Id, victim.AlignmentId, victim.CellId, 60000, 30000, false, true)
         {
             IsNeutralAgression = victim.AlignmentId == (int)ConquestManager.AlignmentTypeEnum.ALIGNMENT_NEUTRAL;
             Monsters = monsters;

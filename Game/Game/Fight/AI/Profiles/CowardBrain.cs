@@ -16,7 +16,7 @@ namespace Game.Fight.AI.Profiles
             var movement = new MovementEvaluator();
             var awayCell = movement.GetBestCellAwayFromEnemies(context);
             if (awayCell.HasValue)
-                yield return AIDecision.Move(awayCell.Value, 220, AIDecisionPriority.High, "Coward escape");
+                yield return AIDecision.Move(awayCell.Value, 220, AIDecisionPriority.High, "Huida cobarde");
 
             foreach (var decision in new AttackEvaluator().Evaluate(context))
             {
@@ -27,7 +27,7 @@ namespace Game.Fight.AI.Profiles
                 }
             }
 
-            yield return AIDecision.EndTurn("No safe coward action");
+            yield return AIDecision.EndTurn("Cobarde sin accion segura");
         }
     }
 }

@@ -75,7 +75,7 @@ namespace Game.Frame
                 {
                     if (!character.IsLeader)
                     {
-                        Logger.Debug("GameFight::Option non leader player wants to lock : " + character.Name);
+                        Logger.Debug("GameFight::Option un jugador que no es lider ha intentado bloquear opciones: " + character.Name);
                         character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                         return;
                     }
@@ -104,14 +104,14 @@ namespace Game.Frame
                 // silently flipping TurnReady during placement or end states.
                 if (character.Fight.State != FightStateEnum.STATE_FIGHTING)
                 {
-                    Logger.Debug("GameFight::TurnReady not in fighting phase : " + character.Name);
+                    Logger.Debug("GameFight::TurnReady el combate no esta en fase de lucha: " + character.Name);
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
 
                 if (character.IsSpectating)
                 {
-                    Logger.Debug("GameFight::TurnReady spectator player cant be ready : " + character.Name);
+                    Logger.Debug("GameFight::TurnReady un espectador no puede marcarse listo: " + character.Name);
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
@@ -137,14 +137,14 @@ namespace Game.Frame
 
                 if (character.IsSpectating)
                 {
-                    Logger.Debug("GameFight::TurnPass spectator player cant pass turn : " + character.Name);
+                    Logger.Debug("GameFight::TurnPass un espectador no puede pasar turno: " + character.Name);
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
 
                 if (character.Fight.CurrentFighter != character)
                 {
-                    Logger.Debug("GameFight::TurnPass not the turn of this player : " + character.Name);
+                    Logger.Debug("GameFight::TurnPass no es el turno de este jugador: " + character.Name);
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
@@ -196,7 +196,7 @@ namespace Game.Frame
 
                 if (!character.IsFighterDead)
                 {
-                    Logger.Debug("FightFrame::FreeMySoul character is not dead : " + character.Name);
+                    Logger.Debug("FightFrame::FreeMySoul el personaje no esta muerto: " + character.Name);
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
@@ -255,6 +255,5 @@ namespace Game.Frame
         }
     }
 }
-
 
 

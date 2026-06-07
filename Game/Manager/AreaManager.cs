@@ -6,18 +6,12 @@ using System.Threading;
 
 namespace Game.Manager
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class AreaManager : Singleton<AreaManager>
     {
         private readonly Dictionary<int, SuperAreaInstance> m_superAreaById;
         private readonly Dictionary<int, AreaInstance> m_areaById;
         private readonly Dictionary<int, SubAreaInstance> m_subAreaById;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public IEnumerable<SuperAreaInstance> SuperAreas => m_superAreaById.Values;
 
         /// <summary>

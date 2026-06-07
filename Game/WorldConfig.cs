@@ -158,17 +158,11 @@ namespace Game
         [Configurable()]
         public static int CHARACTER_CREATION_LEVEL = 1;
 
-
         [Configurable()]
         public static int CHARACTER_CREATION_LIFE = 55;
 
         [Configurable()]
         public static int CHARACTER_CREATION_EMOTE_CAPACITY = 1376255;
-
-        [Configurable()]
-        public static double REGEN_TIMER_SIT = 300;
-        [Configurable()]
-        public static double REGEN_TIMER = 1500;
 
 
 
@@ -195,20 +189,7 @@ namespace Game
         public static double RATE_KAMAS = 2;
 
         [Configurable()]
-        public static int PVP_START_TIMEOUT = 60000;
-        [Configurable()]
-        public static int PVP_TURN_TIME = 30000;
-
-        [Configurable()]
-        public static int AGGRESSION_START_TIMEOUT = 60000;
-        [Configurable()]
-        public static int AGGRESSION_TURN_TIME = 30000;
-
-        [Configurable()]
         public static double TAXCOLLECTOR_XP_RATIO = 0.05;
-
-        [Configurable()]
-        public static int PRISM_HONOR_GAIN_INTERVAL = 10 * 60 * 1000; // 10 minutes
 
 
         public static int FIGHT_DISCONNECTION_TURN = 20;
@@ -236,6 +217,15 @@ namespace Game
 
         [Configurable("LogDebug")]
         public static bool LOG_DEBUG = true;
+
+        [Configurable("LogLevel")]
+        public static string LOG_LEVEL = "Info";
+
+        [Configurable("LogConsoleLevel")]
+        public static string LOG_CONSOLE_LEVEL = "";
+
+        [Configurable("LogFileLevel")]
+        public static string LOG_FILE_LEVEL = "";
     }
 }
 

@@ -95,7 +95,7 @@ namespace Game.Fight.AI.Dopeuls
                 var preferredCell = movement.GetBestCellForPreferredDistance(
                     context, target, PreferredMinDistance, PreferredMaxDistance);
                 if (preferredCell.HasValue)
-                    yield return AIDecision.Move(preferredCell.Value, 100, AIDecisionPriority.Low, "Xelor preferred distance");
+                    yield return AIDecision.Move(preferredCell.Value, 100, AIDecisionPriority.Low, "Xelor distancia preferida");
             }
         }
     }

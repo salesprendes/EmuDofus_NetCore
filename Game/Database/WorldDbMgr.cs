@@ -22,6 +22,7 @@ namespace Game.Database
             AddRepository(GuildRepository.Instance);
             AddRepository(TaxCollectorRepository.Instance);
             AddRepository(PaddockRepository.Instance);
+            AddRepository(HouseRepository.Instance);
             AddRepository(MountTemplateRepository.Instance);
             AddRepository(MountRepository.Instance);
             AddRepository(CharacterGuildRepository.Instance);

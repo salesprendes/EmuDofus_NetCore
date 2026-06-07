@@ -1,22 +1,15 @@
 ﻿using ProtoBuf;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.Spell
 {
-    /// <summary>
-    /// 
-    /// </summary>
     [ProtoContract(ImplicitFields = ImplicitFields.AllFields)]
     [Serializable]
     public sealed class SpellTemplate
     {
         public int Id;
         public string Name;
-        public string Description;
         public int Sprite;
         public string SpriteInfos;
         public string Conditions;
@@ -32,6 +25,7 @@ namespace Game.Spell
         {
             if (Levels.Count < level)
                 return null;
+
             return Levels[level - 1];
         }
     }

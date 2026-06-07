@@ -60,7 +60,7 @@ namespace Game.Fight.AI.Dopeuls
             var movement = new MovementEvaluator();
             var nearCell = movement.GetBestCellNearEnemy(context);
             if (nearCell.HasValue)
-                yield return AIDecision.Move(nearCell.Value, 120, AIDecisionPriority.Low, "Sacrieur closing in");
+                yield return AIDecision.Move(nearCell.Value, 120, AIDecisionPriority.Low, "Sacrogrito se acerca");
         }
     }
 }

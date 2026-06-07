@@ -1,10 +1,5 @@
 using Protocolo.Framework.Database;
-using Game.Database.Repository;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.Database.Structure
 {
@@ -65,7 +60,7 @@ namespace Game.Database.Structure
         {
             get => _expireDate;
             set => SetProperty(ref _expireDate, value);
-        }        
+        }
     }
 }
 

@@ -22,7 +22,7 @@ namespace Game.Fight.AI.Actions
         public AIActionResult Execute(AIContext context)
         {
             if (context?.Fighter == null)
-                return AIActionResult.Fail("No fighter to end turn");
+                return AIActionResult.Fail("No hay luchador para terminar el turno");
 
             context.Fighter.TurnPass = true;
             return AIActionResult.EndTurn(m_decision?.Reason ?? "End turn");

@@ -5,9 +5,6 @@ using System.Text;
 
 namespace Protocolo.Framework.IO
 {
-    /// <summary>
-    /// Small binary buffer optimized for append/read workflows used by the socket stack.
-    /// </summary>
     public class BinaryQueue
     {
         private const int DefaultCapacity = 256;

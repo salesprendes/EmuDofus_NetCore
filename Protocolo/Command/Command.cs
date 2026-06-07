@@ -9,53 +9,26 @@ namespace Protocolo.Framework.Command
     public abstract class Command<C> where C : CommandContext
     {
         private readonly List<SubCommand<C>> m_subCommands = new List<SubCommand<C>>();
-
         public abstract string[] Aliases { get; }
-
         public abstract string Description { get; }
-
         public IReadOnlyList<SubCommand<C>> SubCommands => m_subCommands;
-
         public string PrimaryAlias => Aliases.FirstOrDefault() ?? GetType().Name;
 
-        internal bool MatchesAlias(string alias)
-        {
-            return !string.IsNullOrEmpty(alias) &&
-                   Aliases.Any(commandAlias => string.Equals(commandAlias, alias, StringComparison.OrdinalIgnoreCase));
-        }
+        internal bool MatchesAlias(string alias) => !string.IsNullOrEmpty(alias) && Aliases.Any(commandAlias => string.Equals(commandAlias, alias, StringComparison.OrdinalIgnoreCase));
+        protected virtual bool CanExecute(C context) => true;
 
-        protected virtual bool CanExecute(C context)
-        {
-            return true;
-        }
+        protected virtual void Process(C context) {}
 
-        protected virtual void Process(C context)
-        {
-        }
-
-        public void Serialize(StringBuilder message)
-        {
-            Serialize(message, null, "");
-        }
-
-        public void Serialize(StringBuilder message, string parent)
-        {
-            Serialize(message, null, parent);
-        }
-
-        public void Serialize(StringBuilder message, C context)
-        {
-            Serialize(message, context, "");
-        }
+        public void Serialize(StringBuilder message) => Serialize(message, null, "");
+        public void Serialize(StringBuilder message, string parent) => Serialize(message, null, parent);
+        public void Serialize(StringBuilder message, C context) => Serialize(message, context, "");
 
         public void Serialize(StringBuilder message, C context, string parent)
         {
             if (context != null && !CanExecute(context))
                 return;
 
-            var visibleSubCommands = context == null
-                ? m_subCommands
-                : m_subCommands.Where(subCommand => subCommand.CanExecute(context)).ToList();
+            List<SubCommand<C>> visibleSubCommands = context == null ? m_subCommands : m_subCommands.Where(subCommand => subCommand.CanExecute(context)).ToList();
 
             if (m_subCommands.Count > 0)
             {

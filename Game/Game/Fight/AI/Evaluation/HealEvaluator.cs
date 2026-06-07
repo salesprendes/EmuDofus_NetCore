@@ -42,7 +42,7 @@ namespace Game.Fight.AI.Evaluation
                         SpellId = spell.SpellId,
                         TargetId = ally.Id,
                         CellId = (short)ally.Cell.Id,
-                        Reason = ally == context.Fighter ? "Self heal" : "Heal wounded ally"
+                        Reason = ally == context.Fighter ? "Curacion propia" : "Curar aliado herido"
                     };
                 }
             }

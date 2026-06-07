@@ -29,7 +29,7 @@ namespace Game.Fight.AI.Bosses
 
             var nearCell = new MovementEvaluator().GetBestCellNearEnemy(context);
             if (nearCell.HasValue)
-                yield return AIDecision.Move(nearCell.Value, 110, AIDecisionPriority.Normal, "Royal Gobball melee approach");
+                yield return AIDecision.Move(nearCell.Value, 110, AIDecisionPriority.Normal, "Jalato Real acercamiento cuerpo a cuerpo");
         }
     }
 }

@@ -7,6 +7,7 @@ using Game.Fight;
 using Game.Fight.AI.Core;
 using Game.Frame;
 using Game.Guild;
+using Game.House;
 using Game.Interactive.Type;
 using Game.Job;
 using Game.Manager;
@@ -586,8 +587,10 @@ namespace Game.Entity
             private set;
         }
 
+        public HouseInstance CurrentHouse { get; set; }
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public JobBook CharacterJobs
         {
@@ -1311,7 +1314,7 @@ namespace Game.Entity
             }
             else if (emoteId == 1)
             {
-                StartRegeneration(WorldConfig.REGEN_TIMER_SIT);
+                StartRegeneration(300);
             }
 
             timeout = emoteId == m_lastEmoteId ? 0 : timeout;
@@ -2000,6 +2003,12 @@ namespace Game.Entity
             StartAction(GameActionTypeEnum.EXCHANGE);
         }
 
+        public void ExchangeHouseChest(HouseChestInventory chest)
+        {
+            CurrentAction = new GameStorageExchangeAction(this, chest);
+            StartAction(GameActionTypeEnum.EXCHANGE);
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -2041,7 +2050,17 @@ namespace Game.Entity
 
             var currentLevel = Level;
             while (Experience > ExperienceFloorNext)
-                LevelUp();
+            {
+                Level++;
+                SpellPoint++;
+                CaractPoint += 5;
+                Life = MaxLife;
+
+                if (Level == 100)
+                    Statistics.AddBase(EffectEnum.AddAP, 1);
+
+                SpellBook?.GenerateLevelUpSpell(Breed, Level);
+            }
 
             if (Level != currentLevel && IsConnected)
             {
@@ -2053,24 +2072,6 @@ namespace Game.Entity
             }
         }
 
-        public void LevelUp()
-        {
-            Level++;
-            SpellPoint++;
-            CaractPoint += 5;
-            Life = MaxLife;
-
-            if (Level == 100)
-                Statistics.AddBase(EffectEnum.AddAP, 1);
-
-            SpellBook?.GenerateLevelUpSpell(Breed, Level);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="exchangeType"></param>
-        /// <returns></returns>
         public override bool CanBeExchanged(ExchangeTypeEnum exchangeType)
         {
             return base.CanBeExchanged(exchangeType) && (exchangeType == ExchangeTypeEnum.EXCHANGE_PLAYER || exchangeType == ExchangeTypeEnum.EXCHANGE_PERSONAL_SHOP_EDIT);
@@ -2125,6 +2126,7 @@ namespace Game.Entity
                     FrameManager.AddFrame(MapFrame.Instance);
                     FrameManager.AddFrame(InventoryFrame.Instance);
                     FrameManager.AddFrame(ExchangeFrame.Instance);
+                    FrameManager.AddFrame(HouseFrame.Instance);
                     FrameManager.AddFrame(GameActionFrame.Instance);
                     FrameManager.AddFrame(Frame.ConquestFrame.Instance);
                     break;

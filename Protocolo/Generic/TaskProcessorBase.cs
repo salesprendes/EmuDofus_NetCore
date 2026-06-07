@@ -209,7 +209,7 @@ namespace Protocolo.Framework.Generic
                     }
                     catch (Exception ex)
                     {
-                        Logger.Error($"TaskQueue[{Name}] failed to update timer [{timer.GetType().Name}]: {ex}");
+                        Logger.Error($"TaskQueue[{Name}] fallo al actualizar el temporizador [{timer.GetType().Name}]: {ex}");
                     }
                     if (timer.OneShot)
                         m_timerList.RemoveAt(i);
@@ -225,7 +225,7 @@ namespace Protocolo.Framework.Generic
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error($"TaskQueue[{Name}] failed to update object [{m_updatableObjects[i].GetType().Name}]: {ex}");
+                    Logger.Error($"TaskQueue[{Name}] fallo al actualizar el objeto [{m_updatableObjects[i].GetType().Name}]: {ex}");
                 }
             }
 
@@ -238,7 +238,7 @@ namespace Protocolo.Framework.Generic
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error($"TaskQueue[{Name}] failed to process message: {ex}");
+                    Logger.Error($"TaskQueue[{Name}] fallo al procesar un mensaje: {ex}");
                 }
             }
 

@@ -17,7 +17,6 @@ namespace Game.Database.Structure
         private string _nivel6;
         private string _afectados;
         private string _condiciones;
-        private string _descripcion;
 
 
         public int id
@@ -79,11 +78,6 @@ namespace Game.Database.Structure
         {
             get => _condiciones;
             set => SetProperty(ref _condiciones, value);
-        }
-        public string descripcion
-        {
-            get => _descripcion;
-            set => SetProperty(ref _descripcion, value);
         }
     }
 }

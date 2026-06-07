@@ -11,7 +11,7 @@
  Target Server Version : 80403 (8.4.3)
  File Encoding         : 65001
 
- Date: 06/06/2026 13:34:47
+ Date: 07/06/2026 23:04:32
 */
 
 SET NAMES utf8mb4;
@@ -40,8 +40,8 @@ CREATE TABLE `account`  (
 -- ----------------------------
 -- Records of account
 -- ----------------------------
-INSERT INTO `account` VALUES (1, 'test', 'test', 'test', 1000, '2026-05-08 19:30:10', '2026-06-06 13:26:49', '127.0.0.1', '2026-05-08 20:30:13', 0, 'test', 'test');
-INSERT INTO `account` VALUES (2, 'test2', 'test', 'test', 1000, '2000-01-01 00:00:00', '2026-06-01 03:48:21', '127.0.0.1', '2000-01-01 00:00:00', 0, '', '');
+INSERT INTO `account` VALUES (1, 'test', 'test', 'test', 1000, '2026-05-08 19:30:10', '2026-06-07 22:57:45', '127.0.0.1', '2026-05-08 20:30:13', 0, 'test', 'test');
+INSERT INTO `account` VALUES (2, 'test2', 'test', 'test', 1000, '2000-01-01 00:00:00', '2026-06-07 15:25:16', '127.0.0.1', '2000-01-01 00:00:00', 0, '', '');
 
 -- ----------------------------
 -- Table structure for characterinstance

@@ -17,7 +17,7 @@ namespace Game.Fight.AI.Bosses
             {
                 decision.Score += 60;
                 decision.Priority = AIDecisionPriority.High;
-                decision.Reason = "Dragon Pig boost if available";
+                decision.Reason = "Dragon Pig usa bonificacion si esta disponible";
                 yield return decision;
             }
 
@@ -35,7 +35,7 @@ namespace Game.Fight.AI.Bosses
             var nearCell = new MovementEvaluator().GetBestCellNearEnemy(context);
             if (nearCell.HasValue)
             {
-                yield return AIDecision.Move(nearCell.Value, 130, AIDecisionPriority.High, "Dragon Pig aggressive approach");
+                yield return AIDecision.Move(nearCell.Value, 130, AIDecisionPriority.High, "Dragon Pig acercamiento agresivo");
             }
         }
     }

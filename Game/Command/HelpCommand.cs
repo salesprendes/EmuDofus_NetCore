@@ -5,12 +5,9 @@ namespace Game.Command
 {
     public sealed class HelpCommand : WorldStaffCommand
     {
-        private static readonly string[] m_aliases = { "help", "h" };
-
+        private static readonly string[] m_aliases = { "help", "ayuda" };
         public override string[] Aliases => m_aliases;
-
         public override string Description => "Muestra los comandos que puedes usar.";
-
         protected override StaffRole RequiredRole => StaffRole.Moderator;
 
         protected override void Process(WorldCommandContext context)

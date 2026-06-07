@@ -33,7 +33,7 @@ namespace Game.Fight.AI.Dopeuls
             {
                 var awayCell = movement.GetBestCellAwayFromEnemies(context);
                 if (awayCell.HasValue)
-                    yield return AIDecision.Move(awayCell.Value, 250, AIDecisionPriority.High, "Cra fleeing — enemy too close");
+                    yield return AIDecision.Move(awayCell.Value, 250, AIDecisionPriority.High, "Cra huye - enemigo demasiado cerca");
             }
 
             // 2. Kill shot
@@ -67,7 +67,7 @@ namespace Game.Fight.AI.Dopeuls
                 var preferredCell = movement.GetBestCellForPreferredDistance(
                     context, target, PreferredMinDistance, PreferredMaxDistance);
                 if (preferredCell.HasValue)
-                    yield return AIDecision.Move(preferredCell.Value, 100, AIDecisionPriority.Low, "Cra maintaining distance");
+                    yield return AIDecision.Move(preferredCell.Value, 100, AIDecisionPriority.Low, "Cra mantiene distancia");
             }
         }
     }

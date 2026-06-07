@@ -1,7 +1,6 @@
 ﻿using Game.Manager;
 using ProtoBuf;
 using System;
-using System.Collections.Generic;
 
 namespace Game.Spell
 {
@@ -230,7 +229,7 @@ namespace Game.Spell
         TargetLevel = 962,
         CreateTime = 963,
         TargetName = 964,
-        
+
         LivingGfxId = 970,
         LivingMood = 971,
         LivingSkin = 972,

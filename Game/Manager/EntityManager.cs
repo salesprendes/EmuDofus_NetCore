@@ -65,14 +65,22 @@ namespace Game.Manager
         public CharacterEntity CreateCharacter(AccountTicket account, CharacterDAO characterDAO)
         {
             var merchant = GetMerchantByAccount(characterDAO.AccountId);
-            if(merchant != null)            
+            if(merchant != null)
                 RemoveMerchant(merchant);
-            
-            var character = new CharacterEntity(account, characterDAO);         
-            m_characterById.Add(character.Id, character);
-            m_characterByName.Add(character.Name.ToLower(), character);
-            m_characterByAccount.Add(character.AccountId, character);
-            m_characterByNickname.Add(account.Pseudo.ToLower(), character);        
+
+            if (m_characterByAccount.TryGetValue(characterDAO.AccountId, out var stale))
+            {
+                m_characterById.Remove(stale.Id);
+                m_characterByName.Remove(stale.Name.ToLower());
+                m_characterByAccount.Remove(stale.AccountId);
+                m_characterByNickname.Remove(stale.Account.Pseudo.ToLower());
+            }
+
+            var character = new CharacterEntity(account, characterDAO);
+            m_characterById[character.Id] = character;
+            m_characterByName[character.Name.ToLower()] = character;
+            m_characterByAccount[character.AccountId] = character;
+            m_characterByNickname[account.Pseudo.ToLower()] = character;
             return character;
         }
 

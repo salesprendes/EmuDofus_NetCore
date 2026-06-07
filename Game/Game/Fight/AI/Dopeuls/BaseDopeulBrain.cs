@@ -63,7 +63,7 @@ namespace Game.Fight.AI.Dopeuls
             {
                 var awayCell = movement.GetBestCellAwayFromEnemies(context);
                 if (awayCell.HasValue)
-                    yield return AIDecision.Move(awayCell.Value, 200, AIDecisionPriority.Critical, "Self-protection flee");
+                    yield return AIDecision.Move(awayCell.Value, 200, AIDecisionPriority.Critical, "Huida por autoproteccion");
             }
 
             // 2. Kill shots
@@ -121,7 +121,7 @@ namespace Game.Fight.AI.Dopeuls
             {
                 var awayCell = movement.GetBestCellAwayFromEnemies(context);
                 if (awayCell.HasValue)
-                    yield return AIDecision.Move(awayCell.Value, 120, AIDecisionPriority.Normal, "Dopeul defensive movement");
+                    yield return AIDecision.Move(awayCell.Value, 120, AIDecisionPriority.Normal, "Dopeul movimiento defensivo");
             }
 
             var target = TargetEvaluator.GetNearestEnemy(context);
@@ -132,7 +132,7 @@ namespace Game.Fight.AI.Dopeuls
                     : movement.GetBestCellForPreferredDistance(context, target, PreferredMinDistance, PreferredMaxDistance);
 
                 if (preferredCell.HasValue)
-                    yield return AIDecision.Move(preferredCell.Value, 100, AIDecisionPriority.Low, "Dopeul preferred distance");
+                    yield return AIDecision.Move(preferredCell.Value, 100, AIDecisionPriority.Low, "Dopeul distancia preferida");
             }
 
             foreach (var decision in new MovementEvaluator().Evaluate(context))
@@ -210,13 +210,13 @@ namespace Game.Fight.AI.Dopeuls
             if (!WorldConfig.LOG_DEBUG || decision == null)
                 return;
 
-            Logger.Debug("[AI][Dopeul] Fighter=" + (Fighter?.Id ?? 0)
-                + " Class=" + GetType().Name
-                + " Role=" + Role
+            Logger.Debug("[IA][Dopeul] Luchador=" + (Fighter?.Id ?? 0)
+                + " Clase=" + GetType().Name
+                + " Rol=" + Role
                 + " Decision=" + decision.Type
-                + " Priority=" + decision.Priority
-                + " Score=" + decision.Score
-                + " Reason=" + decision.Reason);
+                + " Prioridad=" + decision.Priority
+                + " Puntuacion=" + decision.Score
+                + " Motivo=" + decision.Reason);
         }
     }
 }

@@ -2908,8 +2908,53 @@ namespace Game.Network
         public static string PADDOCK_INFORMATIONS(int owner, long price, int size, int items, string guildName, string guildEmblem)
             => "Rp" + owner + ";" + price + ";" + size + ";" + items + ";" + guildName + ";" + guildEmblem;
 
+        // hL — sent to the house owner: isOwner|id;hasLock;isForSale;hasGuild
+        public static string HOUSE_INFO(bool isOwner, int houseId, bool hasLock, bool isForSale, bool hasGuild)
+            => "hL" + (isOwner ? "+" : "-") + "|" + houseId + ";" + (hasLock ? 1 : 0) + ";" + (isForSale ? 1 : 0) + ";" + (hasGuild ? 1 : 0);
+
+        // hP — door properties visible to any player clicking the door
+        public static string HOUSE_PROPERTIES(int houseId, string ownerName, bool isForSale, string guildName, string guildEmblem)
+        {
+            var sb = new System.Text.StringBuilder("hP");
+            sb.Append(houseId).Append('|').Append(ownerName).Append(';').Append(isForSale ? 1 : 0);
+            if (!string.IsNullOrEmpty(guildName))
+                sb.Append(';').Append(guildName).Append(';').Append(guildEmblem);
+            return sb.ToString();
+        }
+
+        // hX — lock state update
+        public static string HOUSE_LOCK_STATUS(int houseId, bool locked)
+            => "hX" + houseId + "|" + (locked ? 1 : 0);
+
+        // hG — guild rights panel data
+        public static string HOUSE_GUILD_RIGHTS(string data)
+            => "hG" + data;
+
+        // hCK — opens the buy dialog with sale price
+        public static string HOUSE_BUY_DIALOG(int houseId, long price)
+            => "hCK" + houseId + "|" + price;
+
+        // hV — close the buy/sell dialog
+        public static string HOUSE_CLOSE_BUY_DIALOG()
+            => "hV";
+
+        // hSK — confirms the new sale price
+        public static string HOUSE_SET_PRICE(int houseId, long price)
+            => "hSK" + houseId + "|" + price;
+
+        // KCK — shows the lock-code entry dialog (modify=1 to change existing, maxLen = max chars)
+        public static string KEY_DIALOG(bool modify, int maxLen) => "KCK" + (modify ? 1 : 0) + "|" + maxLen;
+
+        // KKE — wrong code entered
+        public static string KEY_ERROR()
+            => "KKE";
+
+        // KV — closes the lock-code dialog
+        public static string KEY_CLOSE()
+            => "KV";
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="quests"></param>
         /// <returns></returns>

@@ -31,7 +31,7 @@ namespace Protocolo.Framework.Database
             }
             catch (MySqlException ex)
             {
-                Logger.Error("Fatal error while loading database : connectionString=" + connectionString + " message=" + ex.ToString());
+                Logger.Error("Error fatal al cargar la base de datos: cadenaConexion=" + connectionString + " mensaje=" + ex.ToString());
             }
         }
 
@@ -57,7 +57,7 @@ namespace Protocolo.Framework.Database
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error("DbManager::UpdateAll unable to update repositories : " + ex.Message);
+                    Logger.Error("DbManager::UpdateAll no se pudieron actualizar los repositorios: " + ex.Message);
                     try { transaction.Rollback(); } catch { }
                 }
             }

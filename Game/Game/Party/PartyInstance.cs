@@ -1,11 +1,8 @@
 ﻿using Game.Entity;
 using Game.Manager;
 using Game.Network;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.Party
 {
@@ -32,7 +29,7 @@ namespace Game.Party
         /// </summary>
         private CharacterEntity m_leader;
         private Dictionary<long, CharacterEntity> m_memberById;
-                        
+
         /// <summary>
         /// 
         /// </summary>
@@ -44,7 +41,7 @@ namespace Game.Party
             Id = id;
             m_memberById = new Dictionary<long, CharacterEntity>();
             m_leader = master;
-            
+
             AddMember(master);
             AddMember(member);
         }
@@ -90,7 +87,7 @@ namespace Game.Party
             member.PartyId = Id;
             member.SafeDispatch(WorldMessage.PARTY_CREATE_SUCCESS(m_leader.Name));
             member.SafeDispatch(WorldMessage.PARTY_SET_LEADER(m_leader.Id));
-            member.SafeDispatch(WorldMessage.PARTY_MEMBER_LIST(m_memberById.Values.ToArray())); 
+            member.SafeDispatch(WorldMessage.PARTY_MEMBER_LIST(m_memberById.Values.ToArray()));
         }
 
         /// <summary>
@@ -131,7 +128,7 @@ namespace Game.Party
 
             foreach (var member in m_memberById.Values)
                 member.PartyId = -1;
-            
+
             m_memberById.Clear();
             m_memberById = null;
             m_leader = null;
@@ -139,7 +136,7 @@ namespace Game.Party
             PartyManager.Instance.RemoveParty(this);
 
             base.Dispose();
-        }    
+        }
     }
 }
 

@@ -136,7 +136,7 @@ namespace Game.Frame
                 var actionType = (GameActionTypeEnum)actionId;
                 if (!character.CanGameAction(actionType))
                 {
-                    Logger.Debug("GameActionFrame::Start entity cant game action : " + character.Name);
+                    Logger.Debug("GameActionFrame::Start la entidad no puede iniciar una accion de juego: " + character.Name);
                     character.CachedBuffer = true;
                     character.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_YOU_ARE_AWAY));
                     character.Dispatch(WorldMessage.GAME_ACTION_FAILED());
@@ -235,7 +235,7 @@ namespace Game.Frame
                         // Some interactives provide their own skill without a job entry.
                         if (interactiveCell.InteractiveObject == null || !interactiveCell.InteractiveObject.CanUseWithoutJobSkill(skillId))
                         {
-                            Logger.Debug("GameActionFrame::SkillUse character dont have the skill : " + (SkillIdEnum)skillId);
+                            Logger.Debug("GameActionFrame::SkillUse el personaje no tiene la habilidad: " + (SkillIdEnum)skillId);
                             character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                             return;
                         }

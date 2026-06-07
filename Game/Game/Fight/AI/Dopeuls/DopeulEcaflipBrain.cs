@@ -65,7 +65,7 @@ namespace Game.Fight.AI.Dopeuls
                 var preferredCell = movement.GetBestCellForPreferredDistance(
                     context, target, PreferredMinDistance, PreferredMaxDistance);
                 if (preferredCell.HasValue)
-                    yield return AIDecision.Move(preferredCell.Value, 110, AIDecisionPriority.Low, "Ecaflip positioning");
+                    yield return AIDecision.Move(preferredCell.Value, 110, AIDecisionPriority.Low, "Ecaflip posicionamiento");
             }
         }
     }

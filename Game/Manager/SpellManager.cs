@@ -1,10 +1,10 @@
+using Game.Database.Repository;
+using Game.Database.Structure;
+using Game.Spell;
+using Protocolo.Framework.Generic;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Protocolo.Framework.Generic;
-using Game.Database.Structure;
-using Game.Database.Repository;
-using Game.Spell;
 
 namespace Game.Manager
 {
@@ -20,7 +20,6 @@ namespace Game.Manager
                 {
                     Id = dao.id,
                     Name = dao.nombre,
-                    Description = dao.descripcion,
                     Sprite = dao.sprite,
                     SpriteInfos = dao.spriteInfos,
                     Conditions = dao.condiciones,

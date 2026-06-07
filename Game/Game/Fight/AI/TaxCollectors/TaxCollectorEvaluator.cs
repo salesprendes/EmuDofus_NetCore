@@ -161,7 +161,7 @@ namespace Game.Fight.AI.TaxCollectors
                 }
 
                 decision.Score = Math.Max(1, decision.Score);
-                decision.Reason = "TaxCollector reposition";
+                decision.Reason = "Recaudador se recoloca";
                 yield return decision;
             }
         }
@@ -182,7 +182,7 @@ namespace Game.Fight.AI.TaxCollectors
                 var decision = Copy(raw);
                 decision.Priority = AIDecisionPriority.Critical;
                 decision.Score += 1000 + TargetEvaluator.ScorePriorityTarget(target) / 2;
-                decision.Reason = "TaxCollector finish attacker";
+                decision.Reason = "Recaudador remata al atacante";
                 yield return decision;
             }
         }
@@ -208,7 +208,7 @@ namespace Game.Fight.AI.TaxCollectors
                 var decision = Copy(raw);
                 decision.Priority = AIDecisionPriority.Critical;
                 decision.Score += 700 + MissingLife(context.Fighter);
-                decision.Reason = "TaxCollector critical self heal";
+                decision.Reason = "Recaudador curacion critica propia";
                 yield return decision;
             }
 
@@ -221,7 +221,7 @@ namespace Game.Fight.AI.TaxCollectors
                 var decision = Copy(raw);
                 decision.Priority = AIDecisionPriority.Critical;
                 decision.Score += 650 + MissingLife(context.Fighter) / 2;
-                decision.Reason = "TaxCollector critical self protection";
+                decision.Reason = "Recaudador proteccion critica propia";
                 yield return decision;
             }
 
@@ -232,7 +232,7 @@ namespace Game.Fight.AI.TaxCollectors
                 if (target == null || !IsCloseThreat(context, target, 2) || !IsControlSpell(context, spell))
                     continue;
 
-                var decision = BoostSpellDecision(context, raw, AIDecisionPriority.High, 500, "TaxCollector critical control");
+                var decision = BoostSpellDecision(context, raw, AIDecisionPriority.High, 500, "Recaudador control critico");
                 yield return decision;
             }
         }
@@ -248,7 +248,7 @@ namespace Game.Fight.AI.TaxCollectors
                 if (!IsSelfTarget(context, raw))
                     continue;
 
-                var decision = BoostSpellDecision(context, raw, AIDecisionPriority.High, 300, "TaxCollector self heal");
+                var decision = BoostSpellDecision(context, raw, AIDecisionPriority.High, 300, "Recaudador curacion propia");
                 if (HpRatio(context.Fighter) <= 0.35)
                 {
                     decision.Priority = AIDecisionPriority.Critical;
@@ -264,7 +264,7 @@ namespace Game.Fight.AI.TaxCollectors
                     continue;
 
                 var bonus = m_mode == TaxCollectorDefenseMode.Normal ? 180 : 320;
-                yield return BoostSpellDecision(context, raw, AIDecisionPriority.High, bonus, "TaxCollector self protection");
+                yield return BoostSpellDecision(context, raw, AIDecisionPriority.High, bonus, "Recaudador proteccion propia");
             }
 
             foreach (var raw in debuffs)
@@ -274,7 +274,7 @@ namespace Game.Fight.AI.TaxCollectors
                 if (target == null || !IsCloseThreat(context, target, 3) || !IsControlSpell(context, spell))
                     continue;
 
-                yield return BoostSpellDecision(context, raw, AIDecisionPriority.High, 260, "TaxCollector pressure control");
+                yield return BoostSpellDecision(context, raw, AIDecisionPriority.High, 260, "Recaudador control de presion");
             }
         }
 
@@ -294,7 +294,7 @@ namespace Game.Fight.AI.TaxCollectors
                     continue;
 
                 var priority = HpRatio(target) <= 0.35 ? AIDecisionPriority.High : AIDecisionPriority.Normal;
-                var decision = BoostSpellDecision(context, raw, priority, 260 + missingLife / 2, "TaxCollector heal defender");
+                var decision = BoostSpellDecision(context, raw, priority, 260 + missingLife / 2, "Recaudador cura defensor");
                 yield return decision;
             }
 
@@ -306,7 +306,7 @@ namespace Game.Fight.AI.TaxCollectors
                     continue;
 
                 var bonus = IsDefensiveSpell(context, spell) && HpRatio(target) <= 0.50 ? 260 : 120;
-                yield return BoostSpellDecision(context, raw, AIDecisionPriority.Normal, bonus, "TaxCollector support defender");
+                yield return BoostSpellDecision(context, raw, AIDecisionPriority.Normal, bonus, "Recaudador apoya defensor");
             }
         }
 
@@ -328,7 +328,7 @@ namespace Game.Fight.AI.TaxCollectors
                 if (IsControlSpell(context, spell))
                     bonus += closeThreat ? 350 : 220;
 
-                yield return BoostSpellDecision(context, raw, AIDecisionPriority.High, bonus, "TaxCollector debuff dangerous attacker");
+                yield return BoostSpellDecision(context, raw, AIDecisionPriority.High, bonus, "Recaudador debilita atacante peligroso");
             }
         }
 
@@ -359,7 +359,7 @@ namespace Game.Fight.AI.TaxCollectors
                 if (IsUnbewitchSpell(context, spell))
                     bonus += 240;
 
-                yield return BoostSpellDecision(context, raw, priority, bonus, "TaxCollector best debuff");
+                yield return BoostSpellDecision(context, raw, priority, bonus, "Recaudador mejor debilitamiento");
             }
         }
 
@@ -386,7 +386,7 @@ namespace Game.Fight.AI.TaxCollectors
                     priority = AIDecisionPriority.High;
                 }
 
-                yield return BoostSpellDecision(context, raw, priority, bonus, "TaxCollector best heal");
+                yield return BoostSpellDecision(context, raw, priority, bonus, "Recaudador mejor curacion");
             }
         }
 
@@ -417,7 +417,7 @@ namespace Game.Fight.AI.TaxCollectors
                     bonus -= 200;
                 }
 
-                yield return BoostSpellDecision(context, raw, priority, bonus, "TaxCollector best buff");
+                yield return BoostSpellDecision(context, raw, priority, bonus, "Recaudador mejor bonificacion");
             }
         }
 
@@ -441,7 +441,7 @@ namespace Game.Fight.AI.TaxCollectors
                         priority = AIDecisionPriority.High;
                 }
 
-                yield return BoostSpellDecision(context, raw, priority, bonus, "TaxCollector best damage");
+                yield return BoostSpellDecision(context, raw, priority, bonus, "Recaudador mejor danio");
             }
         }
 
@@ -459,7 +459,7 @@ namespace Game.Fight.AI.TaxCollectors
             {
                 decision.Priority = AIDecisionPriority.Low;
                 decision.Score = Math.Min(Math.Max(1, decision.Score), 80);
-                decision.Reason = reason + " after movement";
+                decision.Reason = reason + " tras movimiento";
                 return decision;
             }
 

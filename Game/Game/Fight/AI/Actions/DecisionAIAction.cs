@@ -24,7 +24,7 @@ namespace Game.Fight.AI.Actions
             : base(fighter)
         {
             m_context = context;
-            m_decision = decision ?? AIDecision.EndTurn("Null decision");
+            m_decision = decision ?? AIDecision.EndTurn("Decision nula");
         }
 
         // ─────────────────────────────────────────────────────────────────────────
@@ -98,7 +98,7 @@ namespace Game.Fight.AI.Actions
                     return new EndTurnAIAction(decision);
 
                 default:
-                    return new EndTurnAIAction(AIDecision.EndTurn("Unknown decision type"));
+                    return new EndTurnAIAction(AIDecision.EndTurn("Tipo de decision desconocido"));
             }
         }
     }

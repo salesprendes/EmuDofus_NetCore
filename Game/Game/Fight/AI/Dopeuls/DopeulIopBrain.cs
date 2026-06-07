@@ -42,7 +42,7 @@ namespace Game.Fight.AI.Dopeuls
             var movement  = new MovementEvaluator();
             var nearCell  = movement.GetBestCellNearEnemy(context);
             if (nearCell.HasValue)
-                yield return AIDecision.Move(nearCell.Value, 110, AIDecisionPriority.Low, "Iop approaching for melee");
+                yield return AIDecision.Move(nearCell.Value, 110, AIDecisionPriority.Low, "Yopuka se acerca cuerpo a cuerpo");
         }
     }
 }

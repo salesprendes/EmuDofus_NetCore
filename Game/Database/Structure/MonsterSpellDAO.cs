@@ -48,7 +48,7 @@ namespace Game.Database.Structure
                 {
                     m_template = SpellManager.Instance.GetTemplate(SpellId);
                     if (m_template == null)
-                        Logger.Info($"[MonsterSpell] Hechizo SpellId={SpellId} no existe (MonsterId={MonsterId}, GradeId={GradeId}).");
+                        Logger.Info($"[MonsterSpell] Hechizo hechizoId={SpellId} no existe (monstruoId={MonsterId}, gradoId={GradeId}).");
                 }
                 return m_template;
             }
@@ -64,7 +64,7 @@ namespace Game.Database.Structure
                 {
                     m_combatLevel = Template?.GetLevel(SpellLevel);
                     if (m_combatLevel == null && Template != null)
-                        Logger.Info($"[MonsterSpell] Nivel {SpellLevel} del hechizo SpellId={SpellId} no existe (MonsterId={MonsterId}, GradeId={GradeId}).");
+                        Logger.Info($"[MonsterSpell] Nivel {SpellLevel} del hechizo hechizoId={SpellId} no existe (monstruoId={MonsterId}, gradoId={GradeId}).");
                 }
                 return m_combatLevel;
             }

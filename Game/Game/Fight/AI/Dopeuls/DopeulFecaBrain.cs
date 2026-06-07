@@ -34,7 +34,7 @@ namespace Game.Fight.AI.Dopeuls
             {
                 var awayCell = movement.GetBestCellAwayFromEnemies(context);
                 if (awayCell.HasValue)
-                    yield return AIDecision.Move(awayCell.Value, 180, AIDecisionPriority.High, "Feca escaping — surrounded");
+                    yield return AIDecision.Move(awayCell.Value, 180, AIDecisionPriority.High, "Feca huye - rodeado");
             }
 
             // 2. Buffs — Feca needs glyphs and defensive spells early
@@ -63,7 +63,7 @@ namespace Game.Fight.AI.Dopeuls
                 var preferredCell = movement.GetBestCellForPreferredDistance(
                     context, target, PreferredMinDistance, PreferredMaxDistance);
                 if (preferredCell.HasValue)
-                    yield return AIDecision.Move(preferredCell.Value, 100, AIDecisionPriority.Low, "Feca preferred distance");
+                    yield return AIDecision.Move(preferredCell.Value, 100, AIDecisionPriority.Low, "Feca distancia preferida");
             }
         }
     }

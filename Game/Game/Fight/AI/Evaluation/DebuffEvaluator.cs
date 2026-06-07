@@ -80,7 +80,7 @@ namespace Game.Fight.AI.Evaluation
                         SpellId  = spell.SpellId,
                         TargetId = enemy.Id,
                         CellId   = (short)targetCellId,
-                        Reason   = "Debuff after movement"
+                        Reason   = "Debilitamiento tras movimiento"
                     };
                 }
             }

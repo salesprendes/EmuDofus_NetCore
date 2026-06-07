@@ -525,9 +525,6 @@ namespace Protocolo.Framework.Database
                 setterIL.Emit(OpCodes.Call, setIsDirtyMethod);
                 setterIL.Emit(OpCodes.Ret);
 
-                // TODO #3 implementado: copiar TODOS los atributos personalizados de la
-                // propiedad de la interfaz al proxy generado dinámicamente, preservando
-                // [Key], [Write(false)], atributos de validación, etc.
                 foreach (var attrData in interfaceProperty.GetCustomAttributesData())
                 {
                     try

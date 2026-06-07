@@ -95,7 +95,7 @@ namespace Game.Fight.AI.Dopeuls
             // 5. Tactical approach
             var nearCell = movement.GetBestCellNearEnemy(context);
             if (nearCell.HasValue)
-                yield return AIDecision.Move(nearCell.Value, 100, AIDecisionPriority.Low, "Sram tactical approach");
+                yield return AIDecision.Move(nearCell.Value, 100, AIDecisionPriority.Low, "Sram acercamiento tactico");
         }
     }
 }

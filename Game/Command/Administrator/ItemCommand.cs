@@ -6,15 +6,9 @@ namespace Game.Command
 {
     public sealed class ItemCommand : WorldStaffCommand
     {
-        private readonly string[] _aliases =
-        {
-            "objeto", "item"
-        };
-
+        private readonly string[] _aliases = { "objeto", "item" };
         public override string[] Aliases => _aliases;
-
         public override string Description => "Crea un objeto en tu inventario con stats perfectos. Uso: %templateId% [%cantidad%]";
-
         protected override StaffRole RequiredRole => StaffRole.Administrator;
 
         protected override void Process(WorldCommandContext context)

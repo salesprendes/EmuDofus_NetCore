@@ -1,11 +1,9 @@
 ﻿using Game.Database.Structure;
-using Game.Database.Repository;
+using Game.Network;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Game.Network;
 
 namespace Game.Entity.Inventory
 {
@@ -30,7 +28,7 @@ namespace Game.Entity.Inventory
         {
             get;
         }
-                    
+
         /// <summary>
         /// 
         /// </summary>
@@ -42,7 +40,7 @@ namespace Game.Entity.Inventory
         /// 
         /// </summary>
         public virtual void OnKamasSubstracted(long value)
-        {          
+        {
         }
 
         /// <summary>
@@ -77,7 +75,7 @@ namespace Game.Entity.Inventory
         public virtual void OnItemRemoved(long itemId)
         {
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -116,7 +114,7 @@ namespace Game.Entity.Inventory
             if (merge)
                 if (TryMerge(item))
                     return true;
-            
+
             Items.Add(item);
             OnItemAdded(item);
             OnOwnerChange(item);
@@ -132,13 +130,13 @@ namespace Game.Entity.Inventory
         public bool TryMerge(ItemDAO item)
         {
             var sameItem = Items.Find(
-                entry => entry.TemplateId == item.TemplateId && 
-                    entry.StringEffects == item.StringEffects && 
+                entry => entry.TemplateId == item.TemplateId &&
+                    entry.StringEffects == item.StringEffects &&
                     entry.Id != item.Id &&
                     entry.SlotId == item.SlotId &&
                     !ItemDAO.IsEquipedSlot(entry.Slot));
-            
-            if(sameItem != null)
+
+            if (sameItem != null)
             {
                 sameItem.Quantity += item.Quantity;
                 OnItemQuantity(sameItem.Id, sameItem.Quantity);
@@ -157,7 +155,7 @@ namespace Game.Entity.Inventory
         /// <returns></returns>
         public ItemDAO MoveQuantity(ItemDAO item, int quantity, ItemSlotEnum slot = ItemSlotEnum.SLOT_INVENTORY)
         {
-            if(quantity >= item.Quantity)            
+            if (quantity >= item.Quantity)
                 return RemoveItem(item.Id, item.Quantity);
             item.Quantity -= quantity;
             OnItemQuantity(item.Id, item.Quantity);
@@ -205,7 +203,7 @@ namespace Game.Entity.Inventory
             return Items.Any(item => item.TemplateId == templateId && item.IsEquiped);
         }
 
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -220,7 +218,7 @@ namespace Game.Entity.Inventory
                 yield return item;
             }
         }
-               
+
         /// <summary>
         /// 
         /// </summary>
@@ -247,7 +245,7 @@ namespace Game.Entity.Inventory
 
             return item;
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
