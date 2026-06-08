@@ -319,17 +319,24 @@ namespace Game.Map
         {
             HashSet<int> fightingCharCells = FightManager.Fights.SelectMany(f => f.Fighters).Where(f => f.Type == EntityTypeEnum.TYPE_CHARACTER).Select(f => f.CellId).ToHashSet();
 
-            List<int> candidates = m_walkableCellIds.Where(id => id != excludedCell && (rejectedCells == null || !rejectedCells.Contains(id)) && m_cellsArray[id].Walkable && !m_occupiedCells.Contains(id) && !fightingCharCells.Contains(id)).ToList();
+            bool Allowed(int id) => id != excludedCell && (rejectedCells == null || !rejectedCells.Contains(id));
+
+            var candidates = m_walkableCellIds.Where(id => Allowed(id) && m_cellsArray[id].Walkable && !m_cellsArray[id].IsDestinationOnly && !m_occupiedCells.Contains(id) && !fightingCharCells.Contains(id)).ToList();
 
             if (candidates.Count > 0)
                 return candidates[Util.Next(0, candidates.Count)];
 
-            candidates = m_walkableCellIds.Where(id => id != excludedCell && (rejectedCells == null || !rejectedCells.Contains(id)) && !fightingCharCells.Contains(id)).ToList();
+            candidates = m_walkableCellIds.Where(id => Allowed(id) && m_cellsArray[id].Walkable && !m_occupiedCells.Contains(id) && !fightingCharCells.Contains(id)).ToList();
 
             if (candidates.Count > 0)
                 return candidates[Util.Next(0, candidates.Count)];
 
-            candidates = m_walkableCellIds.Where(id => id != excludedCell && (rejectedCells == null || !rejectedCells.Contains(id))).ToList();
+            candidates = m_walkableCellIds.Where(id => Allowed(id) && !fightingCharCells.Contains(id)).ToList();
+
+            if (candidates.Count > 0)
+                return candidates[Util.Next(0, candidates.Count)];
+
+            candidates = m_walkableCellIds.Where(id => Allowed(id)).ToList();
 
             return candidates.Count > 0 ? candidates[Util.Next(0, candidates.Count)] : -1;
         }
@@ -400,7 +407,6 @@ namespace Game.Map
         private bool m_interactiveObjectsRegistered;
         private SpawnQueue m_spawnQueue;
         private List<MonsterSpawnDAO> m_monsters;
-        // Pre-built entity lists — maintained in SpawnEntity/DestroyEntity, no LINQ on hot paths
         private List<AbstractEntity> m_moveableEntities;
         private List<MonsterGroupEntity> m_monsterGroups;
         private TaxCollectorEntity m_taxCollector;
@@ -590,10 +596,6 @@ namespace Game.Map
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public MapInstance Clone()
         {
             return new MapInstance(SubAreaId, Id, X, Y, Width, Height, Data, DataKey, CreateTime, FightTeam0Cells, FightTeam1Cells, true);
@@ -608,9 +610,6 @@ namespace Game.Map
             m_spawnQueue = spawnQueue;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         private void RegisterAllInteractiveObjects()
         {
             if (m_interactiveObjectsRegistered)
@@ -626,9 +625,6 @@ namespace Game.Map
             }
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         private void InitializeOnFirstPlayerEnter()
         {
             if (m_initialized)
@@ -656,9 +652,6 @@ namespace Game.Map
             }
         }
 
-        // True when this is a conquest-tagged subarea (CanConquest=1) inside a village
-        // city area that currently has no active territory/prism.
-        // Guards must not spawn until the city is conquered by an alignment.
         private bool IsConquestVillageWithoutTerritory()
         {
             if (!SubArea.CanConquest)
@@ -1418,6 +1411,9 @@ namespace Game.Map
                     if (path != null && path.MovementLength > 0)
                     {
                         entity.Move(path);
+
+                        if (entity is CharacterEntity charRtt)
+                            charRtt.Dispatch(WorldMessage.BASIC_RPING(System.Environment.TickCount64));
 
                         if (entity is CharacterEntity character && character.CurrentAction is GameMapMovementAction action)
                         {

@@ -1,25 +1,23 @@
 ﻿using Game.Entity;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.Action
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public abstract class AbstractGameAction
     {
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public long Duration
         {
             get;
             protected set;
         }
+
+        public long StartedAt { get; private set; }
 
         /// <summary>
         /// 
@@ -66,10 +64,11 @@ namespace Game.Action
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public virtual void Start()
         {
+            StartedAt = Environment.TickCount64;
         }
 
         /// <summary>

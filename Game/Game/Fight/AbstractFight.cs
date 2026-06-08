@@ -349,8 +349,15 @@ namespace Game.Fight
             private set;
         }
 
+        /// <summary>Ground elevation level (0-15) copied from MapCell. Used for height-difference movement checks.</summary>
+        public int GroundLevel
+        {
+            get;
+            private set;
+        }
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public PriorityQueue<IFightObstacle> FightObjects
         {
@@ -386,12 +393,12 @@ namespace Game.Fight
         /// <param name="id"></param>
         /// <param name="walkable"></param>
         /// <param name="los"></param>
-        public FightCell(int id, bool walkable, bool los)
+        public FightCell(int id, bool walkable, bool los, int groundLevel = 7)
         {
             Id = id;
             Walkable = walkable;
             LineOfSight = los;
-
+            GroundLevel = groundLevel;
             FightObjects = new PriorityQueue<IFightObstacle>();
         }
 
@@ -930,7 +937,7 @@ namespace Game.Fight
 
             foreach (var cell in mapInstance.Cells)
             {
-                Cells.Add(cell.Id, new FightCell(cell.Id, cell.Walkable, cell.LineOfSight));
+                Cells.Add(cell.Id, new FightCell(cell.Id, cell.Walkable, cell.LineOfSight, cell.GroundLevel));
             }
 
             SpectatorTeam = new SpectatorTeam(this);

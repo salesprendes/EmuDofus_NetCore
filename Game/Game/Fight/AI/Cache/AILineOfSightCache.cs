@@ -20,9 +20,12 @@ namespace Game.Fight.AI.Cache
             if (m_fight == null || fromCell < 0 || toCell < 0)
                 return false;
 
-            var key = ((long)fromCell << 32) | (uint)toCell;
-            bool result;
-            if (m_cache.TryGetValue(key, out result))
+            if (fromCell == toCell)
+                return true;
+
+            long key = fromCell < toCell ? ((long)fromCell << 32) | (uint)toCell : ((long)toCell  << 32) | (uint)fromCell;
+
+            if (m_cache.TryGetValue(key, out bool result))
                 return result;
 
             try

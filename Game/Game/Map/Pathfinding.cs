@@ -201,12 +201,12 @@ namespace Game.Map
             {
                 if (MovementLength <= 0 || SegmentLengths.Count == 0)
                     return 0;
-                var speeds = MovementLength >= 4 ? Pathfinding.RUN_SPEEDS : Pathfinding.WALK_SPEEDS;
+                var speeds = MovementLength > 6 ? Pathfinding.RUN_SPEEDS : Pathfinding.WALK_SPEEDS;
                 double total = 0;
                 for (int i = 0; i < SegmentLengths.Count; i++)
                 {
                     int dir = i * 2 < Directions.Count ? Directions[i * 2] : (Directions.Count > 0 ? Directions[0] : 1);
-                    total += speeds[dir] * 1100 * SegmentLengths[i];
+                    total += (Pathfinding.CELL_PIXEL_DIST[dir] / speeds[dir]) * SegmentLengths[i];
                 }
                 return total;
             }
@@ -327,9 +327,13 @@ namespace Game.Map
     {
         private static ILogger Logger = LogManager.GetLogger(typeof(Pathfinding));
 
-        public static double[] RUN_SPEEDS = { 1.700000E-001, 1.500000E-001, 1.500000E-001, 1.500000E-001, 1.700000E-001, 1.500000E-001, 1.500000E-001, 1.500000E-001 };
-        public static double[] WALK_SPEEDS = { 7.000000E-002, 6.000000E-002, 6.000000E-002, 6.000000E-002, 7.000000E-002, 6.000000E-002, 6.000000E-002, 6.000000E-002 };
+        public static double[] RUN_SPEEDS   = { 1.700000E-001, 1.500000E-001, 1.500000E-001, 1.500000E-001, 1.700000E-001, 1.500000E-001, 1.500000E-001, 1.500000E-001 };
+        public static double[] WALK_SPEEDS  = { 7.000000E-002, 6.000000E-002, 6.000000E-002, 6.000000E-002, 7.000000E-002, 6.000000E-002, 6.000000E-002, 6.000000E-002 };
         public static double[] MOUNT_SPEEDS = { 2.300000E-001, 2.000000E-001, 2.000000E-001, 2.000000E-001, 2.300000E-001, 2.000000E-001, 2.000000E-001, 2.000000E-001 };
+
+        // Screen pixel distance per cell step per direction, derived from CELL_WIDTH=53, CELL_HEIGHT=27.
+        // Dirs 0,4 = pure horizontal (53px); dirs 2,6 = pure vertical (27px); others = diagonal (sqrt(26.5²+13.5²)).
+        internal static readonly double[] CELL_PIXEL_DIST = { 53.0, 29.740, 27.0, 29.740, 53.0, 29.740, 27.0, 29.740 };
 
         private static FastRandom PATHFIND_RANDOM = new FastRandom();
         private static DirectionEnum[] FIGHT_DIRECTIONS = { DirectionEnum.Este, DirectionEnum.Sur, DirectionEnum.Oeste, DirectionEnum.Norte };
@@ -339,9 +343,7 @@ namespace Game.Map
             return map != null && cell >= 0 && cell < map.Cells.Count;
         }
 
-        // Keyed by map.Width (all maps of same width share the same direction offsets).
         private static ConcurrentDictionary<int, int[]> MapDirections = new ConcurrentDictionary<int, int[]>();
-        // Keyed by cellsCount; value is a flat array indexed by cellId — faster than nested dicts.
         private static ConcurrentDictionary<int, Point[]> CellPoints = new ConcurrentDictionary<int, Point[]>();
 
         /// <summary>
@@ -352,7 +354,8 @@ namespace Game.Map
         /// <returns></returns>
         public static double GetPathTime(int length, int direction)
         {
-            return (length >= 4 ? RUN_SPEEDS[direction] : WALK_SPEEDS[direction]) * 1100 * length;
+            var speeds = length > 6 ? RUN_SPEEDS : WALK_SPEEDS;
+            return (CELL_PIXEL_DIST[direction] / speeds[direction]) * length;
         }
 
         /// <summary>
@@ -440,43 +443,9 @@ namespace Game.Map
             return grid != null ? grid[cell] : new Point(-1000, -1000);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="map"></param>
-        /// <param name="cell"></param>
-        /// <returns></returns>
-        public static double GetX(MapInstance map, int cell)
-        {
-            if (map?.Cells == null)
-                return -1000;
+        public static double GetX(MapInstance map, int cell) => GetPoint(map, cell).X;
 
-            if (!CellPoints.TryGetValue(map.Cells.Count, out var grid))
-            {
-                GenerateGrid(map.Width, map.Cells.Count);
-                CellPoints.TryGetValue(map.Cells.Count, out grid);
-            }
-            return (grid != null && cell >= 0 && cell < grid.Length) ? grid[cell].X : -1000;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="map"></param>
-        /// <param name="cell"></param>
-        /// <returns></returns>
-        public static double GetY(MapInstance map, int cell)
-        {
-            if (map?.Cells == null)
-                return -1000;
-
-            if (!CellPoints.TryGetValue(map.Cells.Count, out var grid))
-            {
-                GenerateGrid(map.Width, map.Cells.Count);
-                CellPoints.TryGetValue(map.Cells.Count, out grid);
-            }
-            return (grid != null && cell >= 0 && cell < grid.Length) ? grid[cell].Y : -1000;
-        }
+        public static double GetY(MapInstance map, int cell) => GetPoint(map, cell).Y;
 
         /// <summary>
         /// 
@@ -508,11 +477,9 @@ namespace Game.Map
             if (!IsValidCellId(map, beginCell) || !IsValidCellId(map, endCell))
                 return int.MaxValue;
 
-            var beginPoint = GetPoint(map, beginCell);
-            var endPoint = GetPoint(map, endCell);
-            var distance = (int)(Math.Abs(endPoint.X - beginPoint.X) + Math.Abs(endPoint.Y - beginPoint.Y));
-            
-            return distance;
+            var b = GetPoint(map, beginCell);
+            var e = GetPoint(map, endCell);
+            return (int)(Math.Abs(e.X - b.X) + Math.Abs(e.Y - b.Y));
         }
 
         /// <summary>
@@ -768,7 +735,7 @@ namespace Game.Map
                 var mapCell = map.GetCell(actualCell);
                 var io = mapCell?.InteractiveObject;
 
-                blocked = mapCell == null || (io != null && (!io.CanWalkThrough || (isCharacter && actualCell == finalCell && io.IsActive))) || (!mapCell.Walkable && !map.IsAnimatedDoorOpen(actualCell)) || (isCharacter && map.HasAggroNear(character, lastCell));
+                blocked = mapCell == null || (io != null && (!io.CanWalkThrough || (isCharacter && actualCell == finalCell && io.IsActive))) || (!mapCell.Walkable && !map.IsAnimatedDoorOpen(actualCell)) || (isCharacter && map.HasAggroNear(character, lastCell)) || (mapCell.IsDestinationOnly && actualCell != finalCell);
 
                 if (!blocked)
                 {
@@ -815,20 +782,30 @@ namespace Game.Map
 
             path.AddCell(actualCell, (int)direction);
 
+            var prevCell = actualCell;
             for (int i = 0; i < length; i++)
             {
                 actualCell = Pathfinding.NextCell(fight.Map, actualCell, direction);
 
                 if (!fight.Map.IsWalkable(actualCell))
-                {
                     return -2;
-                }
+
+                var prevFightCell = fight.GetCell(prevCell);
+                var curFightCell  = fight.GetCell(actualCell);
+                if (prevFightCell != null && curFightCell != null &&
+                    Math.Abs(curFightCell.GroundLevel - prevFightCell.GroundLevel) > 2)
+                    return -2;
+
+                var mapCell = fight.Map.GetCell(actualCell);
+                if (mapCell != null && mapCell.IsDestinationOnly && actualCell != endCell)
+                    return -2;
 
                 if (fight.GetFighterOnCell(actualCell) != null)
                     return -2;
 
                 path.AddCell(actualCell, (int)direction);
                 path.MovementLength++;
+                prevCell = actualCell;
 
                 if (Pathfinding.IsStopCell(fighter.Fight, fighter.Team, actualCell))
                     return -2;
@@ -837,93 +814,34 @@ namespace Game.Map
             return length;
         }
 
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="fighter"></param>
-        ///// <returns></returns>
         public static int TryTacle(AbstractFighter fighter)
         {
-            var ennemies = Pathfinding.GetEnnemiesNear(fighter.Fight, fighter.Team, fighter.Cell.Id);
-
-            if (!ennemies.Any() || ennemies.All(ennemy => ennemy.StateManager.HasState(FighterStateEnum.STATE_ROOTED)))
+            var enemies = GetEnnemiesNear(fighter.Fight, fighter.Team, fighter.Cell.Id);
+            if (!enemies.Any() || enemies.All(e => e.StateManager.HasState(FighterStateEnum.STATE_ROOTED)))
                 return -1;
 
-            return Pathfinding.TryTacle(fighter, ennemies);
-        }
-
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="fighter"></param>
-        ///// <param name="nearestEnnemies"></param>
-        ///// <returns></returns>
-        private static int TryTacle(AbstractFighter fighter, IEnumerable<AbstractFighter> nearestEnnemies)
-        {
-            var fighterAgility = fighter.Statistics.GetTotal(EffectEnum.AddAgility);
-            int ennemiesAgility = 0;
-
-            foreach (var ennemy in nearestEnnemies)
-                if (!ennemy.StateManager.HasState(FighterStateEnum.STATE_ROOTED))
-                    ennemiesAgility += ennemy.Statistics.GetTotal(EffectEnum.AddAgility);
-
-            var A = fighterAgility + 25;
-            var B = fighterAgility + ennemiesAgility + 50;
-            if (B == 0)
-                B = 1;
-            var chance = (int)((long)(300 * A / B) - 100);
-            var rand = Pathfinding.PATHFIND_RANDOM.Next(0, 99);
-
+            int fighterAgility = fighter.Statistics.GetTotal(EffectEnum.AddAgility);
+            int enemiesAgility = enemies.Where(e => !e.StateManager.HasState(FighterStateEnum.STATE_ROOTED)).Sum(e => e.Statistics.GetTotal(EffectEnum.AddAgility));
+            int A = fighterAgility + 25;
+            int B = Math.Max(1, fighterAgility + enemiesAgility + 50);
+            int chance = (int)((long)(300 * A / B) - 100);
+            int rand = PATHFIND_RANDOM.Next(0, 99);
             return rand > chance ? rand : -1;
         }
 
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="cellId"></param>
-        ///// <returns></returns>
-        public static bool IsStopCell(AbstractFight fight, FightTeam team, int cellId)
-        {
-            if (fight.GetCell(cellId).HasObject(FightObstacleTypeEnum.TYPE_TRAP))
-                return true;
+        public static bool IsStopCell(AbstractFight fight, FightTeam team, int cellId) =>
+            fight.GetCell(cellId).HasObject(FightObstacleTypeEnum.TYPE_TRAP) || GetEnnemiesNear(fight, team, cellId).Any();
 
-            if (GetEnnemiesNear(fight, team, cellId).Count() > 0)
-                return true;
-
-            return false;
-        }
-
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="fight"></param>
-        ///// <param name="team"></param>
-        ///// <param name="cellId"></param>
-        ///// <returns></returns>
         public static IEnumerable<AbstractFighter> GetEnnemiesNear(AbstractFight fight, FightTeam team, int cellId)
         {
             return GetFightersNear(fight, cellId).Where(fighter => fighter.Team != team);
         }
-
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="fight"></param>
-        ///// <param name="team"></param>
-        ///// <param name="cellId"></param>
-        ///// <returns></returns>
-        public static List<AbstractFighter> GetFightersNear(AbstractFight fight, int cellId)
-        {
-            List<AbstractFighter> fighters = new List<AbstractFighter>();
-            foreach (var direction in Pathfinding.FIGHT_DIRECTIONS)
-            {
-                var fighter = fight.GetFighterOnCell(Pathfinding.NextCell(fight.Map, cellId, direction));
-                if (fighter != null)
-                    if (!fighter.IsFighterDead)
-                        fighters.Add(fighter);
-            }
-            return fighters;
-        }
+        
+        public static List<AbstractFighter> GetFightersNear(AbstractFight fight, int cellId) =>
+            FIGHT_DIRECTIONS
+                .Select(dir => fight.GetFighterOnCell(NextCell(fight.Map, cellId, dir)))
+                .Where(f => f != null && !f.IsFighterDead)
+                .ToList();
 
         // Swap the values of A and B
         private static void Swap<T>(ref T a, ref T b)
@@ -933,81 +851,38 @@ namespace Game.Map
             b = c;
         }
 
-        // Returns the list of points from p0 to p1 
         private static bool BresenhamLine(AbstractFight fight, int beginCell, int endCell)
         {
             if (beginCell == endCell)
                 return true;
 
             var begin = GetPoint(fight.Map, beginCell);
-            var end = GetPoint(fight.Map, endCell);
-            return BresenhamLine(fight, beginCell, endCell, (int)begin.X, (int)begin.Y, (int)end.X, (int)end.Y);
-        }
+            var end   = GetPoint(fight.Map, endCell);
+            int x0 = (int)begin.X, y0 = (int)begin.Y, x1 = (int)end.X, y1 = (int)end.Y;
 
-        private static bool BresenhamLine(AbstractFight fight, int beginCell, int endCell, int x0, int y0, int x1, int y1)
-        {
             bool steep = Math.Abs(y1 - y0) > Math.Abs(x1 - x0);
-            if (steep)
-            {
-                Swap(ref x0, ref y0);
-                Swap(ref x1, ref y1);
-            }
-            if (x0 > x1)
-            {
-                Swap(ref x0, ref x1);
-                Swap(ref y0, ref y1);
-            }
+            if (steep)   { Swap(ref x0, ref y0); Swap(ref x1, ref y1); }
+            if (x0 > x1) { Swap(ref x0, ref x1); Swap(ref y0, ref y1); }
 
-            int deltax = x1 - x0;
-            int deltay = Math.Abs(y1 - y0);
-            int error = 0;
-            int ystep;
-            int y = y0;
-            if (y0 < y1) ystep = 1; else ystep = -1;
+            int dx = x1 - x0, dy = Math.Abs(y1 - y0), err = 0, y = y0, ystep = y0 < y1 ? 1 : -1;
+
             for (int x = x0; x <= x1; x++)
             {
-                int cellId = -1;
-                if (steep)
-                { 
-                    cellId = GetCell(fight.Map, y, x);
-                }
-                else
-                {
-                    cellId = GetCell(fight.Map, x, y);
-                }
+                int cellId = steep ? GetCell(fight.Map, y, x) : GetCell(fight.Map, x, y);
                 if (cellId != beginCell && cellId != endCell)
                 {
                     var fightCell = fight.GetCell(cellId);
-                    if (fightCell == null)
-                        return false;
-                    if (!fightCell.LineOfSight)
-                        return false;
-                    if (fightCell.HasObject(FightObstacleTypeEnum.TYPE_FIGHTER))
+                    if (fightCell == null || !fightCell.LineOfSight || fightCell.HasObject(FightObstacleTypeEnum.TYPE_FIGHTER))
                         return false;
                 }
-
-                error += deltay;
-                if (2 * error >= deltax)
-                {
-                    y += ystep;
-                    error -= deltax;
-                }
+                err += dy;
+                if (2 * err >= dx) { y += ystep; err -= dx; }
             }
 
             return true;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fight"></param>
-        /// <param name="beginCell"></param>
-        /// <param name="endCell"></param>
-        /// <returns></returns>
-        public static bool CheckView(AbstractFight fight, int beginCell, int endCell)
-        {
-            return BresenhamLine(fight, beginCell, endCell);
-        }
+        public static bool CheckView(AbstractFight fight, int beginCell, int endCell) => BresenhamLine(fight, beginCell, endCell);
 
         /// <summary>
         /// 
@@ -1175,7 +1050,21 @@ namespace Game.Map
                     if ((!map.IsWalkable(NewLocation) || blockedCells.Contains(NewLocation)) && NewLocation != EndCell)
                         continue;
 
-                    double NewG = CalcGrid[Location].G + 1;
+                    var newMapCell = map.GetCell(NewLocation);
+                    var curMapCell = map.GetCell(Location);
+
+                    // Client rule: adjacent cells with ground level difference > 2 are impassable
+                    if (newMapCell != null && curMapCell != null &&
+                        Math.Abs(newMapCell.GroundLevel - curMapCell.GroundLevel) > 2)
+                        continue;
+
+                    // movement==1 cells are destination-only: can be reached but not traversed
+                    if (newMapCell != null && newMapCell.IsDestinationOnly && NewLocation != EndCell)
+                        continue;
+
+                    // Client cost model: diagonal steps cost 1.5, cardinal steps cost 1.0
+                    double stepCost = i < 4 ? 1.0 : 1.5;
+                    double NewG = CalcGrid[Location].G + stepCost;
 
                     if ((CalcGrid[NewLocation].Status == NodeState.InOpenList || CalcGrid[NewLocation].Status == NodeState.InCloseList)
                         && CalcGrid[NewLocation].G <= NewG)

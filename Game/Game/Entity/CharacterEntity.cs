@@ -92,10 +92,8 @@ namespace Game.Entity
         /// 
         /// </summary>
         public override string Name => DatabaseRecord.Name;
+        public long RttMs { get; set; } = 300;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public string Ip
         {
             get;

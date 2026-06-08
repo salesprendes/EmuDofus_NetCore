@@ -8,46 +8,40 @@ namespace Game.Map
     public sealed class MapCell
     {
         public int Id;
+        public bool LineOfSight { get; }
+        public int GroundLevel { get; }
         public bool Walkable { get; }
-        public bool LineOfSight;
-        public short LayerObject1Num { get; }
-        public short LayerObject2Num { get; }
-
-        public InteractiveObject InteractiveObject
-        {
-            get;
-        }
-
-        public MapTriggerDAO Trigger
-        {
-            get;
-        }
+        public bool IsDestinationOnly { get; }
+        public InteractiveObject InteractiveObject { get; }
+        public MapTriggerDAO Trigger { get; }
 
         public MapCell(MapInstance map, int id, byte[] data, MapTriggerDAO trigger = null)
         {
-            Id = id;
+            Id      = id;
             Trigger = trigger;
 
-            bool walkable = ((data[2] & 56) >> 3) > 0;
-            LineOfSight = (data[0] & 1) == 1;
+            bool active   = (data[0] & 32) != 0;
+            int  movement = (data[2] & 56) >> 3;
 
-            LayerObject1Num = (short)(((data[0] & 4) << 11) + ((data[4] & 1) << 12) + (data[5] << 6) + data[6]);
-            LayerObject2Num = (short)(((data[0] & 2) << 12) + ((data[7] & 1) << 12) + (data[8] << 6) + data[9]);
+            LineOfSight       = (data[0] & 1) != 0;
+            GroundLevel       = data[1] & 15;
+            IsDestinationOnly = active && movement == 1;
 
-            if ((data[7] & 2) >> 1 == 1)
+            bool baseWalkable          = active && movement > 0;
+            bool layerObject2Interactive = (data[7] & 2) != 0;
+
+            if (!layerObject2Interactive)
             {
-                int interactiveObjectId = LayerObject2Num;
-                if (InteractiveObjectManager.Instance.Exists(interactiveObjectId))
-                {
-                    InteractiveObject = InteractiveObjectManager.Instance.Generate(interactiveObjectId, map, Id);
-                }
+                Walkable = baseWalkable;
+                return;
+            }
 
-                Walkable = walkable && InteractiveObject != null && InteractiveObject.CanWalkThrough;
-            }
-            else
-            {
-                Walkable = walkable;
-            }
+            int obj2Id = ((data[0] & 2) << 12) | ((data[7] & 1) << 12) | (data[8] << 6) | data[9];
+
+            if (InteractiveObjectManager.Instance.Exists(obj2Id))
+                InteractiveObject = InteractiveObjectManager.Instance.Generate(obj2Id, map, Id);
+
+            Walkable = baseWalkable && InteractiveObject != null && InteractiveObject.CanWalkThrough;
         }
 
         public bool SatisfyConditions(CharacterEntity character)

@@ -50,8 +50,8 @@ namespace Protocolo.Framework.Generic.Logging
             return options.MinimumLevel != LogLevel.Off && level >= options.MinimumLevel;
         }
 
-        public void Debug(object message) => Enqueue(LogLevel.Debug, message, null);
-        public void Info(object message) => Enqueue(LogLevel.Info, message, null);
+        public void Debug(object message, Exception exception = null) => Enqueue(LogLevel.Debug, message, exception);
+        public void Info(object message, Exception exception = null) => Enqueue(LogLevel.Info, message, exception);
         public void Warn(object message, Exception exception = null) => Enqueue(LogLevel.Warn, message, exception);
         public void Error(object message, Exception exception = null) => Enqueue(LogLevel.Error, message, exception);
         public void Fatal(object message, Exception exception = null) => Enqueue(LogLevel.Fatal, message, exception);

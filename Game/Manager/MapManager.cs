@@ -50,13 +50,10 @@ namespace Game.Manager
                 }
             }
 
-            // Free raw Data/DataKey/CreateTime strings — only kept alive above for Clone() calls.
-            // Creation-pool maps keep their Data so lazy Clone() can still work.
             foreach (var map in m_mapById.Values)
                 if (!WorldConfig.MULTIPLE_INSTANCE_MAP_ID.Contains(map.Id))
                     map.FreeRawData();
-
-            // Balanced clones are sub-instances; they won't be cloned again.
+                    
             foreach (var instances in m_balancedInstances.Values)
                 for (int i = 1; i < instances.Count; i++)
                     instances[i].FreeRawData();

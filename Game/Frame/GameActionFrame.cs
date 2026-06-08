@@ -31,33 +31,26 @@ namespace Game.Frame
             switch (message[0])
             {
                 case 'G':
-                    switch (message[1])
+                    return message[1] switch
                     {
-                        case 'A':
-                            return GameActionStart;
-
-                        case 'K':
-                            switch (message[2])
-                            {
-                                case 'K':
-                                    return GameActionFinish;
-
-                                case 'E':
-                                    return GameActionAbort;
-
-                                default:
-                                    return null;
-                            }
-
-                        default:
-                            return null;
-                    }
+                        'A' => GameActionStart,
+                        'K' => message[2] switch
+                        {
+                            'K' => GameActionFinish,
+                            'E' => GameActionAbort,
+                            _ => null,
+                        },
+                        _ => null,
+                    };
 
                 case 'D':
-                    switch(message[1])
+                    switch (message[1])
                     {
                         case 'C':
                             return DialogCreate;
+
+                        default:
+                        break;
                     }
                     break;
             }
@@ -73,7 +66,7 @@ namespace Game.Frame
         private void DialogCreate(CharacterEntity character, string message)
         {
             long npcId = -1;
-            if (message.Length < 3 || !long.TryParse(message.Substring(2), out npcId))
+            if (message.Length < 3 || !long.TryParse(message.AsSpan(2), out npcId))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -119,7 +112,7 @@ namespace Game.Frame
             }
 
             var actionId = -1;
-            if (!int.TryParse(message.Substring(2, 3), out actionId))
+            if (!int.TryParse(message.AsSpan(2, 3), out actionId))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -202,7 +195,7 @@ namespace Game.Frame
         /// </summary>
         /// <param name="character"></param>
         /// <param name="message"></param>
-        private void GameSkillUse(CharacterEntity character, string message)
+        private static void GameSkillUse(CharacterEntity character, string message)
         {
             if (message.Length <= 5) { character.Dispatch(WorldMessage.BASIC_NO_OPERATION()); return; }
             var skillData = message.Substring(5).Split(';');
@@ -214,9 +207,6 @@ namespace Game.Frame
 
             character.Map.AddMessage(() =>
             {
-                    // Reject if the character cannot perform interactive skill use right now
-                    // (e.g. in a fight, tombstoned, or carrying the CANT_USE_IO restriction).
-                    // This check must run inside the map message so CurrentAction is up-to-date.
                     if (!character.CanGameAction(GameActionTypeEnum.SKILL_USE))
                     {
                         character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
@@ -265,7 +255,7 @@ namespace Game.Frame
         /// </summary>
         /// <param name="character"></param>
         /// <param name="message"></param>
-        private void GameAlignmentAggression(CharacterEntity character, string message)
+        private static void GameAlignmentAggression(CharacterEntity character, string message)
         {
             if (character.Map.FightTeam0Cells.Count == 0 || character.Map.FightTeam1Cells.Count == 0)
                 return;
@@ -739,7 +729,22 @@ namespace Game.Frame
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
-                
+
+                if (action is GameMapMovementAction moveAction && moveAction.StartedAt > 0)
+                {
+                    const long MinExpectedMs = 800;
+                    long rtt      = Math.Min(character.RttMs, 1500);
+                    long elapsed  = Environment.TickCount64 - moveAction.StartedAt;
+                    long expected = (long)(moveAction.Path.MovementTime * 0.6);
+
+                    if (expected > MinExpectedMs && elapsed < expected + rtt)
+                    {
+                        Logger.Warn($"GameActionFrame::GameActionFinish speedhack detectado: {character.Name} ({elapsed}ms < {expected + rtt}ms esperados, rtt={rtt}ms)");
+                        character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                        return;
+                    }
+                }
+
                 character.StopAction(action.Type);
             });
         }

@@ -12,11 +12,6 @@ namespace Game.Fight.AI.Cache
         public AICellCache Cells { get; private set; }
         public AILineOfSightCache LineOfSight { get; private set; }
 
-        /// <summary>
-        /// Per-turn memo for <see cref="Evaluation.RiskEvaluator.ScoreCellRisk"/>, keyed by
-        /// (cellId, meleeOrTank). Risk depends only on enemy positions, which are fixed for the
-        /// duration of a single (synchronous) turn evaluation, so the score can be cached safely.
-        /// </summary>
         public Dictionary<int, int> CellRiskScores { get; } = new Dictionary<int, int>();
 
         public AITurnCache(AIFighter fighter, IReadOnlyList<AbstractFighter> allies, IReadOnlyList<AbstractFighter> enemies, AISpellBook spellBook)

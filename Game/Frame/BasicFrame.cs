@@ -173,6 +173,11 @@ namespace Game.Frame
                     if (message == "qping")
                         return BasicQPong;
                     break;
+
+                case 'r':
+                    if (message.StartsWith("rpong"))
+                        return BasicRPong;
+                    break;
             }
 
             return null;
@@ -1000,41 +1005,31 @@ namespace Game.Frame
             character.SafeDispatch(WorldMessage.BASIC_PONG());
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void BasicQPong(CharacterEntity character, string message)
         {
             character.SafeDispatch(WorldMessage.BASIC_QPONG());
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
+        private void BasicRPong(CharacterEntity character, string message)
+        {
+            if (!long.TryParse(message.Substring(5), out long sentAt))
+                return;
+            long rtt = Environment.TickCount64 - sentAt;
+            if (rtt < 0 || rtt > 10000)
+                return;
+            character.RttMs = (character.RttMs * 3 + rtt) / 4;
+        }
+
         private void BasicDate(CharacterEntity character, string message)
         {
             character.SafeDispatch(WorldMessage.BASIC_DATE());
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void BasicTime(CharacterEntity character, string message)
         {
             character.SafeDispatch(WorldMessage.BASIC_TIME());
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void BasicMessage(CharacterEntity character, string message)
         {
             var messageData = message.Substring(2).Split('|');

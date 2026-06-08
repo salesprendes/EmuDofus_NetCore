@@ -170,7 +170,7 @@ namespace Game
             });
         }
 
-        public void SaveWorldSync()
+        public static void SaveWorldSync()
         {
             var timer = new Stopwatch();
             Logger.Info("WorldService : Guardando mundo antes de cerrar...");

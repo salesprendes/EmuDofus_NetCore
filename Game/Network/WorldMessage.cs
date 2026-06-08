@@ -397,33 +397,10 @@ namespace Game.Network
         public static string CHARACTER_DELETION_ERROR() => "ADE";
         public static string CHARACTER_SELECTION_ERROR() => "ASE";
         public static string BASIC_TIME() => "BT" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public static string BASIC_DATE()
-        {
-            return "BD" + (DateTime.Now.Year - 1970) + '|' + (DateTime.Now.Month - 1) + '|' + DateTime.Now.Day;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public static string BASIC_PONG()
-        {
-            return "pong";
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public static string BASIC_QPONG()
-        {
-            return "qpong";
-        }
+        public static string BASIC_DATE() => "BD" + (DateTime.Now.Year - 1970) + '|' + (DateTime.Now.Month - 1) + '|' + DateTime.Now.Day;
+        public static string BASIC_PONG() => "pong";
+        public static string BASIC_QPONG() => "qpong";
+        public static string BASIC_RPING(long ticks) => "rping" + ticks;
 
         /// <summary>
         /// 

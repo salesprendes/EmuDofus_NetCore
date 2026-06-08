@@ -22,7 +22,7 @@ namespace Game.App
                 Logger.Info("Apagando servidor...");
                 try
                 {
-                    WorldService.Instance.SaveWorldSync();
+                    WorldService.SaveWorldSync();
                     WorldService.Instance.Stop();
                 }
                 finally
