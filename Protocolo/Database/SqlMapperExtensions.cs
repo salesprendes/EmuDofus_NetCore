@@ -59,15 +59,15 @@ namespace Protocolo.Framework.Database
 
                 // consonant + y  →  ies   (Category → Categories)
                 if (lower.EndsWith("y") && word.Length > 1 && !Vowels.Contains(lower[word.Length - 2]))
-                    return word.Substring(0, word.Length - 1) + "ies";
+                    return string.Concat(word.AsSpan(0, word.Length - 1), "ies");
 
                 // fe  →  ves   (Wife → Wives)
                 if (lower.EndsWith("fe"))
-                    return word.Substring(0, word.Length - 2) + "ves";
+                    return string.Concat(word.AsSpan(0, word.Length - 2), "ves");
 
                 // lf/rf/af  →  ves   (Half → Halves)
                 if (lower.EndsWith("lf") || lower.EndsWith("rf") || lower.EndsWith("af"))
-                    return word.Substring(0, word.Length - 1) + "ves";
+                    return string.Concat(word.AsSpan(0, word.Length - 1), "ves");
 
                 // ss, sh, ch, x, z, s  →  es
                 if (lower.EndsWith("ss") || lower.EndsWith("sh") || lower.EndsWith("ch") || lower.EndsWith("x") || lower.EndsWith("z") || lower.EndsWith("s"))

@@ -87,13 +87,13 @@ namespace Game.Condition
             // Inventory template checks use bool-returning methods
             if (expr.StartsWith("PO==", StringComparison.Ordinal))
             {
-                if (int.TryParse(expr.Substring(4), out int id))
+                if (int.TryParse(expr.AsSpan(4), out int id))
                     return ch => ch.Inventory.HasTemplate(id);
                 return null;
             }
             if (expr.StartsWith("PO!=", StringComparison.Ordinal))
             {
-                if (int.TryParse(expr.Substring(4), out int id))
+                if (int.TryParse(expr.AsSpan(4), out int id))
                     return ch => ch.Inventory.NotHasTemplate(id);
                 return null;
             }
@@ -119,10 +119,10 @@ namespace Game.Condition
 
             if (op == null || opIdx <= 0) return null;
 
-            var code = expr.Substring(0, opIdx);
-            var valueStr = expr.Substring(opIdx + op.Length);
+            var code = expr.AsSpan(0, opIdx);
+            var valueSpan = expr.AsSpan(opIdx + op.Length);
 
-            if (!long.TryParse(valueStr, out long value)) return null;
+            if (!long.TryParse(valueSpan, out long value)) return null;
 
             var getter = GetValueGetter(code);
             if (getter == null) return null;
@@ -139,44 +139,44 @@ namespace Game.Condition
             }
         }
 
-        private static Func<CharacterEntity, long> GetValueGetter(string code)
+        private static Func<CharacterEntity, long> GetValueGetter(ReadOnlySpan<char> code)
         {
-            switch (code)
+            return code switch
             {
                 // Stats totales
-                case "CI":  return ch => ch.Statistics.GetTotal(EffectEnum.AddIntelligence);
-                case "CV":  return ch => ch.Statistics.GetTotal(EffectEnum.AddVitality);
-                case "CA":  return ch => ch.Statistics.GetTotal(EffectEnum.AddAgility);
-                case "CW":  return ch => ch.Statistics.GetTotal(EffectEnum.AddWisdom);
-                case "CC":  return ch => ch.Statistics.GetTotal(EffectEnum.AddChance);
-                case "CS":  return ch => ch.Statistics.GetTotal(EffectEnum.AddStrength);
+                "CI" => ch => ch.Statistics.GetTotal(EffectEnum.AddIntelligence),
+                "CV" => ch => ch.Statistics.GetTotal(EffectEnum.AddVitality),
+                "CA" => ch => ch.Statistics.GetTotal(EffectEnum.AddAgility),
+                "CW" => ch => ch.Statistics.GetTotal(EffectEnum.AddWisdom),
+                "CC" => ch => ch.Statistics.GetTotal(EffectEnum.AddChance),
+                "CS" => ch => ch.Statistics.GetTotal(EffectEnum.AddStrength),
                 // Stats base
-                case "Ci":  return ch => ch.DatabaseRecord.Intelligence;
-                case "Cs":  return ch => ch.DatabaseRecord.Strength;
-                case "Cv":  return ch => ch.DatabaseRecord.Vitality;
-                case "Ca":  return ch => ch.DatabaseRecord.Agility;
-                case "Cw":  return ch => ch.DatabaseRecord.Wisdom;
-                case "Cc":  return ch => ch.DatabaseRecord.Chance;
+                "Ci" => ch => ch.DatabaseRecord.Intelligence,
+                "Cs" => ch => ch.DatabaseRecord.Strength,
+                "Cv" => ch => ch.DatabaseRecord.Vitality,
+                "Ca" => ch => ch.DatabaseRecord.Agility,
+                "Cw" => ch => ch.DatabaseRecord.Wisdom,
+                "Cc" => ch => ch.DatabaseRecord.Chance,
                 // Personaje
-                case "Ps":  return ch => ch.AlignmentId;
-                case "Pa":  return ch => ch.AlignmentPromotion;
-                case "PP":  return ch => ch.AlignmentLevel;
-                case "PL":  return ch => ch.Level;
-                case "PK":  return ch => ch.Inventory.Kamas;
-                case "PG":  return ch => ch.BreedId;
-                case "PS":  return ch => ch.Sex;
-                case "PZ":  return ch => 1;     // Suscriptor (siempre true)
-                case "PJ":  return ch => 0;     // HasJob
-                case "MK":  return ch => 0;     // HasJob
-                case "Pg":  return ch => 0;     // Don
-                case "PR":  return ch => 0;     // Married
-                case "PX":  return ch => ch.Account.Power;
-                case "PW":  return ch => 10000; // MaxWeight
-                case "PB":  return ch => ch.Map.SubAreaId;
-                case "SI":  return ch => ch.MapId;
-                case "MiS": return ch => ch.Id;
-                default:    return null;
-            }
+                "Ps" => ch => ch.AlignmentId,
+                "Pa" => ch => ch.AlignmentPromotion,
+                "PP" => ch => ch.AlignmentLevel,
+                "PL" => ch => ch.Level,
+                "PK" => ch => ch.Inventory.Kamas,
+                "PG" => ch => ch.BreedId,
+                "PS" => ch => ch.Sex,
+                "PZ" => ch => 1,     // Suscriptor (siempre true)
+                "PJ" => ch => 0,     // HasJob
+                "MK" => ch => 0,     // HasJob
+                "Pg" => ch => 0,     // Don
+                "PR" => ch => 0,     // Married
+                "PX" => ch => ch.Account.Power,
+                "PW" => ch => 10000, // MaxWeight
+                "PB" => ch => ch.Map.SubAreaId,
+                "SI" => ch => ch.MapId,
+                "MiS" => ch => ch.Id,
+                _ => null,
+            };
         }
     }
 }

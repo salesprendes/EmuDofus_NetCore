@@ -38,9 +38,7 @@ namespace Game.ActionEffect
 
             character.CachedBuffer = true;
             character.Inventory.AddKamas(kamas);
-            character.Dispatch(WorldMessage.IM_INFO_MESSAGE(InformationEnum.INFO_KAMAS_WON, kamas));
             character.CachedBuffer = false;
-
             return true;
         }
     }

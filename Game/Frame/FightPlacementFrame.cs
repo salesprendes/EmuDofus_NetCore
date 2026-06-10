@@ -1,10 +1,9 @@
-﻿using System;
-using Protocolo.Framework.Network;
-using Game;
+﻿using Game.Action;
 using Game.Entity;
 using Game.Fight;
-using Game.Action;
 using Game.Network;
+using Protocolo.Framework.Network;
+using System;
 
 namespace Game.Frame
 {
@@ -132,7 +131,7 @@ namespace Game.Frame
                     }
 
                     int cellId = -1;
-                    if (!int.TryParse(message.Substring(2), out cellId) || cellId < 0)
+                    if (!int.TryParse(message.AsSpan(2), out cellId) || cellId < 0)
                     {
                         Logger.Debug("GameFightPlacement::Placement no se pudo leer la celda indicada: " + character.Name);
                         character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
@@ -172,7 +171,7 @@ namespace Game.Frame
                 }
 
                 long fighterId = -1;
-                if (!long.TryParse(message.Substring(2), out fighterId))
+                if (!long.TryParse(message.AsSpan(2), out fighterId))
                 {
                     Logger.Debug("FightPlacement::Quit no se pudo leer el id del luchador: " + character.Name);
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
@@ -205,7 +204,7 @@ namespace Game.Frame
             {
                 case '*':
                     character.SafeDispatch(WorldMessage.ALIGNMENT_DISABLE_COST((character.Honour / 100) * 5));
-                return;
+                    return;
 
                 case '+':
                 case '-':
@@ -231,7 +230,7 @@ namespace Game.Frame
         private void FightSetFlag(CharacterEntity character, string message)
         {
             int cellId = -1;
-            if (message.Length < 3 || !int.TryParse(message.Substring(2), out cellId) || cellId < 0)
+            if (message.Length < 3 || !int.TryParse(message.AsSpan(2), out cellId) || cellId < 0)
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -251,5 +250,4 @@ namespace Game.Frame
         }
     }
 }
-
 

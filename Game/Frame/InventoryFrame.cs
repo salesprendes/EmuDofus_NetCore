@@ -1,29 +1,20 @@
-﻿using System;
-using Protocolo.Framework.Network;
-using Game.Database.Structure;
-using Game;
+﻿using Game.Database.Structure;
 using Game.Entity;
-using Game.Network;
 using Game.Manager;
+using Game.Network;
+using Protocolo.Framework.Network;
+using System;
 
 namespace Game.Frame
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class InventoryFrame : AbstractNetworkFrame<InventoryFrame, CharacterEntity, string>
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
         public override Action<CharacterEntity, string> GetHandler(string message)
         {
             if (message.Length < 2)
                 return null;
 
-            switch(message[0])
+            switch (message[0])
             {
                 case 'O':
                     switch (message[1])
@@ -33,6 +24,9 @@ namespace Game.Frame
 
                         case 'U':
                             return ObjectUse;
+
+                        case 'D':
+                            return ObjectDrop;
 
                         case 'd':
                             return ObjectDelete;
@@ -45,6 +39,9 @@ namespace Game.Frame
 
                         case 'x':
                             return LivingObjectDissociate;
+
+                        default:
+                            break;
                     }
                     break;
 
@@ -52,51 +49,49 @@ namespace Game.Frame
                     switch (message[1])
                     {
                         case 'r':
-                            return MountRide;     
+                            return MountRide;
                     }
+                    break;
+
+                default:
                     break;
             }
 
             return null;
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
-        private void MountRide(CharacterEntity character, string message)
-        {
-            character.AddMessage(character.MountRideUnride);
-        }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
+        private void MountRide(CharacterEntity character, string message) => character.AddMessage(character.MountRideUnride);
+
+
         private void ObjectMove(CharacterEntity character, string message)
-        {            
-            var data = message.Substring(2).Split('|');
+        {
+            var data = message.AsSpan(2);
+            Span<Range> parts = stackalloc Range[4];
+            var partCount = data.Split(parts, '|');
+            if (partCount < 2)
+            {
+                character.SafeDispatch(WorldMessage.OBJECT_MOVE_ERROR());
+                return;
+            }
 
             long itemId = -1;
-            if(!long.TryParse(data[0], out itemId))
+            if (!long.TryParse(data[parts[0]], out itemId))
             {
                 character.SafeDispatch(WorldMessage.OBJECT_MOVE_ERROR());
                 return;
             }
 
             int slotId = -1;
-            if(!int.TryParse(data[1], out slotId))
+            if (!int.TryParse(data[parts[1]], out slotId))
             {
                 character.SafeDispatch(WorldMessage.OBJECT_MOVE_ERROR());
                 return;
             }
 
             int quantity = 1;
-            if(data.Length > 2)
+            if (partCount > 2)
             {
-                if (!int.TryParse(data[2], out quantity))
+                if (!int.TryParse(data[parts[2]], out quantity))
                 {
                     character.SafeDispatch(WorldMessage.OBJECT_MOVE_ERROR());
                     return;
@@ -109,7 +104,7 @@ namespace Game.Frame
                 return;
             }
 
-            if(!Enum.IsDefined(typeof(ItemSlotEnum), slotId))
+            if (!Enum.IsDefined(typeof(ItemSlotEnum), slotId))
             {
                 character.SafeDispatch(WorldMessage.OBJECT_MOVE_ERROR());
                 return;
@@ -118,7 +113,7 @@ namespace Game.Frame
             character.AddMessage(() =>
                 {
                     var item = character.Inventory.Items.Find(x => x.Id == itemId);
-                    if(item == null)
+                    if (item == null)
                     {
                         character.Dispatch(WorldMessage.OBJECT_MOVE_ERROR());
                         return;
@@ -128,27 +123,23 @@ namespace Game.Frame
                 });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void ObjectUse(CharacterEntity character, string message)
         {
-            var data = message.Substring(2);
-            var useData = data.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+            var useData = message.AsSpan(2);
+            Span<Range> useParts = stackalloc Range[4];
+            var usePartCount = useData.Split(useParts, '|', StringSplitOptions.RemoveEmptyEntries);
 
             long itemId = -1;
-            if (!long.TryParse(useData[0], out itemId))
+            if (usePartCount < 1 || !long.TryParse(useData[useParts[0]], out itemId))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
             long targetId = -1;
-            if (useData.Length > 1)
+            if (usePartCount > 1)
             {
-                if (!long.TryParse(useData[1], out targetId))
+                if (!long.TryParse(useData[useParts[1]], out targetId))
                 {
                     character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
@@ -156,39 +147,41 @@ namespace Game.Frame
             }
 
             int targetCell = -1;
-            if (useData.Length > 2)
+            if (usePartCount > 2)
             {
-                if (!int.TryParse(useData[2], out targetCell))
+                if (!int.TryParse(useData[useParts[2]], out targetCell))
                 {
                     character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
             }
 
-            character.AddMessage(() => 
+            character.AddMessage(() =>
                 {
                     ActionEffectManager.Instance.ApplyEffects(character, itemId, targetId, targetCell);
                 });
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void LivingObjectFeed(CharacterEntity character, string message)
         {
-            var data = message.Substring(2).Split('|');
+            var data = message.AsSpan(2);
+            Span<Range> parts = stackalloc Range[4];
+            var partCount = data.Split(parts, '|');
+            if (partCount < 3)
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
 
             long itemId = -1;
-            if (!long.TryParse(data[0], out itemId))
+            if (!long.TryParse(data[parts[0]], out itemId))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
             long foodItemId = -1;
-            if (data.Length < 3 || !long.TryParse(data[2], out foodItemId))
+            if (!long.TryParse(data[parts[2]], out foodItemId))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -197,40 +190,34 @@ namespace Game.Frame
             character.AddMessage(() => character.Inventory.FeedLivingItem(itemId, foodItemId));
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void LivingObjectSkin(CharacterEntity character, string message)
         {
-            var data = message.Substring(2).Split('|');
+            var data = message.AsSpan(2);
+            Span<Range> parts = stackalloc Range[4];
+            int partCount = data.Split(parts, '|');
 
             long itemId = -1;
-            if (!long.TryParse(data[0], out itemId))
+            if (partCount < 1 || !long.TryParse(data[parts[0]], out itemId))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
             int skinId = 0;
-            if (data.Length >= 3)
-                int.TryParse(data[2], out skinId);
+            if (partCount >= 3)
+                int.TryParse(data[parts[2]], out skinId);
 
             character.AddMessage(() => character.Inventory.SetLivingItemSkin(itemId, skinId));
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void LivingObjectDissociate(CharacterEntity character, string message)
         {
-            var data = message.Substring(2).Split('|');
+            var data = message.AsSpan(2);
+            Span<Range> parts = stackalloc Range[2];
+            var partCount = data.Split(parts, '|');
 
             long itemId = -1;
-            if (!long.TryParse(data[0], out itemId))
+            if (partCount < 1 || !long.TryParse(data[parts[0]], out itemId))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -239,26 +226,56 @@ namespace Game.Frame
             character.AddMessage(() => character.Inventory.DissociateLivingItem(itemId));
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
-        private void ObjectDelete(CharacterEntity character, string message)
+        private void ObjectDrop(CharacterEntity character, string message)
         {
-            var data = message.Substring(2).Split('|');
+            var data = message.AsSpan(2);
+            Span<Range> parts = stackalloc Range[2];
+            var partCount = data.Split(parts, '|');
 
             long itemId = -1;
-            if (!long.TryParse(data[0], out itemId))
+            if (partCount < 1 || !long.TryParse(data[parts[0]], out itemId))
+            {
+                character.SafeDispatch(WorldMessage.OBJECT_DROP_ERROR_CANT_DROP());
+                return;
+            }
+
+            int quantity = 1;
+            if (partCount > 1)
+                int.TryParse(data[parts[1]], out quantity);
+
+            if (quantity <= 0)
+                quantity = 1;
+
+            character.AddMessage(() =>
+            {
+                var item = character.Inventory.Items.Find(x => x.Id == itemId);
+                if (item == null)
+                {
+                    character.Dispatch(WorldMessage.OBJECT_DROP_ERROR_CANT_DROP());
+                    return;
+                }
+                character.Inventory.RemoveItem(itemId, quantity);
+                character.Dispatch(WorldMessage.OBJECT_DROP_SUCCESS());
+            });
+        }
+
+        private void ObjectDelete(CharacterEntity character, string message)
+        {
+            var data = message.AsSpan(2);
+            Span<Range> parts = stackalloc Range[3];
+            var partCount = data.Split(parts, '|');
+
+            long itemId = -1;
+            if (partCount < 1 || !long.TryParse(data[parts[0]], out itemId))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
-            
+
             int quantity = 1;
-            if (data.Length > 1)
+            if (partCount > 1)
             {
-                if (!int.TryParse(data[1], out quantity))
+                if (!int.TryParse(data[parts[1]], out quantity))
                 {
                     character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
@@ -272,11 +289,9 @@ namespace Game.Frame
             }
 
             character.AddMessage(() =>
-                {
-                    character.Inventory.RemoveItem(itemId, quantity);
-                });
+            {
+                character.Inventory.RemoveItem(itemId, quantity);
+            });
         }
     }
 }
-
-

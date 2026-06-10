@@ -34,7 +34,7 @@ namespace Game.Frame
             switch (message[0])
             {
                 case 'c':
-                    switch(message[1])
+                    switch (message[1])
                     {
                         case 'C':
                             return ChatChannelEnable;
@@ -106,16 +106,16 @@ namespace Game.Frame
                             break;
                     }
                     break;
-                
+
                 case 'P':
-                    switch(message[1])
+                    switch (message[1])
                     {
                         case 'I': // PartyInvite
                             return PartyInvite;
 
                         case 'A': // PartyAccept
                             return PartyAccept;
-                        
+
                         case 'R': // PartyRefuse
                             return PartyRefuse;
 
@@ -150,7 +150,7 @@ namespace Game.Frame
                             return BasicMessage;
 
                         case 'Y':
-                            switch(message[2])
+                            switch (message[2])
                             {
                                 case 'A':
                                     return BasicAway;
@@ -248,7 +248,7 @@ namespace Game.Frame
         private void GuildTaxCollectorRemove(CharacterEntity character, string message)
         {
             long taxCollectorId = -1;
-            if (!long.TryParse(message.Substring(2), out taxCollectorId))
+            if (!long.TryParse(message.AsSpan(2), out taxCollectorId))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -262,7 +262,7 @@ namespace Game.Frame
                         return;
                     }
 
-                    var taxCollector = character.Map.GetEntity(taxCollectorId) as TaxCollectorEntity;
+                    TaxCollectorEntity taxCollector = character.Map.GetEntity(taxCollectorId) as TaxCollectorEntity;
                     if (taxCollector == null)
                     {
                         character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
@@ -294,14 +294,14 @@ namespace Game.Frame
 
             character.GuildMember.TaxCollectorsInterfaceLeave();
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="character"></param>
         /// <param name="message"></param>
-        public void GuildTaxCollectorLeave(CharacterEntity character, string message)
-        {           
+        public static void GuildTaxCollectorLeave(CharacterEntity character, string message)
+        {
             character.AddMessage(() =>
                 {
                     if (character.GuildMember == null)
@@ -319,7 +319,7 @@ namespace Game.Frame
                     character.StopAction(GameActionTypeEnum.TAXCOLLECTOR_AGGRESSION);
                 });
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -333,8 +333,7 @@ namespace Game.Frame
                 return;
             }
 
-            long taxCollectorId = -1;
-            if (!long.TryParse(message.Substring(3), out taxCollectorId))
+            if (!long.TryParse(message.AsSpan(3), out long taxCollectorId))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -397,16 +396,15 @@ namespace Game.Frame
                 return;
             }
 
-            var spellId = -1;
-            if (!int.TryParse(message.Substring(2), out spellId))
+            if (!int.TryParse(message.AsSpan(2), out int spellId))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
             character.GuildMember.BoostGuildSpell(spellId);
-        }  
-        
+        }
+
         /// <summary>
         ///
         /// </summary>
@@ -419,7 +417,7 @@ namespace Game.Frame
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
-            
+
             character.GuildMember.SendTaxCollectorsList();
             character.GuildMember.TaxCollectorsInterfaceJoin();
         }
@@ -447,23 +445,25 @@ namespace Game.Frame
         /// <param name="character"></param>
         /// <param name="message"></param>
         private void GuildCreationRequest(CharacterEntity character, string message)
-        {       
-            var guildData = message.Substring(2).Split('|');
-            if (guildData.Length < 5)
+        {
+            var guildData = message.AsSpan(2);
+            Span<Range> guildParts = stackalloc Range[6];
+            var guildPartCount = guildData.Split(guildParts, '|');
+            if (guildPartCount < 5)
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
             int backId = -1, backColor = -1, symbolId = -1, symbolColor = -1;
-            if (!int.TryParse(guildData[0], out backId) || !int.TryParse(guildData[1], out backColor) ||
-                !int.TryParse(guildData[2], out symbolId) || !int.TryParse(guildData[3], out symbolColor))
+            if (!int.TryParse(guildData[guildParts[0]], out backId) || !int.TryParse(guildData[guildParts[1]], out backColor) ||
+                !int.TryParse(guildData[guildParts[2]], out symbolId) || !int.TryParse(guildData[guildParts[3]], out symbolColor))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
-            var name = guildData[4];
+            var name = guildData[guildParts[4]].ToString();
 
             character.AddMessage(() =>
             {
@@ -481,7 +481,7 @@ namespace Game.Frame
 
                 WorldService.Instance.AddMessage(() =>
                     {
-                        if(GuildManager.Instance.Exists(name))
+                        if (GuildManager.Instance.Exists(name))
                         {
                             character.SafeDispatch(WorldMessage.GUILD_CREATION_ERROR_NAME_ALREADY_EXISTS());
                             return;
@@ -527,7 +527,7 @@ namespace Game.Frame
         /// <param name="message"></param>
         private void GuildKick(CharacterEntity character, string message)
         {
-            if(character.GuildMember == null)
+            if (character.GuildMember == null)
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -549,8 +549,10 @@ namespace Game.Frame
                 return;
             }
 
-            var messageData = message.Substring(2).Split('|');
-            if (messageData.Length < 4)
+            var messageData = message.AsSpan(2);
+            Span<Range> messageParts = stackalloc Range[5];
+            var messagePartCount = messageData.Split(messageParts, '|');
+            if (messagePartCount < 4)
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -558,8 +560,8 @@ namespace Game.Frame
 
             long profilId = -1;
             int rank = -1, xpSharePercent = -1, power = -1;
-            if (!long.TryParse(messageData[0], out profilId) || !int.TryParse(messageData[1], out rank) ||
-                !int.TryParse(messageData[2], out xpSharePercent) || !int.TryParse(messageData[3], out power))
+            if (!long.TryParse(messageData[messageParts[0]], out profilId) || !int.TryParse(messageData[messageParts[1]], out rank) ||
+                !int.TryParse(messageData[messageParts[2]], out xpSharePercent) || !int.TryParse(messageData[messageParts[3]], out power))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -573,7 +575,7 @@ namespace Game.Frame
         /// </summary>
         /// <param name="character"></param>
         /// <param name="message"></param>
-        public void GuildJoinRefuse(CharacterEntity character, string message)
+        public static void GuildJoinRefuse(CharacterEntity character, string message)
         {
             WorldService.Instance.AddMessage(() =>
                 {
@@ -658,7 +660,7 @@ namespace Game.Frame
         /// <param name="character"></param>
         /// <param name="message"></param>
         private void GuildJoinInvite(CharacterEntity character, string message)
-        {            
+        {
             WorldService.Instance.AddMessage(() =>
                 {
                     // not in guild
@@ -800,8 +802,8 @@ namespace Game.Frame
         /// </summary>
         /// <param name="character"></param>
         /// <param name="message"></param>
-        public void PartyRefuse(CharacterEntity character, string message)
-        {           
+        public static void PartyRefuse(CharacterEntity character, string message)
+        {
             WorldService.Instance.AddMessage(() =>
                 {
                     // if not being invited and not even inviting
@@ -917,7 +919,7 @@ namespace Game.Frame
                 }
 
                 long kickedPlayerId = -1;
-                if (!long.TryParse(message.Substring(2), out kickedPlayerId))
+                if (!long.TryParse(message.AsSpan(2), out kickedPlayerId))
                 {
                     character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
@@ -934,15 +936,13 @@ namespace Game.Frame
         /// <param name="message"></param>
         private void BoostStats(CharacterEntity character, string message)
         {
-            var statId = 0;
-
-            if (!int.TryParse(message.Substring(2), out statId))
+            if (!int.TryParse(message.AsSpan(2), out int statId))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
-            if (!m_statById.ContainsKey(statId))
+            if (!m_statById.TryGetValue(statId, out EffectEnum effect))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -950,7 +950,6 @@ namespace Game.Frame
 
             character.AddMessage(() =>
             {
-                var effect = m_statById[statId];
                 var actualValue = character.Statistics.GetEffect(effect).Base;
                 var boostValue = statId == 11 && character.Breed == CharacterBreedEnum.BREED_SACRIEUR ? 2 : 1;
                 var requiredPoint = GenericStats.GetRequiredStatsPoint(character.Breed, statId, actualValue);
@@ -984,7 +983,7 @@ namespace Game.Frame
                     case EffectEnum.AddAgility:
                         character.DatabaseRecord.Agility += boostValue;
                         break;
-                        
+
                     case EffectEnum.AddChance:
                         character.DatabaseRecord.Chance += boostValue;
                         break;
@@ -1012,7 +1011,7 @@ namespace Game.Frame
 
         private void BasicRPong(CharacterEntity character, string message)
         {
-            if (!long.TryParse(message.Substring(5), out long sentAt))
+            if (!long.TryParse(message.AsSpan(5), out long sentAt))
                 return;
             long rtt = Environment.TickCount64 - sentAt;
             if (rtt < 0 || rtt > 10000)
@@ -1032,20 +1031,28 @@ namespace Game.Frame
 
         private void BasicMessage(CharacterEntity character, string message)
         {
-            var messageData = message.Substring(2).Split('|');
-            var channel = messageData[0];
-            var messageContent = messageData[1];
+            var messageData = message.AsSpan(2);
+            Span<Range> messageParts = stackalloc Range[4];
+            var messagePartCount = messageData.Split(messageParts, '|');
+            if (messagePartCount < 2)
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
+            var channel = messageData[messageParts[0]].ToString();
+            var messageContent = messageData[messageParts[1]].ToString();
 
             if (channel.Length == 1)
             {
-                if (messageData.Length > 2)                
-                    messageContent = messageContent + "|" + messageData[2];
-                if(!Enum.IsDefined(typeof(ChatChannelEnum), (int)channel[0]))
+                if (messagePartCount > 2)
+                    messageContent = messageContent + "|" + messageData[messageParts[2]].ToString();
+                if (!Enum.IsDefined(typeof(ChatChannelEnum), (int)channel[0]))
                 {
                     character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
-                character.AddMessage(() => character.DispatchChatMessage((ChatChannelEnum)channel[0], messageContent));                
+                character.AddMessage(() => character.DispatchChatMessage((ChatChannelEnum)channel[0], messageContent));
             }
             else
             {
@@ -1079,9 +1086,14 @@ namespace Game.Frame
             }
 
             // message format: BaM<x>,<y>
-            var parts = message.Substring(3).Split(',');
-            int x, y;
-            if (parts.Length < 2 || !int.TryParse(parts[0], out x) || !int.TryParse(parts[1], out y))
+            var parts = message.AsSpan(3);
+            var separatorIndex = parts.IndexOf(',');
+            var yData = separatorIndex < 0 ? ReadOnlySpan<char>.Empty : parts.Slice(separatorIndex + 1);
+            var nextSeparatorIndex = yData.IndexOf(',');
+            if (nextSeparatorIndex >= 0)
+                yData = yData.Slice(0, nextSeparatorIndex);
+
+            if (separatorIndex < 0 || !int.TryParse(parts.Slice(0, separatorIndex), out int x) || !int.TryParse(yData, out int y))
                 return;
 
             int superAreaId = character.Map.SubArea.Area.SuperAreaId;

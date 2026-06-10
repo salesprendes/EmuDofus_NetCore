@@ -222,7 +222,7 @@ namespace Game.Map
         /// <summary>
         /// 
         /// </summary>
-        private StringBuilder m_serializedPath;
+        private string m_serializedPath;
         
         /// <summary>
         /// 
@@ -283,14 +283,17 @@ namespace Game.Map
         {
             if (m_serializedPath == null)
             {
-                m_serializedPath = new StringBuilder();
-                for (int i = 0; i < TransitCells.Count; i++)
+                m_serializedPath = string.Create(TransitCells.Count * 3, this, static (destination, path) =>
                 {
-                    m_serializedPath.Append(Pathfinding.GetDirectionChar((DirectionEnum)Directions[i]));
-                    m_serializedPath.Append(Util.CellToChar(TransitCells[i]));
-                }
+                    for (int i = 0; i < path.TransitCells.Count; i++)
+                    {
+                        var offset = i * 3;
+                        destination[offset] = Pathfinding.GetDirectionChar((DirectionEnum)path.Directions[i]);
+                        Util.CellToChar(path.TransitCells[i], destination.Slice(offset + 1, 2));
+                    }
+                });
             }
-            return m_serializedPath.ToString();
+            return m_serializedPath;
         }
     }
 
@@ -372,7 +375,7 @@ namespace Game.Map
 
             for (int i = 0; i < encodedPath.Length; i += 3)
             {
-                var actualCell = Util.CharToCell(encodedPath.Substring(i + 1, 2));
+                var actualCell = Util.CharToCell(encodedPath.AsSpan(i + 1, 2));
                 length += GoalDistance(map, lastCell, actualCell);
                 lastCell = actualCell;
             }
@@ -499,7 +502,7 @@ namespace Game.Map
         /// <returns></returns>
         public static int GetDirection(char direction)
         {
-            return Util.HASH.IndexOf(direction);
+            return Util.HashIndexOf(direction);
         }
 
         /// <summary>
@@ -573,7 +576,7 @@ namespace Game.Map
             if (string.IsNullOrEmpty(path) || path.Length < 3 || path.Length % 3 != 0)
                 return movementPath;
 
-            var firstCell = Util.CharToCell(path.Substring(1, 2));
+            var firstCell = Util.CharToCell(path.AsSpan(1, 2));
             if (GetDirection(path[0]) == -1 || map.GetCell(firstCell) == null)
                 return movementPath;
 
@@ -581,8 +584,8 @@ namespace Game.Map
 
             for (int i = 0; i < path.Length; i += 3)
             {
-                int curCell = Util.CharToCell(path.Substring(i + 1, 2));
-                int curDir = Util.HASH.IndexOf(path[i]);
+                int curCell = Util.CharToCell(path.AsSpan(i + 1, 2));
+                int curDir = Util.HashIndexOf(path[i]);
 
                 if (curDir == -1 || map.GetCell(curCell) == null)
                 {
@@ -769,7 +772,7 @@ namespace Game.Map
         /// <returns></returns>
         public static int IsValidLine(AbstractFight fight, AbstractFighter fighter, MovementPath path, int beginCell, DirectionEnum direction, int endCell)
         {
-            if (!FIGHT_DIRECTIONS.Contains(direction) || fight.GetCell(beginCell) == null || fight.GetCell(endCell) == null)
+            if ((direction != DirectionEnum.Este && direction != DirectionEnum.Sur && direction != DirectionEnum.Oeste && direction != DirectionEnum.Norte) || fight.GetCell(beginCell) == null || fight.GetCell(endCell) == null)
                 return -1;
 
             var length = -1;
@@ -837,11 +840,18 @@ namespace Game.Map
             return GetFightersNear(fight, cellId).Where(fighter => fighter.Team != team);
         }
         
-        public static List<AbstractFighter> GetFightersNear(AbstractFight fight, int cellId) =>
-            FIGHT_DIRECTIONS
-                .Select(dir => fight.GetFighterOnCell(NextCell(fight.Map, cellId, dir)))
-                .Where(f => f != null && !f.IsFighterDead)
-                .ToList();
+        public static List<AbstractFighter> GetFightersNear(AbstractFight fight, int cellId)
+        {
+            var fighters = new List<AbstractFighter>(FIGHT_DIRECTIONS.Length);
+            for (int i = 0; i < FIGHT_DIRECTIONS.Length; i++)
+            {
+                var fighter = fight.GetFighterOnCell(NextCell(fight.Map, cellId, FIGHT_DIRECTIONS[i]));
+                if (fighter != null && !fighter.IsFighterDead)
+                    fighters.Add(fighter);
+            }
+
+            return fighters;
+        }
 
         // Swap the values of A and B
         private static void Swap<T>(ref T a, ref T b)
@@ -868,7 +878,7 @@ namespace Game.Map
 
             for (int x = x0; x <= x1; x++)
             {
-                int cellId = steep ? GetCell(fight.Map, y, x) : GetCell(fight.Map, x, y);
+                int cellId = steep ? GetCell1(fight.Map, y, x) : GetCell1(fight.Map, x, y);
                 if (cellId != beginCell && cellId != endCell)
                 {
                     var fightCell = fight.GetCell(cellId);
@@ -891,9 +901,9 @@ namespace Game.Map
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        public static int GetCell(MapInstance map, double x, double y)
+        public static int GetCell1(MapInstance map, double x, double y)
         {
-            return (int)x * map.Width + (int)y * (map.Width - 1);
+            return (int)y * map.Width + (int)x * (map.Width - 1);
         }
 
     }
@@ -935,14 +945,14 @@ namespace Game.Map
 
             directions = new int[]
             {
-                map.Width,
-                map.Width - 1,
-                -map.Width,
-                -map.Width + 1,
                 1,
-                (map.Width * 2) - 1,
+                map.Width,
+                map.Width * 2 - 1,
+                map.Width - 1,
                 -1,
-                -((map.Width * 2) - 1)
+                -map.Width,
+                -(map.Width * 2 - 1),
+                -(map.Width - 1)
             };
 
             // CalcGrid/OpenList/ClosedList initialized lazily on first FindPath call.
@@ -961,14 +971,16 @@ namespace Game.Map
         {
             var pathList = FindPath(startCell, endCell, diagonal, movementPoints, obstacles == null ? new List<int>() : obstacles);
 
-            var sb = new StringBuilder();
-            for (int i = 0; i <= pathList.Count - 2; i++)
+            var segmentCount = Math.Max(0, pathList.Count - 1);
+            return string.Create(segmentCount * 3, (PathList: pathList, Map: map), static (destination, state) =>
             {
-                sb.Append(Pathfinding.GetDirectionChar(Pathfinding.GetDirection(map, pathList[i], pathList[i + 1])));
-                sb.Append(Util.CellToChar(pathList[i + 1]));
-            }
-
-            return sb.ToString();
+                for (int i = 0; i < state.PathList.Count - 1; i++)
+                {
+                    var offset = i * 3;
+                    destination[offset] = Pathfinding.GetDirectionChar(Pathfinding.GetDirection(state.Map, state.PathList[i], state.PathList[i + 1]));
+                    Util.CellToChar(state.PathList[i + 1], destination.Slice(offset + 1, 2));
+                }
+            });
         }
 
         /// <summary>

@@ -1,10 +1,9 @@
-﻿using System;
-using Protocolo.Framework.Network;
-using Game;
+﻿using Game.Action;
 using Game.Entity;
 using Game.Fight;
-using Game.Action;
 using Game.Network;
+using Protocolo.Framework.Network;
+using System;
 
 namespace Game.Frame
 {
@@ -236,7 +235,7 @@ namespace Game.Frame
         private void FightSetFlag(CharacterEntity character, string message)
         {
             int cellId = -1;
-            if (message.Length < 3 || !int.TryParse(message.Substring(2), out cellId) || cellId < 0)
+            if (message.Length < 3 || !int.TryParse(message.AsSpan(2), out cellId) || cellId < 0)
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -255,5 +254,4 @@ namespace Game.Frame
         }
     }
 }
-
 

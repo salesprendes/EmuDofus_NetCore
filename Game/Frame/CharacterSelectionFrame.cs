@@ -117,40 +117,42 @@ namespace Game.Frame
                 return;
             }
 
-            var infos = message.Substring(2).Split('|');
-            if (infos.Length < 6)
+            var infos = message.AsSpan(2);
+            Span<Range> infoParts = stackalloc Range[7];
+            var infoPartCount = infos.Split(infoParts, '|');
+            if (infoPartCount < 6)
             {
                 client.Send(WorldMessage.CHARACTER_CREATION_ERROR());
                 return;
             }
 
-            var name = infos[0];
+            var name = infos[infoParts[0]].ToString();
 
             byte breed = 0;
-            if (!byte.TryParse(infos[1], out breed))
+            if (!byte.TryParse(infos[infoParts[1]], out breed))
             {
                 client.Send(WorldMessage.CHARACTER_CREATION_ERROR());
                 return;
             }
 
-            bool sex = infos[2] == "1";
+            bool sex = infos[infoParts[2]].Equals("1", StringComparison.Ordinal);
 
             var color1 = -1;
-            if (!int.TryParse(infos[3], out color1))
+            if (!int.TryParse(infos[infoParts[3]], out color1))
             {
                 client.Send(WorldMessage.CHARACTER_CREATION_ERROR());
                 return;
             }
 
             var color2 = -1;
-            if (!int.TryParse(infos[4], out color2))
+            if (!int.TryParse(infos[infoParts[4]], out color2))
             {
                 client.Send(WorldMessage.CHARACTER_CREATION_ERROR());
                 return;
             }
 
             var color3 = -1;
-            if (!int.TryParse(infos[5], out color3))
+            if (!int.TryParse(infos[infoParts[5]], out color3))
             {
                 client.Send(WorldMessage.CHARACTER_CREATION_ERROR());
                 return;
@@ -284,9 +286,11 @@ namespace Game.Frame
                 return;
             }
 
-            var deletionData = message.Substring(2).Split('|');
+            var deletionData = message.AsSpan(2);
+            Span<Range> deletionParts = stackalloc Range[2];
+            var deletionPartCount = deletionData.Split(deletionParts, '|');
             long characterId = -1;
-            if (!long.TryParse(deletionData[0], out characterId))
+            if (deletionPartCount < 1 || !long.TryParse(deletionData[deletionParts[0]], out characterId))
             {
                 client.Send(WorldMessage.CHARACTER_DELETION_ERROR());
                 return;
@@ -363,7 +367,7 @@ namespace Game.Frame
             }
 
             long characterId = -1;
-            if (!long.TryParse(message.Substring(2), out characterId))
+            if (!long.TryParse(message.AsSpan(2), out characterId))
             {
                 client.Send(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -445,7 +449,7 @@ namespace Game.Frame
             }
 
             long characterId = -1;
-            if (!long.TryParse(message.Substring(2), out characterId))
+            if (!long.TryParse(message.AsSpan(2), out characterId))
             {
                 client.Send(WorldMessage.CHARACTER_SELECTION_ERROR());
                 return;
@@ -513,8 +517,10 @@ namespace Game.Frame
         /// </summary>
         private void HandleGiftAttribute(WorldClient client, string message)
         {
-            var data = message.Substring(2).Split('|');
-            if (data.Length < 2)
+            var data = message.AsSpan(2);
+            Span<Range> giftParts = stackalloc Range[3];
+            var giftPartCount = data.Split(giftParts, '|');
+            if (giftPartCount < 2)
             {
                 client.Send(WorldMessage.GIFT_STORED_ERROR());
                 return;
@@ -522,7 +528,7 @@ namespace Game.Frame
 
             int giftId;
             long characterId;
-            if (!int.TryParse(data[0], out giftId) || !long.TryParse(data[1], out characterId))
+            if (!int.TryParse(data[giftParts[0]], out giftId) || !long.TryParse(data[giftParts[1]], out characterId))
             {
                 client.Send(WorldMessage.GIFT_STORED_ERROR());
                 return;
@@ -591,6 +597,7 @@ namespace Game.Frame
         private void CharacterConnectSend(WorldClient client)
         {
             client.FrameManager.RemoveFrame(CharacterSelectionFrame.Instance);
+            client.CurrentCharacter.RecoverOfflineEnergy();
             client.CurrentCharacter.CachedBuffer = true;
             client.CurrentCharacter.Dispatch(WorldMessage.CHARACTER_SELECTION_SUCCESS(client.CurrentCharacter));
             client.CurrentCharacter.Dispatch(WorldMessage.SPELLS_LIST(client.CurrentCharacter.SpellBook));
@@ -605,7 +612,7 @@ namespace Game.Frame
             client.CurrentCharacter.Dispatch(WorldMessage.EMOTES_LIST(client.CurrentCharacter.EmoteCapacity));
             client.CurrentCharacter.Dispatch(WorldMessage.CHAT_ENABLED_CHANNELS());
             client.CurrentCharacter.Dispatch(WorldMessage.ACCOUNT_RESTRICTIONS(client.CurrentCharacter.Restriction));
-            client.CurrentCharacter.Dispatch(WorldMessage.INVENTORY_WEIGHT(0, 2000));
+            client.CurrentCharacter.Dispatch(WorldMessage.INVENTORY_WEIGHT(client.CurrentCharacter.CurrentPods, client.CurrentCharacter.MaxPods));
             if (client.CurrentCharacter.GuildMember != null)
             {
                 client.CurrentCharacter.Dispatch(WorldMessage.GUILD_STATS(client.CurrentCharacter.GuildMember.Guild, client.CurrentCharacter.GuildMember.Power));

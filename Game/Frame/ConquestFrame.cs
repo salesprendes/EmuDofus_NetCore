@@ -197,7 +197,7 @@ namespace Game.Frame
         {
             character.AddMessage(() =>
             {
-                if (!int.TryParse(message.Substring(3), out int subAreaId))
+                if (!int.TryParse(message.AsSpan(3), out int subAreaId))
                 {
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
@@ -225,7 +225,7 @@ namespace Game.Frame
         {
             character.AddMessage(() =>
             {
-                if (!int.TryParse(message.Substring(3), out int subAreaId))
+                if (!int.TryParse(message.AsSpan(3), out int subAreaId))
                 {
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;

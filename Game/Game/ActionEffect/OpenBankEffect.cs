@@ -3,8 +3,6 @@ using Game.Network;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.ActionEffect
 {
@@ -35,14 +33,14 @@ namespace Game.ActionEffect
         /// <returns></returns>
         public override bool Process(CharacterEntity character, Dictionary<string, string> parameters)
         {
-            if(!character.CanGameAction(Action.GameActionTypeEnum.EXCHANGE))
+            if (!character.CanGameAction(Action.GameActionTypeEnum.EXCHANGE))
             {
                 character.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_YOU_ARE_AWAY));
                 return false;
             }
 
             var taxe = character.Bank.Items.GroupBy(item => item.TemplateId).Count();
-            if(character.Inventory.Kamas < taxe)
+            if (character.Inventory.Kamas < taxe)
             {
                 if (character.Bank.Kamas < taxe)
                 {
@@ -59,7 +57,6 @@ namespace Game.ActionEffect
 
             character.CachedBuffer = true;
             character.ExchangeStorage(character.Bank);
-            character.Dispatch(WorldMessage.IM_INFO_MESSAGE(InformationEnum.INFO_KAMAS_LOST, taxe));
             character.CachedBuffer = false;
 
             return true;

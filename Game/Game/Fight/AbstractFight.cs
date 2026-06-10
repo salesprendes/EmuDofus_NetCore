@@ -1852,6 +1852,11 @@ namespace Game.Fight
                 return FightSpellLaunchResultEnum.RESULT_ERROR;
             }
 
+            if (fighter.IsFighterDead)
+            {
+                return FightSpellLaunchResultEnum.RESULT_ERROR;
+            }
+
             if (CurrentFighter != fighter)
             {
                 return FightSpellLaunchResultEnum.RESULT_ERROR;
@@ -1877,10 +1882,6 @@ namespace Game.Fight
                 return FightSpellLaunchResultEnum.RESULT_ERROR;
             }
 
-            if (fighter.StateManager.HasState(FighterStateEnum.STATE_CARRIED))
-            {
-                return FightSpellLaunchResultEnum.RESULT_ERROR;
-            }
 
             if (spellLevel.Conditions != null)
             {
@@ -2743,6 +2744,12 @@ namespace Game.Fight
                     return;
                 }
 
+                if (fighter.IsFighterDead)
+                {
+                    Logger.Debug("Fight::Move luchador muerto intenta moverse: " + entity.Name);
+                    return;
+                }
+
                 var movementPath = Pathfinding.IsValidPath(this, fighter, fighter.Cell.Id, path);
 
                 if (movementPath == null)
@@ -2822,6 +2829,9 @@ namespace Game.Fight
         {
             var fighter = (AbstractFighter)entity;
 
+            if (fighter.IsFighterDead)
+                return;
+
             fighter.UsedMP += movementPath.MovementLength;
 
             Dispatch(WorldMessage.GAME_ACTION(GameActionTypeEnum.FIGHT_PM_LOST, fighter.Id, fighter.Id + ",-" + movementPath.MovementLength));
@@ -2846,8 +2856,8 @@ namespace Game.Fight
             {
                 fighter.CachedBuffer = true;
                 fighter.Dispatch(fighter.IsSpectating
-                    ? WorldMessage.FIGHT_JOIN_SUCCESS((int)FightStateEnum.STATE_FIGHTING, false, false, true, 0)
-                    : WorldMessage.FIGHT_JOIN_SUCCESS((int)State, CancelButton, true, false, StartTime - UpdateTime));
+                    ? WorldMessage.FIGHT_JOIN_SUCCESS((int)FightStateEnum.STATE_FIGHTING, false, false, true, 0, (int)Type)
+                    : WorldMessage.FIGHT_JOIN_SUCCESS((int)State, CancelButton, true, false, StartTime - UpdateTime, (int)Type));
                 fighter.Dispatch(WorldMessage.GAME_MAP_INFORMATIONS(OperatorEnum.OPERATOR_ADD, AliveFighters.ToArray()));
 
                 switch (State)

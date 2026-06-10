@@ -1,12 +1,10 @@
 ﻿using Game.Database.Structure;
-using Game.Entity;
 using Game.Spell;
 using ProtoBuf;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.Stats
 {
@@ -31,7 +29,7 @@ namespace Game.Stats
         /// <summary>
         /// 
         /// </summary>
-        private static Dictionary<EffectEnum, List<EffectEnum>> OppositeStats = new Dictionary<EffectEnum, List<EffectEnum>>()
+        private static readonly Dictionary<EffectEnum, List<EffectEnum>> OppositeStats = new Dictionary<EffectEnum, List<EffectEnum>>()
         {
             {EffectEnum.AddInitiative, new List<EffectEnum>() { EffectEnum.SubInitiative }},
             {EffectEnum.AddAP, new List<EffectEnum>() { EffectEnum.SubAP,  EffectEnum.SubAPDodgeable }},
@@ -604,17 +602,9 @@ namespace Game.Stats
             return stats;
         }
 
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         [ProtoIgnore]
         public Dictionary<EffectEnum, GenericEffect> Effects => m_effects;
 
-        /// <summary>
-        /// 
-        /// </summary>
         [ProtoIgnore]
         public IEnumerable<KeyValuePair<EffectEnum, GenericEffect>> WeaponEffects
         {
@@ -624,10 +614,7 @@ namespace Game.Stats
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        private Dictionary<EffectEnum, GenericEffect> m_effects = new Dictionary<EffectEnum, GenericEffect>();               
+        private Dictionary<EffectEnum, GenericEffect> m_effects = new Dictionary<EffectEnum, GenericEffect>();
 
         /// <summary>
         /// 
@@ -666,10 +653,10 @@ namespace Game.Stats
         /// 
         /// </summary>
         /// <param name="guild"></param>
-        public GenericStats(GuildDAO guild) 
+        public GenericStats(GuildDAO guild)
         {
             m_effects.Add(EffectEnum.AddAP, new GenericEffect(EffectEnum.AddAP, 6));
-            m_effects.Add(EffectEnum.AddMP, new GenericEffect(EffectEnum.AddMP, 5));   
+            m_effects.Add(EffectEnum.AddMP, new GenericEffect(EffectEnum.AddMP, 5));
             m_effects.Add(EffectEnum.AddProspection, new GenericEffect(EffectEnum.AddProspection, 100));
             m_effects.Add(EffectEnum.AddPods, new GenericEffect(EffectEnum.AddPods, 1000));
             m_effects.Add(EffectEnum.AddInitiative, new GenericEffect(EffectEnum.AddInitiative, 100));
@@ -684,7 +671,7 @@ namespace Game.Stats
             m_effects.Add(EffectEnum.AddReduceDamagePercentWater, new GenericEffect(EffectEnum.AddReduceDamagePercentWater, guild.Level / 2));
             m_effects.Add(EffectEnum.AddReduceDamagePercentFire, new GenericEffect(EffectEnum.AddReduceDamagePercentFire, guild.Level / 2));
             m_effects.Add(EffectEnum.AddReduceDamagePercentEarth, new GenericEffect(EffectEnum.AddReduceDamagePercentEarth, guild.Level / 2));
-            m_effects.Add(EffectEnum.AddReduceDamagePercentNeutral, new GenericEffect(EffectEnum.AddReduceDamagePercentNeutral, guild.Level / 2));  
+            m_effects.Add(EffectEnum.AddReduceDamagePercentNeutral, new GenericEffect(EffectEnum.AddReduceDamagePercentNeutral, guild.Level / 2));
         }
 
         /// <summary>
@@ -714,16 +701,12 @@ namespace Game.Stats
         /// <returns></returns>
         public GenericEffect GetTotalEffect(EffectEnum effectType)
         {
-            var totalBase = 0;
-            var totalItems = 0;
-            var totalDons = 0;
-            var totalBoosts = 0;
             var effect = GetEffect(effectType);
 
-            totalBase = effect.Base;
-            totalItems = effect.Items;
-            totalDons = effect.Dons;
-            totalBoosts = effect.Boosts;
+            int totalBase = effect.Base;
+            int totalItems = effect.Items;
+            int totalDons = effect.Dons;
+            int totalBoosts = effect.Boosts;
 
             switch (effectType)
             {
@@ -742,16 +725,16 @@ namespace Game.Stats
                     break;
             }
 
-            if (OppositeStats.ContainsKey(effectType))
+            if (OppositeStats.TryGetValue(effectType, out List<EffectEnum> value))
             {
-                foreach (EffectEnum OppositeEffect in OppositeStats[effectType])
+                foreach (EffectEnum OppositeEffect in value)
                 {
-                    if (m_effects.ContainsKey(OppositeEffect))
+                    if (m_effects.TryGetValue(OppositeEffect, out GenericEffect value1))
                     {
-                        totalBase -= m_effects[OppositeEffect].Base;
-                        totalBoosts -= m_effects[OppositeEffect].Boosts;
-                        totalDons -= m_effects[OppositeEffect].Dons;
-                        totalItems -= m_effects[OppositeEffect].Items;
+                        totalBase -= value1.Base;
+                        totalBoosts -= value1.Boosts;
+                        totalDons -= value1.Dons;
+                        totalItems -= value1.Items;
                     }
                 }
             }
@@ -768,29 +751,29 @@ namespace Game.Stats
         {
             int total = 0;
 
-            if (m_effects.ContainsKey(effectType))            
-                total += m_effects[effectType].Total;            
+            if (m_effects.TryGetValue(effectType, out GenericEffect value))
+                total += value.Total;
 
             switch (effectType)
             {
                 case EffectEnum.AddAPDodge:
                 case EffectEnum.AddMPDodge:
                     total += GetTotal(EffectEnum.AddWisdom) / 4;
-                break;
+                    break;
 
                 case EffectEnum.AddAP:
                     total += GetTotal(EffectEnum.AddAPBis);
-                break;
+                    break;
 
                 case EffectEnum.AddMP:
                     total += GetTotal(EffectEnum.MPBonus);
-                break;
+                    break;
             }
 
-            if (OppositeStats.ContainsKey(effectType))            
-                foreach (EffectEnum OppositeEffect in OppositeStats[effectType])                
-                    if (m_effects.ContainsKey(OppositeEffect))                    
-                        total -= m_effects[OppositeEffect].Total;
+            if (OppositeStats.TryGetValue(effectType, out List<EffectEnum> value1))
+                foreach (EffectEnum OppositeEffect in value1)
+                    if (m_effects.TryGetValue(OppositeEffect, out GenericEffect value2))
+                        total -= value2.Total;
 
             return total;
         }
@@ -876,7 +859,7 @@ namespace Game.Stats
                 m_effects.Add(id, new GenericEffect(id));
             m_effects[id].Base += value;
         }
-        
+
         /// <summary>
         /// 
         /// </summary>

@@ -140,7 +140,7 @@ namespace Game.Database.Structure
                         var places = Places.Split('|')[0];
                         var length = places.Length / 2;
                         for (int i = 0; i < length; i++)
-                            m_fightTeam0Cells.Add(Util.CharToCell(places.Substring(i * 2, 2)));
+                            m_fightTeam0Cells.Add(Util.CharToCell(places.AsSpan(i * 2, 2)));
                     }
                 }
                 return m_fightTeam0Cells;
@@ -161,7 +161,7 @@ namespace Game.Database.Structure
                         var length = places.Length / 2;
                         for (int i = 0; i < length; i++)
                         {
-                            m_fightTeam1Cells.Add(Util.CharToCell(places.Substring(i * 2, 2)));
+                            m_fightTeam1Cells.Add(Util.CharToCell(places.AsSpan(i * 2, 2)));
                         }
                     }
                 }

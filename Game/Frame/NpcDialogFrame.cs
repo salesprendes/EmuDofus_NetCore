@@ -52,8 +52,10 @@ namespace Game.Frame
         /// <param name="message"></param>
         public void DialogReply(CharacterEntity character, string message)
         {
-            var dialogData = message.Substring(2).Split('|');
-            if (dialogData.Length < 2)
+            var dialogData = message.AsSpan(2);
+            Span<Range> dialogParts = stackalloc Range[3];
+            var dialogPartCount = dialogData.Split(dialogParts, '|');
+            if (dialogPartCount < 2 || dialogData[dialogParts[1]].IsEmpty)
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -61,7 +63,7 @@ namespace Game.Frame
 
             int questionId = -1;
             int responseId = -1;
-            if (!int.TryParse(dialogData[0], out questionId) || !int.TryParse(dialogData[1], out responseId))
+            if (!int.TryParse(dialogData[dialogParts[0]], out questionId) || !int.TryParse(dialogData[dialogParts[1]], out responseId))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -87,5 +89,3 @@ namespace Game.Frame
         }
     }
 }
-
-

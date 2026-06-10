@@ -76,7 +76,7 @@ namespace Game.Frame
         {
             character.AddMessage(() =>
             {
-                if (!long.TryParse(message.Substring(2), out var price))
+                if (!long.TryParse(message.AsSpan(2), out var price))
                 {
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;

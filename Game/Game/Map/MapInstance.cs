@@ -862,12 +862,7 @@ namespace Game.Map
 
         public MapCell GetCell(int id)
         {
-            if (id >= 0 && id < m_cellsArray.Length)
-            {
-                return m_cellsArray[id];
-            }
-
-            return null;
+            return id >= 0 && id < m_cellsArray.Length ? m_cellsArray[id] : null;
         }
 
         public int GetNearestCell(int cellId)

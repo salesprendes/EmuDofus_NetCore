@@ -208,7 +208,13 @@ namespace Game.Fight
         public string Places
         {
             get {
-                return m_placesCache ?? (m_placesCache = string.Concat(m_places.Select(cell => Util.CellToChar(cell.Id))));
+                return m_placesCache ?? (m_placesCache = string.Create(m_places.Count * 2, m_places, static (destination, places) =>
+                {
+                    for (int i = 0; i < places.Count; i++)
+                    {
+                        Util.CellToChar(places[i].Id, destination.Slice(i * 2, 2));
+                    }
+                }));
             }
         }
 

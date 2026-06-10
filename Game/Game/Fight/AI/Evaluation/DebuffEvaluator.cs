@@ -49,9 +49,6 @@ namespace Game.Fight.AI.Evaluation
                         continue;
                     }
 
-                    // ── Pase 2: debuff post-movimiento ───────────────────────────────────
-                    // Los hechizos de debuff suelen tener buen rango en Dofus 1.29, pero
-                    // algunos (trabas CAC, p. ej.) requieren estar adyacente.
                     if (!hasMP || reachableCells == null)
                         continue;
 

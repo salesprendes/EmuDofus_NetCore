@@ -4,7 +4,6 @@ using Game.Database.Structure;
 using Game.Entity.Inventory;
 using Game.Exchange;
 using Game.Fight;
-using Game.Fight.AI.Core;
 using Game.Frame;
 using Game.Guild;
 using Game.House;
@@ -239,7 +238,17 @@ namespace Game.Entity
             }
             set
             {
+                long delta = value - DatabaseRecord.Kamas;
                 DatabaseRecord.Kamas = value;
+
+                if (IsConnected && delta != 0)
+                {
+                    if (delta > 0)
+                        Dispatch(WorldMessage.IM_INFO_MESSAGE(InformationEnum.INFO_KAMAS_WON, delta));
+                    else
+                        Dispatch(WorldMessage.IM_INFO_MESSAGE(InformationEnum.INFO_KAMAS_LOST, -delta));
+                }
+
             }
         }
 
@@ -451,9 +460,19 @@ namespace Game.Entity
             {
                 return DatabaseRecord.Energy;
             }
+
             set
             {
+                int delta = value - DatabaseRecord.Energy;
                 DatabaseRecord.Energy = value;
+
+                if (IsConnected && delta != 0)
+                {
+                    if (delta > 0)
+                        Dispatch(WorldMessage.IM_INFO_MESSAGE(InformationEnum.INFO_ENERGY_RECOVERED, delta));
+                    else
+                        Dispatch(WorldMessage.IM_INFO_MESSAGE(InformationEnum.INFO_ENERGY_LOST, -delta));
+                }
             }
         }
 
@@ -462,49 +481,17 @@ namespace Game.Entity
         /// </summary>
         public override int BaseLife => 50 + (Level * 5);
 
-        /// <summary>
-        /// 
-        /// </summary>
+        public int MaxPods => Statistics.GetTotal(EffectEnum.AddPods) + Statistics.GetTotal(EffectEnum.AddStrength) * 5 + CharacterJobs.Jobs.Sum(job => job.Level * 5 + (job.Level >= 100 ? 1000 : 0));
+        public int CurrentPods => Inventory.Items.Sum(item => (item.Template?.Weight ?? 0) * item.Quantity);
         public string HexColor1 => DatabaseRecord.HexColor1;
-
-        /// <summary>
-        /// 
-        /// </summary>
         public string HexColor2 => DatabaseRecord.HexColor2;
-
-        /// <summary>
-        /// 
-        /// </summary>
         public string HexColor3 => DatabaseRecord.HexColor3;
-
-        /// <summary>
-        /// 
-        /// </summary>
         public override int SkinBase => DatabaseRecord.Skin;
-
-        /// <summary>
-        /// 
-        /// </summary>
         public override int SkinSizeBase => DatabaseRecord.SkinSize;
-
-        /// <summary>
-        /// 
-        /// </summary>
         public override bool CanDrop => true;
-
-        /// <summary>
-        /// 
-        /// </summary>
         public CharacterBreedEnum Breed => (CharacterBreedEnum)DatabaseRecord.Breed;
-
-        /// <summary>
-        /// 
-        /// </summary>
         public int BreedId => DatabaseRecord.Breed;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Sex
         {
             get
@@ -517,9 +504,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool Dead
         {
             get
@@ -965,7 +949,7 @@ namespace Game.Entity
                 return;
             }
 
-            var mount = EntityManager.Instance.GetMountById(EquippedMount);
+            MountEntity mount = EntityManager.Instance.GetMountById(EquippedMount);
             if (mount != null)
             {
                 if (mount.OwnerId == Id)
@@ -1131,7 +1115,6 @@ namespace Game.Entity
             }
 
             Energy -= energyLost;
-            Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, InformationEnum.INFO_ENERGY_LOST, energyLost));
 
             if (Energy == 0)
             {
@@ -1221,7 +1204,7 @@ namespace Game.Entity
                         case FightTypeEnum.TYPE_PVT:
                         case FightTypeEnum.TYPE_PVMA:
                             OnLoseFight(DeathTypeEnum.TYPE_NORMAL);
-                        break;
+                            break;
 
                             //case FightTypeEnum.TYPE_PVM:
                             //    OnLoseFight(DeathTypeEnum.TYPE_HEROIC);
@@ -1233,7 +1216,7 @@ namespace Game.Entity
                 {
                     case FightTypeEnum.TYPE_CHALLENGE:
                         Life = LifeBeforeFight;
-                    break;
+                        break;
 
                     default:
                         CachedBuffer = true;
@@ -1567,18 +1550,36 @@ namespace Game.Entity
                         Dispatch(WorldMessage.GAME_MESSAGE(GamePopupTypeEnum.TYPE_ON_DISCONNECT, GameMessageEnum.MESSAGE_KICKED, kicker, reason));
                     }
 
-                    if (KickEvent != null)
-                    {
-                        KickEvent();
-                    }
+                    KickEvent?.Invoke();
                 });
         }
 
         /// <summary>
         /// 
         /// </summary>
+        public void RecoverOfflineEnergy()
+        {
+            if (DatabaseRecord.DisconnectedAt == default)
+                return;
+
+            double hoursOffline = (DateTime.Now - DatabaseRecord.DisconnectedAt).TotalHours;
+            if (hoursOffline <= 0)
+                return;
+
+            bool isEnhanced = DatabaseRecord.Merchant || WorldConfig.MAPAS_TABERNA.Contains(DatabaseRecord.MapId) || Manager.HouseManager.Instance.GetByInsideMapId(DatabaseRecord.MapId) != null;
+            double ratePerHour = isEnhanced ? 100.0 : 50.0;
+            int recovered = (int)(hoursOffline * ratePerHour);
+
+            if (recovered > 0)
+                Energy = Math.Min(10000, Energy + recovered);
+
+            DatabaseRecord.DisconnectedAt = default;
+        }
+
         public bool Disconnected()
         {
+            DatabaseRecord.DisconnectedAt = DateTime.Now;
+
             if (HasGameAction(GameActionTypeEnum.FIGHT))
             {
                 if (IsSpectating)
@@ -1607,10 +1608,7 @@ namespace Game.Entity
                 AbortAction(GameActionTypeEnum.MAP);
             }
 
-            if (GuildMember != null)
-            {
-                GuildMember.CharacterDisconnected();
-            }
+            GuildMember?.CharacterDisconnected();
 
             Dispose();
             if (Merchant)
@@ -1734,10 +1732,7 @@ namespace Game.Entity
         /// <param name="message"></param>
         public void DispatchGuildMessage(string message)
         {
-            if (GuildMember != null)
-            {
-                GuildMember.Guild.SafeDispatch(message);
-            }
+            GuildMember?.Guild.SafeDispatch(message);
         }
 
         /// <summary>
@@ -2085,9 +2080,9 @@ namespace Game.Entity
             {
                 Map.SafeDispatch(message);
             }
-            else if (Fight != null)
+            else
             {
-                Fight.SafeDispatch(message);
+                Fight?.SafeDispatch(message);
             }
         }
 
@@ -2326,7 +2321,7 @@ namespace Game.Entity
                     message.Append((int)Breed);
                     if (TitleId != 0)
                     {
-                        message.Append(",");
+                        message.Append(',');
                         message.Append(TitleId).Append('*');
                         message.Append(TitleParams);//  Goule de %1 = Goule de Tamere ?
                     }

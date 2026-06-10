@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -78,6 +79,7 @@ namespace Game.Database.Structure
         private int _alignmentDishonour;
         private bool _alignmentEnabled;
         private string _zaaps;
+        private DateTime _disconnectedAt;
 
 
         /// <summary>
@@ -462,6 +464,12 @@ namespace Game.Database.Structure
         {
             get => _zaaps;
             set => SetProperty(ref _zaaps, value);
+        }
+
+        public DateTime DisconnectedAt
+        {
+            get => _disconnectedAt;
+            set => SetProperty(ref _disconnectedAt, value);
         }
 
         #region Unmapped

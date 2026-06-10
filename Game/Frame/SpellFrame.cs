@@ -45,22 +45,31 @@ namespace Game.Frame
         /// <param name="message"></param>
         private void SpellMove(CharacterEntity character, string message)
         {
-            var data = message.Substring(2).Split('|');
-            if (data.Length != 2)
+            var data = message.AsSpan(2);
+            var separatorIndex = data.IndexOf('|');
+            if (separatorIndex < 0)
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
+            var spellIdData = data.Slice(0, separatorIndex);
+            var positionData = data.Slice(separatorIndex + 1);
+            if (positionData.IndexOf('|') >= 0)
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
             int spellId = -1;
-            if (!int.TryParse(data[0], out spellId))
+            if (!int.TryParse(spellIdData, out spellId))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
             int position = -1;
-            if (!int.TryParse(data[1], out position))
+            if (!int.TryParse(positionData, out position))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -93,7 +102,7 @@ namespace Game.Frame
         private void SpellBoost(CharacterEntity character, string message)
         {
             var spellId = -1;
-            if (!int.TryParse(message.Substring(2), out spellId))
+            if (!int.TryParse(message.AsSpan(2), out spellId))
             {
                 character.SafeDispatch(WorldMessage.SPELL_UPGRADE_ERROR());
                 return;
@@ -132,6 +141,4 @@ namespace Game.Frame
         }
     }
 }
-
-
 

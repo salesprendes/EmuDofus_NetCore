@@ -100,15 +100,14 @@ namespace Game.Entity.Inventory
             OnKamasSubstracted(value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="item"></param>
-        /// <param name="merge"></param>
-        /// <returns></returns>
+        protected virtual bool CheckWeight(ItemDAO item) => true;
+
         public bool AddItem(ItemDAO item, bool merge = true)
         {
             if (Items.Contains(item))
+                return false;
+
+            if (!CheckWeight(item))
                 return false;
 
             if (merge)

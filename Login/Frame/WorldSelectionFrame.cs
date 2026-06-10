@@ -32,7 +32,7 @@ namespace Login.Frames
 
         private void WorldSelection(AuthClient client, string message)
         {
-            if (message.Length <= 2 || !int.TryParse(message.Substring(2), out var worldId))
+            if (message.Length <= 2 || !int.TryParse(message.AsSpan(2), out var worldId))
             {
                 client.Send(AuthMessage.WORLD_SELECTION_FAILED());
                 return;

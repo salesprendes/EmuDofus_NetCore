@@ -1,10 +1,5 @@
 ﻿using Game.Spell;
 using ProtoBuf;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.Stats
 {
@@ -122,7 +117,7 @@ namespace Game.Stats
         /// <param name="effect"></param>
         public void Merge(StatsType type, GenericEffect effect)
         {
-            switch(type)
+            switch (type)
             {
                 case StatsType.TYPE_BASE:
                     Base += effect.MergeValue;

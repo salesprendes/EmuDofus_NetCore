@@ -8,16 +8,16 @@ namespace Game.Command
     {
         private readonly string[] _aliases =
         {
-            "tele", "teleport"
+            "tele", "teleport", "go"
         };
 
         public override string[] Aliases => _aliases;
         public override string Description => "Te teletransporta a un mapa y celda concretos. Uso: %mapId% %cellId%";
-        protected override StaffRole RequiredRole => StaffRole.GameMaster;
+        protected override StaffRole RequiredRole => StaffRole.Moderator;
 
         protected override void Process(WorldCommandContext context)
         {
-            if (!int.TryParse(context.TextCommandArgument.NextWord(), out var mapId) || !int.TryParse(context.TextCommandArgument.NextWord(), out var cellId))
+            if (!int.TryParse(context.TextCommandArgument.NextWord(), out var mapId))
             {
                 SendFormat(context);
                 return;
@@ -30,11 +30,16 @@ namespace Game.Command
                 return;
             }
 
-            var cell = map.GetCell(cellId);
-            if (cell == null || !cell.Walkable)
+            int.TryParse(context.TextCommandArgument.NextWord(), out var cellId);
+
+            if (map.GetCell(cellId)?.Walkable != true)
             {
-                context.Character.Dispatch(WorldMessage.BASIC_CONSOLE_MESSAGE("La celda no existe o no es caminable."));
-                return;
+                cellId = map.RandomFreeCell();
+                if (cellId == -1)
+                {
+                    context.Character.Dispatch(WorldMessage.BASIC_CONSOLE_MESSAGE("No hay celdas libres en ese mapa."));
+                    return;
+                }
             }
 
             if (!context.Character.CanGameAction(GameActionTypeEnum.MAP_TELEPORT))

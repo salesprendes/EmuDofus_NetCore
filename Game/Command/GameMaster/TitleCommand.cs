@@ -10,9 +10,7 @@ namespace Game.Command
         };
 
         public override string[] Aliases => _aliases;
-
         public override string Description => "Cambia el titulo visible de tu personaje. Uso: %titleId%";
-
         protected override StaffRole RequiredRole => StaffRole.GameMaster;
 
         protected override void Process(WorldCommandContext context)

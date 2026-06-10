@@ -1,47 +1,39 @@
-using Game.Fight;
 using Game.Map;
 using System.Collections.Generic;
 
 namespace Game.Fight.AI.Cache
 {
-    public sealed class AILineOfSightCache
+    public sealed class AILineOfSightCache(AbstractFight fight)
     {
-        private readonly AbstractFight m_fight;
-        private readonly Dictionary<long, bool> m_cache;
-
-        public AILineOfSightCache(AbstractFight fight)
-        {
-            m_fight = fight;
-            m_cache = new Dictionary<long, bool>();
-        }
+        private readonly Dictionary<long, bool> m_cache = new Dictionary<long, bool>();
 
         public bool HasLineOfSight(int fromCell, int toCell)
         {
-            if (m_fight == null || fromCell < 0 || toCell < 0)
+            if (fight == null || fromCell < 0 || toCell < 0)
                 return false;
 
             if (fromCell == toCell)
                 return true;
 
-            long key = fromCell < toCell ? ((long)fromCell << 32) | (uint)toCell : ((long)toCell  << 32) | (uint)fromCell;
+            long key = fromCell < toCell ? ((long)fromCell << 32) | (uint)toCell : ((long)toCell << 32) | (uint)fromCell;
 
             if (m_cache.TryGetValue(key, out bool result))
                 return result;
 
             try
             {
-                result = Pathfinding.CheckView(m_fight, fromCell, toCell);
+                result = Pathfinding.CheckView(fight, fromCell, toCell);
             }
             catch
             {
-                result = MapLos(m_fight?.Map, fromCell, toCell);
+                result = MapLos(fight?.Map, fromCell, toCell);
             }
 
             m_cache[key] = result;
             return result;
         }
 
-        
+
         private static bool MapLos(MapInstance map, int fromCell, int toCell)
         {
             if (map == null || fromCell == toCell) return fromCell == toCell;
@@ -54,7 +46,7 @@ namespace Game.Fight.AI.Cache
             int x1 = (int)p1.X, y1 = (int)p1.Y;
 
             bool steep = System.Math.Abs(y1 - y0) > System.Math.Abs(x1 - x0);
-            if (steep)   { Swap(ref x0, ref y0); Swap(ref x1, ref y1); }
+            if (steep) { Swap(ref x0, ref y0); Swap(ref x1, ref y1); }
             if (x0 > x1) { Swap(ref x0, ref x1); Swap(ref y0, ref y1); }
 
             int dx = x1 - x0, dy = System.Math.Abs(y1 - y0);
@@ -62,7 +54,7 @@ namespace Game.Fight.AI.Cache
 
             for (int x = x0; x <= x1; x++)
             {
-                int cellId = steep ? Pathfinding.GetCell(map, y, x) : Pathfinding.GetCell(map, x, y);
+                int cellId = steep ? Pathfinding.GetCell1(map, y, x) : Pathfinding.GetCell1(map, x, y);
 
                 if (cellId != fromCell && cellId != toCell)
                 {
@@ -77,6 +69,6 @@ namespace Game.Fight.AI.Cache
             return true;
         }
 
-        private static void Swap(ref int a, ref int b) { int t = a; a = b; b = t; }
+        private static void Swap(ref int a, ref int b) => (b, a) = (a, b);
     }
 }

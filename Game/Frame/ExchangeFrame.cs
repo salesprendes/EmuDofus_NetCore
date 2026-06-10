@@ -74,23 +74,14 @@ namespace Game.Frame
                             if (message.Length < 3)
                                 return null;
 
-                            switch (message[2])
+                            return message[2] switch
                             {
-                                case 'G':
-                                    return ExchangeMoveGold;
-
-                                case 'O':
-                                    return ExchangeMoveObject;
-
-                                case 'R':
-                                    return ExchangeRetry;
-                                    
-                                case 'r':
-                                    return ExchangeCancelRetry;
-
-                                default:
-                                    return null;
-                            }
+                                'G' => ExchangeMoveGold,
+                                'O' => ExchangeMoveObject,
+                                'R' => ExchangeRetry,
+                                'r' => ExchangeCancelRetry,
+                                _ => null,
+                            };
                     }
                     break;
             }
@@ -170,7 +161,7 @@ namespace Game.Frame
         private void AuctionHouseMiddlePrice(CharacterEntity character, string message)
         {
             int templateId = -1;
-            if (!int.TryParse(message.Substring(3), out templateId))
+            if (!int.TryParse(message.AsSpan(3), out templateId))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -192,7 +183,7 @@ namespace Game.Frame
                     return;
                 }
 
-                var middlePrice = ((AbstractGameAuctionHouseAction)exchangeAction).AuctionExchange.Npc.AuctionHouse.GetMiddlePrice(templateId);
+                var middlePrice = exchangeAction.AuctionExchange.Npc.AuctionHouse.GetMiddlePrice(templateId);
 
                 character.Dispatch(WorldMessage.AUCTION_HOUSE_MIDDLE_PRICE(templateId, middlePrice));
             });
@@ -205,23 +196,31 @@ namespace Game.Frame
         /// <param name="message"></param>
         private void AuctionHouseBuyItem(CharacterEntity character, string message)
         {
-            var data = message.Substring(3).Split('|');
+            var data = message.AsSpan(3);
+            Span<Range> parts = stackalloc Range[4];
+            var partCount = data.Split(parts, '|');
+            if (partCount < 3)
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
             int categoryId = -1;
-            if (!int.TryParse(data[0], out categoryId))
+            if (!int.TryParse(data[parts[0]], out categoryId))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
             int quantity = -1;
-            if (!int.TryParse(data[1], out quantity))
+            if (!int.TryParse(data[parts[1]], out quantity))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
             long price = -1;
-            if (!long.TryParse(data[2], out price))
+            if (!long.TryParse(data[parts[2]], out price))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -255,7 +254,7 @@ namespace Game.Frame
         private void AuctionHouseGetItemsList(CharacterEntity character, string message)
         {
             int templateId = -1;
-            if (!int.TryParse(message.Substring(3), out templateId))
+            if (!int.TryParse(message.AsSpan(3), out templateId))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -289,7 +288,7 @@ namespace Game.Frame
         private void AuctionHouseGetTemplatesList(CharacterEntity character, string message)
         {
             int type = -1;
-            if(!int.TryParse(message.Substring(3), out type))
+            if(!int.TryParse(message.AsSpan(3), out type))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -322,17 +321,19 @@ namespace Game.Frame
         /// <param name="message"></param>
         private void ExchangeRequest(CharacterEntity character, string message)
         {
-            var exchangeData = message.Substring(2).Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+            var exchangeData = message.AsSpan(2);
+            Span<Range> exchangeParts = stackalloc Range[3];
+            var exchangePartCount = exchangeData.Split(exchangeParts, '|', StringSplitOptions.RemoveEmptyEntries);
             int exchangeTypeId = -1;
 
-            if(!int.TryParse(exchangeData[0], out exchangeTypeId))
+            if(exchangePartCount < 1 || !int.TryParse(exchangeData[exchangeParts[0]], out exchangeTypeId))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
             var exchangeActorId = -1;
-            if (exchangeData.Length > 1 && !int.TryParse(exchangeData[1], out exchangeActorId))
+            if (exchangePartCount > 1 && !int.TryParse(exchangeData[exchangeParts[1]], out exchangeActorId))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -527,29 +528,25 @@ namespace Game.Frame
         /// <param name="message"></param>
         private void ExchangeSell(CharacterEntity character, string message)
         {
-            if (!message.Contains('|'))
-            {
-                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
-                return;
-            }
+            var data = message.AsSpan(2);
+            Span<Range> parts = stackalloc Range[3];
+            var partCount = data.Split(parts, '|');
 
-            var data = message.Substring(2).Split('|');
-
-            if(data.Length != 2)
+            if(partCount != 2)
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
             long itemId = -1;
-            if(!long.TryParse(data[0], out itemId))
+            if(!long.TryParse(data[parts[0]], out itemId))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
             int quantity = -1;
-            if(!int.TryParse(data[1], out quantity))
+            if(!int.TryParse(data[parts[1]], out quantity))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -575,29 +572,25 @@ namespace Game.Frame
         /// <param name="message"></param>
         private void ExchangeBuy(CharacterEntity character, string message)
         {
-            if(!message.Contains('|'))
-            {
-                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
-                return;
-            }
+            var data = message.AsSpan(2);
+            Span<Range> parts = stackalloc Range[3];
+            var partCount = data.Split(parts, '|');
 
-            var data = message.Substring(2).Split('|');
-
-            if(data.Length != 2)
+            if(partCount != 2)
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
             int templateId = -1;
-            if (!int.TryParse(data[0], out templateId))
+            if (!int.TryParse(data[parts[0]], out templateId))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
             int quantity = -1;
-            if(!int.TryParse(data[1], out quantity))
+            if(!int.TryParse(data[parts[1]], out quantity))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -630,7 +623,7 @@ namespace Game.Frame
         private void ExchangeMoveGold(CharacterEntity character, string message)
         {
             long kamas = -1;
-            if(!long.TryParse(message.Substring(3), out kamas))
+            if(!long.TryParse(message.AsSpan(3), out kamas))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -662,30 +655,27 @@ namespace Game.Frame
         /// <param name="message"></param>
         private void ExchangeMoveObject(CharacterEntity character, string message)
         {
-            if (!message.Contains('|'))
+            var data = message.AsSpan(3);
+            Span<Range> parts = stackalloc Range[4];
+            var partCount = data.Split(parts, '|');
+
+            if (partCount < 2 || data[parts[0]].IsEmpty)
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
-            var data = message.Substring(3).Split('|');
-
-            if (data.Length < 2)
-            {
-                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
-                return;
-            }
-
-            var add = data[0][0] == '+';
+            var itemData = data[parts[0]];
+            var add = itemData[0] == '+';
             long itemId = -1;
-            if (!long.TryParse(data[0].Substring(1), out itemId))
+            if (!long.TryParse(itemData.Slice(1), out itemId))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
             int quantity = -1;
-            if (!int.TryParse(data[1], out quantity))
+            if (!int.TryParse(data[parts[1]], out quantity))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -698,12 +688,14 @@ namespace Game.Frame
             }
 
             long price = -1;
-            if (data.Length > 2)
-                if (!long.TryParse(data[2], out price))
+            if (partCount > 2)
+            {
+                if (!long.TryParse(data[parts[2]], out price))
                 {
                     character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
+            }
 
             character.AddMessage(() =>
             {
@@ -728,9 +720,8 @@ namespace Game.Frame
         /// <param name="message"></param>
         private void ExchangeRetry(CharacterEntity character, string message)
         {
-            var countData = message.Substring(3);
             var count = -1;
-            if(!int.TryParse(countData, out count))
+            if(!int.TryParse(message.AsSpan(3), out count))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -774,7 +765,7 @@ namespace Game.Frame
                 }
 
                 var action = character.CurrentAction as AbstractGameExchangeAction;
-                var exchange = action.Exchange as IRetryableExchange;
+                IRetryableExchange exchange = action.Exchange as IRetryableExchange;
                 if (exchange == null)
                 {
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());

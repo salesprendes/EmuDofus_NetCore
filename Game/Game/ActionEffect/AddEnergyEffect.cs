@@ -42,7 +42,6 @@ namespace Game.ActionEffect
             character.CachedBuffer = true;
             character.Energy += energy;
             character.SendAccountStats();
-            character.Dispatch(WorldMessage.IM_INFO_MESSAGE(InformationEnum.INFO_ENERGY_RECOVERED, energy));
             character.CachedBuffer = false;
 
             return true;

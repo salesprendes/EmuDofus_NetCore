@@ -2,6 +2,7 @@ using Game.Database.Repository;
 using Game.Database.Structure;
 using Game.Spell;
 using Protocolo.Framework.Generic;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -82,7 +83,7 @@ namespace Game.Manager
             if (s.Length < 2 || s[0] != '[')
                 return null;
 
-            var parts = SplitTopLevel(s.Substring(1, s.Length - 2));
+            var parts = SplitTopLevel(s.AsSpan(1, s.Length - 2));
             if (parts.Count < 20)
                 return null;
 
@@ -121,27 +122,34 @@ namespace Game.Manager
                 return effects;
 
             // Strip outer array brackets: [[e1],[e2]] -> [e1],[e2]
-            s = s.Substring(1, s.Length - 2).Trim();
-            if (string.IsNullOrEmpty(s))
+            var data = s.AsSpan(1, s.Length - 2).Trim();
+            if (data.IsEmpty)
                 return effects;
 
             int depth = 0;
-            var current = new StringBuilder();
+            int effectStart = -1;
 
-            foreach (char c in s)
+            for (int i = 0; i < data.Length; i++)
             {
-                if (c == '[') depth++;
-                if (depth > 0) current.Append(c);
+                char c = data[i];
+                if (c == '[')
+                {
+                    if (depth == 0)
+                        effectStart = i;
+
+                    depth++;
+                }
+
                 if (c == ']')
                 {
                     depth--;
-                    if (depth == 0)
+                    if (depth == 0 && effectStart >= 0)
                     {
-                        var eff = ParseEffect(current.ToString().Trim());
+                        var eff = ParseEffect(data.Slice(effectStart, i - effectStart + 1).Trim());
                         eff.SpellId = spellId;
                         eff.SpellLevel = levelNum;
                         effects.Add(eff);
-                        current.Clear();
+                        effectStart = -1;
                     }
                 }
             }
@@ -149,24 +157,25 @@ namespace Game.Manager
             return effects;
         }
 
-        private static SpellEffect ParseEffect(string s)
+        private static SpellEffect ParseEffect(ReadOnlySpan<char> s)
         {
             // s is like "[265, 7, null, null, 4, 0, 0d0+7]"
-            s = s.Substring(1, s.Length - 2);
-            var parts = s.Split(',');
+            var parts = s.Slice(1, s.Length - 2);
+            Span<Range> effectParts = stackalloc Range[7];
+            parts.Split(effectParts, ',');
             return new SpellEffect
             {
-                Type = ParseInt(parts[0].Trim()),
-                Value1 = ParseInt(parts[1].Trim()),
-                Value2 = ParseInt(parts[2].Trim()),
-                Value3 = ParseInt(parts[3].Trim()),
-                Duration = ParseInt(parts[4].Trim()),
-                Chance = ParseInt(parts[5].Trim()),
+                Type = ParseInt(parts[effectParts[0]]),
+                Value1 = ParseInt(parts[effectParts[1]]),
+                Value2 = ParseInt(parts[effectParts[2]]),
+                Value3 = ParseInt(parts[effectParts[3]]),
+                Duration = ParseInt(parts[effectParts[4]]),
+                Chance = ParseInt(parts[effectParts[5]]),
                 // parts[6] = formula string (e.g. "1d5+1"), informational only
             };
         }
 
-        private static List<string> SplitTopLevel(string s)
+        private static List<string> SplitTopLevel(ReadOnlySpan<char> s)
         {
             var result = new List<string>();
             int depth = 0;
@@ -196,24 +205,48 @@ namespace Game.Manager
 
         private static int ParseInt(string s)
         {
-            if (s == "null" || string.IsNullOrEmpty(s)) return 0;
+            return ParseInt(s.AsSpan());
+        }
+
+        private static int ParseInt(ReadOnlySpan<char> s)
+        {
+            s = s.Trim();
+            if (s.IsEmpty || s.Equals("null", StringComparison.Ordinal)) return 0;
             int.TryParse(s, out int v);
             return v;
         }
 
-        private static bool ParseBool(string s) => s.Trim() == "true";
+        private static bool ParseBool(string s) => s.AsSpan().Trim().Equals("true", StringComparison.Ordinal);
 
         private static List<int> ParseIntList(string s)
         {
-            s = s.Trim();
-            if (string.IsNullOrEmpty(s) || s == "[]" || s == "null")
-                return new List<int>();
-            s = s.Substring(1, s.Length - 2).Trim();
-            if (string.IsNullOrEmpty(s))
-                return new List<int>();
-            return s.Split(',')
-                .Select(x => { int.TryParse(x.Trim(), out int v); return v; })
-                .ToList();
+            var result = new List<int>();
+            var data = s.AsSpan().Trim();
+            if (data.IsEmpty || data.Equals("[]", StringComparison.Ordinal) || data.Equals("null", StringComparison.Ordinal))
+                return result;
+
+            data = data.Slice(1, data.Length - 2).Trim();
+            if (data.IsEmpty)
+                return result;
+
+            while (!data.IsEmpty)
+            {
+                var separatorIndex = data.IndexOf(',');
+                var value = separatorIndex < 0 ? data : data.Slice(0, separatorIndex);
+                result.Add(ParseInt(value));
+
+                if (separatorIndex < 0)
+                    break;
+
+                data = data.Slice(separatorIndex + 1);
+                if (data.IsEmpty)
+                {
+                    result.Add(0);
+                    break;
+                }
+            }
+
+            return result;
         }
     }
 }

@@ -191,13 +191,11 @@ namespace Game.Fight.AI.Evaluation
             IEnumerable<int> cells;
             try
             {
-                cells = string.IsNullOrEmpty(spell.RangeType)
-                    ? new[] { castCell }
-                    : CellZone.GetCells(context.Fight.Map, castCell, context.Fighter.Cell.Id, spell.RangeType);
+                cells = string.IsNullOrEmpty(spell.RangeType) ? [castCell] : CellZone.GetCells(context.Fight.Map, castCell, context.Fighter.Cell.Id, spell.RangeType);
             }
             catch
             {
-                cells = new[] { castCell };
+                cells = [castCell];
             }
 
             foreach (var cellId in cells)

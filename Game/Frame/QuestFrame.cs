@@ -39,7 +39,11 @@ namespace Game.Frame
 
         private void QuestsStepsRequest(CharacterEntity character, string message)
         {
-            var raw = message.Contains('|') ? message.Split('|')[0].Substring(2) : message.Substring(2);
+            var raw = message.AsSpan(2);
+            var separatorIndex = raw.IndexOf('|');
+            if (separatorIndex >= 0)
+                raw = raw.Slice(0, separatorIndex);
+
             int questId = -1;
             if (!int.TryParse(raw, out questId))
             {
@@ -51,5 +55,4 @@ namespace Game.Frame
         }
     }
 }
-
 

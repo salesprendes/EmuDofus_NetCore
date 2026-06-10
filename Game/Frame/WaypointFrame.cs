@@ -52,7 +52,7 @@ namespace Game.Frame
         private void WaypointUse(CharacterEntity character, string message)
         {
             int mapId = -1;
-            if (!int.TryParse(message.Substring(2), out mapId))
+            if (!int.TryParse(message.AsSpan(2), out mapId))
             {
                 character.SafeDispatch(WorldMessage.WAYPOINT_USE_ERROR());
                 return;
@@ -95,7 +95,6 @@ namespace Game.Frame
 
                 character.CachedBuffer = true;
                 character.Inventory.SubKamas(price);
-                character.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, InformationEnum.INFO_KAMAS_LOST, price));
                 character.StopAction(GameActionTypeEnum.WAYPOINT);
                 character.CachedBuffer = false;
 
@@ -108,5 +107,4 @@ namespace Game.Frame
         }
     }
 }
-
 

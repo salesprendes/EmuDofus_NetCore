@@ -587,10 +587,9 @@ namespace Game.Guild
                             AddTaxCollector(taxCollector);
 
                             member.Character.AddMessage(() =>
-                                {
-                                    member.Character.Inventory.SubKamas(TaxCollectorPrice);
-                                    member.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, InformationEnum.INFO_KAMAS_LOST, TaxCollectorPrice));
-                                });
+                            {
+                                member.Character.Inventory.SubKamas(TaxCollectorPrice);
+                            });
 
                             base.Dispatch(WorldMessage.GUILD_TAXCOLLECTOR_HIRED(taxCollector, member.Character.Name));
                         });

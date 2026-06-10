@@ -201,12 +201,7 @@ namespace Game.Entity
         /// <summary>
         /// 
         /// </summary>
-        public int ReflectDamage => ((1 + (Statistics.GetTotal(EffectEnum.AddWisdom) / 100))
-                                     * Statistics.GetTotal(EffectEnum.AddReflectDamage)) + Statistics.GetTotal(EffectEnum.AddReflectDamageItem);
-
-        /// <summary>
-        /// 
-        /// </summary>
+        public int ReflectDamage => ((1 + (Statistics.GetTotal(EffectEnum.AddWisdom) / 100)) * Statistics.GetTotal(EffectEnum.AddReflectDamage)) + Statistics.GetTotal(EffectEnum.AddReflectDamageItem);
         public int MaxLife => BaseLife + Statistics.GetTotal(EffectEnum.AddVitality) + Statistics.GetTotal(EffectEnum.AddLife);
 
         /// <summary>

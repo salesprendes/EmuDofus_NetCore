@@ -12,42 +12,42 @@ namespace Game
     {
         public static int GetStartCell(CharacterBreedEnum breed)
         {
-            switch (breed)
+            return breed switch
             {
-                case CharacterBreedEnum.BREED_CRA: return 219;
-                case CharacterBreedEnum.BREED_ECAFLIP: return 297;
-                case CharacterBreedEnum.BREED_ENIRIPSA: return 270;
-                case CharacterBreedEnum.BREED_ENUTROF: return 272;
-                case CharacterBreedEnum.BREED_FECA: return 321;
-                case CharacterBreedEnum.BREED_IOP: return 235;
-                case CharacterBreedEnum.BREED_OSAMODAS: return 219;
-                case CharacterBreedEnum.BREED_PANDAWA: return 249;
-                case CharacterBreedEnum.BREED_SACRIEUR: return 229;
-                case CharacterBreedEnum.BREED_SADIDAS: return 255;
-                case CharacterBreedEnum.BREED_SRAM: return 219;
-                case CharacterBreedEnum.BREED_XELOR: return 286;
-                default: throw new Exception("BreedId desconocido: " + breed);
-            }
+                CharacterBreedEnum.BREED_CRA => 219,
+                CharacterBreedEnum.BREED_ECAFLIP => 297,
+                CharacterBreedEnum.BREED_ENIRIPSA => 270,
+                CharacterBreedEnum.BREED_ENUTROF => 272,
+                CharacterBreedEnum.BREED_FECA => 321,
+                CharacterBreedEnum.BREED_IOP => 235,
+                CharacterBreedEnum.BREED_OSAMODAS => 219,
+                CharacterBreedEnum.BREED_PANDAWA => 249,
+                CharacterBreedEnum.BREED_SACRIEUR => 229,
+                CharacterBreedEnum.BREED_SADIDAS => 255,
+                CharacterBreedEnum.BREED_SRAM => 219,
+                CharacterBreedEnum.BREED_XELOR => 286,
+                _ => throw new Exception("BreedId desconocido: " + breed),
+            };
         }
 
         public static int GetStartMap(CharacterBreedEnum breed)
         {
-            switch (breed)
+            return breed switch
             {
-                case CharacterBreedEnum.BREED_CRA: return 10285;
-                case CharacterBreedEnum.BREED_ECAFLIP: return 10276;
-                case CharacterBreedEnum.BREED_ENIRIPSA: return 10283;
-                case CharacterBreedEnum.BREED_ENUTROF: return 10299;
-                case CharacterBreedEnum.BREED_FECA: return 10300;
-                case CharacterBreedEnum.BREED_IOP: return 10294;
-                case CharacterBreedEnum.BREED_OSAMODAS: return 10285;
-                case CharacterBreedEnum.BREED_PANDAWA: return 10289;
-                case CharacterBreedEnum.BREED_SACRIEUR: return 10296;
-                case CharacterBreedEnum.BREED_SADIDAS: return 10279;
-                case CharacterBreedEnum.BREED_SRAM: return 10285;
-                case CharacterBreedEnum.BREED_XELOR: return 10298;
-                default: throw new Exception("BreedId desconocido: " + breed);
-            }
+                CharacterBreedEnum.BREED_CRA => 10285,
+                CharacterBreedEnum.BREED_ECAFLIP => 10276,
+                CharacterBreedEnum.BREED_ENIRIPSA => 10283,
+                CharacterBreedEnum.BREED_ENUTROF => 10299,
+                CharacterBreedEnum.BREED_FECA => 10300,
+                CharacterBreedEnum.BREED_IOP => 10294,
+                CharacterBreedEnum.BREED_OSAMODAS => 10285,
+                CharacterBreedEnum.BREED_PANDAWA => 10289,
+                CharacterBreedEnum.BREED_SACRIEUR => 10296,
+                CharacterBreedEnum.BREED_SADIDAS => 10279,
+                CharacterBreedEnum.BREED_SRAM => 10285,
+                CharacterBreedEnum.BREED_XELOR => 10298,
+                _ => throw new Exception("BreedId desconocido: " + breed),
+            };
         }
 
         public static readonly FrozenDictionary<JobIdEnum, int[]> JOB_TOOLS = new Dictionary<JobIdEnum, int[]>()
@@ -83,6 +83,12 @@ namespace Game
 
         // Per-player isolated instances — one private copy per character entering these maps
         public static readonly FrozenSet<int> MULTIPLE_INSTANCE_MAP_ID = new[] { 10276, 10279, 10283, 10285, 10289, 10294, 10296, 10298, 10299, 10300 }.ToFrozenSet();
+
+        public static readonly FrozenSet<int> MAPAS_TABERNA = new int[]
+        {
+            10354, 7573, 7572, 7574, 465, 463, 6064, 461, 462,
+            5867, 6197, 6021, 6044, 8196, 6055, 8195, 1905, 1907, 6049
+        }.ToFrozenSet();
 
         // Balanced fixed instances — N copies pre-created; players are routed to the least populated one
         // Key = map ID, Value = number of instances to pre-create
@@ -164,8 +170,6 @@ namespace Game
         [Configurable()]
         public static int CHARACTER_CREATION_EMOTE_CAPACITY = 1376255;
 
-
-
         [Configurable()]
         public static int PVM_MAX_STAR_BONUS = 1000;
         [Configurable()]
@@ -177,7 +181,7 @@ namespace Game
         [Configurable()]
         public static int PVM_TURN_TIME = 30000;
 
-        public static double[] PVM_RATE_GROUP = { 1, 1.1, 1.5, 2.3, 3.1, 3.6, 4.2, 4.7 };
+        public static double[] PVM_RATE_GROUP = [1, 1.1, 1.5, 2.3, 3.1, 3.6, 4.2, 4.7];
 
         [Configurable()]
         public static double RATE_XP = 5;
@@ -190,7 +194,6 @@ namespace Game
 
         [Configurable()]
         public static double TAXCOLLECTOR_XP_RATIO = 0.05;
-
 
         public static int FIGHT_DISCONNECTION_TURN = 20;
         public static int FIGHT_PUSH_CELL_TIME = 270;

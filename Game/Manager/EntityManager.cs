@@ -105,9 +105,9 @@ namespace Game.Manager
             if (character.PartyId != -1)
                 PartyManager.Instance.PartyLeave(character);
             if (character.PartyInvitedPlayerId != -1 || character.PartyInviterPlayerId != -1)
-                BasicFrame.Instance.PartyRefuse(character, "");
+                BasicFrame.PartyRefuse(character, "");
             if (character.GuildInvitedPlayerId != -1 || character.GuildInviterPlayerId != -1)
-                BasicFrame.Instance.GuildJoinRefuse(character, "");
+                BasicFrame.GuildJoinRefuse(character, "");
                 
             character.AddMessage(() =>
             {

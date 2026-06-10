@@ -28,10 +28,6 @@ namespace Game.Fight.AI.Evaluation
                     if (!SpellEvaluator.CanCastFromCurrentCell(context, spell, ally.Cell.Id))
                         continue;
 
-                    // ── TODO resuelto: evitar relanzar estados ya activos ────────────────
-                    // Si el hechizo aplica un estado (EffectEnum.AddState = 950) y el aliado
-                    // ya tiene ese estado activo, no tiene sentido relanzarlo (el motor lo
-                    // rechazaría o desperdiciaría PA).
                     if (WouldRecastActiveState(spell, ally))
                         continue;
 

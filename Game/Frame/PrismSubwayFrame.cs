@@ -32,7 +32,7 @@ namespace Game.Frame
         private void PrismUse(CharacterEntity character, string message)
         {
             int destMapId;
-            if (!int.TryParse(message.Substring(2), out destMapId))
+            if (!int.TryParse(message.AsSpan(2), out destMapId))
             {
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;

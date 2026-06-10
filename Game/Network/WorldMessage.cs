@@ -443,8 +443,9 @@ namespace Game.Network
                 {
                     var parts = entry.Split(':');
                     if (parts.Length != 2) continue;
-                    int templateId, quantity;
-                    if (!int.TryParse(parts[0], out templateId) || !int.TryParse(parts[1], out quantity)) continue;
+                    if (!int.TryParse(parts[0], out int templateId) || !int.TryParse(parts[1], out int quantity))
+                        continue;
+
                     items.Append(';')
                          .Append(0).Append('~')
                          .Append(templateId.ToString("x")).Append('~')
@@ -492,11 +493,6 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="book"></param>
-        /// <returns></returns>
         public static string SPELLS_LIST(SpellBook book)
         {
             var message = new StringBuilder("SL");
@@ -504,50 +500,11 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public static string AREAS_LIST()
-        {
-            return "al|" + ConquestManager.Instance.SerializeAs_SubAreaAlignmentList();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public static string ACCOUNT_RESTRICTIONS(int restrictions)
-        {
-            return "AR" + Util.EncodeBase36(restrictions);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public static string SPECIALISATION_SET(int alignmentId)
-        {
-            return "ZS" + alignmentId;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public static string SPECIALISATION_CHANGE(int alignmentId)
-        {
-            return "ZC" + alignmentId;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public static string CHAT_ENABLED_CHANNELS()
-        {
-            return "cC+i*?:#@$%!TF";
-        }
+        public static string AREAS_LIST() => "al|" + ConquestManager.Instance.SerializeAs_SubAreaAlignmentList();
+        public static string ACCOUNT_RESTRICTIONS(int restrictions) => "AR" + Util.EncodeBase36(restrictions);
+        public static string SPECIALISATION_SET(int alignmentId) => "ZS" + alignmentId;
+        public static string SPECIALISATION_CHANGE(int alignmentId) => "ZC" + alignmentId;
+        public static string CHAT_ENABLED_CHANNELS() => "cC+i*?:#@$%!TF";
 
         /// <summary>
         /// 
@@ -630,56 +587,21 @@ namespace Game.Network
 
             message.Append(character.Initiative).Append('|');
             message.Append(character.Prospection).Append('|');
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddAP).ToString()).Append('|');
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddMP).ToString()).Append('|');
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddStrength).ToString()).Append('|');
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddVitality).ToString()).Append('|');
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddWisdom).ToString()).Append('|');
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddChance).ToString()).Append('|');
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddAgility).ToString()).Append('|');
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddIntelligence).ToString()).Append('|');
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddPO).ToString()).Append('|');
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddInvocationMax).ToString()).Append('|');
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddDamage).ToString()).Append('|');
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddDamagePhysic).ToString()).Append('|');
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddDamageMagic).ToString()).Append('|');
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddDamagePercent).ToString()).Append('|');
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddHealCare).ToString()).Append('|');
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddDamagePiege).ToString()).Append('|');
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddDamagePiege).ToString()).Append('|'); /// ADD_DAMAGE_PIEGE_PERCENT
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddReflectDamageItem).ToString()).Append('|');
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddDamageCritic).ToString()).Append('|');
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddEchecCritic).ToString()).Append('|');
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddAPDodge).ToString()).Append('|');
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddMPDodge).ToString()).Append('|');
 
-            /* resistances */
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddReduceDamageNeutral).ToString()).Append('|');
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddReduceDamagePercentNeutral).ToString()).Append('|');
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddReduceDamagePvPNeutral).ToString()).Append('|');
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddReduceDamagePercentPvPNeutral).ToString()).Append('|');
+            ReadOnlySpan<EffectEnum> s_stats = [EffectEnum.AddAP, EffectEnum.AddMP, EffectEnum.AddStrength, EffectEnum.AddVitality, EffectEnum.AddWisdom, 
+                EffectEnum.AddChance, EffectEnum.AddAgility, EffectEnum.AddIntelligence, EffectEnum.AddPO, EffectEnum.AddInvocationMax, EffectEnum.AddDamage, 
+                EffectEnum.AddDamagePhysic, EffectEnum.Mastery, EffectEnum.AddDamagePercent, EffectEnum.AddHealCare, EffectEnum.AddDamagePiege, EffectEnum.AddDamagePiege, 
+                EffectEnum.AddReflectDamageItem, EffectEnum.AddDamageCritic, EffectEnum.AddEchecCritic, EffectEnum.AddAPDodge, EffectEnum.AddMPDodge, 
+                EffectEnum.AddReduceDamageNeutral, EffectEnum.AddReduceDamagePercentNeutral, EffectEnum.AddReduceDamagePvPNeutral, EffectEnum.AddReduceDamagePercentPvPNeutral, 
+                EffectEnum.AddReduceDamageEarth, EffectEnum.AddReduceDamagePercentEarth, EffectEnum.AddReduceDamagePvPEarth, EffectEnum.AddReduceDamagePercentPvPEarth, 
+                EffectEnum.AddReduceDamageWater, EffectEnum.AddReduceDamagePercentWater, EffectEnum.AddReduceDamagePvPWater, EffectEnum.AddReduceDamagePercentPvPWater, 
+                EffectEnum.AddReduceDamageAir, EffectEnum.AddReduceDamagePercentAir, EffectEnum.AddReduceDamagePvPAir, EffectEnum.AddReduceDamagePercentPvPAir, 
+                EffectEnum.AddReduceDamageFire, EffectEnum.AddReduceDamagePercentFire, EffectEnum.AddReduceDamagePvPFire, EffectEnum.AddReduceDamagePercentPvPFire];
 
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddReduceDamageEarth).ToString()).Append('|');
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddReduceDamagePercentEarth).ToString()).Append('|');
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddReduceDamagePvPEarth).ToString()).Append('|');
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddReduceDamagePercentPvPEarth).ToString()).Append('|');
-
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddReduceDamageWater).ToString()).Append('|');
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddReduceDamagePercentWater).ToString()).Append('|');
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddReduceDamagePvPWater).ToString()).Append('|');
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddReduceDamagePercentPvPWater).ToString()).Append('|');
-
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddReduceDamageAir).ToString()).Append('|');
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddReduceDamagePercentAir).ToString()).Append('|');
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddReduceDamagePvPAir).ToString()).Append('|');
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddReduceDamagePercentPvPAir).ToString()).Append('|');
-
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddReduceDamageFire).ToString()).Append('|');
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddReduceDamagePercentFire).ToString()).Append('|');
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddReduceDamagePvPFire).ToString()).Append('|');
-            message.Append(character.Statistics.GetTotalEffect(EffectEnum.AddReduceDamagePercentPvPFire).ToString()).Append('|');
-
-            message.Append('1'); // UNKNOW
+            foreach (var stat in s_stats)
+            {
+                message.Append(character.Statistics.GetTotalEffect(stat).ToString()).Append('|');
+            }
 
             return message.ToString();
         }
@@ -691,10 +613,10 @@ namespace Game.Network
         /// <returns></returns>
         public static string GAME_MAP_INFORMATIONS(OperatorEnum operation, params AbstractEntity[] entities)
         {
-            var message = new StringBuilder("GM", entities.Count() * 100);
+            var message = new StringBuilder("GM", entities.Length * 100);
             foreach (var actor in entities)
             {
-                message.Append("|");
+                message.Append('|');
                 message.Append((char)operation);
                 actor.SerializeAs_GameMapInformations(operation, message);
             }
@@ -739,51 +661,10 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="type"></param>
-        /// <param name="entityId"></param>
-        /// <param name="args"></param>
-        /// <returns></returns>
-        public static string GAME_ACTION(EffectEnum type, long entityId, string args = "")
-        {
-            return "GA" + ';' + (int)type + ';' + entityId + ';' + args;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="actionId"></param>
-        /// <param name="entityId"></param>
-        /// <param name="args"></param>
-        /// <returns></returns>
-        public static string GAME_ACTION(int actionId, long entityId, string args = "")
-        {
-            return "GA" + ';' + (int)actionId + ';' + entityId + ';' + args;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public static string GAME_ACTION_FAILED()
-        {
-            return "GAE";
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="entityId"></param>
-        /// <param name="entityName"></param>
-        /// <param name="message"></param>
-        /// <returns></returns>
-        public static string CHAT_MESSAGE(ChatChannelEnum channel, long entityId, string entityName, string message)
-        {
-            return "cMK" + (char)channel + '|' + entityId + '|' + entityName + '|' + message;
-        }
+        public static string GAME_ACTION(EffectEnum type, long entityId, string args = "") => "GA" + ';' + (int)type + ';' + entityId + ';' + args;
+        public static string GAME_ACTION(int actionId, long entityId, string args = "") => "GA" + ';' + (int)actionId + ';' + entityId + ';' + args;
+        public static string GAME_ACTION_FAILED() => "GAE";
+        public static string CHAT_MESSAGE(ChatChannelEnum channel, long entityId, string entityName, string message) => "cMK" + (char)channel + '|' + entityId + '|' + entityName + '|' + message;
 
         /// <summary>
         /// 
@@ -975,8 +856,18 @@ namespace Game.Network
             return "OR" + guid;
         }
 
+        public static string OBJECT_DROP_SUCCESS()
+        {
+            return "ODK";
+        }
+
+        public static string OBJECT_DROP_ERROR_CANT_DROP()
+        {
+            return "ODEE";
+        }
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <returns></returns>
         public static string OBJECT_SELL_ERROR()
@@ -1136,7 +1027,7 @@ namespace Game.Network
             var message = new StringBuilder("Gt").Append(leaderId);
             foreach (var fighter in fighters)
             {
-                message.Append("|").Append((char)ope);
+                message.Append('|').Append((char)ope);
                 message.Append(fighter.Id).Append(';');
                 message.Append(fighter.Name).Append(';');
                 message.Append(fighter.Level);
@@ -1163,9 +1054,9 @@ namespace Game.Network
         /// <param name="specator"></param>
         /// <param name="startTimeOut"></param>
         /// <returns></returns>
-        public static string FIGHT_JOIN_SUCCESS(int fightState, bool cancelButton, bool challenge, bool specator, long startTimeOut)
+        public static string FIGHT_JOIN_SUCCESS(int fightState, bool cancelButton, bool challenge, bool specator, long startTimeOut, int fightType = 4)
         {
-            return "GJK" + fightState + "|" + (cancelButton ? "1" : "0") + "|" + (challenge ? "1" : "0") + "|" + (specator ? "1" : "0") + "|" + (startTimeOut == -1 ? "" : startTimeOut.ToString());
+            return "GJK" + fightState + "|" + (cancelButton ? "1" : "0") + "|" + (challenge ? "1" : "0") + "|" + (specator ? "1" : "0") + "|" + (startTimeOut == -1 ? "" : startTimeOut.ToString()) + "|" + fightType;
         }
 
         /// <summary>
@@ -1536,7 +1427,7 @@ namespace Game.Network
             foreach (var member in members)
             {
                 member.SerializeAs_PartyMemberInformations(message);
-                message.Append("|");
+                message.Append('|');
             }
             message.Remove(message.Length - 1, 1);
             return message.ToString();
@@ -2400,8 +2291,7 @@ namespace Game.Network
             message.Append('|');
             message.Append(friend.Pseudo);
             var characterFriend = EntityManager.Instance.GetCharacterByNickname(friend.Pseudo);
-            if (characterFriend != null)
-                characterFriend.SerializeAs_FriendInformations(playerPseudo, message);
+            characterFriend?.SerializeAs_FriendInformations(playerPseudo, message);
             return message.ToString();
         }
 
@@ -2477,8 +2367,7 @@ namespace Game.Network
                 message.Append('|');
                 message.Append(friend.Pseudo);
                 var characterFriend = EntityManager.Instance.GetCharacterByNickname(friend.Pseudo);
-                if (characterFriend != null)
-                    characterFriend.SerializeAs_FriendInformations(playerPseudo, message);
+                characterFriend?.SerializeAs_FriendInformations(playerPseudo, message);
             }
             return message.ToString();
         }
@@ -2497,8 +2386,7 @@ namespace Game.Network
                 message.Append('|');
                 message.Append(ennemy.Pseudo);
                 var characterEnnemy = EntityManager.Instance.GetCharacterByNickname(ennemy.Pseudo);
-                if (characterEnnemy != null)
-                    characterEnnemy.SerializeAs_EnnemyInformations(playerPseudo, message);
+                characterEnnemy?.SerializeAs_EnnemyInformations(playerPseudo, message);
             }
             return message.ToString();
         }
@@ -2516,8 +2404,7 @@ namespace Game.Network
                 message.Append('|');
                 message.Append(ennemy.Pseudo);
                 var characterEnnemy = EntityManager.Instance.GetCharacterByNickname(ennemy.Pseudo);
-                if (characterEnnemy != null)
-                    characterEnnemy.SerializeAs_EnnemyInformations(character.Account.Pseudo, message);
+                characterEnnemy?.SerializeAs_EnnemyInformations(character.Account.Pseudo, message);
             }
             return message.ToString();
         }
@@ -2570,8 +2457,7 @@ namespace Game.Network
             message.Append('|');
             message.Append(ennemy.Pseudo);
             var characterEnnemy = EntityManager.Instance.GetCharacterByNickname(ennemy.Pseudo);
-            if (characterEnnemy != null)
-                characterEnnemy.SerializeAs_EnnemyInformations(playerPseudo, message);
+            characterEnnemy?.SerializeAs_EnnemyInformations(playerPseudo, message);
             return message.ToString();
         }
 
