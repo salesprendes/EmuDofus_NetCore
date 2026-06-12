@@ -34,7 +34,7 @@ namespace Game.Fight.Effect.Type
             Duration = 0;
 
             Target.Skin = m_originalSkin;
-            
+
             if (Target.Fight != null)
             {
                 Target.Fight.Dispatch("GIe" + Target.Id);

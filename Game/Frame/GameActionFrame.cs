@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using Protocolo.Framework.Network;
 using Game;
@@ -13,16 +13,8 @@ using Game.Manager;
 
 namespace Game.Frame
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class GameActionFrame : AbstractNetworkFrame<GameActionFrame, CharacterEntity, string>
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
         public override Action<CharacterEntity, string> GetHandler(string message)
         {
             if (message.Length < 2)
@@ -31,17 +23,7 @@ namespace Game.Frame
             switch (message[0])
             {
                 case 'G':
-                    return message[1] switch
-                    {
-                        'A' => GameActionStart,
-                        'K' => message[2] switch
-                        {
-                            'K' => GameActionFinish,
-                            'E' => GameActionAbort,
-                            _ => null,
-                        },
-                        _ => null,
-                    };
+                    return message[1] switch { 'A' => GameActionStart, 'K' => message[2] switch { 'K' => GameActionFinish, 'E' => GameActionAbort, _ => null, }, _ => null, };
 
                 case 'D':
                     switch (message[1])
@@ -50,7 +32,7 @@ namespace Game.Frame
                             return DialogCreate;
 
                         default:
-                        break;
+                            break;
                     }
                     break;
             }
@@ -58,11 +40,6 @@ namespace Game.Frame
             return null;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void DialogCreate(CharacterEntity character, string message)
         {
             long npcId = -1;
@@ -75,20 +52,20 @@ namespace Game.Frame
             character.AddMessage(() =>
                 {
                     var target = character.Map.GetEntity(npcId);
-                    if(target == null || target.Type != EntityTypeEnum.TYPE_NPC)
+                    if (target == null || target.Type != EntityTypeEnum.TYPE_NPC)
                     {
                         character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                         return;
                     }
 
                     var npc = (NonPlayerCharacterEntity)target;
-                    if(npc.InitialQuestion == null)
+                    if (npc.InitialQuestion == null)
                     {
                         character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                         return;
                     }
 
-                    if(!character.CanGameAction(GameActionTypeEnum.NPC_DIALOG))
+                    if (!character.CanGameAction(GameActionTypeEnum.NPC_DIALOG))
                     {
                         character.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_YOU_ARE_AWAY));
                         return;
@@ -98,11 +75,6 @@ namespace Game.Frame
                 });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void GameActionStart(CharacterEntity character, string message)
         {
             if (message.Length < 5)
@@ -118,7 +90,7 @@ namespace Game.Frame
                 return;
             }
 
-            if(!Enum.IsDefined(typeof(GameActionTypeEnum), actionId))
+            if (!Enum.IsDefined(typeof(GameActionTypeEnum), actionId))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -156,7 +128,7 @@ namespace Game.Frame
                         break;
 
                     case GameActionTypeEnum.FIGHT_JOIN:
-                        GameFightJoin(character, message);                        
+                        GameFightJoin(character, message);
                         break;
 
                     case GameActionTypeEnum.FIGHT_SPELL_LAUNCH:
@@ -182,19 +154,14 @@ namespace Game.Frame
                     case GameActionTypeEnum.SKILL_USE:
                         GameSkillUse(character, message);
                         break;
-                        
+
                     case GameActionTypeEnum.FIGHT_AGGRESSION:
                         GameAlignmentAggression(character, message);
                         break;
                 }
-            }); 
+            });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private static void GameSkillUse(CharacterEntity character, string message)
         {
             if (message.Length <= 5) { character.Dispatch(WorldMessage.BASIC_NO_OPERATION()); return; }
@@ -209,54 +176,49 @@ namespace Game.Frame
 
             character.Map.AddMessage(() =>
             {
-                    if (!character.CanGameAction(GameActionTypeEnum.SKILL_USE))
+                if (!character.CanGameAction(GameActionTypeEnum.SKILL_USE))
+                {
+                    character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                    return;
+                }
+
+                var interactiveCell = character.Map.GetCell(cellId);
+                if (interactiveCell == null)
+                {
+                    character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                    return;
+                }
+
+                if (!character.CharacterJobs.HasSkill(skillId))
+                {
+
+                    if (interactiveCell.InteractiveObject == null || !interactiveCell.InteractiveObject.CanUseWithoutJobSkill(skillId))
                     {
+                        Logger.Debug("GameActionFrame::SkillUse el personaje no tiene la habilidad: " + (SkillIdEnum)skillId);
                         character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                         return;
                     }
+                }
 
-                    var interactiveCell = character.Map.GetCell(cellId);
-                    if (interactiveCell == null)
-                    {
-                        character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
-                        return;
-                    }
+                if (character.CurrentAction is GameMapMovementAction action && !action.IsFinished)
+                {
+                    action.SkillCellId = cellId;
+                    action.SkillId = skillId;
+                    action.SkillMapId = character.MapId;
+                    return;
+                }
 
-                    if (!character.CharacterJobs.HasSkill(skillId))
-                    {
-                        // Some interactives provide their own skill without a job entry.
-                        if (interactiveCell.InteractiveObject == null || !interactiveCell.InteractiveObject.CanUseWithoutJobSkill(skillId))
-                        {
-                            Logger.Debug("GameActionFrame::SkillUse el personaje no tiene la habilidad: " + (SkillIdEnum)skillId);
-                            character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
-                            return;
-                        }
-                    }
+                if (character.Map.IsInInteractiveSkillRange(character, character.CellId, cellId, skillId))
+                {
+                    character.ClearPendingInteractiveSkill();
+                    character.Map.InteractiveExecute(character, cellId, skillId);
+                    return;
+                }
 
-                    if (character.CurrentAction is GameMapMovementAction action && !action.IsFinished)
-                    {
-                        action.SkillCellId = cellId;
-                        action.SkillId = skillId;
-                        action.SkillMapId = character.MapId;
-                        return;
-                    }
-
-                    if (character.Map.IsInInteractiveSkillRange(character, character.CellId, cellId, skillId))
-                    {
-                        character.ClearPendingInteractiveSkill();
-                        character.Map.InteractiveExecute(character, cellId, skillId);
-                        return;
-                    }
-
-                    character.QueuePendingInteractiveSkill(character.MapId, cellId, skillId);
+                character.QueuePendingInteractiveSkill(character.MapId, cellId, skillId);
             });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private static void GameAlignmentAggression(CharacterEntity character, string message)
         {
             if (character.Map.FightTeam0Cells.Count == 0 || character.Map.FightTeam1Cells.Count == 0)
@@ -306,11 +268,6 @@ namespace Game.Frame
             character.Map.FightManager.StartAggression(character, victim);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private static void GameTaxcollectorAggression(CharacterEntity character, string message)
         {
             if (character.Map.FightTeam0Cells.Count == 0 || character.Map.FightTeam1Cells.Count == 0)
@@ -334,7 +291,7 @@ namespace Game.Frame
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
-            
+
             if (distantEntity.Type != EntityTypeEnum.TYPE_TAX_COLLECTOR)
             {
                 Logger.Debug("GameActionFrame::TaxCollectorAggression se ha intentado agredir a una entidad que no es recaudador: " + character.Name);
@@ -343,13 +300,13 @@ namespace Game.Frame
             }
 
             var taxCollector = distantEntity as TaxCollectorEntity;
-            if(character.GuildMember != null && character.GuildMember.GuildId == taxCollector.Guild.Id)
+            if (character.GuildMember != null && character.GuildMember.GuildId == taxCollector.Guild.Id)
             {
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
-            if(!taxCollector.CanGameAction(GameActionTypeEnum.FIGHT))
+            if (!taxCollector.CanGameAction(GameActionTypeEnum.FIGHT))
             {
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -400,10 +357,10 @@ namespace Game.Frame
 
         private static void GamePrismUse(CharacterEntity character, string message)
         {
-            if (message.Length <= 5) 
-            { 
-                character.Dispatch(WorldMessage.BASIC_NO_OPERATION()); 
-                return; 
+            if (message.Length <= 5)
+            {
+                character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
             }
 
             if (!long.TryParse(message.AsSpan(5), out long prismId))
@@ -420,14 +377,14 @@ namespace Game.Frame
 
             var territory = prism.Territory;
 
-            // Solo prismas de tipo SubArea pueden usarse como subway
+
             if (territory.PrismType != Game.Conquest.ConquestPrismType.SubArea)
             {
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
-            // El personaje debe estar alineado y tener el mismo alineamiento que el prisma
+
             if (!character.AlignmentEnabled || character.AlignmentId <= 0
                 || territory.AlignmentId != character.AlignmentId)
             {
@@ -438,17 +395,12 @@ namespace Game.Frame
             character.PrismSubwayStart(territory);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private static void GameWeaponUse(CharacterEntity character, string message)
         {
-            if (message.Length <= 5) 
-            { 
-                character.Dispatch(WorldMessage.BASIC_NO_OPERATION()); 
-                return; 
+            if (message.Length <= 5)
+            {
+                character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
             }
 
             if (!int.TryParse(message.AsSpan(5), out int cellId))
@@ -460,22 +412,17 @@ namespace Game.Frame
             character.Fight.TryUseWeapon(character, cellId);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private static void GameFightJoin(CharacterEntity character, string message)
         {
-            if (message.Length <= 5) 
-            { 
-                character.Dispatch(WorldMessage.BASIC_NO_OPERATION()); 
+            if (message.Length <= 5)
+            {
+                character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
             var fightData = message.AsSpan(5);
             var separatorIndex = fightData.IndexOf(';');
-            var fightIdData = separatorIndex < 0 ? fightData : fightData.Slice(0, separatorIndex);
+            ReadOnlySpan<char> fightIdData = separatorIndex < 0 ? fightData : fightData.Slice(0, separatorIndex);
 
             if (!int.TryParse(fightIdData, out int fightId))
             {
@@ -485,14 +432,14 @@ namespace Game.Frame
 
             var fight = character.Map.FightManager.GetFight(fightId);
 
-            if(fight == null)
+            if (fight == null)
             {
                 Logger.Debug("GameActionFrame::ChallengeJoin combate desconocido: " + character.Name);
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
-            if(separatorIndex < 0)
+            if (separatorIndex < 0)
             {
                 fight.TrySpectate(character);
                 return;
@@ -508,11 +455,6 @@ namespace Game.Frame
             fight.TryJoin(character, leaderId);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void GameFightSpellLaunch(CharacterEntity character, string message)
         {
             if (message.Length <= 5)
@@ -524,21 +466,21 @@ namespace Game.Frame
             var spellData = message.AsSpan(5);
             Span<Range> spellParts = stackalloc Range[3];
             var spellPartCount = spellData.Split(spellParts, ';');
-            if(spellPartCount < 2 || spellData[spellParts[0]].IsEmpty || spellData[spellParts[1]].IsEmpty)
+            if (spellPartCount < 2 || spellData[spellParts[0]].IsEmpty || spellData[spellParts[1]].IsEmpty)
             {
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
             var spellId = -1;
-            if(!int.TryParse(spellData[spellParts[0]], out spellId))
+            if (!int.TryParse(spellData[spellParts[0]], out spellId))
             {
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
             var cellId = -1;
-            if(!int.TryParse(spellData[spellParts[1]], out cellId))
+            if (!int.TryParse(spellData[spellParts[1]], out cellId))
             {
                 Logger.Debug("GameActionFrame::SpellLaunch contenido del paquete invalido: " + character.Name);
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
@@ -548,31 +490,16 @@ namespace Game.Frame
             character.Fight.TryLaunchSpell(character, spellId, cellId);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private static void GameChallengeDeny(CharacterEntity character, string message)
         {
             character.AbortAction(GameActionTypeEnum.CHALLENGE_REQUEST);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private static void GameChallengeAccept(CharacterEntity character, string message)
         {
             character.StopAction(GameActionTypeEnum.CHALLENGE_REQUEST);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private static void GameChallengeRequest(CharacterEntity character, string message)
         {
             if (character.Map.FightTeam0Cells.Count == 0 || character.Map.FightTeam1Cells.Count == 0)
@@ -596,21 +523,21 @@ namespace Game.Frame
             }
 
             var distantEntity = character.Map.GetEntity(distantEntityId);
-            if(distantEntity == null)
+            if (distantEntity == null)
             {
                 Logger.Debug("GameActionFrame::ChallengeRequest id de entidad objetivo desconocido: " + character.Name);
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
-            if(distantEntity.Type != EntityTypeEnum.TYPE_CHARACTER)
+            if (distantEntity.Type != EntityTypeEnum.TYPE_CHARACTER)
             {
                 Logger.Debug("GameActionFrame::ChallengeRequest se ha intentado retar a una entidad que no es jugador: " + character.Name);
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
-            
-            if(!distantEntity.CanGameAction(GameActionTypeEnum.CHALLENGE_REQUEST))
+
+            if (!distantEntity.CanGameAction(GameActionTypeEnum.CHALLENGE_REQUEST))
             {
                 character.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_PLAYER_AWAY_NOT_INVITABLE));
                 return;
@@ -619,14 +546,9 @@ namespace Game.Frame
             character.ChallengePlayer((CharacterEntity)distantEntity);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private static void GameMapMovement(CharacterEntity character, string message)
         {
-            if(character.MovementHandler == null)
+            if (character.MovementHandler == null)
             {
                 Logger.Debug("GameActionFrame::MapMovement la entidad no esta en ningun mapa: " + character.Name);
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
@@ -641,8 +563,8 @@ namespace Game.Frame
 
             var path = message.AsSpan(5);
 
-            // Limit path length to prevent processing of artificially long paths.
-            // A Dofus 1.29 map has at most 560 cells (14x40); each path step is 3 chars.
+
+
             if (path.Length > 560 * 3)
             {
                 Logger.Debug("GameActionFrame::MapMovement ruta demasiado larga recibida de: " + character.Name);
@@ -650,7 +572,7 @@ namespace Game.Frame
                 return;
             }
 
-            switch(character.MovementHandler.FieldType)
+            switch (character.MovementHandler.FieldType)
             {
                 case FieldTypeEnum.TYPE_MAP:
                     character.MovementHandler.Move(character, character.CellId, path.ToString());
@@ -662,16 +584,11 @@ namespace Game.Frame
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void GameActionAbort(CharacterEntity character, string message)
         {
             var abortData = message.AsSpan();
             var separatorIndex = abortData.IndexOf('|');
-            if(separatorIndex < 0)
+            if (separatorIndex < 0)
             {
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -710,11 +627,6 @@ namespace Game.Frame
                 });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void GameActionFinish(CharacterEntity character, string message)
         {
             var actionId = -1;
@@ -732,7 +644,7 @@ namespace Game.Frame
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
-                
+
                 if ((int)action.Type != actionId)
                 {
                     Logger.Debug("GameActionFrame::GameActionFinish id de accion incorrecto: " + character.Name);
@@ -743,9 +655,9 @@ namespace Game.Frame
                 if (action is GameMapMovementAction moveAction && moveAction.StartedAt > 0)
                 {
                     const long MinExpectedMs = 800;
-                    long rtt     = Math.Min(character.RttMs, 1500);
+                    long rtt = Math.Min(character.RttMs, 1500);
                     long elapsed = Environment.TickCount64 - moveAction.StartedAt;
-                    double[] speeds  = character.RidingMount ? Pathfinding.MOUNT_SPEEDS : moveAction.Path.MovementLength > 6 ? Pathfinding.RUN_SPEEDS : Pathfinding.WALK_SPEEDS;
+                    double[] speeds = character.RidingMount ? Pathfinding.MOUNT_SPEEDS : moveAction.Path.MovementLength > 6 ? Pathfinding.RUN_SPEEDS : Pathfinding.WALK_SPEEDS;
                     long expected = (long)(moveAction.Path.SegmentLengths.Select((len, i) => { int d = i * 2 < moveAction.Path.Directions.Count ? moveAction.Path.Directions[i * 2] : 0; return (Pathfinding.CELL_PIXEL_DIST[d] / speeds[d]) * len; }).Sum() * 0.3);
 
                     if (expected > MinExpectedMs && elapsed < expected + rtt)

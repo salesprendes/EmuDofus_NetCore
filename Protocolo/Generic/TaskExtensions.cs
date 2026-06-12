@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -35,14 +35,7 @@ namespace Protocolo.Framework.Generic
             }
 
             var tcs = new TaskCompletionSource<object>(state);
-            task.ContinueWith(_ =>
-            {
-                tcs.SetFromTask(task);
-                if (callback != null)
-                {
-                    callback(tcs.Task);
-                }
-            });
+            task.ContinueWith(_ => { tcs.SetFromTask(task); if (callback != null) { callback(tcs.Task); } });
             return tcs.Task;
         }
 
@@ -54,14 +47,7 @@ namespace Protocolo.Framework.Generic
             }
 
             var tcs = new TaskCompletionSource<TResult>(state);
-            task.ContinueWith(_ =>
-            {
-                tcs.SetFromTask(task);
-                if (callback != null)
-                {
-                    callback(tcs.Task);
-                }
-            });
+            task.ContinueWith(_ => { tcs.SetFromTask(task); if (callback != null) { callback(tcs.Task); } });
             return tcs.Task;
         }
 
@@ -126,57 +112,27 @@ namespace Protocolo.Framework.Generic
                 throw new ArgumentNullException("task");
             }
 
-            task.ContinueWith(t => t.Wait(), CancellationToken.None,
-                              TaskContinuationOptions.AttachedToParent |
-                              TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
+            task.ContinueWith(t => t.Wait(), CancellationToken.None, TaskContinuationOptions.AttachedToParent | TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
         }
 
-        /// <summary>
-        /// Creates a new Task that mirrors the supplied task but that will be canceled after the specified timeout.
-        /// </summary>
-        /// <param name = "task">The task.</param>
-        /// <param name = "timeout">The timeout.</param>
-        /// <returns>The new Task that may time out.</returns>
         public static Task WithTimeout(this Task task, TimeSpan timeout)
         {
             var result = new TaskCompletionSource<object>(task.AsyncState);
             var timer = new Timer(state => ((TaskCompletionSource<object>)state).TrySetCanceled(), result, timeout, TimeSpan.FromMilliseconds(-1));
 
-            task.ContinueWith(t =>
-            {
-                timer.Dispose();
-                result.TrySetFromTask(t);
-            }, TaskContinuationOptions.ExecuteSynchronously);
+            task.ContinueWith(t => { timer.Dispose(); result.TrySetFromTask(t); }, TaskContinuationOptions.ExecuteSynchronously);
 
             return result.Task;
         }
 
-        /// <summary>
-        /// Creates a new Task that mirrors the supplied task but that will be canceled after the specified timeout.
-        /// </summary>
-        /// <typeparam name = "TResult">Specifies the type of data contained in the task.</typeparam>
-        /// <param name = "task">The task.</param>
-        /// <param name = "timeout">The timeout.</param>
-        /// <returns>The new Task that may time out.</returns>
         public static Task<TResult> WithTimeout<TResult>(this Task<TResult> task, TimeSpan timeout)
         {
             var result = new TaskCompletionSource<TResult>(task.AsyncState);
-            var timer = new Timer(state => ((TaskCompletionSource<TResult>)state).TrySetCanceled(), result, timeout,
-                                  TimeSpan.FromMilliseconds(-1));
-            task.ContinueWith(t =>
-            {
-                timer.Dispose();
-                result.TrySetFromTask(t);
-            }, TaskContinuationOptions.ExecuteSynchronously);
+            var timer = new Timer(state => ((TaskCompletionSource<TResult>)state).TrySetCanceled(), result, timeout, TimeSpan.FromMilliseconds(-1));
+            task.ContinueWith(t => { timer.Dispose(); result.TrySetFromTask(t); }, TaskContinuationOptions.ExecuteSynchronously);
             return result.Task;
         }
 
-        /// <summary>
-        /// Creates an IObservable that represents the completion of a Task.
-        /// </summary>
-        /// <typeparam name = "TResult">Specifies the type of data returned by the Task.</typeparam>
-        /// <param name = "task">The Task to be represented as an IObservable.</param>
-        /// <returns>An IObservable that represents the completion of the Task.</returns>
         public static IObservable<TResult> ToObservable<TResult>(this Task<TResult> task)
         {
             if (task == null)
@@ -187,14 +143,6 @@ namespace Protocolo.Framework.Generic
             return new TaskObservable<TResult> { Task = task };
         }
 
-        /// <summary>
-        /// Waits for the task to complete execution, returning the task's final status.
-        /// </summary>
-        /// <param name = "task">The task for which to wait.</param>
-        /// <returns>The completion status of the task.</returns>
-        /// <remarks>
-        /// Unlike Wait, this method will not throw an exception if the task ends in the Faulted or Canceled state.
-        /// </remarks>
         public static TaskStatus WaitForCompletionStatus(this Task task)
         {
             if (task == null)
@@ -208,9 +156,6 @@ namespace Protocolo.Framework.Generic
 
         #region Nested type: CancelOnDispose
 
-        /// <summary>
-        /// Translate a call to IDisposable.Dispose to a CancellationTokenSource.Cancel.
-        /// </summary>
         private class CancelOnDispose : IDisposable
         {
             internal CancellationTokenSource Source;
@@ -229,10 +174,6 @@ namespace Protocolo.Framework.Generic
 
         #region Nested type: TaskObservable
 
-        /// <summary>
-        /// An implementation of IObservable that wraps a Task.
-        /// </summary>
-        /// <typeparam name = "TResult">The type of data returned by the task.</typeparam>
         private class TaskObservable<TResult> : IObservable<TResult>
         {
             internal Task<TResult> Task;
@@ -241,16 +182,16 @@ namespace Protocolo.Framework.Generic
 
             public IDisposable Subscribe(IObserver<TResult> observer)
             {
-                // Validate arguments
+
                 if (observer == null)
                 {
                     throw new ArgumentNullException("observer");
                 }
 
-                // Support cancelling the continuation if the observer is unsubscribed
+
                 var cts = new CancellationTokenSource();
 
-                // Create a continuation to pass data along to the observer
+
                 Task.ContinueWith(t =>
                 {
                     switch (t.Status)
@@ -270,7 +211,7 @@ namespace Protocolo.Framework.Generic
                     }
                 }, cts.Token);
 
-                // Support unsubscribe simply by canceling the continuation if it hasn't yet run
+
                 return new CancelOnDispose { Source = cts };
             }
 

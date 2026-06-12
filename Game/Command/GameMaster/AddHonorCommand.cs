@@ -5,10 +5,7 @@ namespace Game.Command
 {
     public sealed class AddHonorCommand : WorldStaffCommand
     {
-        private readonly string[] _aliases =
-        {
-            "honor", "addhonor"
-        };
+        private readonly string[] _aliases = { "honor", "addhonor" };
 
         public override string[] Aliases => _aliases;
 

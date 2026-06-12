@@ -1,4 +1,4 @@
-﻿using Game.Spell;
+using Game.Spell;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,8 +51,7 @@ namespace Game.Stats
         {
             var statistics = new RandomStatistics();
             if (!string.IsNullOrWhiteSpace(data))
-                statistics.AddRange(data.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(RandomEffect.Deserialize));
+                statistics.AddRange(data.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(RandomEffect.Deserialize));
             return statistics;
         }
     }

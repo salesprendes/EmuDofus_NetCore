@@ -8,39 +8,21 @@ using System.Threading.Tasks;
 
 namespace Game.Database.Repository
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class MonsterGradeRepository : Repository<MonsterGradeRepository, MonsterGradeDAO>
     {
-        /// <summary>
-        /// 
-        /// </summary>
         private Dictionary<long, MonsterGradeDAO> m_gradeById;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public MonsterGradeRepository()
         {
             m_gradeById = new Dictionary<long, MonsterGradeDAO>();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
         public MonsterGradeDAO GetById(int id)
         {
             return m_gradeById[id];
         }
 
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="grade"></param>
         public override void OnObjectAdded(MonsterGradeDAO grade)
         {
             m_gradeById.Add(grade.Id, grade);

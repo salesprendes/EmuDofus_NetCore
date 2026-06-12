@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,16 +6,8 @@ using System.Threading.Tasks;
 
 namespace Game.Fight.Effect.Type
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class StateRemoveEffect : AbstractSpellEffect
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="CastInfos"></param>
-        /// <returns></returns>
         public override FightActionResultEnum ApplyEffect(CastInfos CastInfos)
         {
             if (CastInfos.Target == null)

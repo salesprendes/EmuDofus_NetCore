@@ -39,9 +39,7 @@ namespace Game.Fight.AI.TaxCollectors
             }
 
             var evaluator = new TaxCollectorEvaluator(m_lastMode);
-            var decisions = evaluator.Evaluate(context)
-                .Where(decision => IsAllowedDecision(context, decision))
-                .ToList();
+            var decisions = evaluator.Evaluate(context).Where(decision => IsAllowedDecision(context, decision)).ToList();
 
             if (decisions.Count == 0)
             {
@@ -108,8 +106,7 @@ namespace Game.Fight.AI.TaxCollectors
             if (adjacentEnemies >= 2 || closeEnemies >= 3)
                 return TaxCollectorDefenseMode.Surrounded;
 
-            var livingDefenders = context.Allies?
-                .Count(ally => ally != null && ally != fighter && !ally.IsFighterDead) ?? 0;
+            var livingDefenders = context.Allies?.Count(ally => ally != null && ally != fighter && !ally.IsFighterDead) ?? 0;
 
             if (livingDefenders == 0)
                 return TaxCollectorDefenseMode.NoDefenders;
@@ -164,27 +161,17 @@ namespace Game.Fight.AI.TaxCollectors
 
         private static bool IsSpellDecision(AIDecisionType type)
         {
-            return type == AIDecisionType.CastSpell
-                || type == AIDecisionType.Heal
-                || type == AIDecisionType.Buff
-                || type == AIDecisionType.Debuff
-                || type == AIDecisionType.Summon;
+            return type == AIDecisionType.CastSpell || type == AIDecisionType.Heal || type == AIDecisionType.Buff || type == AIDecisionType.Debuff || type == AIDecisionType.Summon;
         }
 
         private static bool CanMove(AIContext context)
         {
-            return context?.Fighter != null
-                && context.CurrentMP > 0
-                && context.Fighter.CanBeMoved();
+            return context?.Fighter != null && context.CurrentMP > 0 && context.Fighter.CanBeMoved();
         }
 
         private static bool HasUsableContext(AIContext context)
         {
-            return context?.Fighter != null
-                && context.Fight != null
-                && context.Fighter.Team != null
-                && context.Fighter.Cell != null
-                && !context.Fighter.IsFighterDead;
+            return context?.Fighter != null && context.Fight != null && context.Fighter.Team != null && context.Fighter.Cell != null && !context.Fighter.IsFighterDead;
         }
     }
 }

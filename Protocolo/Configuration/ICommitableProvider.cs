@@ -1,4 +1,4 @@
-﻿namespace Protocolo.Framework.Configuration
+namespace Protocolo.Framework.Configuration
 {
     public interface ICommitableProvider
     {

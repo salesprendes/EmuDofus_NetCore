@@ -11,7 +11,7 @@ namespace Game.Fight.AI.Evaluation
             if (context?.Enemies == null || context.SpellBook?.DebuffSpells == null)
                 yield break;
 
-            var hasMP          = context.CurrentMP > 0;
+            var hasMP = context.CurrentMP > 0;
             var reachableCells = hasMP ? context.TurnCache.Cells.GetReachableCells() : null;
 
             foreach (var spell in context.SpellBook.DebuffSpells)
@@ -20,8 +20,7 @@ namespace Game.Fight.AI.Evaluation
                     continue;
 
                 var debuffValue = SpellEvaluator.EstimateDebuffValue(spell);
-                var isHighPriority = context.SpellBook.RemoveAPSpells.Contains(spell)
-                                  || context.SpellBook.RemoveMPSpells.Contains(spell);
+                var isHighPriority = context.SpellBook.RemoveAPSpells.Contains(spell) || context.SpellBook.RemoveMPSpells.Contains(spell);
 
                 foreach (var enemy in context.Enemies)
                 {
@@ -30,20 +29,20 @@ namespace Game.Fight.AI.Evaluation
 
                     var targetCellId = enemy.Cell.Id;
 
-                    // ── Pase 1: debuff desde la celda actual ─────────────────────────────
+
                     if (SpellEvaluator.CanCastFromCurrentCell(context, spell, targetCellId))
                     {
                         var priority = isHighPriority ? AIDecisionPriority.High : AIDecisionPriority.Normal;
 
                         yield return new AIDecision
                         {
-                            Type     = AIDecisionType.Debuff,
+                            Type = AIDecisionType.Debuff,
                             Priority = priority,
-                            Score    = 80 + debuffValue + TargetEvaluator.ScorePriorityTarget(enemy) / 3,
-                            SpellId  = spell.SpellId,
+                            Score = 80 + debuffValue + TargetEvaluator.ScorePriorityTarget(enemy) / 3,
+                            SpellId = spell.SpellId,
                             TargetId = enemy.Id,
-                            CellId   = (short)targetCellId,
-                            Reason   = "Useful debuff/control"
+                            CellId = (short)targetCellId,
+                            Reason = "Useful debuff/control"
                         };
 
                         continue;
@@ -68,16 +67,16 @@ namespace Game.Fight.AI.Evaluation
                     if (!canDebuffAfterMove)
                         continue;
 
-                    // Score algo menor que el Move (Low, 100) para que quede después en la cadena.
+
                     yield return new AIDecision
                     {
-                        Type     = AIDecisionType.Debuff,
+                        Type = AIDecisionType.Debuff,
                         Priority = AIDecisionPriority.Low,
-                        Score    = 70 + debuffValue / 2 + TargetEvaluator.ScorePriorityTarget(enemy) / 6,
-                        SpellId  = spell.SpellId,
+                        Score = 70 + debuffValue / 2 + TargetEvaluator.ScorePriorityTarget(enemy) / 6,
+                        SpellId = spell.SpellId,
                         TargetId = enemy.Id,
-                        CellId   = (short)targetCellId,
-                        Reason   = "Debilitamiento tras movimiento"
+                        CellId = (short)targetCellId,
+                        Reason = "Debilitamiento tras movimiento"
                     };
                 }
             }

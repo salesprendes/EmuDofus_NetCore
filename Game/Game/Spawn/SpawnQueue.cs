@@ -5,9 +5,6 @@ using System.Collections.Generic;
 
 namespace Game.Spawn
 {
-    /// <summary>
-    ///
-    /// </summary>
     public sealed class SpawnQueue : Updatable
     {
         private readonly List<MapInstance> m_maps;
@@ -34,8 +31,8 @@ namespace Game.Spawn
                 for (int i = 0; i < m_maps.Count; i++)
                 {
                     var map = m_maps[i];
-                    // Skip maps that have been visited before but are currently empty —
-                    // monsters from the initial spawn are still alive; no need to respawn.
+
+
                     if (map.IsInitialized && map.PlayerCount == 0)
                         continue;
                     map.SpawnMonsters(m_monsters);

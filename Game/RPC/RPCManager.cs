@@ -1,4 +1,4 @@
-﻿using Protocolo.Framework.Generic;
+using Protocolo.Framework.Generic;
 using Protocolo.RPC.Protocol;
 using Protocolo.RPC.Service;
 using Game.Manager;
@@ -6,19 +6,10 @@ using System;
 
 namespace Game.RPC
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class RPCManager : Updatable
-    {        
-        /// <summary>
-        /// 
-        /// </summary>
+    {
         private readonly AuthServiceRPCConnection m_rpcConnection;
-        
-        /// <summary>
-        /// 
-        /// </summary>
+
         public AuthStateEnum AuthState
         {
             get;
@@ -28,71 +19,35 @@ namespace Game.RPC
         private int m_reconnectDelay = 5000;
         private const int ReconnectDelayMax = 30000;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public static RPCManager Instance => Singleton<RPCManager>.Instance;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public RPCManager()
         {
             AuthState = AuthStateEnum.NEGOTIATING;
-            
+
             m_rpcConnection = new AuthServiceRPCConnection();
-            m_rpcConnection.OnConnectedEvent += () =>
-                {
-                    AddMessage(OnConnected);
-                };
-            m_rpcConnection.OnDisconnectedEvent += () =>
-                {
-                    AddMessage(OnDisconnected);
-                };
-            m_rpcConnection.OnMessageEvent += (message) =>
-                {
-                    AddMessage(() => OnMessage(message));
-                };
+            m_rpcConnection.OnConnectedEvent += () => { AddMessage(OnConnected); };
+            m_rpcConnection.OnDisconnectedEvent += () => { AddMessage(OnDisconnected); };
+            m_rpcConnection.OnMessageEvent += (message) => { AddMessage(() => OnMessage(message)); };
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
+
         public void Initialize()
         {
             Logger.Info("RPCManager iniciando...");
 
             Connect();
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
+
         public void Send(AbstractRcpMessage message)
         {
-            AddMessage(() =>
-                {
-                    m_rpcConnection.Send(message);
-                });
+            AddMessage(() => { m_rpcConnection.Send(message); });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private void Connect()
         {
-            AddMessage(() => 
-            {
-                Logger.Info("RPCManager conectando...");
-
-                m_rpcConnection.Connect(WorldConfig.RPC_IP, WorldConfig.RPC_PORT);
-            });
+            AddMessage(() => { Logger.Info("RPCManager conectando..."); m_rpcConnection.Connect(WorldConfig.RPC_IP, WorldConfig.RPC_PORT); });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private void OnConnected()
         {
             Logger.Info("RPCManager conectado, enviando credenciales.");
@@ -102,9 +57,6 @@ namespace Game.RPC
             m_rpcConnection.Send(new AuthentificationMessage(WorldConfig.RPC_PASSWORD, WorldConfig.RPC_REMOTE_IP));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private void OnDisconnected()
         {
             Logger.Warn($"RPCManager desconectado. Reintentando conexion en {m_reconnectDelay / 1000}s...");
@@ -112,19 +64,11 @@ namespace Game.RPC
             m_reconnectDelay = Math.Min(m_reconnectDelay * 2, ReconnectDelayMax);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="state"></param>
         public void UpdateState(GameStateEnum state)
         {
             Send(new StateUpdateMessage(state));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
         public void AccountDisconnected(long id)
         {
             Send(new AccountDisconnected(id));
@@ -135,16 +79,12 @@ namespace Game.RPC
             Send(new CharacterCountChangedMessage());
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="message"></param>
         private void OnMessage(AbstractRcpMessage message)
         {
-            switch(message.Id)
+            switch (message.Id)
             {
                 case (int)MessageIdEnum.AUTH_TO_WORLD_CREDENTIAL_RESULT:
-                    if(((AuthentificationResult)message).Result == AuthResultEnum.SUCCESS)
+                    if (((AuthentificationResult)message).Result == AuthResultEnum.SUCCESS)
                     {
                         AuthState = AuthStateEnum.SUCCESS;
                         m_reconnectDelay = 5000;
@@ -152,10 +92,7 @@ namespace Game.RPC
                         Send(new IdUpdateMessage(WorldConfig.GAME_ID));
                         Send(new StateUpdateMessage(GameStateEnum.ONLINE));
 
-                        WorldService.Instance.AddMessage(() =>
-                        {
-                            Send(new AccountConnectedList(ClientManager.Instance.ConnectedAccounts));
-                        });
+                        WorldService.Instance.AddMessage(() => { Send(new AccountConnectedList(ClientManager.Instance.ConnectedAccounts)); });
                     }
                     else
                     {
@@ -179,7 +116,7 @@ namespace Game.RPC
                         );
                     break;
             }
-        }       
+        }
     }
 }
 

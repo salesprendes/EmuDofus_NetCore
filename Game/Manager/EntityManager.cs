@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Protocolo.Framework.Generic;
 using Game.Database.Structure;
 using Game.Action;
@@ -19,7 +19,7 @@ namespace Game.Manager
         private readonly Dictionary<long, CharacterEntity> m_characterByAccount;
         private readonly Dictionary<string, CharacterEntity> m_characterByNickname;
         private readonly Dictionary<string, CharacterEntity> m_characterByName;
-        
+
         private readonly Dictionary<long, TaxCollectorEntity> m_taxCollectorById;
         private readonly Dictionary<long, MountEntity> m_mountById;
 
@@ -33,7 +33,7 @@ namespace Game.Manager
             m_characterByAccount = new Dictionary<long, CharacterEntity>();
             m_characterByName = new Dictionary<string, CharacterEntity>();
             m_characterByNickname = new Dictionary<string, CharacterEntity>();
-            
+
             m_taxCollectorById = new Dictionary<long, TaxCollectorEntity>();
 
             m_mountById = new Dictionary<long, MountEntity>();
@@ -41,8 +41,8 @@ namespace Game.Manager
 
         public void Initialize()
         {
-            foreach(var character in CharacterRepository.Instance.All)
-                if(character.Merchant)                
+            foreach (var character in CharacterRepository.Instance.All)
+                if (character.Merchant)
                     CreateMerchant(character).StartAction(GameActionTypeEnum.MAP);
             foreach (var mount in MountRepository.Instance.All)
                 CreateMount(mount);
@@ -65,7 +65,7 @@ namespace Game.Manager
         public CharacterEntity CreateCharacter(AccountTicket account, CharacterDAO characterDAO)
         {
             var merchant = GetMerchantByAccount(characterDAO.AccountId);
-            if(merchant != null)
+            if (merchant != null)
                 RemoveMerchant(merchant);
 
             if (m_characterByAccount.TryGetValue(characterDAO.AccountId, out var stale))
@@ -108,14 +108,8 @@ namespace Game.Manager
                 BasicFrame.PartyRefuse(character, "");
             if (character.GuildInvitedPlayerId != -1 || character.GuildInviterPlayerId != -1)
                 BasicFrame.GuildJoinRefuse(character, "");
-                
-            character.AddMessage(() =>
-            {
-                if (character.Disconnected())
-                {
-                    RemoveCharacter(character);
-                }
-            });
+
+            character.AddMessage(() => { if (character.Disconnected()) { RemoveCharacter(character); } });
         }
 
         public void RemoveMerchant(MerchantEntity merchant)
@@ -128,12 +122,7 @@ namespace Game.Manager
                 merchant.Dispose();
                 merchant.Merchant = false;
 
-                WorldService.Instance.AddMessage(() =>
-                {
-                    m_merchantById.Remove(merchant.Id);
-                    m_merchantByName.Remove(merchant.Name.ToLower());
-                    m_merchantByAccount.Remove(merchant.AccountId);
-                });
+                WorldService.Instance.AddMessage(() => { m_merchantById.Remove(merchant.Id); m_merchantByName.Remove(merchant.Name.ToLower()); m_merchantByAccount.Remove(merchant.AccountId); });
             });
         }
 

@@ -1,4 +1,4 @@
-﻿using Game.Action;
+using Game.Action;
 using Game.Network;
 using System;
 using System.Collections.Generic;
@@ -8,27 +8,13 @@ using System.Threading.Tasks;
 
 namespace Game.Fight.Effect.Type
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class MPDodgeSubstractBuff : AbstractSpellBuff
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="CastInfos"></param>
-        /// <param name="Target"></param>
         public MPDodgeSubstractBuff(CastInfos CastInfos, AbstractFighter Target)
-            : base(CastInfos, Target, ActiveType.ACTIVE_STATS, DecrementType.TYPE_ENDTURN)
+    : base(CastInfos, Target, ActiveType.ACTIVE_STATS, DecrementType.TYPE_ENDTURN)
         {
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="damageValue"></param>
-        /// <param name="damageInfos"></param>
-        /// <returns></returns>
         public override FightActionResultEnum ApplyEffect(ref int damageValue, CastInfos damageInfos = null)
         {
             var mpLost = CastInfos.Value1 > Target.MP ? Target.MP : CastInfos.Value1;
@@ -49,10 +35,6 @@ namespace Game.Fight.Effect.Type
             return base.ApplyEffect(ref damageValue, damageInfos);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public override FightActionResultEnum RemoveEffect()
         {
             return base.RemoveEffect();

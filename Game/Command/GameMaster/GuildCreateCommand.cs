@@ -5,10 +5,7 @@ namespace Game.Command
 {
     public sealed class GuildCreateCommand : WorldStaffCommand
     {
-        private readonly string[] _aliases =
-        {
-            "gremio", "guild"
-        };
+        private readonly string[] _aliases = { "gremio", "guild" };
 
         public override string[] Aliases => _aliases;
 

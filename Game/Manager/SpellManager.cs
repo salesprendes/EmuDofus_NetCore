@@ -63,15 +63,13 @@ namespace Game.Manager
             return SpellBookEntryRepository.Instance.GetSpellEntries(ownerType, ownerId);
         }
 
-        // --- Parsers ---
+
 
         private static List<int> ParseTargets(string afectados)
         {
             if (string.IsNullOrEmpty(afectados))
                 return new List<int>();
-            return afectados.Split('|')
-                .Select(x => { int.TryParse(x.Trim(), out int v); return v; })
-                .ToList();
+            return afectados.Split('|').Select(x => { int.TryParse(x.Trim(), out int v); return v; }).ToList();
         }
 
         private static SpellLevel ParseLevel(string s, int spellId, int levelNum)
@@ -121,7 +119,7 @@ namespace Game.Manager
             if (string.IsNullOrEmpty(s) || s == "[]")
                 return effects;
 
-            // Strip outer array brackets: [[e1],[e2]] -> [e1],[e2]
+
             var data = s.AsSpan(1, s.Length - 2).Trim();
             if (data.IsEmpty)
                 return effects;
@@ -159,7 +157,7 @@ namespace Game.Manager
 
         private static SpellEffect ParseEffect(ReadOnlySpan<char> s)
         {
-            // s is like "[265, 7, null, null, 4, 0, 0d0+7]"
+
             var parts = s.Slice(1, s.Length - 2);
             Span<Range> effectParts = stackalloc Range[7];
             parts.Split(effectParts, ',');
@@ -171,7 +169,7 @@ namespace Game.Manager
                 Value3 = ParseInt(parts[effectParts[3]]),
                 Duration = ParseInt(parts[effectParts[4]]),
                 Chance = ParseInt(parts[effectParts[5]]),
-                // parts[6] = formula string (e.g. "1d5+1"), informational only
+
             };
         }
 

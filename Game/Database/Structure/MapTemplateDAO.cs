@@ -6,9 +6,6 @@ using Game;
 using Game.Network;
 namespace Game.Database.Structure
 {
-    /// <summary>
-    /// 
-    /// </summary>
     [Table("maptemplate")]
     public sealed class MapTemplateDAO : DataAccessObject<MapTemplateDAO>
     {
@@ -25,9 +22,6 @@ namespace Game.Database.Structure
         private int _capabilities;
 
 
-        /// <summary>
-        /// 
-        /// </summary>
         [Key]
         public int Id
         {
@@ -35,90 +29,60 @@ namespace Game.Database.Structure
             set => SetProperty(ref _id, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int SubAreaId
         {
             get => _subAreaId;
             set => SetProperty(ref _subAreaId, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int X
         {
             get => _x;
             set => SetProperty(ref _x, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Y
         {
             get => _y;
             set => SetProperty(ref _y, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Width
         {
             get => _width;
             set => SetProperty(ref _width, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Height
         {
             get => _height;
             set => SetProperty(ref _height, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public string Data
         {
             get => _data;
             set => SetProperty(ref _data, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public string DataKey
         {
             get => _dataKey;
             set => SetProperty(ref _dataKey, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public string CreateTime
         {
             get => _createTime;
             set => SetProperty(ref _createTime, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public string Places
         {
             get => _places;
             set => SetProperty(ref _places, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Capabilities
         {
             get => _capabilities;
@@ -132,7 +96,7 @@ namespace Game.Database.Structure
         {
             get
             {
-                if(m_fightTeam0Cells == null)
+                if (m_fightTeam0Cells == null)
                 {
                     m_fightTeam0Cells = new List<int>();
                     if (Places != "")
@@ -174,13 +138,9 @@ namespace Game.Database.Structure
             Places = string.Join("", FightTeam0Cells.Select(x => Util.CellToChar(x))) + "|" + string.Join("", FightTeam1Cells.Select(x => Util.CellToChar(x)));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public override string ToString()
         {
-            return Id + " ( " + X + ", " + Y +  ", " + SubAreaId + " )";
+            return Id + " ( " + X + ", " + Y + ", " + SubAreaId + " )";
         }
     }
 }

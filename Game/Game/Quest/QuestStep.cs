@@ -1,4 +1,4 @@
-﻿using Game.Database.Structure;
+using Game.Database.Structure;
 using Game.ActionEffect;
 using Game.Manager;
 using System;

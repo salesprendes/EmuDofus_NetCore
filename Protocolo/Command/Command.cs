@@ -17,7 +17,7 @@ namespace Protocolo.Framework.Command
         internal bool MatchesAlias(string alias) => !string.IsNullOrEmpty(alias) && Aliases.Any(commandAlias => string.Equals(commandAlias, alias, StringComparison.OrdinalIgnoreCase));
         protected virtual bool CanExecute(C context) => true;
 
-        protected virtual void Process(C context) {}
+        protected virtual void Process(C context) { }
 
         public void Serialize(StringBuilder message) => Serialize(message, null, "");
         public void Serialize(StringBuilder message, string parent) => Serialize(message, null, parent);
@@ -103,20 +103,18 @@ namespace Protocolo.Framework.Command
         private void ValidateSubCommandAliases(SubCommand<C> subCommand)
         {
             if (subCommand.Aliases == null || subCommand.Aliases.Length == 0)
-                throw new Exception(string.Format("El subcomando `{0}` debe tener al menos un alias.", subCommand.GetType().FullName));
+                throw new Exception($"El subcomando {subCommand.GetType().FullName} debe tener al menos un alias.");
 
             foreach (var alias in subCommand.Aliases)
             {
                 if (string.IsNullOrWhiteSpace(alias))
-                    throw new Exception(string.Format("El subcomando `{0}` tiene un alias vacio.", subCommand.GetType().FullName));
+                    throw new Exception($"El subcomando {subCommand.GetType().FullName} tiene un alias vacio.");
             }
 
-            var duplicateAlias = subCommand.Aliases
-                .GroupBy(alias => alias, StringComparer.OrdinalIgnoreCase)
-                .FirstOrDefault(group => group.Count() > 1);
+            var duplicateAlias = subCommand.Aliases.GroupBy(alias => alias, StringComparer.OrdinalIgnoreCase).FirstOrDefault(group => group.Count() > 1);
 
             if (duplicateAlias != null)
-                throw new Exception(string.Format("El subcomando `{0}` tiene repetido el alias `{1}`.", subCommand.GetType().FullName, duplicateAlias.Key));
+                throw new Exception($"El subcomando {subCommand.GetType().FullName} tiene repetido el alias {duplicateAlias.Key}.");
         }
     }
 

@@ -1,15 +1,9 @@
-﻿using Protocolo.RPC.Service;
+using Protocolo.RPC.Service;
 
 namespace Protocolo.RPC.Protocol
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class AuthMessageBuilder : RpcMessageBuilder
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public AuthMessageBuilder()
         {
             base.Register<AuthentificationMessage>((int)MessageIdEnum.WORLD_TO_AUTH_CREDENTIAL);

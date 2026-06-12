@@ -1,4 +1,4 @@
-﻿using Game.Spell;
+using Game.Spell;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,26 +9,13 @@ using Game.Map;
 
 namespace Game.Fight.Effect
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class CastInfos
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="effectType"></param>
-        /// <returns></returns>
         public static bool IsMalusEffect(EffectEnum effectType)
         {
             return !IsDamageEffect(effectType) && !IsBonusEffect(effectType) && !IsFriendlyEffect(effectType) && !IsSpecial(effectType);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="effectType"></param>
-        /// <returns></returns>
         public static bool IsSpecial(EffectEnum effectType)
         {
             switch (effectType)
@@ -43,14 +30,9 @@ namespace Game.Fight.Effect
             return false;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="effectType"></param>
-        /// <returns></returns>
         public static bool IsFriendlyEffect(EffectEnum effectType)
         {
-            switch(effectType)
+            switch (effectType)
             {
                 case EffectEnum.Sacrifice:
                 case EffectEnum.Evasion:
@@ -64,11 +46,6 @@ namespace Game.Fight.Effect
             return false;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="effectType"></param>
-        /// <returns></returns>
         public static bool IsDamageEffect(EffectEnum effectType)
         {
             switch (effectType)
@@ -97,11 +74,6 @@ namespace Game.Fight.Effect
             return false;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="effectType"></param>
-        /// <returns></returns>
         public static bool IsBonusEffect(EffectEnum effectType)
         {
             switch (effectType)
@@ -169,256 +141,163 @@ namespace Game.Fight.Effect
             return false;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public EffectEnum EffectType
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public EffectEnum SubEffect
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int SpellId
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int CellId
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool IsReflect
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool IsPoison
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool IsReturnedDamages
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool IsMelee
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool IsTrap
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int RandomJet => (Value2 < Value1 ? Value1 : Util.Next(Value1, Value2 + 1));
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Value1
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Value2
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Value3
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int FakeValue
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int DamageValue
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Chance
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Duration
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int SpellLevel
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public string RangeType
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public AbstractFighter Caster
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public AbstractFighter Target
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public MapInstance Map
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public AbstractFight Fight
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int TargetKnownCellId
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="effectType"></param>
-        /// <param name="spellId"></param>
-        /// <param name="cellId"></param>
-        /// <param name="value1"></param>
-        /// <param name="value2"></param>
-        /// <param name="value3"></param>
-        /// <param name="chance"></param>
-        /// <param name="duration"></param>
-        /// <param name="caster"></param>
-        /// <param name="target"></param>
-        /// <param name="rangeType"></param>
-        /// <param name="targetKnownCellId"></param>
-        /// <param name="spellLevel"></param>
-        /// <param name="isMelee"></param>
-        /// <param name="isTrap"></param>
-        /// <param name="subEffect"></param>
-        /// <param name="damageValue"></param>
-        /// <param name="fakeValue"></param>
         public CastInfos(EffectEnum effectType,
-            int spellId,
-            int cellId,
-            int value1,
-            int value2,
-            int value3,
-            int chance,
-            int duration,
-            AbstractFighter caster,
-            AbstractFighter target,
-            string rangeType = "",
-            int targetKnownCellId = 0,
-            int spellLevel = -1,
-            bool isMelee = false,
-            bool isTrap = false,
-            EffectEnum subEffect = EffectEnum.None,
-            int damageValue = 0, int fakeValue = 0)
+    int spellId,
+    int cellId,
+    int value1,
+    int value2,
+    int value3,
+    int chance,
+    int duration,
+    AbstractFighter caster,
+    AbstractFighter target,
+    string rangeType = "",
+    int targetKnownCellId = 0,
+    int spellLevel = -1,
+    bool isMelee = false,
+    bool isTrap = false,
+    EffectEnum subEffect = EffectEnum.None,
+    int damageValue = 0, int fakeValue = 0)
         {
             Fight = caster.Fight;
             Map = caster.Fight.Map;
@@ -448,7 +327,7 @@ namespace Game.Fight.Effect
             DamageValue = damageValue;
             IsMelee = isMelee;
         }
-    }    
+    }
 }
 
 

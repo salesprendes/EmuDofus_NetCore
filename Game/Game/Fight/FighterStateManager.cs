@@ -1,4 +1,4 @@
-﻿using Game.Action;
+using Game.Action;
 using Game.Fight.Effect;
 using Game.Network;
 using Game.Spell;
@@ -7,9 +7,6 @@ using System.Collections.Generic;
 
 namespace Game.Fight
 {
-    /// <summary>
-    ///
-    /// </summary>
     public enum FighterStateEnum
     {
         STATE_DRUNK = 1,
@@ -30,9 +27,6 @@ namespace Game.Fight
         STATE_KRALAMAR_DESIRE_POISON = 38,
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class FighterStateManager : IDisposable
     {
         private static readonly HashSet<int> BossMechanicStateIds = new HashSet<int>();
@@ -42,20 +36,11 @@ namespace Game.Fight
         private AbstractFighter m_fighter;
         private Dictionary<FighterStateEnum, AbstractSpellBuff> m_states = new Dictionary<FighterStateEnum, AbstractSpellBuff>();
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
         public FighterStateManager(AbstractFighter fighter)
         {
             m_fighter = fighter;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="state"></param>
-        /// <returns></returns>
         public bool CanState(FighterStateEnum state)
         {
             switch (state)
@@ -68,20 +53,11 @@ namespace Game.Fight
             return !HasState(state);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="state"></param>
-        /// <returns></returns>
         public bool HasState(FighterStateEnum state)
         {
             return m_states.ContainsKey(state);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="buff"></param>
         public void AddState(AbstractSpellBuff buff)
         {
             if (BossMechanicStateIds.Contains(buff.CastInfos.Value3))
@@ -118,10 +94,6 @@ namespace Game.Fight
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="buff"></param>
         public void RemoveState(AbstractSpellBuff buff)
         {
             if (BossMechanicStateIds.Contains(buff.CastInfos.Value3))
@@ -136,22 +108,17 @@ namespace Game.Fight
                         m_fighter.Fight.Dispatch(WorldMessage.GAME_ACTION(GameActionTypeEnum.MAP_TELEPORT, m_fighter.Id, m_fighter.Id + "," + m_fighter.Cell.Id));
 
                         m_states.Remove(FighterStateEnum.STATE_STEALTH);
-                    return;
+                        return;
 
                     default:
                         m_fighter.Fight.Dispatch(WorldMessage.GAME_ACTION(EffectEnum.AddState, m_fighter.Id, m_fighter.Id + "," + buff.CastInfos.Value3 + ",0"));
-                    break;
+                        break;
                 }
             }
 
             m_states.Remove((FighterStateEnum)buff.CastInfos.Value3);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="state"></param>
-        /// <returns></returns>
         public AbstractSpellBuff FindState(FighterStateEnum state)
         {
             if (HasState(state))
@@ -159,14 +126,6 @@ namespace Game.Fight
             return null;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <summary>
-        /// Applies a state directly without requiring a spell buff — used for boss mechanics
-        /// that need to set game states (like Kralamar's "Ganas") via code.
-        /// Also dispatches the state-change network message to clients.
-        /// </summary>
         public void ForceAddState(FighterStateEnum state)
         {
             if (HasState(state))
@@ -178,9 +137,6 @@ namespace Game.Fight
                 m_fighter.Fight.Dispatch(WorldMessage.GAME_ACTION(EffectEnum.AddState, m_fighter.Id, m_fighter.Id + "," + (int)state + ",1"));
         }
 
-        /// <summary>
-        /// Removes a state that was applied via <see cref="ForceAddState"/>.
-        /// </summary>
         public void ForceRemoveState(FighterStateEnum state)
         {
             if (!HasState(state))
@@ -200,9 +156,6 @@ namespace Game.Fight
             m_states.Clear();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void Dispose()
         {
             m_states.Clear();

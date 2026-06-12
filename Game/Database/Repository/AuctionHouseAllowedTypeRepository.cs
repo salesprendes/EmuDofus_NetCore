@@ -8,9 +8,6 @@ using System.Threading.Tasks;
 
 namespace Game.Database.Repository
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class AuctionHouseAllowedTypeRepository : Repository<AuctionHouseAllowedTypeRepository, AuctionHouseAllowedTypeDAO>
     {
         public override void UpdateAll(MySqlConnector.MySqlConnection connection, MySqlConnector.MySqlTransaction transaction)

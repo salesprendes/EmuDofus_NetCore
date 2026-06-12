@@ -6,10 +6,7 @@ namespace Game.Command
 {
     public sealed class TeleportMeCommand : WorldStaffCommand
     {
-        private readonly string[] _aliases =
-        {
-            "traer", "teleme"
-        };
+        private readonly string[] _aliases = { "traer", "teleme" };
 
         public override string[] Aliases => _aliases;
 

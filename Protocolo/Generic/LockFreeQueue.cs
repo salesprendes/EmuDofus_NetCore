@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 
@@ -37,85 +37,81 @@ namespace Protocolo.Framework.Generic
 
         public void Enqueue(T item)
         {
-            SingleLinkNode<T> oldTail = null;
-            SingleLinkNode<T> oldTailNext;
-
             var newNode = new SingleLinkNode<T> { Item = item };
+            var spin = new SpinWait();
 
-            bool newNodeWasAdded = false;
-
-            while (!newNodeWasAdded)
+            while (true)
             {
-                oldTail = m_tail;
-                oldTailNext = oldTail.Next;
+                SingleLinkNode<T> oldTail = Volatile.Read(ref m_tail);
+                SingleLinkNode<T> oldTailNext = Volatile.Read(ref oldTail.Next);
 
-                if (m_tail == oldTail)
+                if (oldTail == Volatile.Read(ref m_tail))
                 {
                     if (oldTailNext == null)
                     {
-                        newNodeWasAdded =
-                            Interlocked.CompareExchange<SingleLinkNode<T>>(ref m_tail.Next, newNode, null) == null;
+                        if (Interlocked.CompareExchange(ref oldTail.Next, newNode, null) == null)
+                        {
+                            Interlocked.CompareExchange(ref m_tail, newNode, oldTail);
+                            Interlocked.Increment(ref m_count);
+                            return;
+                        }
                     }
                     else
                     {
-                        Interlocked.CompareExchange<SingleLinkNode<T>>(ref m_tail, oldTailNext, oldTail);
+                        Interlocked.CompareExchange(ref m_tail, oldTailNext, oldTail);
                     }
                 }
-            }
 
-            Interlocked.CompareExchange<SingleLinkNode<T>>(ref m_tail, newNode, oldTail);
-            Interlocked.Increment(ref m_count);
+                spin.SpinOnce();
+            }
         }
 
         public T TryDequeue()
         {
-            T item;
-            TryDequeue(out item);
+            TryDequeue(out T item);
             return item;
         }
 
         public bool TryDequeue(out T item)
         {
-            item = default(T);
-            SingleLinkNode<T> oldHead = null;
+            var spin = new SpinWait();
 
-            bool haveAdvancedHead = false;
-            while (!haveAdvancedHead)
+            while (true)
             {
-                oldHead = m_head;
-                SingleLinkNode<T> oldTail = m_tail;
-                SingleLinkNode<T> oldHeadNext = oldHead.Next;
+                SingleLinkNode<T> oldHead = Volatile.Read(ref m_head);
+                SingleLinkNode<T> oldTail = Volatile.Read(ref m_tail);
+                SingleLinkNode<T> oldHeadNext = Volatile.Read(ref oldHead.Next);
 
-                if (oldHead == m_head)
+                if (oldHead == Volatile.Read(ref m_head))
                 {
                     if (oldHead == oldTail)
                     {
                         if (oldHeadNext == null)
                         {
+                            item = default;
                             return false;
                         }
-
-                        Interlocked.CompareExchange<SingleLinkNode<T>>(ref m_tail, oldHeadNext, oldTail);
+                        Interlocked.CompareExchange(ref m_tail, oldHeadNext, oldTail);
                     }
-
                     else
                     {
-                        item = oldHeadNext.Item;
-                        haveAdvancedHead =
-                          Interlocked.CompareExchange<SingleLinkNode<T>>(ref m_head, oldHeadNext, oldHead) == oldHead;
+                        T value = oldHeadNext.Item;
+                        if (Interlocked.CompareExchange(ref m_head, oldHeadNext, oldHead) == oldHead)
+                        {
+                            Interlocked.Decrement(ref m_count);
+                            item = value;
+                            return true;
+                        }
                     }
                 }
-            }
 
-            Interlocked.Decrement(ref m_count);
-            return true;
+                spin.SpinOnce();
+            }
         }
 
         public T Dequeue()
         {
-            T result;
-
-            if (!TryDequeue(out result))
+            if (!TryDequeue(out T result))
             {
                 throw new InvalidOperationException("the queue is empty");
             }
@@ -125,38 +121,21 @@ namespace Protocolo.Framework.Generic
 
         #region IEnumerable<T> Members
 
-        /// <summary>
-        /// Returns an enumerator that iterates through the queue.
-        /// </summary>
-        /// <returns>an enumerator for the queue</returns>
         public IEnumerator<T> GetEnumerator()
         {
-            SingleLinkNode<T> currentNode = m_head;
+            SingleLinkNode<T> current = Volatile.Read(ref Volatile.Read(ref m_head).Next);
 
-            do
+            while (current != null)
             {
-                if (currentNode.Item == null)
-                {
-                    yield break;
-                }
-                else
-                {
-                    yield return currentNode.Item;
-                }
+                yield return current.Item;
+                current = Volatile.Read(ref current.Next);
             }
-            while ((currentNode = currentNode.Next) != null);
-
-            yield break;
         }
 
         #endregion
 
         #region IEnumerable Members
 
-        /// <summary>
-        /// Returns an enumerator that iterates through the queue.
-        /// </summary>
-        /// <returns>an enumerator for the queue</returns>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
@@ -166,22 +145,10 @@ namespace Protocolo.Framework.Generic
 
         public void Clear()
         {
-            SingleLinkNode<T> tempNode;
-            SingleLinkNode<T> currentNode = m_head;
-
-            while (currentNode != null)
-            {
-                tempNode = currentNode;
-                currentNode = currentNode.Next;
-
-                tempNode.Item = default(T);
-                tempNode.Next = null;
-            }
-
-            m_head = new SingleLinkNode<T>();
-            m_tail = m_head;
-            m_count = 0;
+            var sentinel = new SingleLinkNode<T>();
+            Volatile.Write(ref m_tail, sentinel);
+            Volatile.Write(ref m_head, sentinel);
+            Volatile.Write(ref m_count, 0);
         }
-
     }
 }

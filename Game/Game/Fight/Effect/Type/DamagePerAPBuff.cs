@@ -1,4 +1,4 @@
-﻿using Game.Spell;
+using Game.Spell;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,26 +7,13 @@ using System.Threading.Tasks;
 
 namespace Game.Fight.Effect.Type
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class DamagePerAPBuff : AbstractSpellBuff
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="infos"></param>
         public DamagePerAPBuff(CastInfos infos, AbstractFighter target)
-            : base(infos, target, ActiveType.ACTIVE_ENDTURN, DecrementType.TYPE_ENDTURN)
+    : base(infos, target, ActiveType.ACTIVE_ENDTURN, DecrementType.TYPE_ENDTURN)
         {
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="damageValue"></param>
-        /// <param name="damageInfos"></param>
-        /// <returns></returns>
         public override FightActionResultEnum ApplyEffect(ref int damageValue, CastInfos damageInfos = null)
         {
             var usedAp = Target.UsedAP;

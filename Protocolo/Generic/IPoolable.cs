@@ -1,4 +1,4 @@
-﻿namespace Protocolo.Framework.Generic
+namespace Protocolo.Framework.Generic
 {
     public interface IPoolable
     {

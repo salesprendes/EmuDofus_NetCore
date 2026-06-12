@@ -1,4 +1,4 @@
-﻿using Game.Entity;
+using Game.Entity;
 using Game.Exchange;
 using System;
 using System.Collections.Generic;
@@ -9,43 +9,24 @@ using Game.Entity.Inventory;
 
 namespace Game.Action
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public class GameStorageExchangeAction : AbstractGameExchangeAction
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="storage"></param>
         public GameStorageExchangeAction(CharacterEntity character, StorageInventory storage, ExchangeTypeEnum type = ExchangeTypeEnum.EXCHANGE_STORAGE)
-            : base(new StorageExchange(character, storage, type), character, null)
+    : base(new StorageExchange(character, storage, type), character, null)
         {
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override void Start()
         {
             Exchange.Create();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="args"></param>
         public override void Stop(params object[] args)
         {
             base.Leave(true);
             base.Stop(args);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="args"></param>
         public override void Abort(params object[] args)
         {
             base.Leave();

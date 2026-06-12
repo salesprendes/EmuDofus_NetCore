@@ -1,31 +1,20 @@
-﻿using Protocolo.Framework.Generic;
+using Protocolo.Framework.Generic;
+using Game.Database.Structure;
 using Game.Job;
 using Game.Job.Skill;
 using System.Collections.Generic;
 
 namespace Game.Manager
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class JobManager : Singleton<JobManager>
     {
-        /// <summary>
-        /// 
-        /// </summary>
         private readonly Dictionary<int, JobTemplate> m_templateById;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public JobManager()
         {
             m_templateById = new Dictionary<int, JobTemplate>();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void Initialize()
         {
             m_templateById.Add((int)JobIdEnum.JOB_BASE,
@@ -369,23 +358,64 @@ namespace Game.Manager
                             1752,1753,1756,1764,1765,1766,1767,1768,1769,1809,1810,1811,1812,1813,1814,1815,1816,1817,1818,1819,1820,1821,1822,1823,1824,1825,1826,1827,1828,1829,1830,1831,1832,1833,1834,1835,1836,1837,1838,1839,1840,1859
                         }, WorldConfig.JOB_TOOLS[JobIdEnum.JOB_POISSONNIER])
                 ));
+
+
+
+
+            m_templateById.Add((int)JobIdEnum.JOB_FORGEMAGE_EPEES, new JobTemplate(
+                JobIdEnum.JOB_FORGEMAGE_EPEES, JobIdEnum.JOB_FORGEUR_EPEES,
+                new MagicSkill(SkillIdEnum.SKILL_REFORGER_UNE_EPEE, 1, new[] { ItemTypeEnum.TYPE_EPEE })));
+
+            m_templateById.Add((int)JobIdEnum.JOB_FORGEMAGE_DE_DAGUES, new JobTemplate(
+                JobIdEnum.JOB_FORGEMAGE_DE_DAGUES, JobIdEnum.JOB_FORGEUR_DE_DAGUES,
+                new MagicSkill(SkillIdEnum.SKILL_REFORGER_UNE_DAGUE, 1, new[] { ItemTypeEnum.TYPE_DAGUES })));
+
+            m_templateById.Add((int)JobIdEnum.JOB_FORGEMAGE_DE_MARTEAUX, new JobTemplate(
+                JobIdEnum.JOB_FORGEMAGE_DE_MARTEAUX, JobIdEnum.JOB_FORGEUR_DE_MARTEAUX,
+                new MagicSkill(SkillIdEnum.SKILL_REFORGER_UN_MARTEAU, 1, new[] { ItemTypeEnum.TYPE_MARTEAU })));
+
+            m_templateById.Add((int)JobIdEnum.JOB_FORGEMAGE_DE_PELLES, new JobTemplate(
+                JobIdEnum.JOB_FORGEMAGE_DE_PELLES, JobIdEnum.JOB_FORGEUR_DE_PELLES,
+                new MagicSkill(SkillIdEnum.SKILL_REFORGER_UNE_PELLE, 1, new[] { ItemTypeEnum.TYPE_PELLE })));
+
+            m_templateById.Add((int)JobIdEnum.JOB_FORGEMAGE_DE_HACHES, new JobTemplate(
+                JobIdEnum.JOB_FORGEMAGE_DE_HACHES, JobIdEnum.JOB_FORGEUR_DE_HACHES,
+                new MagicSkill(SkillIdEnum.SKILL_REFORGER_UNE_HACHE, 1, new[] { ItemTypeEnum.TYPE_HACHE })));
+
+            m_templateById.Add((int)JobIdEnum.JOB_SCULPTEMAGE_ARCS, new JobTemplate(
+                JobIdEnum.JOB_SCULPTEMAGE_ARCS, JobIdEnum.JOB_SCULPTEUR_ARCS,
+                new MagicSkill(SkillIdEnum.SKILL_RESCULPTER_UN_ARC, 1, new[] { ItemTypeEnum.TYPE_ARC })));
+
+            m_templateById.Add((int)JobIdEnum.JOB_SCULPTEMAGE_DE_BAGUETTES, new JobTemplate(
+                JobIdEnum.JOB_SCULPTEMAGE_DE_BAGUETTES, JobIdEnum.JOB_SCULPTEUR_DE_BAGUETTES,
+                new MagicSkill(SkillIdEnum.SKILL_RESCULPTER_UNE_BAGUETTE, 1, new[] { ItemTypeEnum.TYPE_BAGUETTE })));
+
+            m_templateById.Add((int)JobIdEnum.JOB_SCULPTEMAGE_DE_BATONS, new JobTemplate(
+                JobIdEnum.JOB_SCULPTEMAGE_DE_BATONS, JobIdEnum.JOB_SCULPTEUR_DE_BATONS,
+                new MagicSkill(SkillIdEnum.SKILL_RESCULPTER_UN_BATON, 1, new[] { ItemTypeEnum.TYPE_BATON })));
+
+            m_templateById.Add((int)JobIdEnum.JOB_CORDOMAGE, new JobTemplate(
+                JobIdEnum.JOB_CORDOMAGE, JobIdEnum.JOB_CORDONNIER,
+                new MagicSkill(SkillIdEnum.SKILL_AMELIORER_DES_BOTTES, 1, new[] { ItemTypeEnum.TYPE_BOTTES }),
+                new MagicSkill(SkillIdEnum.SKILL_AMELIORER_UNE_CEINTURE, 1, new[] { ItemTypeEnum.TYPE_CEINTURE })));
+
+            m_templateById.Add((int)JobIdEnum.JOB_JOAILLOMAGE, new JobTemplate(
+                JobIdEnum.JOB_JOAILLOMAGE, JobIdEnum.JOB_BIJOUTIER,
+                new MagicSkill(SkillIdEnum.SKILL_AMELIORER_UN_ANNEAU, 1, new[] { ItemTypeEnum.TYPE_ANNEAU }),
+                new MagicSkill(SkillIdEnum.SKILL_AMELIORER_UNE_AMULETTE, 1, new[] { ItemTypeEnum.TYPE_AMULETTE })));
+
+            m_templateById.Add((int)JobIdEnum.JOB_COSTUMAGE, new JobTemplate(
+                JobIdEnum.JOB_COSTUMAGE, JobIdEnum.JOB_TAILLEUR,
+                new MagicSkill(SkillIdEnum.SKILL_AMELIORER_UN_CHAPEAU, 1, new[] { ItemTypeEnum.TYPE_COIFFE }),
+                new MagicSkill(SkillIdEnum.SKILL_AMELIORER_UNE_CAPE, 1, new[] { ItemTypeEnum.TYPE_CAPE }),
+                new MagicSkill(SkillIdEnum.SKILL_AMELIORER_UN_SAC, 1, new[] { ItemTypeEnum.TYPE_SAC_DOS })));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
         public bool Exists(int id)
         {
             return m_templateById.ContainsKey(id);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
         public JobTemplate GetById(int id)
         {
             if (m_templateById.ContainsKey(id))

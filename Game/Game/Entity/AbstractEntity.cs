@@ -1,4 +1,4 @@
-﻿using Protocolo.Framework.Network;
+using Protocolo.Framework.Network;
 using Game.Command;
 using Game.Database.Structure;
 using Game.Frame;
@@ -20,19 +20,16 @@ using Protocolo.Framework.Generic;
 using Game.Entity.Inventory;
 
 namespace Game.Entity
-{    
-    /// <summary>
-    /// 
-    /// </summary>
+{
     public enum EntityTypeEnum
     {
-        // SPECIAL TYPES BDD ITEMS
+
         TYPE_HOUSE_CHEST = -23,
         TYPE_STORAGE = -22,
         TYPE_AUCTION_HOUSE = -21,
         TYPE_BANK = -20,
 
-        // GAME TYPES
+
         TYPE_MOUNT = -11,
         TYPE_PRISM = -10,
         TYPE_MOUNT_PARK = -9,
@@ -47,9 +44,6 @@ namespace Game.Entity
         TYPE_CHARACTER = 0,
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public enum PlayerRestrictionEnum
     {
         RESTRICTION_CANT_ASSAULT = 1,
@@ -70,9 +64,6 @@ namespace Game.Entity
         RESTRICTION_NEW_CHARACTER = RESTRICTION_CAN_MOVE_IN_ALL_DIRECTIONS,
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public enum EntityRestrictionEnum
     {
         RESTRICTION_CANT_BE_ASSAULT = 1,
@@ -86,106 +77,70 @@ namespace Game.Entity
     }
 
     public abstract class AbstractEntity : MessageDispatcher, IDisposable
-    { 
-        /// <summary>
-        /// 
-        /// </summary>
+    {
         public EntityTypeEnum Type
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long Id
         {
             get;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public abstract string Name
         {
             get;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public abstract int MapId
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public virtual long Kamas
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public abstract int CellId
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int LastCellId
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Orientation
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public abstract int Level
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public abstract int RealLife
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public abstract int BaseLife
         {
             get;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Life
         {
             get
@@ -193,55 +148,37 @@ namespace Game.Entity
                 return RealLife + Statistics.GetTotal(EffectEnum.AddVitality) + Statistics.GetTotal(EffectEnum.AddLife);
             }
             set
-            {                
+            {
                 RealLife = value - ((Statistics.GetTotal(EffectEnum.AddVitality) + Statistics.GetTotal(EffectEnum.AddLife)));
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int ReflectDamage => ((1 + (Statistics.GetTotal(EffectEnum.AddWisdom) / 100)) * Statistics.GetTotal(EffectEnum.AddReflectDamage)) + Statistics.GetTotal(EffectEnum.AddReflectDamageItem);
         public int MaxLife => BaseLife + Statistics.GetTotal(EffectEnum.AddVitality) + Statistics.GetTotal(EffectEnum.AddLife);
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Initiative => 1 + (int)Math.Floor((
-            Statistics.GetTotal(EffectEnum.AddStrength) +
-            Statistics.GetTotal(EffectEnum.AddChance) +
-            Statistics.GetTotal(EffectEnum.AddIntelligence) +
-            Statistics.GetTotal(EffectEnum.AddAgility) +
-            Statistics.GetTotal(EffectEnum.AddInitiative)) *
-                                                     ((double)Life / MaxLife)
-            );
+    Statistics.GetTotal(EffectEnum.AddStrength) +
+    Statistics.GetTotal(EffectEnum.AddChance) +
+    Statistics.GetTotal(EffectEnum.AddIntelligence) +
+    Statistics.GetTotal(EffectEnum.AddAgility) +
+    Statistics.GetTotal(EffectEnum.AddInitiative)) *
+                                             ((double)Life / MaxLife)
+    );
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Prospection => 1 + (int)Math.Floor((double)(Statistics.GetTotal(EffectEnum.AddChance) / 10)) + Statistics.GetTotal(EffectEnum.AddProspection);
 
-        /// <summary>
-        /// 
-        /// </summary>
         public abstract int Restriction
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int EntityRestriction
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public MapInstance Map
         {
             get
@@ -252,58 +189,37 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public virtual IMovementHandler MovementHandler => Map;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public AbstractGameAction CurrentAction
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public EntityInventory Inventory
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public GenericStats Statistics
         {
             get;
             protected set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public SpellBook SpellBook
         {
             get;
             protected set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long NextMovementTime
         {
             get;
             set;
         }
-        /// <summary>
-        /// 
-        /// </summary>
         public long MovementInterval
         {
             get;
@@ -311,9 +227,6 @@ namespace Game.Entity
         }
 
 
-        /// <summary>
-        /// 
-        /// </summary>
         private MapInstance m_map;
         private Dictionary<ChatChannelEnum, ChatChannelData> m_chatByChannel;
         private HashSet<IEntityListener> m_listeners;
@@ -344,11 +257,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="type"></param>
-        /// <param name="id"></param>
         protected AbstractEntity(EntityTypeEnum type, long id)
         {
             Id = id;
@@ -383,84 +291,48 @@ namespace Game.Entity
            };
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="listener"></param>
         public void AddEventListener(IEntityListener listener)
         {
             m_listeners.Add(listener);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="listener"></param>
         public void RemoveEntityListener(IEntityListener listener)
         {
             m_listeners.Remove(listener);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="ev"></param>
-        /// <param name="parameters"></param>
         public void FireEvent(EntityEventType ev, object parameters)
         {
             foreach (var listener in m_listeners)
                 listener.OnEntityEvent(ev, this, parameters);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="map"></param>
         public void SetMap(MapInstance map)
         {
             m_map = map;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="channelType"></param>
-        /// <param name="channel"></param>
         public void SetChatChannel(ChatChannelEnum channelType, Func<Action<string>> channel)
         {
             m_chatByChannel[channelType].Dispatcher = channel;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="emoteId"></param>
         public virtual void EmoteUse(int emoteId, int timeout = 360000)
-        {            
+        {
             Map.Dispatch(WorldMessage.EMOTE_USE(Id, emoteId, timeout));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="direction"></param>
         public void ChangeDirection(int direction)
         {
             Map.Dispatch(WorldMessage.EMOTE_DIRECTION(Id, direction));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="message"></param>
-        /// <param name="whispedCharacter"></param>
         public virtual bool DispatchChatMessage(ChatChannelEnum channel, string message, CharacterEntity whispedCharacter = null)
         {
             var channelData = m_chatByChannel[channel];
-            if (channelData == null)            
+            if (channelData == null)
                 return false;
-            
+
             if (channel != ChatChannelEnum.CHANNEL_PRIVATE_RECEIVE)
             {
                 if (message.Equals(channelData.LastMessage, StringComparison.OrdinalIgnoreCase))
@@ -499,11 +371,6 @@ namespace Game.Entity
             return true;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="actionType"></param>
-        /// <returns></returns>
         public bool CanGameAction(GameActionTypeEnum actionType)
         {
             if (CurrentAction != null && CurrentAction.Type == GameActionTypeEnum.MAP_MOVEMENT && CurrentAction.IsFinished)
@@ -523,22 +390,19 @@ namespace Game.Entity
                         && !HasGameAction(GameActionTypeEnum.FIGHT)
                         && !HasPlayerRestriction(PlayerRestrictionEnum.RESTRICTION_CANT_USE_IO)
                         && !HasEntityRestriction(EntityRestrictionEnum.RESTRICTION_IS_TOMBESTONE);
-                                        
+
                 case GameActionTypeEnum.CHALLENGE_REQUEST:
                     return (CurrentAction == null || CurrentAction.IsFinished)
                         && HasGameAction(GameActionTypeEnum.MAP)
                         && !HasEntityRestriction(EntityRestrictionEnum.RESTRICTION_CANT_BE_CHALLENGE)
                         && !HasPlayerRestriction(PlayerRestrictionEnum.RESTRICTION_CANT_CHALLENGE)
                         && !HasEntityRestriction(EntityRestrictionEnum.RESTRICTION_IS_TOMBESTONE);
-                    
+
                 case GameActionTypeEnum.CHALLENGE_ACCEPT:
-                    return CurrentAction != null
-                        && CurrentAction.Type == GameActionTypeEnum.CHALLENGE_REQUEST 
-                        && ((GameChallengeRequestAction)CurrentAction).Entity.Id != Id;
+                    return CurrentAction != null && CurrentAction.Type == GameActionTypeEnum.CHALLENGE_REQUEST && ((GameChallengeRequestAction)CurrentAction).Entity.Id != Id;
 
                 case GameActionTypeEnum.CHALLENGE_DECLINE:
-                    return CurrentAction != null
-                        && CurrentAction.Type == GameActionTypeEnum.CHALLENGE_REQUEST;
+                    return CurrentAction != null && CurrentAction.Type == GameActionTypeEnum.CHALLENGE_REQUEST;
 
                 case GameActionTypeEnum.EXCHANGE:
                     return (CurrentAction == null || CurrentAction.IsFinished)
@@ -558,9 +422,7 @@ namespace Game.Entity
                     return (CurrentAction == null || CurrentAction.IsFinished);
 
                 case GameActionTypeEnum.NPC_DIALOG:
-                    return (CurrentAction == null || CurrentAction.IsFinished)
-                        && !HasGameAction(GameActionTypeEnum.FIGHT)
-                        && !HasPlayerRestriction(PlayerRestrictionEnum.RESTRICTION_CANT_SPEAK_NPC);
+                    return (CurrentAction == null || CurrentAction.IsFinished) && !HasGameAction(GameActionTypeEnum.FIGHT) && !HasPlayerRestriction(PlayerRestrictionEnum.RESTRICTION_CANT_SPEAK_NPC);
 
                 case GameActionTypeEnum.FIGHT_JOIN:
                 case GameActionTypeEnum.FIGHT:
@@ -570,8 +432,7 @@ namespace Game.Entity
                         && !HasPlayerRestriction(PlayerRestrictionEnum.RESTRICTION_CANT_ASSAULT);
 
                 case GameActionTypeEnum.TAXCOLLECTOR_AGGRESSION:
-                    return (CurrentAction == null || CurrentAction.IsFinished)
-                        && !HasPlayerRestriction(PlayerRestrictionEnum.RESTRICTION_CANT_INTERACT_WITH_TAX_COLLECTOR);
+                    return (CurrentAction == null || CurrentAction.IsFinished) && !HasPlayerRestriction(PlayerRestrictionEnum.RESTRICTION_CANT_INTERACT_WITH_TAX_COLLECTOR);
 
                 case GameActionTypeEnum.PRISM_AGGRESSION:
                 case GameActionTypeEnum.PRISM_USE:
@@ -583,30 +444,16 @@ namespace Game.Entity
             return CurrentAction == null || CurrentAction.IsFinished;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="exchangeType"></param>
-        /// <returns></returns>
         public virtual bool CanBeExchanged(ExchangeTypeEnum exchangeType)
         {
             return !HasEntityRestriction(EntityRestrictionEnum.RESTRICTION_CANT_EXCHANGE) && (CurrentAction == null || CurrentAction.IsFinished);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public virtual bool CanBeMoved()
         {
             return false;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="actionType"></param>
-        /// <returns></returns>
         public bool HasGameAction(GameActionTypeEnum actionType)
         {
             if (actionType == GameActionTypeEnum.MAP && MovementHandler != null)
@@ -616,34 +463,21 @@ namespace Game.Entity
             return CurrentAction != null && CurrentAction.Type == actionType;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="path"></param>
         public virtual void Move(MovementPath path)
         {
             CurrentAction = new GameMapMovementAction(this, path);
             StartAction(GameActionTypeEnum.MAP_MOVEMENT);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="nextMap"></param>
-        /// <param name="nextCell"></param>
         public virtual void Teleport(int nextMap, int nextCell)
         {
             CurrentAction = new GameMapTeleportAction(this, nextMap, nextCell);
             StartAction(GameActionTypeEnum.MAP_TELEPORT);
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="actionType"></param>
+
         public virtual void StartAction(GameActionTypeEnum actionType)
         {
-            if(CurrentAction != null && CurrentAction.Type == actionType)
+            if (CurrentAction != null && CurrentAction.Type == actionType)
                 CurrentAction.Start();
 
             switch (actionType)
@@ -656,11 +490,11 @@ namespace Game.Entity
                 case GameActionTypeEnum.MAP_MOVEMENT:
                     MovementHandler.Dispatch(WorldMessage.GAME_ACTION(actionType, Id, CurrentAction.SerializeAs_GameAction()));
                     break;
-                    
+
                 case GameActionTypeEnum.MAP_TELEPORT:
                     StopAction(GameActionTypeEnum.MAP);
                     StopAction(GameActionTypeEnum.MAP_TELEPORT);
-                    // Switch back to world context
+
                     WorldService.Instance.AddUpdatable(this);
                     break;
             }
@@ -673,15 +507,15 @@ namespace Game.Entity
                 if (!CurrentAction.IsFinished)
                     CurrentAction.Stop(args);
 
-                if(CurrentAction != null && CurrentAction.Type == actionType)
+                if (CurrentAction != null && CurrentAction.Type == actionType)
                     CurrentAction = null;
             }
-            
-            switch(actionType)
+
+            switch (actionType)
             {
                 case GameActionTypeEnum.MAP:
                     Map?.DestroyEntity(this);
-                break;
+                    break;
             }
         }
 
@@ -695,29 +529,19 @@ namespace Game.Entity
                     CurrentAction = null;
             }
 
-            switch(actionType)
+            switch (actionType)
             {
                 case GameActionTypeEnum.MAP:
                     Map?.DestroyEntity(this);
                     break;
-             }
+            }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="restriction"></param>
-        /// <returns></returns>
         public bool HasPlayerRestriction(PlayerRestrictionEnum restriction)
         {
             return (Restriction & (int)restriction) == (int)restriction;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="restriction"></param>
-        /// <param name="value"></param>
         public void SetPlayerRestriction(PlayerRestrictionEnum restriction, bool value)
         {
             if (value)
@@ -736,21 +560,11 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="restriction"></param>
-        /// <returns></returns>
         public bool HasEntityRestriction(EntityRestrictionEnum restriction)
         {
             return (EntityRestriction & (int)restriction) == (int)restriction;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="restriction"></param>
-        /// <param name="value"></param>
         public void SetEntityRestriction(EntityRestrictionEnum restriction, bool value)
         {
             if (value)
@@ -769,9 +583,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override void Dispose()
         {
             CurrentAction = null;
@@ -803,11 +614,7 @@ namespace Game.Entity
 
             base.Dispose();
         }
-    
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
+
         public abstract void SerializeAs_GameMapInformations(OperatorEnum operation, StringBuilder message);
     }
 }

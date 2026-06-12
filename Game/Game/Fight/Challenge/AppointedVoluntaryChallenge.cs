@@ -1,4 +1,4 @@
-﻿using Game.Network;
+using Game.Network;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,16 +7,10 @@ using System.Threading.Tasks;
 
 namespace Game.Fight.Challenge
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class AppointedVoluntaryChallenge : AbstractChallenge
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public AppointedVoluntaryChallenge()
-            : base(ChallengeTypeEnum.APPOINTED_VOLUNTARY)
+    : base(ChallengeTypeEnum.APPOINTED_VOLUNTARY)
         {
             BasicDropBonus = 30;
             BasicXpBonus = 30;
@@ -27,10 +21,6 @@ namespace Game.Fight.Challenge
             ShowTarget = true;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="team"></param>
         public override void StartFight(FightTeam team)
         {
             if (team.OpponentTeam.HasSomeoneAlive)
@@ -43,10 +33,6 @@ namespace Game.Fight.Challenge
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
         public override void CheckDeath(AbstractFighter fighter)
         {
             if (fighter.Id == TargetId)

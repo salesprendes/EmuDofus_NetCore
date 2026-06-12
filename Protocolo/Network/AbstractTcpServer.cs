@@ -70,7 +70,7 @@ namespace Protocolo.Framework.Network
             m_socket.Bind(new IPEndPoint(ResolveHost(host), port));
             m_socket.Listen(backLog);
 
-            // Fixed accept worker pool — backlog controls OS queue size, not worker count
+
             var acceptWorkers = Math.Min(backLog, 20);
             for (var i = 0; i < acceptWorkers; i++)
                 StartAccept(null);
@@ -275,12 +275,7 @@ namespace Protocolo.Framework.Network
 
             ConfigureClientSocket(socket);
 
-            var client = new TClient
-            {
-                Socket = socket,
-                Ip = ip,
-                Server = this
-            };
+            var client = new TClient { Socket = socket, Ip = ip, Server = this };
 
             if (AddClient(client))
             {
@@ -492,12 +487,12 @@ namespace Protocolo.Framework.Network
             try
             {
                 var inValue = new byte[12];
-                BinaryPrimitives.WriteUInt32LittleEndian(inValue.AsSpan(0, 4), 1u);      // enable
-                BinaryPrimitives.WriteUInt32LittleEndian(inValue.AsSpan(4, 4), 60000u);  // idle ms
-                BinaryPrimitives.WriteUInt32LittleEndian(inValue.AsSpan(8, 4), 10000u);  // interval ms
+                BinaryPrimitives.WriteUInt32LittleEndian(inValue.AsSpan(0, 4), 1u);
+                BinaryPrimitives.WriteUInt32LittleEndian(inValue.AsSpan(4, 4), 60000u);
+                BinaryPrimitives.WriteUInt32LittleEndian(inValue.AsSpan(8, 4), 10000u);
                 socket.IOControl(IOControlCode.KeepAliveValues, inValue, null);
             }
-            catch {}
+            catch { }
         }
 
         private static IPAddress ResolveHost(string host)

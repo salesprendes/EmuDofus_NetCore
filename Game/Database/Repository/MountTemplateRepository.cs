@@ -8,18 +8,10 @@ using System.Threading.Tasks;
 
 namespace Game.Database.Repository
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class MountTemplateRepository : Repository<MountTemplateRepository, MountTemplateDAO>
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="templateId"></param>
-        /// <returns></returns>
         public MountTemplateDAO GetById(int templateId)
-            => Find(template => template.Id == templateId);
+    => Find(template => template.Id == templateId);
 
         public override void UpdateAll(MySqlConnector.MySqlConnection connection, MySqlConnector.MySqlTransaction transaction)
         {

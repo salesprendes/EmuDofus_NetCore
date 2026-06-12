@@ -18,9 +18,9 @@ namespace Game.ActionEffect
         {
             var spellId = int.Parse(parameters["spellId"]);
 
-            if(SpellManager.Instance.GetTemplate(spellId) == null)
+            if (SpellManager.Instance.GetTemplate(spellId) == null)
                 return false;
-            
+
             if (character.SpellBook.HasSpell(spellId))
             {
                 character.Dispatch(WorldMessage.IM_ERROR_MESSAGE(InformationEnum.ERROR_UNABLE_LEARN_SPELL, spellId));

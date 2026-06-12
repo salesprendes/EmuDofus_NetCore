@@ -1,4 +1,4 @@
-﻿using ProtoBuf;
+using ProtoBuf;
 using System;
 using System.Collections.Generic;
 
@@ -16,11 +16,6 @@ namespace Game.Spell
         public List<int> Targets;
         public List<SpellLevel> Levels;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="level"></param>
-        /// <returns></returns>
         public SpellLevel GetLevel(int level)
         {
             if (Levels.Count < level)

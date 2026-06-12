@@ -1,4 +1,4 @@
-﻿using Game.Database.Structure;
+using Game.Database.Structure;
 using Game.Entity;
 using Game.Network;
 using System;
@@ -8,9 +8,6 @@ using System.Text;
 
 namespace Game.Auction
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public enum AuctionCategoryFloorEnum
     {
         FLOOR_ONE = 1,
@@ -19,9 +16,6 @@ namespace Game.Auction
         INVALID = -1,
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public enum AuctionBuyResultEnum
     {
         NOT_ENOUGH_KAMAS,
@@ -29,32 +23,20 @@ namespace Game.Auction
         SUCCES,
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class AuctionCategory
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public int Id
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int TemplateId
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int ItemType
         {
             get;
@@ -62,14 +44,8 @@ namespace Game.Auction
         }
 
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool IsEmpty => FirstOrDefault() == null;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long MiddlePrice
         {
             get
@@ -86,15 +62,8 @@ namespace Game.Auction
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private Dictionary<AuctionCategoryFloorEnum, List<AuctionEntry>> m_auctionsByFloor;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="templateId"></param>
         public AuctionCategory(int itemType, int templateId, int id)
         {
             Id = id;
@@ -108,10 +77,6 @@ namespace Game.Auction
             };
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public IEnumerable<AuctionEntry> All()
         {
             foreach (var entries in m_auctionsByFloor.Values)
@@ -123,10 +88,6 @@ namespace Game.Auction
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public AuctionEntry FirstOrDefault()
         {
             AuctionEntry auction = null;
@@ -141,20 +102,11 @@ namespace Game.Auction
             return auction;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public AuctionEntry FirstOrDefault(AuctionCategoryFloorEnum floor)
         {
             return m_auctionsByFloor[floor].FirstOrDefault();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="item"></param>
-        /// <returns></returns>
         public bool IsValidForThisCategory(ItemDAO item)
         {
             AuctionEntry auction = FirstOrDefault();
@@ -166,11 +118,6 @@ namespace Game.Auction
             return auction.Item.StringEffects == item.StringEffects;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="quantity"></param>
-        /// <param name="price"></param>
         public AuctionBuyResultEnum Buy(CharacterEntity character, AuctionCategoryFloorEnum floor, long price)
         {
             var auction = FirstOrDefault(floor);
@@ -188,20 +135,11 @@ namespace Game.Auction
             return AuctionBuyResultEnum.SUCCES;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="auction"></param>
         public bool Remove(AuctionEntry auction)
         {
             return m_auctionsByFloor[GetFloorByQuantity(auction.Item.Quantity)].Remove(auction);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="floor"></param>
-        /// <param name="auction"></param>
         public void Add(AuctionEntry auction)
         {
             var floor = GetFloorByQuantity(auction.Item.Quantity);
@@ -214,11 +152,6 @@ namespace Game.Auction
             m_auctionsByFloor[floor].Sort();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="quantity"></param>
-        /// <returns></returns>
         public AuctionCategoryFloorEnum GetFloorByQuantity(int quantity)
         {
             switch (quantity)
@@ -230,11 +163,6 @@ namespace Game.Auction
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="quantity"></param>
-        /// <returns></returns>
         public int GetQuantityByFloor(AuctionCategoryFloorEnum floor)
         {
             switch (floor)
@@ -246,11 +174,6 @@ namespace Game.Auction
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="floor"></param>
-        /// <returns></returns>
         public string GetLowerPrice(AuctionCategoryFloorEnum floor)
         {
             AuctionEntry entry = FirstOrDefault(floor);
@@ -262,10 +185,6 @@ namespace Game.Auction
             return entry.Price.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public string SerializeAs_BuyExchange()
         {
             return "|" + Id + ";"
@@ -275,11 +194,6 @@ namespace Game.Auction
                 + GetLowerPrice(AuctionCategoryFloorEnum.FLOOR_HUNDRED) + ";";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="op"></param>
-        /// <param name="message"></param>
         public void SerializeAs_CategoryMovement(OperatorEnum op, StringBuilder message)
         {
             switch (op)

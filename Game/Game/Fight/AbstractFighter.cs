@@ -1,4 +1,4 @@
-﻿using Game.Action;
+using Game.Action;
 using Game.Entity;
 using Game.Map;
 using Game.Network;
@@ -8,40 +8,22 @@ using System.Text;
 
 namespace Game.Fight
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public abstract class AbstractFighter : AbstractEntity, IFightObstacle
     {
 
         #region IFightObstacle
-        /// <summary>
-        /// 
-        /// </summary>
         public FightObstacleTypeEnum ObstacleType => FightObstacleTypeEnum.TYPE_FIGHTER;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Priority => 0;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool CanGoThrough => false;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool CanStack => false;
 
         #endregion
 
         #region AbstractEntity
 
-        /// <summary>
-        /// 
-        /// </summary>
         public abstract override int MapId
         {
             get;
@@ -49,34 +31,22 @@ namespace Game.Fight
         }
 
 
-        /// <summary>
-        /// 
-        /// </summary>
         public abstract override int BaseLife
         {
             get;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public abstract override int CellId
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public abstract override string Name
         {
             get;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public abstract override int Level
         {
             get;
@@ -86,52 +56,34 @@ namespace Game.Fight
 
         #region AbstractFighter
 
-        /// <summary>
-        /// 
-        /// </summary>
         public abstract bool TurnReady
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public abstract bool TurnPass
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public abstract int SkinBase
         {
             get;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public abstract int SkinSizeBase
         {
             get;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Skin
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int SkinSize
         {
             get;
@@ -142,36 +94,24 @@ namespace Game.Fight
 
         #region Fighter
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool IsDisconnected
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int DisconnectedTurnLeft
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool IsSpectating
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public FightCell Cell
         {
             get;
@@ -180,145 +120,82 @@ namespace Game.Fight
 
         #endregion
 
-        /// <summary>
-        /// 
-        /// </summary>
         public AbstractFight Fight
         {
             get;
             protected set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public FightTeam Team
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool IsLeader => Team?.LeaderId == Id;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool IsFighterDead => DeclaredDead || Life <= 0;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool CanBeginTurn => !IsFighterDead && Fight != null;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public abstract bool CanDrop { get; }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int UsedAP
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int UsedMP
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int MaxAP => Statistics.GetTotal(EffectEnum.AddAP);
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int MaxMP => Statistics.GetTotal(EffectEnum.AddMP);
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int AP => MaxAP - UsedAP;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int MP => MaxMP - UsedMP;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int APDodge => (int)Math.Floor((double)Statistics.GetTotal(EffectEnum.AddWisdom) / 4) + Statistics.GetTotal(EffectEnum.AddAPDodge);
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int MPDodge => (int)Math.Floor((double)Statistics.GetTotal(EffectEnum.AddWisdom) / 4) + Statistics.GetTotal(EffectEnum.AddMPDodge);
 
-        /// <summary>
-        /// 
-        /// </summary>
         public AbstractFighter Invocator
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool StaticInvocation
         {
             get;
             set;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public virtual EffectEnum SummonEffectType => StaticInvocation ? EffectEnum.InvocationStatic : EffectEnum.Invocation;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public BuffEffectManager BuffManager
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public FighterStateManager StateManager
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public SpellCastManager SpellManager
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override IMovementHandler MovementHandler
         {
             get
@@ -329,29 +206,16 @@ namespace Game.Fight
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public abstract int AlignmentId { get; }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool DeclaredDead { get; private set; }
 
-        /// <summary>
-        /// 
-        /// </summary>
         protected AbstractFighter(EntityTypeEnum type, long id, bool staticInvocation = false)
-            : base(type, id)
+    : base(type, id)
         {
             StaticInvocation = staticInvocation;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="path"></param>
         public new void Move(MovementPath path)
         {
             CurrentAction = new GameFightMovementAction(this, path);
@@ -359,16 +223,6 @@ namespace Game.Fight
             StartAction(GameActionTypeEnum.MAP_MOVEMENT);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="cellId"></param>
-        /// <param name="spellId"></param>
-        /// <param name="spellLevel"></param>
-        /// <param name="sprite"></param>
-        /// <param name="spriteInfos"></param>
-        /// <param name="duration"></param>
-        /// <param name="callback"></param>
         public void LaunchSpell(int cellId, int spellId, int spellLevel, string sprite, string spriteInfos, long duration, System.Action callback)
         {
             CurrentAction = new GameFightSpellAction(this, cellId, spellId, spellLevel, sprite, spriteInfos, duration, callback);
@@ -376,10 +230,6 @@ namespace Game.Fight
             StartAction(GameActionTypeEnum.FIGHT_SPELL_LAUNCH);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="cellId"></param>
         public void UseWeapon(int cellId, long duration, System.Action callback)
         {
             CurrentAction = new GameFightWeaponAction(this, cellId, duration, callback);
@@ -387,9 +237,6 @@ namespace Game.Fight
             StartAction(GameActionTypeEnum.FIGHT_WEAPON_USE);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public virtual void JoinFight(AbstractFight fight, FightTeam team)
         {
             BuffManager = new BuffEffectManager(this);
@@ -423,9 +270,6 @@ namespace Game.Fight
             StartAction(GameActionTypeEnum.FIGHT);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public virtual void EndFight(bool win = false)
         {
             if (!IsSpectating)
@@ -488,10 +332,6 @@ namespace Game.Fight
             return Cell.BeginTurn(this);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public virtual FightActionResultEnum MiddleTurn()
         {
             UsedAP = 0;
@@ -500,10 +340,6 @@ namespace Game.Fight
             return FightActionResultEnum.RESULT_NOTHING;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public virtual FightActionResultEnum EndTurn()
         {
             SpellManager.EndTurn();
@@ -511,11 +347,6 @@ namespace Game.Fight
             return BuffManager.EndTurn();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="effect"></param>
-        /// <param name="jet"></param>
         public void CalculDamages(EffectEnum effect, ref int jet)
         {
             switch (effect)
@@ -544,11 +375,6 @@ namespace Game.Fight
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="effect"></param>
-        /// <param name="damages"></param>
         public void CalculReduceDamages(EffectEnum effect, ref int damages)
         {
             var coef = damages;
@@ -627,13 +453,6 @@ namespace Game.Fight
             return 0;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="caster"></param>
-        /// <param name="lostPoint"></param>
-        /// <param name="mp"></param>
-        /// <returns></returns>
         public int CalculDodgeAPMP(AbstractFighter caster, int lostPoint, bool mp = false)
         {
             var reality = 0;

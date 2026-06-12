@@ -9,9 +9,6 @@ using Game.Network;
 using Game.Database.Repository;
 namespace Game.Database.Structure
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public enum ItemTypeEnum
     {
         TYPE_AMULETTE = 1,
@@ -130,9 +127,6 @@ namespace Game.Database.Structure
         TYPE_POTION_FAMILIER = 116,
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     [Flags]
     public enum ItemSlotEnum
     {
@@ -165,7 +159,7 @@ namespace Game.Database.Structure
         SLOT_BOOST_FOLLOWER = 27,
 
         SLOT_ITEMBAR_1 = 35,
-        SLOT_ITEMBAR_2 = 36, 
+        SLOT_ITEMBAR_2 = 36,
         SLOT_ITEMBAR_3 = 37,
         SLOT_ITEMBAR_4 = 38,
         SLOT_ITEMBAR_5 = 39,
@@ -179,18 +173,15 @@ namespace Game.Database.Structure
         SLOT_ITEMBAR_13 = 47,
         SLOT_ITEMBAR_14 = 48,
 
-        //SLOT_BOOST = SLOT_BOOST_FOOD | SLOT_BOOST_BENEDICTION |SLOT_BOOST_BENEDICTION_1 | SLOT_BOOST_MALEDICTION 
-        //| SLOT_BOOST_MALEDICTION_1 | SLOT_BOOST_MUTATION | SLOT_BOOST_FOLLOWER | SLOT_BOOST_ROLEPLAY_BUFF,
 
-        //SLOT_EQUIPPED = SLOT_AMULET | SLOT_WEAPON | SLOT_LEFT_RING | SLOT_BELT | SLOT_RIGHT_RING | SLOT_BOOTS | SLOT_HAT
-        //| SLOT_CAPE | SLOT_PET | SLOT_DOFUS_1 | SLOT_DOFUS_2 | SLOT_DOFUS_3 | SLOT_DOFUS_4 | SLOT_DOFUS_5 | SLOT_DOFUS_6
-        //| SLOT_SHIELD | SLOT_BOOST_FOOD | SLOT_BOOST_BENEDICTION |SLOT_BOOST_BENEDICTION_1 | SLOT_BOOST_MALEDICTION 
-        //| SLOT_BOOST_MALEDICTION_1 | SLOT_BOOST_MUTATION | SLOT_BOOST_FOLLOWER | SLOT_BOOST_ROLEPLAY_BUFF,
+
+
+
+
+
+
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     [Table("itemtemplate")]
     public sealed class ItemTemplateDAO : DataAccessObject<ItemTemplateDAO>
     {
@@ -217,11 +208,6 @@ namespace Game.Database.Structure
         private int _cfRate;
 
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
         public static bool IsWeaponEffect(EffectEnum type)
         {
             switch (type)
@@ -243,12 +229,6 @@ namespace Game.Database.Structure
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="type"></param>
-        /// <param name="slot"></param>
-        /// <returns></returns>
         public static bool CanPlaceInSlot(ItemTypeEnum type, ItemSlotEnum slot)
         {
             if (slot < ItemSlotEnum.SLOT_AMULET || slot > ItemSlotEnum.SLOT_BOOST_FOLLOWER)
@@ -257,11 +237,6 @@ namespace Game.Database.Structure
             return ((GetSlotByType(type) | ItemSlotEnum.SLOT_INVENTORY) & slot) == slot;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
         public static ItemSlotEnum GetSlotByType(ItemTypeEnum type)
         {
             switch (type)
@@ -320,12 +295,7 @@ namespace Game.Database.Structure
                     return ItemSlotEnum.SLOT_PET;
 
                 case ItemTypeEnum.TYPE_DOFUS:
-                    return ItemSlotEnum.SLOT_DOFUS_1
-                    | ItemSlotEnum.SLOT_DOFUS_2
-                    | ItemSlotEnum.SLOT_DOFUS_3
-                    | ItemSlotEnum.SLOT_DOFUS_4
-                    | ItemSlotEnum.SLOT_DOFUS_5
-                    | ItemSlotEnum.SLOT_DOFUS_6;
+                    return ItemSlotEnum.SLOT_DOFUS_1 | ItemSlotEnum.SLOT_DOFUS_2 | ItemSlotEnum.SLOT_DOFUS_3 | ItemSlotEnum.SLOT_DOFUS_4 | ItemSlotEnum.SLOT_DOFUS_5 | ItemSlotEnum.SLOT_DOFUS_6;
 
                 case ItemTypeEnum.TYPE_BOUCLIER:
                     return ItemSlotEnum.SLOT_SHIELD;
@@ -335,183 +305,114 @@ namespace Game.Database.Structure
         }
 
         [Key]
-        /// <summary>        
-        /// 
-        /// </summary>
         public int Id
         {
             get => _id;
             set => SetProperty(ref _id, value);
         }
-        /// <summary>
-        /// 
-        /// </summary>
         public string Name
         {
             get => _name;
             set => SetProperty(ref _name, value);
         }
-        /// <summary>
-        /// 
-        /// </summary>
         public int Type
         {
             get => _type;
             set => SetProperty(ref _type, value);
         }
-        /// <summary>
-        /// 
-        /// </summary>
         public int Level
         {
             get => _level;
             set => SetProperty(ref _level, value);
         }
-        /// <summary>
-        /// 
-        /// </summary>
         public int Weight
         {
             get => _weight;
             set => SetProperty(ref _weight, value);
         }
-        /// <summary>
-        /// 
-        /// </summary>
         public bool TwoHands
         {
             get => _twoHands;
             set => SetProperty(ref _twoHands, value);
         }
-        /// <summary>
-        /// 
-        /// </summary>
         public bool Ethereal
         {
             get => _ethereal;
             set => SetProperty(ref _ethereal, value);
         }
-        /// <summary>
-        /// 
-        /// </summary>
         public bool Forgemageable
         {
             get => _forgemageable;
             set => SetProperty(ref _forgemageable, value);
         }
-        /// <summary>
-        /// 
-        /// </summary>
         public bool Buff
         {
             get => _buff;
             set => SetProperty(ref _buff, value);
         }
-        /// <summary>
-        /// 
-        /// </summary>
         public bool Usable
         {
             get => _usable;
             set => SetProperty(ref _usable, value);
         }
-        /// <summary>
-        /// 
-        /// </summary>
         public bool Targetable
         {
             get => _targetable;
             set => SetProperty(ref _targetable, value);
         }
-        /// <summary>
-        /// 
-        /// </summary>
         public int Price
         {
             get => _price;
             set => SetProperty(ref _price, value);
         }
-        /// <summary>
-        /// 
-        /// </summary>
         public string Conditions
         {
             get => _conditions;
             set => SetProperty(ref _conditions, value);
         }
-        /// <summary>
-        /// 
-        /// </summary>
         public string Effects
         {
             get => _effects;
             set => SetProperty(ref _effects, value);
         }
-        /// <summary>
-        /// 
-        /// </summary>
         public int SetId
         {
             get => _setId;
             set => SetProperty(ref _setId, value);
         }
-        /// <summary>
-        /// 
-        /// </summary>
         public int CSBonus
         {
             get => _csBonus;
             set => SetProperty(ref _csBonus, value);
         }
-        /// <summary>
-        /// 
-        /// </summary>
         public int APCost
         {
             get => _apCost;
             set => SetProperty(ref _apCost, value);
         }
-        /// <summary>
-        /// 
-        /// </summary>
         public int POMin
         {
             get => _poMin;
             set => SetProperty(ref _poMin, value);
         }
-        /// <summary>
-        /// 
-        /// </summary>
         public int POMax
         {
             get => _poMax;
             set => SetProperty(ref _poMax, value);
         }
-        /// <summary>
-        /// 
-        /// </summary>
         public int CSRate
         {
             get => _csRate;
             set => SetProperty(ref _csRate, value);
         }
-        /// <summary>
-        /// 
-        /// </summary>
         public int CFRate
         {
             get => _cfRate;
             set => SetProperty(ref _cfRate, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private List<CraftEntryDAO> m_ingredients;
 
-        /// <summary>
-        /// 
-        /// </summary>
         [Write(false)]
         public List<CraftEntryDAO> Ingredients
         {
@@ -523,14 +424,8 @@ namespace Game.Database.Structure
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private ItemSetDAO m_set;
 
-        /// <summary>
-        /// 
-        /// </summary>
         [Write(false)]
         public ItemSetDAO Set
         {
@@ -542,16 +437,9 @@ namespace Game.Database.Structure
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private RandomStatistics m_effects;
         private string m_rangeType;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         [Write(false)]
         public string RangeType
         {
@@ -580,9 +468,6 @@ namespace Game.Database.Structure
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         [Write(false)]
         public RandomStatistics RandomEffects
         {
@@ -591,7 +476,7 @@ namespace Game.Database.Structure
                 if (m_effects == null)
                 {
                     m_effects = RandomStatistics.Deserialize(Effects);
-                    Effects = null; // raw string no longer needed after parsing
+                    Effects = null;
                 }
                 return m_effects;
             }
@@ -602,10 +487,6 @@ namespace Game.Database.Structure
             return max ? Math.Max(effect.Minimum, effect.Maximum) : effect.Random;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public GenericStats GenerateStats(bool max = false)
         {
             var generatedStats = new GenericStats();
@@ -621,7 +502,7 @@ namespace Game.Database.Structure
                 else if (effect.Type == EffectEnum.AddBoost)
                     generatedStats.AddEffect(effect.Type, 0, 0, GetGeneratedEffectValue(effect, max));
                 else if (effect.Value3 != 0)
-                    // 4-field template format (id#v1#v2#v3): value is in Value3 (e.g. living item type/skin/mood)
+
                     generatedStats.AddEffect(effect.Type, 0, 0, effect.Value3);
                 else
                     generatedStats.AddEffect(effect.Type, GetGeneratedEffectValue(effect, max));
@@ -633,34 +514,17 @@ namespace Game.Database.Structure
             return generatedStats;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="quantity"></param>
-        /// <param name="slot"></param>
-        /// <param name="maxJet"></param>
-        /// <returns></returns>
         public ItemDAO Create(long ownerId, int ownerType, int quantity = 1, ItemSlotEnum slot = ItemSlotEnum.SLOT_INVENTORY, bool maxJet = false)
         {
             return InventoryItemRepository.Instance.Create(Id, ownerId, ownerType, quantity, GenerateStats(maxJet), slot);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="templateIds"></param>
-        /// <param name="quantity"></param>
-        /// <returns></returns>
         public bool MatchCraft(Dictionary<int, long> templates)
         {
             return Ingredients.All(ingredient => templates.Any(template => ingredient.RequiredId == template.Key && ingredient.RequiredQuantity == template.Value))
                 && templates.All(template => Ingredients.Any(ingredient => ingredient.RequiredId == template.Key && ingredient.RequiredQuantity == template.Value));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public override string ToString()
         {
             return Id + " ( " + Name + " ) ";

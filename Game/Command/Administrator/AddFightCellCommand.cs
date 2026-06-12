@@ -5,10 +5,7 @@ namespace Game.Command
 {
     public sealed class AddFightCellCommand : WorldStaffCommand
     {
-        private readonly string[] _aliases =
-        {
-            "celdacombate", "addfightcell"
-        };
+        private readonly string[] _aliases = { "celdacombate", "addfightcell" };
 
         public override string[] Aliases => _aliases;
 
@@ -20,9 +17,9 @@ namespace Game.Command
         {
             var team = int.Parse(context.TextCommandArgument.NextWord());
             var mapTemplate = MapTemplateRepository.Instance.GetById(context.Character.MapId);
-            if(team == 0)
+            if (team == 0)
                 mapTemplate.FightTeam0Cells.Add(context.Character.CellId);
-            else if(team == 1)
+            else if (team == 1)
                 mapTemplate.FightTeam1Cells.Add(context.Character.CellId);
 
             context.Character.Dispatch(WorldMessage.BASIC_CONSOLE_MESSAGE("Celda de combate anadida."));

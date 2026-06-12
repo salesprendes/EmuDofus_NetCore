@@ -130,7 +130,7 @@ namespace Game.Database.Structure
         {
             get
             {
-                if(m_template == null)
+                if (m_template == null)
                     m_template = MountTemplateRepository.Instance.GetById(TemplateId);
                 return m_template;
             }

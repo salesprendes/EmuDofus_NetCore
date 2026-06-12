@@ -34,14 +34,9 @@ namespace Game.Fight.AI.Bosses
 
         protected override IEnumerable<AIDecision> Evaluate(AIContext context)
         {
-            var livingTentacles = context.Allies.Count(a =>
-                a != null
-                && !a.IsFighterDead
-                && TentacleTemplateIds.Contains((a as MonsterEntity)?.Grade?.MonsterId ?? 0));
+            var livingTentacles = context.Allies.Count(a => a != null && !a.IsFighterDead && TentacleTemplateIds.Contains((a as MonsterEntity)?.Grade?.MonsterId ?? 0));
 
-            var hpRatio = context.Fighter.MaxLife > 0
-                ? (double)context.Fighter.Life / context.Fighter.MaxLife
-                : 1.0;
+            var hpRatio = context.Fighter.MaxLife > 0 ? (double)context.Fighter.Life / context.Fighter.MaxLife : 1.0;
 
             var enragePhase = livingTentacles == 0 || hpRatio <= HpThresholdEnrage;
 

@@ -88,10 +88,7 @@ namespace Game.Fight.AI.TaxCollectors
 
         public IEnumerable<AIDecision> EvaluateDefenderSupport(AIContext context)
         {
-            return EvaluateDefenderSupport(
-                context,
-                SafeEvaluate(m_healEvaluator, context).ToList(),
-                SafeEvaluate(m_buffEvaluator, context).ToList());
+            return EvaluateDefenderSupport(context, SafeEvaluate(m_healEvaluator, context).ToList(), SafeEvaluate(m_buffEvaluator, context).ToList());
         }
 
         public IEnumerable<AIDecision> EvaluateDangerousAttackers(AIContext context)
@@ -500,18 +497,12 @@ namespace Game.Fight.AI.TaxCollectors
 
         private static bool HasUsableContext(AIContext context)
         {
-            return context?.Fighter != null
-                && context.Fight != null
-                && context.Fighter.Team != null
-                && context.Fighter.Cell != null
-                && !context.Fighter.IsFighterDead;
+            return context?.Fighter != null && context.Fight != null && context.Fighter.Team != null && context.Fighter.Cell != null && !context.Fighter.IsFighterDead;
         }
 
         private static bool CanMove(AIContext context)
         {
-            return context?.Fighter != null
-                && context.CurrentMP > 0
-                && context.Fighter.CanBeMoved();
+            return context?.Fighter != null && context.CurrentMP > 0 && context.Fighter.CanBeMoved();
         }
 
         private static bool EnablesUsefulCastFrom(AIContext context, int fromCell)
@@ -589,25 +580,17 @@ namespace Game.Fight.AI.TaxCollectors
 
         private static bool CanCastNow(AIContext context, AIDecision decision, SpellLevel spell)
         {
-            return decision?.CellId != null
-                && spell != null
-                && SpellEvaluator.CanCastFromCurrentCell(context, spell, decision.CellId.Value);
+            return decision?.CellId != null && spell != null && SpellEvaluator.CanCastFromCurrentCell(context, spell, decision.CellId.Value);
         }
 
         private static bool IsSelfTarget(AIContext context, AIDecision decision)
         {
-            return context?.Fighter != null
-                && decision?.TargetId != null
-                && decision.TargetId.Value == context.Fighter.Id;
+            return context?.Fighter != null && decision?.TargetId != null && decision.TargetId.Value == context.Fighter.Id;
         }
 
         private static bool IsLivingDefender(AIContext context, AbstractFighter fighter)
         {
-            return context?.Fighter != null
-                && fighter != null
-                && fighter != context.Fighter
-                && fighter.Team == context.Fighter.Team
-                && !fighter.IsFighterDead;
+            return context?.Fighter != null && fighter != null && fighter != context.Fighter && fighter.Team == context.Fighter.Team && !fighter.IsFighterDead;
         }
 
         private static bool IsCloseThreat(AIContext context, AbstractFighter target, int distance)
@@ -686,9 +669,7 @@ namespace Game.Fight.AI.TaxCollectors
 
         private static bool ContainsSpell(IReadOnlyList<SpellLevel> spells, SpellLevel spell)
         {
-            return spell != null
-                && spells != null
-                && spells.Any(s => s != null && s.SpellId == spell.SpellId);
+            return spell != null && spells != null && spells.Any(s => s != null && s.SpellId == spell.SpellId);
         }
     }
 }

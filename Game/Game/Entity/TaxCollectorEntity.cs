@@ -1,4 +1,4 @@
-﻿using Game.Database.Structure;
+using Game.Database.Structure;
 using Game.Action;
 using Game.Exchange;
 using Game.Fight;
@@ -17,37 +17,22 @@ using Game.Entity.Inventory;
 
 namespace Game.Entity
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class TaxCollectorEntity : AIFighter, IDisposable
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public override int MapId
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override int CellId
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override string Name => Util.EncodeBase36(DatabaseRecord.FirstName) + "," + Util.EncodeBase36(DatabaseRecord.Name);
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override int Level
         {
             get
@@ -58,52 +43,31 @@ namespace Game.Entity
             {
             }
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
+
         public override int BaseLife => Statistics.GetTotal(EffectEnum.AddVitality);
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override int RealLife
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override int Restriction
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override int SkinBase => DatabaseRecord.Skin;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override int SkinSizeBase => DatabaseRecord.SkinSize;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public TaxCollectorDAO DatabaseRecord
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public GuildInstance Guild
         {
             get;
@@ -111,18 +75,12 @@ namespace Game.Entity
         }
 
 
-        /// <summary>
-        /// 
-        /// </summary>
         public List<GuildMember> Defenders
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool CanDefend
         {
             get
@@ -133,9 +91,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override long Kamas
         {
             get
@@ -148,9 +103,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long ExperienceGathered
         {
             get
@@ -163,18 +115,12 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public TaxCollectorInventory Storage
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public Dictionary<int, int> FarmedItems
         {
             get;
@@ -185,11 +131,8 @@ namespace Game.Entity
 
         public override bool CanDrop => true;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public TaxCollectorEntity(GuildInstance guild, TaxCollectorDAO record) : base(EntityTypeEnum.TYPE_TAX_COLLECTOR, record.Id)
-        {            
+        {
             DatabaseRecord = record;
             Guild = guild;
 
@@ -206,18 +149,11 @@ namespace Game.Entity
             RefreshBrain();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public override bool CanBeMoved()
         {
             return true;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override void Dispose()
         {
             Guild = null;
@@ -228,11 +164,6 @@ namespace Game.Entity
             base.Dispose();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fight"></param>
-        /// <param name="team"></param>
         public override void JoinFight(Fight.AbstractFight fight, Fight.FightTeam team)
         {
             base.JoinFight(fight, team);
@@ -240,74 +171,39 @@ namespace Game.Entity
             Guild.SafeDispatch(WorldMessage.GUILD_TAXCOLLECTOR_UNDER_ATTACK(Name, Map.X, Map.Y));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="win"></param>
         public override void EndFight(bool win = false)
         {
             base.EndFight(win);
 
             if (win)
             {
-                Guild.AddMessage(() =>
-                    {
-                        if (Guild.IsDeleted) return;
-                        StartAction(GameActionTypeEnum.MAP);
-                        Guild.Dispatch(WorldMessage.GUILD_TAXCOLLECTOR_SURVIVED(Name, Map.X, Map.Y));
-                    });
+                Guild.AddMessage(() => { if (Guild.IsDeleted) return; StartAction(GameActionTypeEnum.MAP); Guild.Dispatch(WorldMessage.GUILD_TAXCOLLECTOR_SURVIVED(Name, Map.X, Map.Y)); });
             }
             else
             {
-                Guild.AddMessage(() =>
-                    {
-                        if (Guild.IsDeleted) return;
-                        Guild.RemoveTaxCollector(this);
-                        Guild.Dispatch(WorldMessage.GUILD_TAXCOLLECTOR_DIED(Name, Map.X, Map.Y));
-                    });
+                Guild.AddMessage(() => { if (Guild.IsDeleted) return; Guild.RemoveTaxCollector(this); Guild.Dispatch(WorldMessage.GUILD_TAXCOLLECTOR_DIED(Name, Map.X, Map.Y)); });
             }
 
             Defenders.Clear();
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="member"></param>
+
         public void DefenderJoin(GuildMember member)
-        {            
+        {
             Defenders.Add(member);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="member"></param>
         public void DefenderLeft(GuildMember member)
         {
             Defenders.Remove(member);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="exchangeType"></param>
-        /// <returns></returns>
         public override bool CanBeExchanged(Exchange.ExchangeTypeEnum exchangeType)
         {
             return base.CanBeExchanged(exchangeType) && exchangeType == ExchangeTypeEnum.EXCHANGE_TAXCOLLECTOR;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private StringBuilder m_serialized;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="operation"></param>
-        /// <param name="message"></param>
         public override void SerializeAs_GameMapInformations(OperatorEnum operation, StringBuilder message)
         {
             switch (operation)
@@ -340,7 +236,7 @@ namespace Game.Entity
                     else if (HasGameAction(GameActionTypeEnum.FIGHT))
                     {
                         message.Append(Cell.Id).Append(';');
-                        message.Append(Orientation).Append(';'); // Direction
+                        message.Append(Orientation).Append(';');
                         message.Append('0').Append(';');
                         message.Append(Id).Append(';');
                         message.Append(Name).Append(';');
@@ -350,7 +246,7 @@ namespace Game.Entity
                         message.Append(Level).Append(';');
                         message.Append(Life).Append(';');
                         message.Append(AP).Append(';');
-                        message.Append(MP).Append(';');                        
+                        message.Append(MP).Append(';');
                         message.Append(Statistics.GetTotal(EffectEnum.AddReduceDamagePercentNeutral)).Append(';');
                         message.Append(Statistics.GetTotal(EffectEnum.AddReduceDamagePercentEarth)).Append(';');
                         message.Append(Statistics.GetTotal(EffectEnum.AddReduceDamagePercentFire)).Append(';');

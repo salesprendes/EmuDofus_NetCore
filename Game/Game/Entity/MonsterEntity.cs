@@ -1,4 +1,4 @@
-﻿using Game.Database.Structure;
+using Game.Database.Structure;
 using Game.Fight;
 using Game.Fight.AI;
 using Game.Manager;

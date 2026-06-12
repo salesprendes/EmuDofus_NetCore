@@ -1,4 +1,4 @@
-﻿using Game.Spell;
+using Game.Spell;
 using Game.Network;
 using System;
 using System.Collections.Generic;
@@ -8,9 +8,6 @@ using System.Threading.Tasks;
 
 namespace Game.Fight.Effect
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public enum ActiveType
     {
         ACTIVE_STATS,
@@ -23,9 +20,6 @@ namespace Game.Fight.Effect
         ACTIVE_ATTACKED_AFTER_JET,
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public enum DecrementType
     {
         TYPE_BEGINTURN,
@@ -33,68 +27,45 @@ namespace Game.Fight.Effect
         TYPE_ENDMOVE,
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public abstract class AbstractSpellBuff
     {
-        /// <summary>
-        ///
-        /// </summary>
         public DecrementType DecrementType
         {
             get;
             set;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public ActiveType ActiveType
         {
             get;
             set;
         }
 
-        /// <summary>
-        //
-        /// </summary>
+
         public CastInfos CastInfos
         {
             get;
             set;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public AbstractFighter Caster
         {
             get;
             set;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public AbstractFighter Target
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Duration
         {
             get;
             set;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public bool IsDebuffable
         {
             get
@@ -111,10 +82,6 @@ namespace Game.Fight.Effect
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="Effect"></param>
         public AbstractSpellBuff(CastInfos castInfos, AbstractFighter target, ActiveType activeType, DecrementType decrementType)
         {
             CastInfos = castInfos;
@@ -124,7 +91,7 @@ namespace Game.Fight.Effect
 
             ActiveType = activeType;
             DecrementType = decrementType;
-            
+
             switch (castInfos.EffectType)
             {
                 case EffectEnum.ReflectSpell:
@@ -166,9 +133,6 @@ namespace Game.Fight.Effect
             }
         }
 
-        /// <summary>
-        /// Replays the GIE packet to a single target (used on reconnect).
-        /// </summary>
         public void SendTo(Action<string> dispatch)
         {
             switch (CastInfos.EffectType)
@@ -200,39 +164,21 @@ namespace Game.Fight.Effect
                     break;
 
                 default:
-                    dispatch(WorldMessage.FIGHT_EFFECT_INFORMATION(CastInfos.EffectType,
-                                                                   Target.Id,
-                                                                   CastInfos.Value1.ToString(),
-                                                                   "",
-                                                                   "",
-                                                                   "",
-                                                                   Duration.ToString(),
-                                                                   CastInfos.SpellId.ToString()));
+                    dispatch(WorldMessage.FIGHT_EFFECT_INFORMATION(CastInfos.EffectType, Target.Id, CastInfos.Value1.ToString(), "", "", "", Duration.ToString(), CastInfos.SpellId.ToString()));
                     break;
             }
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="ActiveType"></param>
         public virtual FightActionResultEnum ApplyEffect(ref int damageValue, CastInfos damageInfos = null)
         {
             return Caster.Fight.TryKillFighter(Target, Caster);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public virtual FightActionResultEnum RemoveEffect()
         {
             return Caster.Fight.TryKillFighter(Target, Caster);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int DecrementDuration()
         {
             Duration--;

@@ -1,4 +1,4 @@
-﻿using Game.Entity;
+using Game.Entity;
 using Game.Network;
 using Protocolo.Framework.Network;
 using System;
@@ -19,10 +19,10 @@ namespace Game.Frame
                 case 'e':
                     switch (message[1])
                     {
-                        case 'D': // onDirection
+                        case 'D':
                             return EmoteDirection;
 
-                        case 'U': // onUse
+                        case 'U':
                             return EmoteUse;
                     }
                     break;
@@ -42,7 +42,7 @@ namespace Game.Frame
                 case 'G':
                     switch (message[1])
                     {
-                        case 'P': // alignment
+                        case 'P':
                             if (message.Length < 3)
                             {
                                 return null;
@@ -82,10 +82,7 @@ namespace Game.Frame
                 return;
             }
 
-            character.AddMessage(() =>
-                {
-                    character.ChangeDirection(direction);
-                });
+            character.AddMessage(() => { character.ChangeDirection(direction); });
         }
 
         private void EmoteUse(CharacterEntity character, string message)
@@ -97,10 +94,7 @@ namespace Game.Frame
                 return;
             }
 
-            character.AddMessage(() =>
-                {
-                    character.EmoteUse(emoteId);
-                });
+            character.AddMessage(() => { character.EmoteUse(emoteId); });
         }
 
         private void AlignmentDisableCost(CharacterEntity character, string message)
@@ -120,13 +114,7 @@ namespace Game.Frame
 
         private void FightList(CharacterEntity character, string message)
         {
-            character.AddMessage(() =>
-            {
-                if (character.Map.FightManager.FightCount > 0)
-                {
-                    character.Dispatch(WorldMessage.FIGHT_LIST(character.Map.FightManager.Fights));
-                }
-            });
+            character.AddMessage(() => { if (character.Map.FightManager.FightCount > 0) { character.Dispatch(WorldMessage.FIGHT_LIST(character.Map.FightManager.Fights)); } });
         }
 
         private void FightDetails(CharacterEntity character, string message)
@@ -143,17 +131,7 @@ namespace Game.Frame
                 return;
             }
 
-            character.AddMessage(() =>
-            {
-                var fight = character.Map.FightManager.GetFight(fightId);
-
-                if (fight == null)
-                {
-                    return;
-                }
-
-                character.Dispatch(WorldMessage.FIGHT_DETAILS(fight));
-            });
+            character.AddMessage(() => { var fight = character.Map.FightManager.GetFight(fightId); if (fight == null) { return; } character.Dispatch(WorldMessage.FIGHT_DETAILS(fight)); });
         }
     }
 }

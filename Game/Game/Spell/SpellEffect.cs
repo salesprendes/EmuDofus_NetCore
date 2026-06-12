@@ -1,4 +1,4 @@
-﻿using Game.Manager;
+using Game.Manager;
 using ProtoBuf;
 using System;
 
@@ -9,7 +9,7 @@ namespace Game.Spell
     {
         None = -1,
 
-        // Armures
+
         AddArmorNeutral = -2,
         AddArmorEarth = -3,
         AddArmorFire = -4,
@@ -73,7 +73,7 @@ namespace Game.Spell
         SubDamagePercent = 186,
         AddDamageCritic = 115,
         AddDamagePiege = 225,
-        //AddDamagePiegePercent = 225,
+
         AddDamagePhysic = 142,
         AddDamageMagic = 143,
         AddEchecCritic = 122,
@@ -181,10 +181,10 @@ namespace Game.Spell
         Stealth = 150,
         DeleteAllBonus = 132,
 
-        /* Potion rappel */
+
         TeleportSavedZaap = 600,
 
-        /* Parchemins */
+
         AddJob = 603,
         AddSpell = 604,
         AddExperience = 605,
@@ -197,13 +197,13 @@ namespace Game.Spell
         AddCaractPoint = 612,
         AddSpellPoint = 613,
 
-        /* Gateaux */
+
         AddEnergy = 139,
 
-        /* Bourses */
+
         AddKamas = 194,
 
-        /* Bonbons boosts combats */
+
         AddBoost = 811,
         EtherealResist = 812,
 
@@ -242,7 +242,7 @@ namespace Game.Spell
         MountOwner = 996,
         Name = 997,
 
-        /* ACTION SPECIALES BDD SCRIPT */
+
         BddDialogReply = 2000,
         BddDialogLeave = 2001,
         BddOpenBank = 2002,
@@ -257,9 +257,6 @@ namespace Game.Spell
         BddLaunchFight = 2011,
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     [ProtoContract(ImplicitFields = ImplicitFields.AllFields)]
     [Serializable]
     public sealed class SpellEffect
@@ -277,18 +274,11 @@ namespace Game.Spell
         [NonSerialized]
         private SpellLevel _level;
 
-        [ProtoIgnore]
-        public EffectEnum TypeEnum => (EffectEnum)Type;
+        [ProtoIgnore] public EffectEnum TypeEnum => (EffectEnum)Type;
 
-        /// <summary>
-        /// </summary>
-        [ProtoIgnore]
-        public bool IsBurst => Duration == 0;
+        [ProtoIgnore] public bool IsBurst => Duration == 0;
 
-        /// <summary>
-        /// </summary>
-        [ProtoIgnore]
-        public bool IsDispellable => Duration > 0;
+        [ProtoIgnore] public bool IsDispellable => Duration > 0;
 
         [ProtoIgnore]
         public SpellLevel Level

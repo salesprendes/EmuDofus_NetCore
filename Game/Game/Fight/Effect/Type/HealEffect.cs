@@ -1,4 +1,4 @@
-﻿using Game.Action;
+using Game.Action;
 using Game.Spell;
 using Game.Network;
 using System;
@@ -9,27 +9,19 @@ using System.Threading.Tasks;
 
 namespace Game.Fight.Effect.Type
 {
-    /// <summary>
-    ///
-    /// </summary>
     public sealed class HealEffect : AbstractSpellEffect
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="CastInfos"></param>
-        /// <returns></returns>
         public override FightActionResultEnum ApplyEffect(CastInfos castInfos)
         {
             if (castInfos.Target == null)
                 return FightActionResultEnum.RESULT_NOTHING;
 
-            // Si > 0 alors c'est un buff
+
             if (castInfos.Duration > 0)
             {
                 castInfos.Target.BuffManager.AddBuff(new HealBuff(castInfos, castInfos.Target));
             }
-            else // Heal direct
+            else
             {
                 var healValue = castInfos.RandomJet;
                 return HealEffect.ApplyHeal(castInfos, castInfos.Target, ref healValue);
@@ -38,17 +30,11 @@ namespace Game.Fight.Effect.Type
             return FightActionResultEnum.RESULT_NOTHING;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="CastInfos"></param>
-        /// <param name="Heal"></param>
-        /// <returns></returns>
         public static FightActionResultEnum ApplyHeal(CastInfos castInfos, AbstractFighter target, ref int heal)
         {
             var caster = castInfos.Caster;
 
-            if(castInfos.EffectType != EffectEnum.DamageBrut)
+            if (castInfos.EffectType != EffectEnum.DamageBrut)
                 caster.CalculHeal(ref heal);
 
             if (target.Life + heal > target.MaxLife)

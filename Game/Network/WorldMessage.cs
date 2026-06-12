@@ -1,4 +1,4 @@
-﻿using Game.Action;
+using Game.Action;
 using Game.Auction;
 using Game.Conquest;
 using Game.Database.Structure;
@@ -39,9 +39,6 @@ namespace Game.Network
         PVP = 2,
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public enum InformationEnum
     {
         INFO_SERVER_MESSAGE = 0,
@@ -71,9 +68,9 @@ namespace Game.Network
         INFO_KAMAS_WON = 45,
         INFO_KAMAS_LOST = 46,
 
-        INFOS_QUEST_NEW = 54, //"Nouvelle quête : <b>%1</b>";
-        INFOS_QUEST_UPDATE = 55,//"Quête mise à jour : <b>%1</b>";
-        INFOS_QUEST_END = 56, //"Quête terminée : <b>%1</b>";
+        INFOS_QUEST_NEW = 54,
+        INFOS_QUEST_UPDATE = 55,
+        INFOS_QUEST_END = 56,
 
         INFO_YOU_ARE_AWAY_PLAYERS_CANT_RESPOND = 72,
 
@@ -87,12 +84,14 @@ namespace Game.Network
         INFO_ALIGNMENT_RANK_DOWN = 83,
 
         INFO_BASIC_WARNING_BEFORE_SANCTION = 116,
-        INFO_BASIC_LAST_CONNECTION = 152, // precedente connexion ...
-        INFO_BASIC_CURRENT_IP = 153, // votre ip actuelle est ...   
+        INFO_BASIC_LAST_CONNECTION = 152,
+        INFO_BASIC_CURRENT_IP = 153,
 
         INFO_FRIEND_ONLINE = 143,
 
         INFO_CRAFT_FAILED = 118,
+        INFO_MAGIC_FAILED = 117,
+        INFO_MAGIC_NOT_PERFECT = 194,
 
         INFO_FIGHT_SPECTATOR_JOINED = 36,
         INFO_FIGHT_TOGGLE_PARTY = 93,
@@ -182,18 +181,12 @@ namespace Game.Network
         PVP_PRISM_DESTROYED = 154,
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public enum GamePopupTypeEnum
     {
         TYPE_INSTANT = 1,
         TYPE_ON_DISCONNECT = 0,
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public enum GameMessageEnum
     {
         MESSAGE_MUCH_SPAM = 0,
@@ -208,18 +201,12 @@ namespace Game.Network
         MESSAGE_KICKED = 18,
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public enum ExchangeMoveEnum
     {
         MOVE_OBJECT = 'O',
         MOVE_GOLD = 'G',
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public enum OperatorEnum
     {
         OPERATOR_ADD = '+',
@@ -227,9 +214,6 @@ namespace Game.Network
         OPERATOR_REFRESH = '~',
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public enum MountEquipErrorEnum
     {
         INVENTORY_NOT_EMPTY = '-',
@@ -237,158 +221,83 @@ namespace Game.Network
         UNKNOW_ERROR = 'r',
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public static class WorldMessage
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="type"></param>
-        /// <param name="args"></param>
-        /// <returns></returns>
         public static string IM_INFO_MESSAGE(InformationEnum info, params object[] args)
         {
             return INFORMATION_MESSAGE(InformationTypeEnum.INFO, info, args);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="info"></param>
-        /// <param name="args"></param>
-        /// <returns></returns>
         public static string IM_ERROR_MESSAGE(InformationEnum info, params object[] args)
         {
             return INFORMATION_MESSAGE(InformationTypeEnum.ERROR, info, args);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="info"></param>
-        /// <param name="args"></param>
-        /// <returns></returns>
         public static string IM_PVP_MESSAGE(InformationEnum info, params object[] args)
         {
             return INFORMATION_MESSAGE(InformationTypeEnum.PVP, info, args);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string BASIC_NO_OPERATION()
         {
             return "BN";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="spellId"></param>
-        /// <param name="level"></param>
-        /// <returns></returns>
         public static string SPELL_UPGRADE_SUCCESS(int spellId, int level)
         {
             return "SUK" + spellId + "~" + level;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string SPELL_UPGRADE_ERROR()
         {
             return "SUE";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string HELLO_GAME()
         {
             return "HG";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string ACCOUNT_TICKET_ERROR()
         {
             return "ATE";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string ACCOUNT_TICKET_SUCCESS()
         {
             return "ATK0";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string ACCOUNT_REGIONAL_VERSION()
         {
             return "AVfr";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string CHARACTER_CREATION_SUCCESS()
         {
             return "AAK";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string CHARACTER_CREATION_ERROR()
         {
             return "AAE";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string CHARACTER_CREATION_ERROR_FULL()
         {
             return "AAEf";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string CHARACTER_CREATION_ERROR_NAME_ALREADY_EXISTS()
         {
             return "AAEa";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string CHARACTER_CREATION_ERROR_BAD_NAME()
         {
             return "AAEn";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string CHARACTER_CREATION_ERROR_SUBSCRIPTION_OUT()
         {
             return "AAEs";
@@ -402,10 +311,6 @@ namespace Game.Network
         public static string BASIC_QPONG() => "qpong";
         public static string BASIC_RPING(long ticks) => "rping" + ticks;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string CHARACTER_LIST(List<CharacterDAO> characters)
         {
             var message = new StringBuilder("ALK31536000000", characters.Count * 50);
@@ -446,36 +351,23 @@ namespace Game.Network
                     if (!int.TryParse(parts[0], out int templateId) || !int.TryParse(parts[1], out int quantity))
                         continue;
 
-                    items.Append(';')
-                         .Append(0).Append('~')
-                         .Append(templateId.ToString("x")).Append('~')
-                         .Append(quantity.ToString("x")).Append("~~");
+                    items.Append(';').Append(0).Append('~').Append(templateId.ToString("x")).Append('~').Append(quantity.ToString("x")).Append("~~");
                 }
             }
 
             return new StringBuilder("Ag").Append(gift.GiftType).Append('|').Append(gift.Id).Append('|').Append(Uri.EscapeDataString(gift.Title ?? string.Empty)).Append('|').Append(Uri.EscapeDataString(gift.Description ?? string.Empty)).Append('|').Append(Uri.EscapeDataString(gift.GfxUrl ?? string.Empty)).Append('|').Append(items).ToString();
         }
 
-        /// <summary>
-        /// Confirmacion de regalo atribuido con exito.
-        /// </summary>
         public static string GIFT_STORED_SUCCESS()
         {
             return "AG";
         }
 
-        /// <summary>
-        /// Error al atribuir el regalo.
-        /// </summary>
         public static string GIFT_STORED_ERROR()
         {
             return "AGE";
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
         public static string CHARACTER_SELECTION_SUCCESS(CharacterEntity character)
         {
             var message = new StringBuilder("ASK|");
@@ -506,64 +398,35 @@ namespace Game.Network
         public static string SPECIALISATION_CHANGE(int alignmentId) => "ZC" + alignmentId;
         public static string CHAT_ENABLED_CHANNELS() => "cC+i*?:#@$%!TF";
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="enabled"></param>
-        /// <param name="channel"></param>
-        /// <returns></returns>
         public static string CHAT_CHANNEL(bool enabled, ChatChannelEnum channel)
         {
             return "cC" + (enabled ? "+" : "-") + (char)channel;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string INVENTORY_WEIGHT(int pods, int maxPods)
         {
             return "Ow" + pods + "|" + maxPods;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string INFORMATION_MESSAGE(InformationTypeEnum type, InformationEnum id, params object[] args)
         {
             return "Im" + (int)type + (int)id + (args.Length > 0 ? ";" : "") + string.Join("~", args.Select(arg => arg.ToString()));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string GAME_CREATION_SUCCESS()
         {
             return "GCK|1|";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string GAME_DATA_MAP(int mapId, string mapDate, string key)
         {
             return "GDM|" + mapId + '|' + mapDate + '|' + key;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string ACCOUNT_STATS(CharacterEntity character)
         {
             var message = new StringBuilder("As", 200);
-            message
-                .Append(character.Experience).Append(',')
-                .Append(character.ExperienceFloorCurrent).Append(',')
-                .Append(character.ExperienceFloorNext).Append('|');
+            message.Append(character.Experience).Append(',').Append(character.ExperienceFloorCurrent).Append(',').Append(character.ExperienceFloorNext).Append('|');
 
             message.Append(character.Kamas).Append('|');
             message.Append(character.CaractPoint).Append('|');
@@ -571,31 +434,27 @@ namespace Game.Network
 
             message
                 .Append(character.AlignmentId).Append('~')
-                .Append(character.AlignmentId).Append(',').Append('0').Append(',') //  ???
+                .Append(character.AlignmentId).Append(',').Append('0').Append(',')
                 .Append(character.AlignmentLevel).Append(',')
                 .Append(character.Honour).Append(',')
                 .Append(character.Dishonour).Append(',')
                 .Append(character.AlignmentEnabled ? '1' : '0').Append('|');
 
-            message
-                .Append(character.Life).Append(',')
-                .Append(character.MaxLife).Append('|');
+            message.Append(character.Life).Append(',').Append(character.MaxLife).Append('|');
 
-            message
-                .Append(character.Energy).Append(',')
-                .Append(10000).Append('|');
+            message.Append(character.Energy).Append(',').Append(10000).Append('|');
 
             message.Append(character.Initiative).Append('|');
             message.Append(character.Prospection).Append('|');
 
-            ReadOnlySpan<EffectEnum> s_stats = [EffectEnum.AddAP, EffectEnum.AddMP, EffectEnum.AddStrength, EffectEnum.AddVitality, EffectEnum.AddWisdom, 
-                EffectEnum.AddChance, EffectEnum.AddAgility, EffectEnum.AddIntelligence, EffectEnum.AddPO, EffectEnum.AddInvocationMax, EffectEnum.AddDamage, 
-                EffectEnum.AddDamagePhysic, EffectEnum.Mastery, EffectEnum.AddDamagePercent, EffectEnum.AddHealCare, EffectEnum.AddDamagePiege, EffectEnum.AddDamagePiege, 
-                EffectEnum.AddReflectDamageItem, EffectEnum.AddDamageCritic, EffectEnum.AddEchecCritic, EffectEnum.AddAPDodge, EffectEnum.AddMPDodge, 
-                EffectEnum.AddReduceDamageNeutral, EffectEnum.AddReduceDamagePercentNeutral, EffectEnum.AddReduceDamagePvPNeutral, EffectEnum.AddReduceDamagePercentPvPNeutral, 
-                EffectEnum.AddReduceDamageEarth, EffectEnum.AddReduceDamagePercentEarth, EffectEnum.AddReduceDamagePvPEarth, EffectEnum.AddReduceDamagePercentPvPEarth, 
-                EffectEnum.AddReduceDamageWater, EffectEnum.AddReduceDamagePercentWater, EffectEnum.AddReduceDamagePvPWater, EffectEnum.AddReduceDamagePercentPvPWater, 
-                EffectEnum.AddReduceDamageAir, EffectEnum.AddReduceDamagePercentAir, EffectEnum.AddReduceDamagePvPAir, EffectEnum.AddReduceDamagePercentPvPAir, 
+            ReadOnlySpan<EffectEnum> s_stats = [EffectEnum.AddAP, EffectEnum.AddMP, EffectEnum.AddStrength, EffectEnum.AddVitality, EffectEnum.AddWisdom,
+                EffectEnum.AddChance, EffectEnum.AddAgility, EffectEnum.AddIntelligence, EffectEnum.AddPO, EffectEnum.AddInvocationMax, EffectEnum.AddDamage,
+                EffectEnum.AddDamagePhysic, EffectEnum.Mastery, EffectEnum.AddDamagePercent, EffectEnum.AddHealCare, EffectEnum.AddDamagePiege, EffectEnum.AddDamagePiege,
+                EffectEnum.AddReflectDamageItem, EffectEnum.AddDamageCritic, EffectEnum.AddEchecCritic, EffectEnum.AddAPDodge, EffectEnum.AddMPDodge,
+                EffectEnum.AddReduceDamageNeutral, EffectEnum.AddReduceDamagePercentNeutral, EffectEnum.AddReduceDamagePvPNeutral, EffectEnum.AddReduceDamagePercentPvPNeutral,
+                EffectEnum.AddReduceDamageEarth, EffectEnum.AddReduceDamagePercentEarth, EffectEnum.AddReduceDamagePvPEarth, EffectEnum.AddReduceDamagePercentPvPEarth,
+                EffectEnum.AddReduceDamageWater, EffectEnum.AddReduceDamagePercentWater, EffectEnum.AddReduceDamagePvPWater, EffectEnum.AddReduceDamagePercentPvPWater,
+                EffectEnum.AddReduceDamageAir, EffectEnum.AddReduceDamagePercentAir, EffectEnum.AddReduceDamagePvPAir, EffectEnum.AddReduceDamagePercentPvPAir,
                 EffectEnum.AddReduceDamageFire, EffectEnum.AddReduceDamagePercentFire, EffectEnum.AddReduceDamagePvPFire, EffectEnum.AddReduceDamagePercentPvPFire];
 
             foreach (var stat in s_stats)
@@ -606,11 +465,6 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entities"></param>
-        /// <returns></returns>
         public static string GAME_MAP_INFORMATIONS(OperatorEnum operation, params AbstractEntity[] entities)
         {
             var message = new StringBuilder("GM", entities.Length * 100);
@@ -623,22 +477,11 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string GAME_DATA_SUCCESS()
         {
             return "GDK";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="type"></param>
-        /// <param name="actorId"></param>
-        /// <param name="args"></param>
-        /// <returns></returns>
         public static string GAME_ACTION(GameActionTypeEnum type, long entityId, string args = "")
         {
             StringBuilder message = new StringBuilder("GA");
@@ -666,100 +509,46 @@ namespace Game.Network
         public static string GAME_ACTION_FAILED() => "GAE";
         public static string CHAT_MESSAGE(ChatChannelEnum channel, long entityId, string entityName, string message) => "cMK" + (char)channel + '|' + entityId + '|' + entityName + '|' + message;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="entityId"></param>
-        /// <param name="entityName"></param>
-        /// <param name="message"></param>
-        /// <returns></returns>
         public static string CHAT_MESSAGE_ERROR_PLAYER_OFFLINE()
         {
             return "cMEf";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="level"></param>
-        /// <returns></returns>
         public static string CHARACTER_NEW_LEVEL(int level)
         {
             return "AN" + level;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
         public static string GAME_MESSAGE(GamePopupTypeEnum type, GameMessageEnum message, params object[] args)
         {
             return "M" + (int)type + "" + (int)message + (args.Length > 0 ? "|" : "") + string.Join(";", args.Select(arg => arg.ToString()));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
         public static string SERVER_INFO_MESSAGE(string message)
         {
             return IM_INFO_MESSAGE(InformationEnum.INFO_SERVER_MESSAGE, message);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string GAME_OVER()
         {
             return "GO";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="op"></param>
-        /// <param name="cell"></param>
-        /// <param name="length"></param>
-        /// <param name="color"></param>
-        /// <returns></returns>
         public static string GAME_DATA_ZONE(OperatorEnum op, int cell, int length, int color)
         {
             return "GDZ" + (char)op + cell + ";" + length + ";" + color;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="cell"></param>
-        /// <param name="data"></param>
-        /// <returns></returns>
         public static string GAME_DATA_ZONE_CREATE(int cell, string data = "")
         {
             return "GDC" + cell + data;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="cell"></param>
-        /// <param name="data"></param>
-        /// <param name="mask"></param>
-        /// <param name="permanentLevel"></param>
-        /// <returns></returns>
         public static string GAME_DATA_CELL(int cell, string data, string mask = "", bool permanentLevel = true)
         {
             return "GDC" + cell + ";" + data + mask + ";" + (permanentLevel ? "1" : "0");
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="actor"></param>
-        /// <returns></returns>
         public static string ENTITY_OBJECT_ACTUALIZE(AbstractEntity entity)
         {
             var message = new StringBuilder("Oa");
@@ -770,20 +559,11 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="item"></param>
-        /// <returns></returns>
         public static string OBJECT_ADD_SUCCESS(ItemDAO item)
         {
             return "OAKO" + item.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string LIVING_ITEM_UPDATE(ItemDAO item)
         {
             return "OCO" + item.ToString();
@@ -794,51 +574,26 @@ namespace Game.Network
             return "OAE";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string OBJECT_MOVE_ERROR_REQUIRED_LEVEL()
         {
             return "OAEL";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string OBJECT_MOVE_ERROR_ALREADY_EQUIPED()
         {
             return "OAEA";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="guid"></param>
-        /// <param name="slot"></param>
-        /// <returns></returns>
         public static string OBJECT_MOVE_SUCCESS(long guid, int slot)
         {
             return "OM" + guid + "|" + (slot == (int)ItemSlotEnum.SLOT_INVENTORY ? "" : slot.ToString());
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="guid"></param>
-        /// <param name="quantity"></param>
-        /// <returns></returns>
         public static string OBJECT_QUANTITY_UPDATE(long guid, int quantity)
         {
             return "OQ" + guid + "|" + quantity;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="item"></param>
-        /// <returns></returns>
         public static string OBJECT_UPDATE(ItemDAO item)
         {
             var message = new StringBuilder("OC;");
@@ -846,11 +601,6 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="guid"></param>
-        /// <returns></returns>
         public static string OBJECT_REMOVE_SUCCESS(long guid)
         {
             return "OR" + guid;
@@ -866,125 +616,62 @@ namespace Game.Network
             return "ODEE";
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
         public static string OBJECT_SELL_ERROR()
         {
             return "OSE";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="actorId"></param>
-        /// <param name="validate"></param>
-        /// <returns></returns>
         public static string EXCHANGE_VALIDATE(long actorId, bool validate)
         {
             return "EK" + (validate ? '1' : '0') + actorId;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="move"></param>
-        /// <param name="operation"></param>
-        /// <param name="args"></param>
-        /// <returns></returns>
         public static string EXCHANGE_LOCAL_MOVEMENT(ExchangeMoveEnum move, OperatorEnum operation, string args)
         {
             return "EMK" + (char)move + (char)operation + args;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="move"></param>
-        /// <param name="operation"></param>
-        /// <param name="args"></param>
-        /// <returns></returns>
         public static string EXCHANGE_DISTANT_MOVEMENT(ExchangeMoveEnum move, OperatorEnum operation, string args)
         {
             return "EmK" + (char)move + (char)operation + args;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="move"></param>
-        /// <param name="operation"></param>
-        /// <param name="args"></param>
-        /// <returns></returns>
         public static string EXCHANGE_STORAGE_MOVEMENT(ExchangeMoveEnum move, OperatorEnum operation, string args)
         {
             return "EsK" + (char)move + (char)operation + args;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="type"></param>
-        /// <param name="args"></param>
-        /// <returns></returns>
         public static string EXCHANGE_CREATE(ExchangeTypeEnum type, string args = "")
         {
             return "ECK" + (int)type + (args != "" ? "|" + args : "");
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="success"></param>
-        /// <returns></returns>
         public static string EXCHANGE_LEAVE(bool success = false)
         {
             return "EV" + (success ? "a" : "");
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string EXCHANGE_BUY_ERROR()
         {
             return "EBE";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string EXCHANGE_SELL_ERROR()
         {
             return "ESE";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string EXCHANGE_SELL_SUCCESS()
         {
             return "ESK";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string EXCHANGE_BUY_SUCCESS()
         {
             return "EBK";
         }
 
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="actorNpc"></param>
-        /// <returns></returns>
         public static string EXCHANGE_SHOP_LIST(NonPlayerCharacterEntity npc)
         {
             var message = new StringBuilder("EL");
@@ -992,22 +679,11 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="characterId"></param>
-        /// <param name="targetId"></param>
-        /// <returns></returns>
         public static string EXCHANGE_REQUEST(long characterId, long targetId)
         {
             return "ERK" + characterId + '|' + targetId + "|1";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fight"></param>
-        /// <returns></returns>
         public static string FIGHT_FLAG_DISPLAY(AbstractFight fight)
         {
             var message = new StringBuilder("Gc+");
@@ -1015,13 +691,6 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="ope"></param>
-        /// <param name="leaderId"></param>
-        /// <param name="fighters"></param>
-        /// <returns></returns>
         public static string FIGHT_FLAG_UPDATE(OperatorEnum ope, long leaderId, params AbstractFighter[] fighters)
         {
             var message = new StringBuilder("Gt").Append(leaderId);
@@ -1035,57 +704,26 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fight"></param>
-        /// <returns></returns>
         public static string FIGHT_FLAG_DESTROY(long fightId)
         {
             return "Gc-" + fightId;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fightState"></param>
-        /// <param name="cancelButton"></param>
-        /// <param name="challenge"></param>
-        /// <param name="specator"></param>
-        /// <param name="startTimeOut"></param>
-        /// <returns></returns>
         public static string FIGHT_JOIN_SUCCESS(int fightState, bool cancelButton, bool challenge, bool specator, long startTimeOut, int fightType = 4)
         {
             return "GJK" + fightState + "|" + (cancelButton ? "1" : "0") + "|" + (challenge ? "1" : "0") + "|" + (specator ? "1" : "0") + "|" + (startTimeOut == -1 ? "" : startTimeOut.ToString()) + "|" + fightType;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="teamId"></param>
-        /// <param name="places"></param>
-        /// <returns></returns>
         public static string FIGHT_AVAILABLE_PLACEMENTS(long teamId, string places)
         {
             return "GP" + places + "|" + teamId;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="actorId"></param>
-        /// <param name="ready"></param>
-        /// <returns></returns>
         public static string FIGHT_READY(long actorId, bool ready)
         {
             return "GR" + (ready ? "1" : "0") + actorId;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighters"></param>
-        /// <returns></returns>
         public static string FIGHT_COORDINATE_INFORMATIONS(params AbstractFighter[] fighters)
         {
             var message = new StringBuilder("GIC");
@@ -1094,25 +732,16 @@ namespace Game.Network
                 message.Append('|');
                 message.Append(fighter.Id).Append(';');
                 message.Append(fighter.Cell.Id).Append(';');
-                message.Append('1'); // Dead ?
+                message.Append('1');
             }
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string FIGHT_STARTS()
         {
             return "GS";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighters"></param>
-        /// <returns></returns>
         public static string FIGHT_TURN_LIST(IEnumerable<AbstractFighter> fighters)
         {
             var message = new StringBuilder("GTL");
@@ -1124,22 +753,11 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighterId"></param>
-        /// <param name="turnTime"></param>
-        /// <returns></returns>
         public static string FIGHT_TURN_STARTS(long fighterId, long turnTime)
         {
             return "GTS" + fighterId + "|" + turnTime;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighters"></param>
-        /// <returns></returns>
         public static string FIGHT_TURN_MIDDLE(IEnumerable<AbstractFighter> fighters)
         {
             var message = new StringBuilder("GTM");
@@ -1166,62 +784,31 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighterId"></param>
-        /// <returns></returns>
         public static string FIGHT_TURN_READY(long fighterId)
         {
             return "GTR" + fighterId;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighterId"></param>
-        /// <returns></returns>
         public static string FIGHT_TURN_FINISHED(long fighterId)
         {
             return "GTF" + fighterId;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string FIGHT_LEAVE()
         {
             return "GV";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="count"></param>
-        /// <returns></returns>
         public static string FIGHT_COUNT(long count)
         {
             return "fC" + count;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="type"></param>
-        /// <param name="operation"></param>
-        /// <param name="teamId"></param>
-        /// <returns></returns>
         public static string FIGHT_OPTION(FightOptionTypeEnum type, bool blocked, long teamId)
         {
             return "Go" + (blocked ? "+" : "-") + (char)type + teamId;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fights"></param>
-        /// <returns></returns>
         public static string FIGHT_LIST(IEnumerable<AbstractFight> fights)
         {
             var message = new StringBuilder("fL");
@@ -1230,11 +817,6 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fight"></param>
-        /// <returns></returns>
         public static string FIGHT_DETAILS(AbstractFight fight)
         {
             var message = new StringBuilder("fD");
@@ -1258,169 +840,81 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="effect"></param>
-        /// <param name="entityId"></param>
-        /// <param name="value1"></param>
-        /// <param name="value2"></param>
-        /// <param name="value3"></param>
-        /// <param name="chance"></param>
-        /// <param name="duration"></param>
-        /// <param name="spellId"></param>
-        /// <returns></returns>
         public static string FIGHT_EFFECT_INFORMATION(EffectEnum effect, long entityId, string value1, string value2, string value3, string chance, string duration, string spellId)
         {
             return "GIE" + (int)effect + ";" + entityId + ";" + value1 + ";" + value2 + ";" + value3 + ";" + chance + ";" + duration + ";" + spellId;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="actorId"></param>
-        /// <returns></returns>
         public static string FIGHT_ACTION_START(long entityId)
         {
             return "GAS" + entityId;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="actorId"></param>
-        /// <returns></returns>
         public static string FIGHT_ACTION_FINISHED(long entityId)
         {
             return "GAF2|" + entityId;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fightResult"></param>
-        /// <returns></returns>
         public static string FIGHT_END_RESULT(FightEndResult fightResult)
         {
             return fightResult.Message;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="ownerName"></param>
-        /// <returns></returns>
         public static string PARTY_CREATE_SUCCESS(string ownerName)
         {
             return "PCK" + ownerName;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="leaderName"></param>
-        /// <param name="memberInvited"></param>
-        /// <returns></returns>
         public static string PARTY_INVITE_SUCCESS(string leaderName, string memberInvited)
         {
             return "PIK" + leaderName + "|" + memberInvited;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string PARTY_REFUSE()
         {
             return "PR";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="leaderName"></param>
-        /// <param name="memberInvited"></param>
-        /// <returns></returns>
         public static string PARTY_INVITE_ERROR_FULL()
         {
             return "PIEf";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="leaderName"></param>
-        /// <param name="memberInvited"></param>
-        /// <returns></returns>
         public static string PARTY_INVITE_ERROR_PLAYER_OFFLINE(string distantPlayerName)
         {
             return "PIEn" + distantPlayerName;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="leaderName"></param>
-        /// <param name="memberInvited"></param>
-        /// <returns></returns>
         public static string PARTY_INVITE_ERROR_ALREADY_IN_PARTY()
         {
             return "PIEa";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string PARTY_CREATE_ERROR_ALREADY_IN_PARTY()
         {
             return "PCEa";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string PARTY_CREATE_ERROR_FULL()
         {
             return "PCEf";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
         public static string PARTY_SET_LEADER(long id)
         {
             return "PL" + id;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
         public static string PARTY_MEMBER_LEFT(long id)
         {
             return "PM-" + id;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="kickerId"></param>
-        /// <returns></returns>
         public static string PARTY_LEAVE(string kickerId = "")
         {
             return "PV" + kickerId;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="members"></param>
-        /// <returns></returns>
         public static string PARTY_MEMBER_LIST(params CharacterEntity[] members)
         {
             var message = new StringBuilder("PM+");
@@ -1433,70 +927,31 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
         public static string FIGHT_CHALLENGE_FAILED(int id)
         {
             return "GdOO" + id;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
         public static string FIGHT_CHALLENGE_SUCCESS(int id)
         {
             return "GdKK" + id;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="showTarget"></param>
-        /// <param name="targetId"></param>
-        /// <param name="basicXpBonus"></param>
-        /// <param name="teamXpBonus"></param>
-        /// <param name="basicDropBonus"></param>
-        /// <param name="teamDropBonus"></param>
-        /// <param name="success"></param>
-        /// <returns></returns>
         public static string FIGHT_CHALLENGE_INFORMATIONS(int id, bool showTarget, long targetId, long basicXpBonus, long teamXpBonus, long basicDropBonus, long teamDropBonus, bool success)
         {
             return "Gd" + id + ";" + (showTarget ? "1" : "0") + ";" + targetId + ";" + basicXpBonus + ";" + teamXpBonus + ";" + basicDropBonus + ";" + teamDropBonus + ";" + (success ? "1" : "0");
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="cellId"></param>
-        /// <param name="fighterId"></param>
-        /// <returns></returns>
         public static string FIGHT_CELL_FLAG(int cellId, long fighterId = 0)
         {
             return "Gf" + fighterId + "|" + cellId;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="guild"></param>
-        /// <param name="power"></param>
-        /// <returns></returns>
         public static string GUILD_STATS(GuildInstance guild, int power)
         {
             return "gS" + guild.Name + "|" + guild.Emblem + "|" + Util.EncodeBase36(power);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="members"></param>
-        /// <returns></returns>
         public static string GUILD_MEMBERS_INFORMATIONS(IEnumerable<GuildMember> members)
         {
             var message = new StringBuilder("gIM+", members.Count() * 40);
@@ -1508,11 +963,6 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="members"></param>
-        /// <returns></returns>
         public static string GUILD_MEMBERS_INFORMATIONS(GuildMember member)
         {
             var message = new StringBuilder("gIM+");
@@ -1521,228 +971,124 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="isActive"></param>
-        /// <param name="level"></param>
-        /// <param name="experienceFloorCurrent"></param>
-        /// <param name="experienceFloorNext"></param>
-        /// <param name="experience"></param>
-        /// <returns></returns>
         public static string GUILD_GENERAL_INFORMATIONS(bool isActive, int level, long experienceFloorCurrent, long experienceFloorNext, long experience)
         {
             return "gIG" + (isActive ? "1" : "0") + "|" + level + "|" + experienceFloorCurrent + "|" + experience + "|" + experienceFloorNext;
         }
 
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string GUILD_JOIN_ERROR_UNKNOW()
         {
             return "gJEu";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string GUILD_JOIN_ERROR_OCCUPIED()
         {
             return "gJEo";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string GUILD_JOIN_ERROR_ALREADY_IN_GUILD()
         {
             return "gJEa";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string GUILD_JOIN_ERROR_RESTRICTED()
         {
             return "gJEd";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string GUILD_JOIN_ERROR_REFUSED_DISTANT(string name)
         {
             return "gJEr" + name;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string GUILD_JOIN_ERROR_REFUSED_LOCAL()
         {
             return "gJEc";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="characterId"></param>
-        /// <param name="characterName"></param>
-        /// <param name="guildName"></param>
-        /// <returns></returns>
         public static string GUILD_JOIN_REQUEST_DISTANT(long characterId, string characterName, string guildName)
         {
             return "gJr" + characterId + "|" + characterName + "|" + guildName;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="distantCharacterName"></param>
-        /// <returns></returns>
         public static string GUILD_JOIN_REQUEST_LOCAL(string distantCharacterName)
         {
             return "gJR" + distantCharacterName;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string GUILD_JOIN_CLOSE()
         {
             return "gJC";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string GUILD_JOIN_ACCEPTED_LOCAL()
         {
             return "gJKj";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
         public static string GUILD_JOIN_ACCEPTED_DISTANT(string distantCharacterName)
         {
             return "gJKa" + distantCharacterName;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="kicker"></param>
-        /// <param name="kicked"></param>
-        /// <returns></returns>
         public static string GUIL_KICK_SUCCESS(string kicker, string kicked)
         {
             return "gKK" + kicker + "|" + kicked;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="memberId"></param>
-        /// <returns></returns>
         public static string GUILD_MEMBER_REMOVE(long memberId)
         {
             return "gIM-" + memberId;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string GUILD_CREATION_OPEN()
         {
             return "gn";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string GUILD_CREATION_CLOSE()
         {
             return "gV";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string GUILD_CREATION_SUCCESS()
         {
             return "gCK";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string GUILD_CREATION_ERROR_NAME_ALREADY_EXISTS()
         {
             return "gCEan";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string GUILD_CREATION_ERROR_ALREADY_IN_GUILD()
         {
             return "gCEa";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string GUILD_CREATION_ERROR_EMBLEM_ALREADY_EXISTS()
         {
             return "gCEae";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="stats"></param>
-        /// <returns></returns>
         public static string GUILD_BOOST_INFORMATIONS(int boostPoint, int taxCollectorPrice, GuildStatistics stats)
         {
             var message = new StringBuilder("gIB", 50);
             message.Append(stats.MaxTaxcollector).Append('|');
-            message.Append(0).Append('|'); // currentTaxCollectorCount
+            message.Append(0).Append('|');
             message.Append(stats.BaseStatistics.GetTotal(EffectEnum.AddVitality)).Append('|');
             message.Append(stats.BaseStatistics.GetTotal(EffectEnum.AddDamage)).Append('|');
             message.Append(stats.BaseStatistics.GetTotal(EffectEnum.AddPods)).Append('|');
             message.Append(stats.BaseStatistics.GetTotal(EffectEnum.AddProspection)).Append('|');
             message.Append(stats.BaseStatistics.GetTotal(EffectEnum.AddWisdom)).Append('|');
-            message.Append(stats.MaxTaxcollector).Append('|'); // ???
+            message.Append(stats.MaxTaxcollector).Append('|');
             message.Append(boostPoint).Append('|');
-            message.Append(taxCollectorPrice).Append('|'); // ??
+            message.Append(taxCollectorPrice).Append('|');
             stats.Spells.SerializeAs_SpellsList(message);
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="taxCollector"></param>
-        /// <param name="owner"></param>
-        /// <returns></returns>
         public static string GUILD_TAXCOLLECTOR_HIRED(TaxCollectorEntity taxCollector, string owner)
         {
             var message = new StringBuilder("gTS");
@@ -1754,11 +1100,6 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="taxCollector"></param>
-        /// <returns></returns>
         public static string GUILD_TAXCOLLECTOR_REMOVED(TaxCollectorEntity taxCollector, string remover)
         {
             var message = new StringBuilder("gTR");
@@ -1770,11 +1111,6 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="taxCollector"></param>
-        /// <returns></returns>
         public static string GUILD_TAXCOLLECTOR_FARMED(TaxCollectorEntity taxCollector, string farmer)
         {
             var message = new StringBuilder("gTG");
@@ -1787,17 +1123,12 @@ namespace Game.Network
             foreach (var farmedItem in taxCollector.FarmedItems)
             {
                 message.Append(';');
-                message.Append(farmedItem.Key).Append(','); // templateId
-                message.Append(farmedItem.Value); // quantity
+                message.Append(farmedItem.Key).Append(',');
+                message.Append(farmedItem.Value);
             }
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="taxCollectors"></param>
-        /// <returns></returns>
         public static string GUILD_TAXCOLLECTOR_LIST(IEnumerable<TaxCollectorEntity> taxCollectors)
         {
             var message = new StringBuilder("gITM+");
@@ -1817,75 +1148,37 @@ namespace Game.Network
                     message.Append('0').Append(';');
                 }
                 message.Append(45000).Append(';');
-                message.Append('7').Append('|'); // allowed players to join            
+                message.Append('7').Append('|');
             }
             message.Remove(message.Length - 1, 1);
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="mapX"></param>
-        /// <param name="mapY"></param>
-        /// <returns></returns>
         public static string GUILD_TAXCOLLECTOR_UNDER_ATTACK(string name, int mapX, int mapY)
         {
             return "gAA" + name + "|1|" + mapX + "|" + mapY;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="mapX"></param>
-        /// <param name="mapY"></param>
-        /// <returns></returns>
         public static string GUILD_TAXCOLLECTOR_SURVIVED(string name, int mapX, int mapY)
         {
             return "gAS" + name + "|1|" + mapX + "|" + mapY;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="mapX"></param>
-        /// <param name="mapY"></param>
-        /// <returns></returns>
         public static string GUILD_TAXCOLLECTOR_DIED(string name, int mapX, int mapY)
         {
             return "gAD" + name + "|1|" + mapX + "|" + mapY;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
         public static string GUILD_TAXCOLLECTOR_DEFENDER_LEAVE(long taxCollectorId, long memberId)
         {
             return "gITP-" + Util.EncodeBase36(taxCollectorId) + '|' + Util.EncodeBase36(memberId);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="taxCollectorId"></param>
-        /// <param name="attackerId"></param>
-        /// <returns></returns>
         public static string GUILD_TAXCOLLECTOR_ATTACKER_LEAVE(long taxCollectorId, long attackerId)
         {
             return "gITp-" + Util.EncodeBase36(taxCollectorId) + '|' + Util.EncodeBase36(attackerId);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="taxCollectorId"></param>
-        /// <param name="attackers"></param>
-        /// <returns></returns>
         public static string GUILD_TAXCOLLECTOR_ATTACKER_JOIN(long taxCollectorId, params AbstractFighter[] attackers)
         {
             var message = new StringBuilder("gITp+").Append(Util.EncodeBase36(taxCollectorId));
@@ -1899,12 +1192,6 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="taxCollectorId"></param>
-        /// <param name="members"></param>
-        /// <returns></returns>
         public static string GUILD_TAXCOLLECTOR_DEFENDER_JOIN(long taxCollectorId, params GuildMember[] members)
         {
             var message = new StringBuilder("gITP+").Append(Util.EncodeBase36(taxCollectorId));
@@ -1916,43 +1203,21 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="npcId"></param>
-        /// <param name="parameters"></param>
-        /// <param name="responses"></param>
-        /// <returns></returns>
         public static string DIALOG_CREATE(long npcId)
         {
             return "DCK" + npcId;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string DIALOG_LEAVE()
         {
             return "DV";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="parameters"></param>
-        /// <param name="responses"></param>
-        /// <returns></returns>
         public static string DIALOG_QUESTION(int questionId, string parameters, IEnumerable<int> responseIds)
         {
             return "DQ" + questionId + ";" + parameters + "|" + string.Join(";", responseIds);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entries"></param>
-        /// <returns></returns>
         public static string AUCTION_HOUSE_AUCTION_OWNER_LIST(IEnumerable<AuctionEntry> entries)
         {
             StringBuilder message = new StringBuilder("EL");
@@ -1970,22 +1235,11 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="types"></param>
-        /// <returns></returns>
         public static string AUCTION_HOUSE_TEMPLATE_LIST(int type, IEnumerable<int> templates)
         {
             return "EHL" + type + "|" + String.Join(";", templates);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="templateId"></param>
-        /// <param name="entries"></param>
-        /// <returns></returns>
         public static string AUCTION_HOUSE_AUCTION_LIST(int templateId, IEnumerable<AuctionCategory> entries)
         {
             var message = new StringBuilder("EHl").Append(templateId);
@@ -1996,23 +1250,11 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="op"></param>
-        /// <param name="type"></param>
-        /// <returns></returns>
         public static string AUCTION_HOUSE_TEMPLATE_MOVEMENT(OperatorEnum op, int templateId)
         {
             return "EHM" + (char)op + templateId;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="op"></param>
-        /// <param name="categoryId"></param>
-        /// <returns></returns>
         public static string AUCTION_HOUSE_CATEGORY_MOVEMENT(OperatorEnum op, AuctionCategory category)
         {
             var message = new StringBuilder("EHm").Append((char)op);
@@ -2020,36 +1262,16 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="templateId"></param>
-        /// <param name="middlePrice"></param>
-        /// <returns></returns>
         public static string AUCTION_HOUSE_MIDDLE_PRICE(int templateId, long middlePrice)
         {
             return "EHP" + templateId + "|" + middlePrice;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="cellId"></param>
-        /// <param name="frameId"></param>
-        /// <param name="activated"></param>
-        /// <returns></returns>
         public static string INTERACTIVE_DATA_FRAME(int cellId, int frameId, bool activated)
         {
             return "GDF|" + cellId + ";" + frameId + ";" + (activated ? "1" : "0");
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="cellId"></param>
-        /// <param name="frameId"></param>
-        /// <param name="activated"></param>
-        /// <returns></returns>
         public static string INTERACTIVE_DATA_FRAME(IEnumerable<InteractiveObject> iobjects)
         {
             var message = new StringBuilder("GDF");
@@ -2059,13 +1281,6 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="cellId"></param>
-        /// <param name="frameId"></param>
-        /// <param name="activated"></param>
-        /// <returns></returns>
         public static string INTERACTIVE_DATA_FRAME_FIGHT(IEnumerable<InteractiveObject> iobjects)
         {
             var message = new StringBuilder("GDF");
@@ -2076,21 +1291,11 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="characterId"></param>
-        /// <param name="quantity"></param>
-        /// <returns></returns>
         public static string INTERACTIVE_FARMED_QUANTITY(long characterId, long quantity)
         {
             return "IQ" + characterId + "|" + quantity;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string WAYPOINT_CREATE(CharacterEntity character, int superAreaId)
         {
             var message = new StringBuilder("WC").Append(character.SavedMapId);
@@ -2111,31 +1316,16 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string WAYPOINT_LEAVE()
         {
             return "WV";
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
         public static string WAYPOINT_USE_ERROR()
         {
             return "WUE";
         }
 
-        /// <summary>
-        /// Abre el menu de subway de prismas para el personaje.
-        /// Formato: Wp[currentMapId]|[currentMapId]|[mapId];[cost][*]|...
-        /// El cliente omite el indice 1 (loop empieza en 2), por eso el mapa actual
-        /// aparece en ambos indices 0 y 1 para que no se muestre como destino.
-        /// Solo prismas de tipo SubArea y mismo alineamiento se incluyen.
-        /// </summary>
         public static string PRISM_CREATE(CharacterEntity character)
         {
             var currentMapId = character.MapId;
@@ -2158,29 +1348,16 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public static string PRISM_LEAVE()
         {
             return "Ww";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
         public static string BASIC_CONSOLE_MESSAGE(string message)
         {
             return "BAT2" + message;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="items"></param>
-        /// <returns></returns>
         public static string EXCHANGE_PERSONAL_SHOP_ITEMS_LIST(IEnumerable<ItemDAO> items)
         {
             var message = new StringBuilder("EL");
@@ -2195,11 +1372,6 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="items"></param>
-        /// <returns></returns>
         public static string EXCHANGE_STORAGE_ITEMS_LIST(IEnumerable<ItemDAO> items, long kamas)
         {
             var message = new StringBuilder("EL");
@@ -2212,79 +1384,41 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
         public static string MERCHANT_MODE_TAXE(long value)
         {
             return "Eq1|1|" + value;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
         public static string EXCHANGE_STORAGE_KAMAS_VALUE(long value)
         {
             return "EsKG" + value;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string ALIGNMENT_DISABLE_COST(int value)
         {
             return "GIP" + value;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="interval"></param>
-        /// <returns></returns>
         public static string LIFE_RESTORE_TIME_START(double interval)
         {
             return "ILS" + interval;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="interval"></param>
-        /// <returns></returns>
         public static string LIFE_RESTORE_TIME_FINISH(int lifeRestored)
         {
             return "ILF" + lifeRestored;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string FRIEND_DELETE_SUCCESS()
         {
             return "FD";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string ENNEMY_DELETE_SUCCESS()
         {
             return "iD";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="playerPseudo"></param>
-        /// <param name="friend"></param>
-        /// <returns></returns>
         public static string FRIEND_ADD(string playerPseudo, SocialRelationDAO friend)
         {
             var message = new StringBuilder("FA");
@@ -2295,47 +1429,26 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string FRIEND_ADD_ERROR_UNKNOW_PLAYER()
         {
             return "FAEf";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string FRIEND_ADD_ERROR_ALREADY()
         {
             return "FAEa";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string FRIEND_ADD_ERROR_FULL()
         {
             return "FAEm";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string FRIEND_ADD_ERROR_YOURSELF()
         {
             return "FAEy";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="friends"></param>
-        /// <returns></returns>
         public static string FRIENDS_LIST_ON_CONNECT(CharacterEntity character, IEnumerable<SocialRelationDAO> friends)
         {
             var message = new StringBuilder("FL");
@@ -2354,11 +1467,6 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="friends"></param>
-        /// <returns></returns>
         public static string FRIENDS_LIST(string playerPseudo, IEnumerable<SocialRelationDAO> friends)
         {
             var message = new StringBuilder("FL");
@@ -2372,12 +1480,6 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="playerPseudo"></param>
-        /// <param name="ennemies"></param>
-        /// <returns></returns>
         public static string ENNEMIES_LIST(string playerPseudo, IEnumerable<SocialRelationDAO> ennemies)
         {
             var message = new StringBuilder("iL");
@@ -2391,11 +1493,6 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="ennemies"></param>
-        /// <returns></returns>
         public static string ENNEMIES_LIST_ON_CONNECT(CharacterEntity character, IEnumerable<SocialRelationDAO> ennemies)
         {
             var message = new StringBuilder("iL");
@@ -2409,48 +1506,26 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string ENNEMY_ADD_ERROR_UNKNOW_PLAYER()
         {
             return "iAEf";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string ENNEMY_ADD_ERROR_ALREADY()
         {
             return "iAEa";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string ENNEMY_ADD_ERROR_FULL()
         {
             return "iAEm";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string ENNEMY_ADD_ERROR_YOURSELF()
         {
             return "iAEy";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="playerPseudo"></param>
-        /// <param name="ennemy"></param>
-        /// <returns></returns>
         public static string ENNEMY_ADD(string playerPseudo, SocialRelationDAO ennemy)
         {
             var message = new StringBuilder("iA");
@@ -2461,45 +1536,21 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="playerId"></param>
-        /// <param name="direction"></param>
-        /// <returns></returns>
         public static string EMOTE_DIRECTION(long playerId, int direction)
         {
             return "eD" + playerId + "|" + direction;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="targetId"></param>
-        /// <param name="emoteId"></param>
-        /// <param name="time"></param>
-        /// <returns></returns>
         public static string EMOTE_USE(long targetId, int emoteId, long time = 360000)
         {
             return "eUK" + targetId + "|" + emoteId + "|" + time;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="capacity"></param>
-        /// <returns></returns>
         public static string EMOTES_LIST(int capacity)
         {
             return "eL" + capacity + "|" + capacity;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="set"></param>
-        /// <param name="items"></param>
-        /// <returns></returns>
         public static string ITEM_SET(ItemSetDAO set, IEnumerable<ItemDAO> items)
         {
             if (set == null)
@@ -2510,11 +1561,6 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="items"></param>
-        /// <returns></returns>
         public static string OBJECT_CHANGE(IEnumerable<ItemDAO> items)
         {
             var message = new StringBuilder("OCK");
@@ -2523,11 +1569,6 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="book"></param>
-        /// <returns></returns>
         public static string JOB_SKILL(JobBook book)
         {
             var message = new StringBuilder("JSK");
@@ -2535,247 +1576,117 @@ namespace Game.Network
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="job"></param>
-        /// <returns></returns>
-        public static string JOB_SKILL(CharacterJobDAO job)
+        public static string JOB_SKILL(JobBook book, int jobId)
         {
             var message = new StringBuilder("JSK");
-            job.Template.SerializeAs_SkillListMessage(job, message);
-            message.Remove(message.Length - 1, 1);
+            book.SerializeAs_SkillListMessage(jobId, message);
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="book"></param>
-        /// <returns></returns>
-        public static string JOB_XP(List<CharacterJobDAO> jobs)
+        public static string JOB_XP(JobBook book)
         {
             var message = new StringBuilder("JXK");
-            foreach (var job in jobs)
-            {
-                if (job.JobId != (int)JobIdEnum.JOB_BASE)
-                {
-                    message.Append(job.JobId).Append(';');
-                    message.Append(job.Level).Append(';');
-                    message.Append(job.ExperienceFloorCurrent).Append(';');
-                    message.Append(job.Experience).Append(';');
-                    message.Append(job.ExperienceFloorNext).Append('|');
-                }
-            }
-            if (jobs.Count > 1)
-                message.Remove(message.Length - 1, 1);
+            book.SerializeAs_JobXpMessage(message);
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="job"></param>
-        /// <returns></returns>
-        public static string JOB_XP(CharacterJobDAO job)
+        public static string JOB_XP(JobBook book, int jobId)
         {
-            return "JXK" + job.JobId + ";"
-                + job.Level + ";"
-                + job.ExperienceFloorCurrent + ";"
-                + job.Experience + ";"
-                + job.ExperienceFloorNext;
+            var message = new StringBuilder("JXK");
+            book.SerializeAs_JobXpMessage(jobId, message);
+            return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="templateId"></param>
-        /// <returns></returns>
         public static string JOB_TOOL_EQUIPPED(string jobId = "n")
         {
             return "OT" + jobId;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="jobId"></param>
-        /// <param name="level"></param>
-        /// <returns></returns>
         public static string JOB_NEW_LEVEL(int jobId, int level)
         {
             return "JN" + jobId + "|" + level;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="characteId"></param>
-        /// <param name="templateId"></param>
-        /// <returns></returns>
+        public static string JOB_OPTIONS(int jobIndex, int optionParams, int minSlots)
+        {
+            return "JO" + jobIndex + "|" + optionParams + "|" + minSlots;
+        }
+
         public static string CRAFT_INTERACTIVE_SUCCESS(long characterId, int templateId)
         {
             return "IO" + characterId + "|+" + templateId;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="characteId"></param>
-        /// <param name="templateId"></param>
-        /// <returns></returns>
         public static string CRAFT_INTERACTIVE_FAILED(long characterId, int templateId)
         {
             return "IO" + characterId + "|-" + templateId;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="characteId"></param>
-        /// <param name="templateId"></param>
-        /// <returns></returns>
         public static string CRAFT_INTERACTIVE_NOTHING(long characterId)
         {
             return "IO" + characterId + "|-";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string CRAFT_NO_RESULT()
         {
             return "EcEI";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="templateId"></param>
-        /// <returns></returns>
         public static string CRAFT_TEMPLATE_CREATED(int templateId)
         {
             return "EcK;" + templateId;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="templateId"></param>
-        /// <returns></returns>
         public static string CRAFT_TEMPLATE_FAILED(int templateId)
         {
             return "EcEF;" + templateId;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="count"></param>
-        /// <returns></returns>
         public static string CRAFT_LOOP_COUNT(int count)
         {
             return "EA" + count;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="reason"></param>
-        /// <returns></returns>
         public static string CRAFT_LOOP_END(int reason)
         {
             return "Ea" + reason;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="percentage"></param>
-        /// <returns></returns>
         public static string MOUNT_EXPERIENCE_SHARED(int percentage)
-            => "Rx" + percentage;
+    => "Rx" + percentage;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
         public static string MOUNT_NAME(string name)
-            => "Rn" + name;
+    => "Rn" + name;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string MOUNT_RIDING_START()
-            => "Rr+";
+    => "Rr+";
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string MOUNT_RIDING_STOP()
-            => "Rr-";
+    => "Rr-";
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="defaultPrice"></param>
-        /// <returns></returns>
         public static string PADDOCK_BUY_START(int defaultPrice)
-            => "RD|" + defaultPrice;
+    => "RD|" + defaultPrice;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string PADDOCK_BUY_LEAVE()
-            => "Rv";
+    => "Rv";
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string MOUNT_UNEQUIP()
-            => "Re-";
+    => "Re-";
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="informations"></param>
-        /// <returns></returns>
         public static string MOUNT_EQUIP(string informations)
-            => "Re+" + informations;
+    => "Re+" + informations;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="error"></param>
-        /// <returns></returns>
         public static string MOUNT_EQUIP_ERROR(MountEquipErrorEnum error)
-            => "ReE" + (char)error;
+    => "ReE" + (char)error;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="owner"></param>
-        /// <param name="price"></param>
-        /// <param name="size"></param>
-        /// <param name="items"></param>
-        /// <param name="guildName"></param>
-        /// <param name="guildEmblem"></param>
-        /// <returns></returns>
         public static string PADDOCK_INFORMATIONS(int owner, long price, int size, int items, string guildName, string guildEmblem)
-            => "Rp" + owner + ";" + price + ";" + size + ";" + items + ";" + guildName + ";" + guildEmblem;
+    => "Rp" + owner + ";" + price + ";" + size + ";" + items + ";" + guildName + ";" + guildEmblem;
 
-        // hL — sent to the house owner: isOwner|id;hasLock;isForSale;hasGuild
+
         public static string HOUSE_INFO(bool isOwner, int houseId, bool hasLock, bool isForSale, bool hasGuild)
             => "hL" + (isOwner ? "+" : "-") + "|" + houseId + ";" + (hasLock ? 1 : 0) + ";" + (isForSale ? 1 : 0) + ";" + (hasGuild ? 1 : 0);
 
-        // hP — door properties visible to any player clicking the door
+
         public static string HOUSE_PROPERTIES(int houseId, string ownerName, bool isForSale, string guildName, string guildEmblem)
         {
             var sb = new System.Text.StringBuilder("hP");
@@ -2785,67 +1696,56 @@ namespace Game.Network
             return sb.ToString();
         }
 
-        // hX — lock state update
+
         public static string HOUSE_LOCK_STATUS(int houseId, bool locked)
             => "hX" + houseId + "|" + (locked ? 1 : 0);
 
-        // hG — guild rights panel data
+
         public static string HOUSE_GUILD_RIGHTS(string data)
             => "hG" + data;
 
-        // hCK — opens the buy dialog with sale price
+
         public static string HOUSE_BUY_DIALOG(int houseId, long price)
             => "hCK" + houseId + "|" + price;
 
-        // hV — close the buy/sell dialog
+
         public static string HOUSE_CLOSE_BUY_DIALOG()
             => "hV";
 
-        // hSK — confirms the new sale price
+
         public static string HOUSE_SET_PRICE(int houseId, long price)
             => "hSK" + houseId + "|" + price;
 
-        // KCK — shows the lock-code entry dialog (modify=1 to change existing, maxLen = max chars)
+
         public static string KEY_DIALOG(bool modify, int maxLen) => "KCK" + (modify ? 1 : 0) + "|" + maxLen;
 
-        // KKE — wrong code entered
+
         public static string KEY_ERROR()
             => "KKE";
 
-        // KV — closes the lock-code dialog
+
         public static string KEY_CLOSE()
             => "KV";
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="quests"></param>
-        /// <returns></returns>
         public static string QUEST_LIST(List<CharacterQuest> quests)
         {
-            // Id;Done;SortOrder
+
             return "QLK" + string.Join("|", quests.Select(q => q.Id + ";" + (q.Done ? "1" : "0") + ";" + "0"));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="quest"></param>
-        /// <returns></returns>
         public static string QUEST_STEPS(CharacterQuest quest)
         {
             var message = new StringBuilder("QS");
-            message.Append(quest.Id).Append('|'); // 0
-            message.Append(quest.CurrentStepId).Append('|'); // 1
-            message.Append(string.Join(";",
-                quest.CurrentStep.Objectives.Select(o => o.Id + "," + (o.Done(quest.GetAdvancement(o.Id)) ? "1" : "0")))); // 2
+            message.Append(quest.Id).Append('|');
+            message.Append(quest.CurrentStepId).Append('|');
+            message.Append(string.Join(";", quest.CurrentStep.Objectives.Select(o => o.Id + "," + (o.Done(quest.GetAdvancement(o.Id)) ? "1" : "0"))));
             message.Append('|');
-            message.Append(string.Join(";", quest.Template.Steps.Where(s => s.Order < quest.CurrentStep.Order))); // 3   
+            message.Append(string.Join(";", quest.Template.Steps.Where(s => s.Order < quest.CurrentStep.Order)));
             message.Append('|');
-            message.Append(string.Join(";", quest.Template.Steps.Where(s => s.Order > quest.CurrentStep.Order))); // 4
+            message.Append(string.Join(";", quest.Template.Steps.Where(s => s.Order > quest.CurrentStep.Order)));
             message.Append('|');
-            message.Append(0).Append(';'); // TODO: dialogId // 5
-            message.Append(",,,"); //TODO: dialogParams
+            message.Append(0).Append(';');
+            message.Append(",,,");
             return message.ToString();
         }
 
@@ -2938,11 +1838,7 @@ namespace Game.Network
 
         public static string CONQUEST_PRISM_FIGHT_DEFENDER_LEAVE(AbstractFight fight, CharacterEntity defender)
         {
-            return new StringBuilder("CP-")
-                .Append(Util.EncodeBase36(fight.Id))
-                .Append('|')
-                .Append(Util.EncodeBase36(defender.Id))
-                .ToString();
+            return new StringBuilder("CP-").Append(Util.EncodeBase36(fight.Id)).Append('|').Append(Util.EncodeBase36(defender.Id)).ToString();
         }
 
     }

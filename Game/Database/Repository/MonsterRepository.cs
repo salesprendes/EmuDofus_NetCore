@@ -4,9 +4,6 @@ using System.Collections.Generic;
 
 namespace Game.Database.Repository
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class MonsterSpawnRepository : Repository<MonsterSpawnRepository, MonsterSpawnDAO>
     {
         private readonly Dictionary<long, List<MonsterSpawnDAO>> m_spawnsByZoneKey;
@@ -38,12 +35,6 @@ namespace Game.Database.Repository
                 list.Remove(spawn);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="type"></param>
-        /// <param name="id"></param>
-        /// <returns></returns>
         public IEnumerable<MonsterSpawnDAO> GetById(ZoneTypeEnum type, int id)
         {
             List<MonsterSpawnDAO> list;
@@ -51,7 +42,7 @@ namespace Game.Database.Repository
                 return list;
             return new MonsterSpawnDAO[0];
         }
-        
+
         public override void UpdateAll(MySqlConnector.MySqlConnection connection, MySqlConnector.MySqlTransaction transaction)
         {
         }
@@ -64,10 +55,7 @@ namespace Game.Database.Repository
         {
         }
     }
- 
-    /// <summary>
-    /// 
-    /// </summary>
+
     public sealed class MonsterSuperRaceRepository : Repository<MonsterSuperRaceRepository, MonsterSuperRaceDAO>
     {
 
@@ -84,38 +72,20 @@ namespace Game.Database.Repository
         }
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class MonsterRaceRepository : Repository<MonsterRaceRepository, MonsterRaceDAO>
     {
-        /// <summary>
-        /// 
-        /// </summary>
         private Dictionary<int, MonsterRaceDAO> m_raceById;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public MonsterRaceRepository()
         {
             m_raceById = new Dictionary<int, MonsterRaceDAO>();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="race"></param>
         public override void OnObjectAdded(MonsterRaceDAO race)
         {
             m_raceById.Add(race.Id, race);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
         public MonsterRaceDAO GetById(int id)
         {
             return m_raceById[id];
@@ -135,29 +105,16 @@ namespace Game.Database.Repository
         }
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class MonsterRepository : Repository<MonsterRepository, MonsterDAO>
     {
-        /// <summary>
-        /// 
-        /// </summary>
         private Dictionary<int, MonsterDAO> m_monsterById;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public MonsterRepository()
         {
             m_monsterById = new Dictionary<int, MonsterDAO>();
         }
 
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="monster"></param>
         public override void OnObjectAdded(MonsterDAO monster)
         {
             m_monsterById.Add(monster.Id, monster);
@@ -165,18 +122,13 @@ namespace Game.Database.Repository
             MonsterRaceRepository.Instance.GetById(monster.Race).Monsters.Add(monster);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
         public MonsterDAO GetById(int id)
         {
             if (m_monsterById.ContainsKey(id))
                 return m_monsterById[id];
             return null;
         }
-        
+
         public override void UpdateAll(MySqlConnector.MySqlConnection connection, MySqlConnector.MySqlTransaction transaction)
         {
         }

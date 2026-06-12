@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,16 +6,10 @@ using System.Threading.Tasks;
 
 namespace Game.Fight.Challenge
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class ReprieveChallenge : AbstractChallenge
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public ReprieveChallenge()
-            : base(ChallengeTypeEnum.REPRIEVE)
+    : base(ChallengeTypeEnum.REPRIEVE)
         {
             BasicDropBonus = 20;
             BasicXpBonus = 20;
@@ -26,10 +20,6 @@ namespace Game.Fight.Challenge
             ShowTarget = true;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="team"></param>
         public override void StartFight(FightTeam team)
         {
             if (team.OpponentTeam.HasSomeoneAlive)
@@ -43,10 +33,6 @@ namespace Game.Fight.Challenge
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
         public override void CheckDeath(AbstractFighter fighter)
         {
             if (fighter.Id == TargetId)

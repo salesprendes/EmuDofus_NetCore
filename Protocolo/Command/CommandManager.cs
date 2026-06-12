@@ -88,9 +88,7 @@ namespace Protocolo.Framework.Command
                     throw new Exception(string.Format("Ya existe un comando registrado con el alias `{0}`.", alias));
             }
 
-            var duplicateAlias = command.Aliases
-                .GroupBy(alias => alias, StringComparer.OrdinalIgnoreCase)
-                .FirstOrDefault(group => group.Count() > 1);
+            var duplicateAlias = command.Aliases.GroupBy(alias => alias, StringComparer.OrdinalIgnoreCase).FirstOrDefault(group => group.Count() > 1);
 
             if (duplicateAlias != null)
                 throw new Exception(string.Format("El comando `{0}` tiene repetido el alias `{1}`.", command.GetType().FullName, duplicateAlias.Key));

@@ -1,4 +1,4 @@
-﻿using Protocolo.Framework.Generic.Logging;
+using Protocolo.Framework.Generic.Logging;
 
 namespace Protocolo.Framework.Generic
 {

@@ -1,4 +1,4 @@
-﻿using Game.Database.Repository;
+using Game.Database.Repository;
 using Game.Database.Structure;
 using Game.Stats;
 using Game.Network;
@@ -10,20 +10,8 @@ using System.Threading.Tasks;
 
 namespace Game.ActionEffect
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class AddBoostEffect : AbstractActionEffect<AddBoostEffect>
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="item"></param>
-        /// <param name="effect"></param>
-        /// <param name="targetId"></param>
-        /// <param name="targetCell"></param>
-        /// <returns></returns>
         public override bool ProcessItem(Entity.CharacterEntity character, Database.Structure.ItemDAO item, Stats.GenericEffect effect, long targetId, int targetCell)
         {
             if (!WorldConfig.BOOST_ITEMS.TryGetValue(item.TemplateId, out int boostItemId))
@@ -32,12 +20,6 @@ namespace Game.ActionEffect
             return Process(character, new Dictionary<string, string>() { { "itemId", boostItemId.ToString() } });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="parameters"></param>
-        /// <returns></returns>
         public override bool Process(Entity.CharacterEntity character, Dictionary<string, string> parameters)
         {
             var itemId = int.Parse(parameters["itemId"]);
@@ -57,15 +39,15 @@ namespace Game.ActionEffect
                     break;
 
                 case ItemTypeEnum.TYPE_BENEDICTION:
-                    if (character.Inventory.Items.Any(entry => entry.Slot == ItemSlotEnum.SLOT_BOOST_BENEDICTION))                    
-                        slot = ItemSlotEnum.SLOT_BOOST_BENEDICTION_1;                    
-                    else                    
-                        slot = ItemSlotEnum.SLOT_BOOST_BENEDICTION;                    
+                    if (character.Inventory.Items.Any(entry => entry.Slot == ItemSlotEnum.SLOT_BOOST_BENEDICTION))
+                        slot = ItemSlotEnum.SLOT_BOOST_BENEDICTION_1;
+                    else
+                        slot = ItemSlotEnum.SLOT_BOOST_BENEDICTION;
                     break;
 
                 case ItemTypeEnum.TYPE_MALEDICTION:
                     if (character.Inventory.Items.Any(entry => entry.Slot == ItemSlotEnum.SLOT_BOOST_MALEDICTION))
-                        slot = ItemSlotEnum.SLOT_BOOST_MALEDICTION_1;   
+                        slot = ItemSlotEnum.SLOT_BOOST_MALEDICTION_1;
                     else
                         slot = ItemSlotEnum.SLOT_BOOST_MALEDICTION;
                     break;
@@ -79,7 +61,7 @@ namespace Game.ActionEffect
                     break;
             }
 
-            if(character.Inventory.Items.Any(entry => entry.Slot == slot || entry.TemplateId == itemId))
+            if (character.Inventory.Items.Any(entry => entry.Slot == slot || entry.TemplateId == itemId))
             {
                 character.Dispatch(WorldMessage.IM_ERROR_MESSAGE(InformationEnum.ERROR_CONDITIONS_UNSATISFIED));
                 return false;

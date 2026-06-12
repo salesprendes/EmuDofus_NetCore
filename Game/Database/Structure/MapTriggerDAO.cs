@@ -8,9 +8,6 @@ using System.Collections.Generic;
 
 namespace Game.Database.Structure
 {
-    /// <summary>
-    /// 
-    /// </summary>
     [Table("maptrigger")]
     public sealed class MapTriggerDAO : DataAccessObject<MapTriggerDAO>
     {
@@ -41,14 +38,8 @@ namespace Game.Database.Structure
             set => SetProperty(ref _actions, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private ActionList m_actions;
 
-        /// <summary>
-        /// 
-        /// </summary>
         [Write(false)]
         public ActionList ActionsList
         {
@@ -62,11 +53,6 @@ namespace Game.Database.Structure
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <returns></returns>
         public bool SatisfyConditions(CharacterEntity character)
         {
             return ConditionParser.Instance.Check(Conditions, character);

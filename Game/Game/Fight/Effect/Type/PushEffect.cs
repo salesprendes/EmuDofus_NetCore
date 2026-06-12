@@ -1,4 +1,4 @@
-﻿using Game.Action;
+using Game.Action;
 using Game.Entity;
 using Game.Map;
 using Game.Spell;
@@ -11,16 +11,8 @@ using Game.Network;
 
 namespace Game.Fight.Effect.Type
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class PushEffect : AbstractSpellEffect
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="castInfos"></param>
-        /// <returns></returns>
         public override FightActionResultEnum ApplyEffect(CastInfos castInfos)
         {
             if (castInfos.Target == null)
@@ -38,8 +30,8 @@ namespace Game.Fight.Effect.Type
                         direction = Pathfinding.GetDirection(castInfos.Map, castInfos.CellId, castInfos.Target.Cell.Id);
                     else if (Pathfinding.InLine(castInfos.Map, castInfos.Caster.Cell.Id, castInfos.Target.Cell.Id))
                         direction = Pathfinding.GetDirection(castInfos.Map, castInfos.Caster.Cell.Id, castInfos.Target.Cell.Id);
-                    else                    
-                        return FightActionResultEnum.RESULT_NOTHING;                    
+                    else
+                        return FightActionResultEnum.RESULT_NOTHING;
                     break;
 
                 case EffectEnum.PushFront:
@@ -50,21 +42,13 @@ namespace Game.Fight.Effect.Type
             return ApplyPush(castInfos, castInfos.Target, direction, castInfos.Value1);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="castInfos"></param>
-        /// <param name="target"></param>
-        /// <param name="direction"></param>
-        /// <param name="length"></param>
-        /// <returns></returns>
         public static FightActionResultEnum ApplyPush(CastInfos castInfos, AbstractFighter target, DirectionEnum direction, int length)
         {
             if (IsGiantKralamar(target))
                 return FightActionResultEnum.RESULT_NOTHING;
 
             var currentCell = target.Cell;
-            
+
             for (int i = 0; i < length; i++)
             {
                 var nextCell = target.Fight.GetCell(Pathfinding.NextCell(castInfos.Map, currentCell.Id, direction));
@@ -75,10 +59,7 @@ namespace Game.Fight.Effect.Type
                     {
                         target.Fight.Dispatch(WorldMessage.GAME_ACTION(GameActionTypeEnum.MAP_PUSHBACK, target.Id, target.Id + "," + nextCell.Id));
 
-                        target.Fight.SetSubAction(() =>
-                        {
-                            return target.SetCell(nextCell);
-                        }, 1 + ++i * WorldConfig.FIGHT_PUSH_CELL_TIME);
+                        target.Fight.SetSubAction(() => { return target.SetCell(nextCell); }, 1 + ++i * WorldConfig.FIGHT_PUSH_CELL_TIME);
 
                         return FightActionResultEnum.RESULT_NOTHING;
                     }
@@ -110,22 +91,11 @@ namespace Game.Fight.Effect.Type
 
             target.Fight.Dispatch(WorldMessage.GAME_ACTION(GameActionTypeEnum.MAP_PUSHBACK, target.Id, target.Id + "," + currentCell.Id));
 
-            target.Fight.SetSubAction(() =>
-            {
-                return target.SetCell(currentCell);
-            }, 1 + length * WorldConfig.FIGHT_PUSH_CELL_TIME);
+            target.Fight.SetSubAction(() => { return target.SetCell(currentCell); }, 1 + length * WorldConfig.FIGHT_PUSH_CELL_TIME);
 
             return FightActionResultEnum.RESULT_NOTHING;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="castInfos"></param>
-        /// <param name="target"></param>
-        /// <param name="length"></param>
-        /// <param name="currentLength"></param>
-        /// <returns></returns>
         private static FightActionResultEnum ApplyPushBackDamages(CastInfos castInfos, AbstractFighter target, int length, int currentLength)
         {
             var damageCoef = Util.Next(9, 17);

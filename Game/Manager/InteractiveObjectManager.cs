@@ -1,4 +1,4 @@
-﻿using Game.Interactive;
+using Game.Interactive;
 using Game.Interactive.Type;
 using Game.Map;
 using Protocolo.Framework.Generic;
@@ -20,12 +20,12 @@ namespace Game.Manager
 
         public void Initialize()
         {
-            // Autre
+
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_ZAAP, (map, cellId) => new Waypoint(map, cellId));
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_POUBELLE, (map, cellId) => new TrashCan(map, cellId));
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_PHOENIX, (map, cellId) => new Pheonix(map, cellId));
 
-            // Craft
+
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_SCIE, (map, cellId) => new CraftPlan(map, cellId));
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_ENCLUME, (map, cellId) => new CraftPlan(map, cellId));
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_MACHINE_A_COUDRE, (map, cellId) => new CraftPlan(map, cellId));
@@ -45,7 +45,7 @@ namespace Game.Manager
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_FILEUSE, (map, cellId) => new CraftPlan(map, cellId));
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_FOUR, (map, cellId) => new CraftPlan(map, cellId));
 
-            // Alchemiste
+
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_LIN, (map, cellId) => new HarvestableResource(map, cellId, 421, 1000 * 60 * 1, 1000 * 60 * 1, 10, true));
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_CHANVRE, (map, cellId) => new HarvestableResource(map, cellId, 428, 1000 * 60 * 1, 1000 * 60 * 1, 10, true));
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_TREFLE_A_5_FEUILLES, (map, cellId) => new HarvestableResource(map, cellId, 395, 1000 * 60 * 1, 1000 * 60 * 1, 10, true));
@@ -54,7 +54,7 @@ namespace Game.Manager
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_EDELWEISS, (map, cellId) => new HarvestableResource(map, cellId, 594, 1000 * 60 * 1, 1000 * 60 * 1, 10, true));
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_PANDOUILLE, (map, cellId) => new HarvestableResource(map, cellId, 7059, 1000 * 60 * 1, 1000 * 60 * 1, 10, true));
 
-            // Bois
+
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_FRENE, (map, cellId) => new HarvestableResource(map, cellId, 303, 1000 * 60 * 1, 1000 * 60 * 5, 10));
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_CHATAIGNIER, (map, cellId) => new HarvestableResource(map, cellId, 473, 1000 * 60 * 1, 1000 * 60 * 5, 10));
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_IF, (map, cellId) => new HarvestableResource(map, cellId, 461, 1000 * 60 * 1, 1000 * 60 * 5, 10));
@@ -72,7 +72,7 @@ namespace Game.Manager
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_BOMBU, (map, cellId) => new HarvestableResource(map, cellId, 2358, 1000 * 60 * 1, 1000 * 60 * 5, 10));
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_OLIVIOLET, (map, cellId) => new HarvestableResource(map, cellId, 2357, 1000 * 60 * 1, 1000 * 60 * 5, 10));
 
-            // Paysan
+
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_BLE, (map, cellId) => new HarvestableResource(map, cellId, 289, 1000 * 60 * 1, 1000 * 60 * 1, 10, true));
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_ORGE, (map, cellId) => new HarvestableResource(map, cellId, 400, 1000 * 60 * 1, 1000 * 60 * 1, 10, true));
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_AVOINE, (map, cellId) => new HarvestableResource(map, cellId, 533, 1000 * 60 * 1, 1000 * 60 * 1, 10, true));
@@ -81,7 +81,7 @@ namespace Game.Manager
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_SEIGLE, (map, cellId) => new HarvestableResource(map, cellId, 532, 1000 * 60 * 1, 1000 * 60 * 1, 10, true));
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_MALT, (map, cellId) => new HarvestableResource(map, cellId, 405, 1000 * 60 * 1, 1000 * 60 * 1, 10, true));
 
-            // Pêcheur
+
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_PETITS_POISSONS_MER, (map, cellId) => new HarvestableResource(map, cellId, 289, 1000 * 60 * 1, 1000 * 60 * 1, 10));
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_POISSONS_RIVIERE, (map, cellId) => new HarvestableResource(map, cellId, 289, 1000 * 60 * 1, 1000 * 60 * 1, 10));
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_PETITS_POISSONS_RIVIERE, (map, cellId) => new HarvestableResource(map, cellId, 1782, 1000 * 60 * 1, 1000 * 60 * 1, 10));
@@ -91,7 +91,7 @@ namespace Game.Manager
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_POISSONS_GEANTS_RIVIERE, (map, cellId) => new HarvestableResource(map, cellId, 289, 1000 * 60 * 1, 1000 * 60 * 1, 10));
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_POISSONS_GEANTS_MER, (map, cellId) => new HarvestableResource(map, cellId, 289, 1000 * 60 * 1, 1000 * 60 * 1, 10));
 
-            // Mineur
+
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_FER, (map, cellId) => new HarvestableResource(map, cellId, 312, 1000 * 60 * 1, 1000 * 60 * 1, 10));
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_PIERRE_CUIVREE, (map, cellId) => new HarvestableResource(map, cellId, 441, 1000 * 60 * 1, 1000 * 60 * 1, 10));
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_BRONZE, (map, cellId) => new HarvestableResource(map, cellId, 442, 1000 * 60 * 1, 1000 * 60 * 1, 10));
@@ -104,10 +104,10 @@ namespace Game.Manager
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_DOLOMITE, (map, cellId) => new HarvestableResource(map, cellId, 7033, 1000 * 60 * 1, 1000 * 60 * 1, 10));
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_SILICATE, (map, cellId) => new HarvestableResource(map, cellId, 7032, 1000 * 60 * 1, 1000 * 60 * 1, 10));
 
-            // Enclos 
+
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_ENCLOS, (map, cellId) => new PaddockDoor(map, cellId));
 
-            // Porte
+
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_PORTE, (map, cellId) => new HouseDoor(map, cellId));
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_SLIDING_ROCK, (map, cellId) => new AnimatedDoor(map, cellId, 4700, 1500, 3700));
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_SLIDING_ROCK_INCARNAM, (map, cellId) => new AnimatedDoor(map, cellId, 3333, 30000, 3700));
@@ -115,10 +115,10 @@ namespace Game.Manager
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_MINOS_YELLOW_DOOR, (map, cellId) => new AnimatedDoor(map, cellId, 600, 1500, 600));
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_SLIDING_MINE_CART, (map, cellId) => new AnimatedDoor(map, cellId, 666, 1500, 8050));
 
-            // Coffre
+
             AddInteractive(InteractiveObjectIdEnum.INTERACTIVE_COFFRE, (map, cellId) => new Chest(map, cellId));
 
-            // GFX
+
             AddInteractiveGfx(7500, InteractiveObjectIdEnum.INTERACTIVE_FRENE);
             AddInteractiveGfx(7003, InteractiveObjectIdEnum.INTERACTIVE_SCIE);
             AddInteractiveGfx(7503, InteractiveObjectIdEnum.INTERACTIVE_CHENE);
@@ -257,7 +257,7 @@ namespace Game.Manager
             AddInteractiveGfx(7519, InteractiveObjectIdEnum.INTERACTIVE_PUITS);
             AddInteractiveGfx(7350, InteractiveObjectIdEnum.INTERACTIVE_COFFRE);
             AddInteractiveGfx(7351, InteractiveObjectIdEnum.INTERACTIVE_COFFRE);
-            //AddInteractiveGfx(7352, InteractiveObjectIdEnum.INTERACTIVE_COFFRE);
+
             AddInteractiveGfx(7353, InteractiveObjectIdEnum.INTERACTIVE_COFFRE);
             AddInteractiveGfx(7015, InteractiveObjectIdEnum.INTERACTIVE_MACHINE_A_COUDRE);
             AddInteractiveGfx(7018, InteractiveObjectIdEnum.INTERACTIVE_ETABLI_EN_BOIS);
@@ -321,43 +321,21 @@ namespace Game.Manager
             AddInteractiveGfx(542, InteractiveObjectIdEnum.INTERACTIVE_PHOENIX);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="fun"></param>
         private void AddInteractive(InteractiveObjectIdEnum id, Func<MapInstance, int, InteractiveObject> fun)
         {
             m_interactiveById.Add((int)id, fun);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="gfxId"></param>
-        /// <param name="interactiveId"></param>
         private void AddInteractiveGfx(int gfxId, InteractiveObjectIdEnum interactiveId)
         {
             m_interactiveByGfx.Add(gfxId, (int)interactiveId);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="gfx"></param>
-        /// <returns></returns>
         public bool Exists(int gfx)
         {
             return m_interactiveByGfx.ContainsKey(gfx) && m_interactiveById.ContainsKey(m_interactiveByGfx[gfx]);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="gfx"></param>
-        /// <param name="map"></param>
-        /// <param name="cellId"></param>
-        /// <returns></returns>
         public InteractiveObject Generate(int gfx, MapInstance map, int cellId)
         {
             return m_interactiveById[m_interactiveByGfx[gfx]](map, cellId);

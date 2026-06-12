@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -33,25 +33,13 @@ namespace Protocolo.Framework.Database
             public IDbDataParameter AttachedParam { get; set; }
         }
 
-        /// <summary>
-        /// construct a dynamic parameter bag
-        /// </summary>
         public DynamicParameters() { }
 
-        /// <summary>
-        /// construct a dynamic parameter bag
-        /// </summary>
-        /// <param name="template">can be an anonymous type or a DynamicParameters bag</param>
         public DynamicParameters(object template)
         {
             AddDynamicParams(template);
         }
 
-        /// <summary>
-        /// Append a whole object full of params to the dynamic
-        /// EG: AddDynamicParams(new {A = 1, B = 2}) // will add property A and B to the dynamic
-        /// </summary>
-        /// <param name="param"></param>
         public void AddDynamicParams(dynamic param)
         {
             var obj = (object)param;
@@ -96,24 +84,9 @@ namespace Protocolo.Framework.Database
             }
         }
 
-        /// <summary>
-        /// Add a parameter to this dynamic parameter list
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="value"></param>
-        /// <param name="dbType"></param>
-        /// <param name="direction"></param>
-        /// <param name="size"></param>
         public void Add(string name, object value = null, DbType? dbType = null, ParameterDirection? direction = null, int? size = null)
         {
-            parameters[Clean(name)] = new ParamInfo
-            {
-                Name = name,
-                Value = value,
-                ParameterDirection = direction ?? ParameterDirection.Input,
-                DbType = dbType,
-                Size = size
-            };
+            parameters[Clean(name)] = new ParamInfo { Name = name, Value = value, ParameterDirection = direction ?? ParameterDirection.Input, DbType = dbType, Size = size };
         }
 
         static string Clean(string name)
@@ -125,7 +98,7 @@ namespace Protocolo.Framework.Database
                     case '@':
                     case ':':
                     case '?':
-                        return name.Substring(1);
+                        return name.AsSpan(1).ToString();
                 }
             }
             return name;
@@ -136,11 +109,6 @@ namespace Protocolo.Framework.Database
             AddParameters(command, identity);
         }
 
-        /// <summary>
-        /// Add all the parameters needed to the command just before it executes
-        /// </summary>
-        /// <param name="command">The raw command prior to execution</param>
-        /// <param name="identity">Information about the query</param>
         protected void AddParameters(IDbCommand command, SqlMapper.Identity identity)
         {
             if (templates != null)
@@ -225,9 +193,6 @@ namespace Protocolo.Framework.Database
             }
         }
 
-        /// <summary>
-        /// All the names of the param in the bag, use Get to yank them out
-        /// </summary>
         public IEnumerable<string> ParameterNames
         {
             get
@@ -237,12 +202,6 @@ namespace Protocolo.Framework.Database
         }
 
 
-        /// <summary>
-        /// Get the value of a parameter
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="name"></param>
-        /// <returns>The value, note DBNull.Value is not returned, instead the value is returned as null</returns>
         public T Get<T>(string name)
         {
             var val = parameters[Clean(name)].AttachedParam.Value;

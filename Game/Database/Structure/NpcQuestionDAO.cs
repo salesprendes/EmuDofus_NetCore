@@ -8,9 +8,6 @@ using System.Threading.Tasks;
 
 namespace Game.Database.Structure
 {
-    /// <summary>
-    /// 
-    /// </summary>
     [Table("npcquestion")]
     public sealed class NpcQuestionDAO : DataAccessObject<NpcQuestionDAO>
     {
@@ -38,14 +35,8 @@ namespace Game.Database.Structure
             set => SetProperty(ref _responses, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private List<NpcResponseDAO> m_responses;
 
-        /// <summary>
-        /// 
-        /// </summary>
         [Write(false)]
         public List<NpcResponseDAO> ResponseList
         {
@@ -66,13 +57,9 @@ namespace Game.Database.Structure
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public override string ToString()
         {
-            return Id + " ( " + Params + " - " + Responses + " )"; 
+            return Id + " ( " + Params + " - " + Responses + " )";
         }
     }
 }

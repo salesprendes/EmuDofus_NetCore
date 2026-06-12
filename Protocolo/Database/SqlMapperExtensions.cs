@@ -57,23 +57,23 @@ namespace Protocolo.Framework.Database
 
                 string lower = word.ToLower();
 
-                // consonant + y  →  ies   (Category → Categories)
+
                 if (lower.EndsWith("y") && word.Length > 1 && !Vowels.Contains(lower[word.Length - 2]))
                     return string.Concat(word.AsSpan(0, word.Length - 1), "ies");
 
-                // fe  →  ves   (Wife → Wives)
+
                 if (lower.EndsWith("fe"))
                     return string.Concat(word.AsSpan(0, word.Length - 2), "ves");
 
-                // lf/rf/af  →  ves   (Half → Halves)
+
                 if (lower.EndsWith("lf") || lower.EndsWith("rf") || lower.EndsWith("af"))
                     return string.Concat(word.AsSpan(0, word.Length - 1), "ves");
 
-                // ss, sh, ch, x, z, s  →  es
+
                 if (lower.EndsWith("ss") || lower.EndsWith("sh") || lower.EndsWith("ch") || lower.EndsWith("x") || lower.EndsWith("z") || lower.EndsWith("s"))
                     return word + "es";
 
-                // consonant + o  →  oes   (Hero → Heroes)
+
                 if (lower.EndsWith("o") && word.Length > 1 && !Vowels.Contains(lower[word.Length - 2]))
                     return word + "es";
 
@@ -87,14 +87,11 @@ namespace Protocolo.Framework.Database
                 return pi;
 
             var allProperties = TypePropertiesCache(type);
-            var keyProperties = allProperties
-                .Where(p => p.GetCustomAttributes(true).Any(a => a is KeyAttribute))
-                .ToList();
+            var keyProperties = allProperties.Where(p => p.GetCustomAttributes(true).Any(a => a is KeyAttribute)).ToList();
 
             if (keyProperties.Count == 0)
             {
-                var idProp = allProperties.FirstOrDefault(p =>
-                    p.Name.Equals("id", StringComparison.OrdinalIgnoreCase));
+                var idProp = allProperties.FirstOrDefault(p => p.Name.Equals("id", StringComparison.OrdinalIgnoreCase));
                 if (idProp != null) keyProperties.Add(idProp);
             }
 
@@ -107,7 +104,7 @@ namespace Protocolo.Framework.Database
             if (TypeProperties.TryGetValue(type.TypeHandle, out var pis))
                 return pis;
 
-            // Materialise to List<T> once so every caller works on a stable collection
+
             var properties = type.GetProperties().Where(IsWriteable).ToList();
             TypeProperties[type.TypeHandle] = properties;
             return properties;
@@ -117,7 +114,6 @@ namespace Protocolo.Framework.Database
         private static string BuildColumnList(IEnumerable<PropertyInfo> properties) => string.Join(", ", properties.Select(p => QuoteIdentifier(p.Name)));
         private static string BuildParameterList(IEnumerable<PropertyInfo> properties) => string.Join(", ", properties.Select(p => "@" + p.Name));
 
-        /// <summary>Construye un UPDATE … SET … WHERE … completo.</summary>
         private static string BuildUpdateSql(string tableName, IList<PropertyInfo> setCols, IList<PropertyInfo> whereCols)
         {
             var set = string.Join(", ", setCols.Select(p => $"{QuoteIdentifier(p.Name)} = @{p.Name}"));
@@ -125,7 +121,6 @@ namespace Protocolo.Framework.Database
             return $"update {tableName} set {set} where {where}";
         }
 
-        /// <summary>Construye un DELETE FROM … WHERE … completo.</summary>
         private static string BuildDeleteSql(string tableName, IList<PropertyInfo> keyProps)
         {
             var where = string.Join(" and ", keyProps.Select(p => $"{QuoteIdentifier(p.Name)} = @{p.Name}"));
@@ -179,13 +174,11 @@ namespace Protocolo.Framework.Database
                     if (res.TryGetValue(property.Name, out var val))
                         property.SetValue(obj, val, null);
                 }
-                ((IProxy)obj).IsDirty = false;  // reset change tracking
+                ((IProxy)obj).IsDirty = false;
             }
             else
             {
-                obj = connection.Query<T>(sql, dynParms,
-                          transaction: transaction, buffered: false, commandTimeout: commandTimeout)
-                      .FirstOrDefault();
+                obj = connection.Query<T>(sql, dynParms, transaction: transaction, buffered: false, commandTimeout: commandTimeout).FirstOrDefault();
             }
 
             return obj;
@@ -198,10 +191,10 @@ namespace Protocolo.Framework.Database
         {
             if (!TypeTableName.TryGetValue(type.TypeHandle, out string name))
             {
-                // Quitar la 'I' inicial de interfaces y pluralizar correctamente
+
                 string baseName = type.Name;
                 if (type.IsInterface && baseName.StartsWith("I") && baseName.Length > 1)
-                    baseName = baseName.Substring(1);
+                    baseName = baseName.AsSpan(1).ToString();
 
                 name = Pluralizer.Pluralize(baseName);
 
@@ -215,9 +208,9 @@ namespace Protocolo.Framework.Database
             return name;
         }
 
-        // ─────────────────────────────────────────────────────────────────────
-        // INSERT
-        // ─────────────────────────────────────────────────────────────────────
+
+
+
 
         public static void InsertWithKey<T>(this IDbConnection connection, IEnumerable<T> entities,
                                             IDbTransaction transaction = null, int? commandTimeout = null) where T : class
@@ -240,9 +233,7 @@ namespace Protocolo.Framework.Database
             var allProps = TypePropertiesCache(type);
             var adapter = GetFormatter(connection);
 
-            return adapter.Insert(connection, transaction, commandTimeout, name,
-                                  BuildColumnList(allProps), BuildParameterList(allProps),
-                                  NoKeyProperties, entityToInsert);
+            return adapter.Insert(connection, transaction, commandTimeout, name, BuildColumnList(allProps), BuildParameterList(allProps), NoKeyProperties, entityToInsert);
         }
 
         public static long Insert<T>(this IDbConnection connection, T entityToInsert,
@@ -254,9 +245,7 @@ namespace Protocolo.Framework.Database
             var nonKeyProps = TypePropertiesCache(type).Except(keyProps).ToList();
             var adapter = GetFormatter(connection);
 
-            return adapter.Insert(connection, transaction, commandTimeout, name,
-                                  BuildColumnList(nonKeyProps), BuildParameterList(nonKeyProps),
-                                  keyProps, entityToInsert);
+            return adapter.Insert(connection, transaction, commandTimeout, name, BuildColumnList(nonKeyProps), BuildParameterList(nonKeyProps), keyProps, entityToInsert);
         }
 
         public static void Insert<T>(this IDbConnection connection, IEnumerable<T> entities,
@@ -274,9 +263,9 @@ namespace Protocolo.Framework.Database
                 adapter.Insert(connection, transaction, commandTimeout, name, columns, parameters, keyProps, entity);
         }
 
-        // ─────────────────────────────────────────────────────────────────────
-        // UPDATE
-        // ─────────────────────────────────────────────────────────────────────
+
+
+
 
         public static int Update<T>(this IDbConnection connection, IEnumerable<T> entitiesToUpdate,
                                     IDbTransaction transaction = null, int? commandTimeout = null) where T : class
@@ -290,16 +279,12 @@ namespace Protocolo.Framework.Database
             if (!nonIdProps.Any()) return 0;
 
             var sql = BuildUpdateSql(GetTableName(type), nonIdProps, keyProps);
-            return connection.ExecuteQuery(sql, entitiesToUpdate,
-                                           commandTimeout: commandTimeout, transaction: transaction);
+            return connection.ExecuteQuery(sql, entitiesToUpdate, commandTimeout: commandTimeout, transaction: transaction);
         }
 
-        /// <summary>
-        /// Updates entities using an existing IDbCommand (variante batch transaccional).
-        /// </summary>
         public static int UpdateTransactional<T>(this IDbConnection connection, IDbCommand cmd,
-                                                  IEnumerable<T> entitiesToUpdate,
-                                                  IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+                                          IEnumerable<T> entitiesToUpdate,
+                                          IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             var type = typeof(T);
             var keyProps = KeyPropertiesCache(type);
@@ -309,19 +294,11 @@ namespace Protocolo.Framework.Database
             var nonIdProps = TypePropertiesCache(type).Except(keyProps).ToList();
             var sql = BuildUpdateSql(GetTableName(type), nonIdProps, keyProps);
 
-            return connection.ExecuteQueryMultiple(cmd, sql, entitiesToUpdate,
-                                                   commandTimeout: commandTimeout, transaction: transaction);
+            return connection.ExecuteQueryMultiple(cmd, sql, entitiesToUpdate, commandTimeout: commandTimeout, transaction: transaction);
         }
 
-        /// <summary>
-        /// Updates entity in table "Ts", checks if the entity is modified if the entity is tracked by the Get() extension.
-        /// </summary>
-        /// <typeparam name="T">Type to be updated</typeparam>
-        /// <param name="connection">Open SqlConnection</param>
-        /// <param name="entityToUpdate">Entity to be updated</param>
-        /// <returns>true if updated, false if not found or not modified (tracked entities)</returns>
         public static bool Update<T>(this IDbConnection connection, T entityToUpdate,
-                                     IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+                             IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             var proxy = entityToUpdate as IProxy;
             if (proxy != null && !proxy.IsDirty)
@@ -335,23 +312,15 @@ namespace Protocolo.Framework.Database
             var nonIdProps = TypePropertiesCache(type).Except(keyProps).ToList();
             var sql = BuildUpdateSql(GetTableName(type), nonIdProps, keyProps);
 
-            return connection.ExecuteQuery(sql, entityToUpdate,
-                                           commandTimeout: commandTimeout, transaction: transaction) > 0;
+            return connection.ExecuteQuery(sql, entityToUpdate, commandTimeout: commandTimeout, transaction: transaction) > 0;
         }
 
-        // ─────────────────────────────────────────────────────────────────────
-        // DELETE
-        // ─────────────────────────────────────────────────────────────────────
 
-        /// <summary>
-        /// Delete entity in table "Ts".
-        /// </summary>
-        /// <typeparam name="T">Type of entity</typeparam>
-        /// <param name="connection">Open SqlConnection</param>
-        /// <param name="entityToDelete">Entity to delete</param>
-        /// <returns>true if deleted, false if not found</returns>
+
+
+
         public static bool Delete<T>(this IDbConnection connection, T entityToDelete,
-                                     IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+                             IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             if (entityToDelete == null)
                 throw new ArgumentException("Cannot Delete null Object", nameof(entityToDelete));
@@ -362,15 +331,11 @@ namespace Protocolo.Framework.Database
                 throw new ArgumentException("Entity must have at least one [Key] property");
 
             var sql = BuildDeleteSql(GetTableName(type), keyProps);
-            return connection.ExecuteQuery(sql, entityToDelete,
-                                           transaction: transaction, commandTimeout: commandTimeout) > 0;
+            return connection.ExecuteQuery(sql, entityToDelete, transaction: transaction, commandTimeout: commandTimeout) > 0;
         }
 
-        /// <summary>
-        /// Delete a collection of entities from table "Ts".
-        /// </summary>
         public static void Delete<T>(this IDbConnection connection, IEnumerable<T> entities,
-                                     IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+                             IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             var list = entities as IList<T> ?? entities.ToList();
             if (!list.Any()) return;
@@ -382,13 +347,12 @@ namespace Protocolo.Framework.Database
 
             var sql = BuildDeleteSql(GetTableName(type), keyProps);
             foreach (var entity in list)
-                connection.ExecuteQuery(sql, entity,
-                                        transaction: transaction, commandTimeout: commandTimeout);
+                connection.ExecuteQuery(sql, entity, transaction: transaction, commandTimeout: commandTimeout);
         }
 
-        // ─────────────────────────────────────────────────────────────────────
-        // ADAPTER
-        // ─────────────────────────────────────────────────────────────────────
+
+
+
 
         public static ISqlAdapter GetFormatter(IDbConnection connection)
         {
@@ -396,17 +360,16 @@ namespace Protocolo.Framework.Database
             return AdapterDictionary.TryGetValue(name, out var adapter) ? adapter : new SqlServerAdapter();
         }
 
-        // ─────────────────────────────────────────────────────────────────────
-        // PROXY GENERATOR
-        // ─────────────────────────────────────────────────────────────────────
+
+
+
 
         public static class ProxyGenerator
         {
-            // Cachear el Type dinámico (NO la instancia): la emisión IL sólo ocurre
-            // una vez por interfaz; cada llamada crea una nueva instancia.
-            // Fix: el Dictionary original no era thread-safe; se usa ConcurrentDictionary.
-            private static readonly ConcurrentDictionary<Type, Type> TypeCache =
-                new ConcurrentDictionary<Type, Type>();
+
+
+
+            private static readonly ConcurrentDictionary<Type, Type> TypeCache = new ConcurrentDictionary<Type, Type>();
 
             private static AssemblyBuilder GetAsmBuilder(string name)
                 => AssemblyBuilder.DefineDynamicAssembly(
@@ -414,9 +377,9 @@ namespace Protocolo.Framework.Database
 
             public static T GetClassProxy<T>()
             {
-                // A class proxy could be implemented if all properties are virtual.
-                // Otherwise there is a pretty dangerous case where internal actions
-                // will not update dirty tracking.
+
+
+
                 throw new NotImplementedException();
             }
 
@@ -424,17 +387,14 @@ namespace Protocolo.Framework.Database
             {
                 Type typeOfT = typeof(T);
 
-                // GetOrAdd: la emisión puede ejecutarse más de una vez bajo alta
-                // contención, pero el resultado es idempotente (sin efectos secundarios).
+
+
                 var generatedType = TypeCache.GetOrAdd(typeOfT, t =>
                 {
                     var assemblyBuilder = GetAsmBuilder(t.Name);
-                    var moduleBuilder = assemblyBuilder.DefineDynamicModule(
-                                             "SqlMapperExtensions." + t.Name);
+                    var moduleBuilder = assemblyBuilder.DefineDynamicModule("SqlMapperExtensions." + t.Name);
 
-                    var typeBuilder = moduleBuilder.DefineType(
-                        t.Name + "_" + Guid.NewGuid(),
-                        TypeAttributes.Public | TypeAttributes.Class);
+                    var typeBuilder = moduleBuilder.DefineType(t.Name + "_" + Guid.NewGuid(), TypeAttributes.Public | TypeAttributes.Class);
 
                     typeBuilder.AddInterfaceImplementation(t);
                     typeBuilder.AddInterfaceImplementation(typeof(SqlMapperExtensions.IProxy));
@@ -450,8 +410,8 @@ namespace Protocolo.Framework.Database
                     return typeBuilder.CreateType();
                 });
 
-                // Crear SIEMPRE una instancia nueva — se corrige el bug original
-                // donde el mismo objeto era reutilizado entre llamadas a Get<T>.
+
+
                 return (T)Activator.CreateInstance(generatedType);
             }
 
@@ -459,23 +419,21 @@ namespace Protocolo.Framework.Database
             {
                 var propType = typeof(bool);
                 var field = typeBuilder.DefineField("_IsDirty", propType, FieldAttributes.Private);
-                var property = typeBuilder.DefineProperty("IsDirty",
-                                   System.Reflection.PropertyAttributes.None,
-                                   propType, new[] { propType });
+                var property = typeBuilder.DefineProperty("IsDirty", System.Reflection.PropertyAttributes.None, propType, new[] { propType });
 
                 const MethodAttributes getSetAttr =
                     MethodAttributes.Public | MethodAttributes.NewSlot |
                     MethodAttributes.SpecialName | MethodAttributes.Final |
                     MethodAttributes.Virtual | MethodAttributes.HideBySig;
 
-                // get_IsDirty
+
                 var getter = typeBuilder.DefineMethod("get_IsDirty", getSetAttr, propType, Type.EmptyTypes);
                 var getterIL = getter.GetILGenerator();
                 getterIL.Emit(OpCodes.Ldarg_0);
                 getterIL.Emit(OpCodes.Ldfld, field);
                 getterIL.Emit(OpCodes.Ret);
 
-                // set_IsDirty
+
                 var setter = typeBuilder.DefineMethod("set_IsDirty", getSetAttr, null, new[] { propType });
                 var setterIL = setter.GetILGenerator();
                 setterIL.Emit(OpCodes.Ldarg_0);
@@ -500,21 +458,18 @@ namespace Protocolo.Framework.Database
                 Type propType = interfaceProperty.PropertyType;
 
                 var field = typeBuilder.DefineField("_" + propertyName, propType, FieldAttributes.Private);
-                var property = typeBuilder.DefineProperty(propertyName,
-                                   System.Reflection.PropertyAttributes.None,
-                                   propType, new[] { propType });
+                var property = typeBuilder.DefineProperty(propertyName, System.Reflection.PropertyAttributes.None, propType, new[] { propType });
 
-                const MethodAttributes getSetAttr =
-                    MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig;
+                const MethodAttributes getSetAttr = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig;
 
-                // get_<Nombre>
+
                 var getter = typeBuilder.DefineMethod("get_" + propertyName, getSetAttr, propType, Type.EmptyTypes);
                 var getterIL = getter.GetILGenerator();
                 getterIL.Emit(OpCodes.Ldarg_0);
                 getterIL.Emit(OpCodes.Ldfld, field);
                 getterIL.Emit(OpCodes.Ret);
 
-                // set_<Nombre>  — almacena el valor y marca el proxy como Dirty
+
                 var setter = typeBuilder.DefineMethod("set_" + propertyName, getSetAttr, null, new[] { propType });
                 var setterIL = setter.GetILGenerator();
                 setterIL.Emit(OpCodes.Ldarg_0);
@@ -529,31 +484,18 @@ namespace Protocolo.Framework.Database
                 {
                     try
                     {
-                        var ctorArgs = attrData.ConstructorArguments
-                                               .Select(a => a.Value).ToArray();
-                        var namedFields = attrData.NamedArguments
-                                               .Where(a => a.IsField)
-                                               .Select(a => (FieldInfo)a.MemberInfo).ToArray();
-                        var namedFieldVals = attrData.NamedArguments
-                                               .Where(a => a.IsField)
-                                               .Select(a => a.TypedValue.Value).ToArray();
-                        var namedProps = attrData.NamedArguments
-                                               .Where(a => !a.IsField)
-                                               .Select(a => (PropertyInfo)a.MemberInfo).ToArray();
-                        var namedPropVals = attrData.NamedArguments
-                                               .Where(a => !a.IsField)
-                                               .Select(a => a.TypedValue.Value).ToArray();
+                        var ctorArgs = attrData.ConstructorArguments.Select(a => a.Value).ToArray();
+                        var namedFields = attrData.NamedArguments.Where(a => a.IsField).Select(a => (FieldInfo)a.MemberInfo).ToArray();
+                        var namedFieldVals = attrData.NamedArguments.Where(a => a.IsField).Select(a => a.TypedValue.Value).ToArray();
+                        var namedProps = attrData.NamedArguments.Where(a => !a.IsField).Select(a => (PropertyInfo)a.MemberInfo).ToArray();
+                        var namedPropVals = attrData.NamedArguments.Where(a => !a.IsField).Select(a => a.TypedValue.Value).ToArray();
 
-                        property.SetCustomAttribute(new CustomAttributeBuilder(
-                            attrData.Constructor,
-                            ctorArgs,
-                            namedProps, namedPropVals,
-                            namedFields, namedFieldVals));
+                        property.SetCustomAttribute(new CustomAttributeBuilder(attrData.Constructor, ctorArgs, namedProps, namedPropVals, namedFields, namedFieldVals));
                     }
                     catch
                     {
-                        // Ignorar atributos que no pueden replicarse en tipos dinámicos
-                        // (p.ej. atributos de seguridad o intrínsecos del CLR).
+
+
                     }
                 }
 
@@ -572,7 +514,7 @@ namespace Protocolo.Framework.Database
         public string Name { get; private set; }
     }
 
-    // Do not want to depend on data annotations that are not in client profile
+
     [AttributeUsage(AttributeTargets.Property)]
     public class KeyAttribute : Attribute { }
 
@@ -613,7 +555,7 @@ namespace Protocolo.Framework.Database
 
             var keyList = keyProperties.ToList();
 
-            // Sin PK se asume tabla de unión → devolver todo
+
             if (!keyList.Any())
             {
                 connection.Execute(sb.ToString(), entityToInsert, transaction: transaction, commandTimeout: commandTimeout);
@@ -631,7 +573,7 @@ namespace Protocolo.Framework.Database
                 return 0;
             }
 
-            // Asignar los valores de clave generados de vuelta a la entidad (soporta PKs compuestas)
+
             int id = 0;
             foreach (var p in keyList)
             {

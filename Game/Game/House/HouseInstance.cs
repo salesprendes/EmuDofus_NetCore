@@ -6,6 +6,7 @@ using Game.Entity.Inventory;
 using Game.Manager;
 using Game.Network;
 using Protocolo.Framework.Generic.Logging;
+using System;
 
 namespace Game.House
 {
@@ -65,6 +66,11 @@ namespace Game.House
 
         public void TryEnter(CharacterEntity character, string code)
         {
+            TryEnter(character, code.AsSpan());
+        }
+
+        public void TryEnter(CharacterEntity character, ReadOnlySpan<char> code)
+        {
             if (!character.CanGameAction(GameActionTypeEnum.MAP_TELEPORT))
             {
                 character.Dispatch(WorldMessage.IM_ERROR_MESSAGE(InformationEnum.ERROR_YOU_ARE_AWAY));
@@ -73,13 +79,13 @@ namespace Game.House
 
             if (IsLocked && character.Id != OwnerId)
             {
-                if (code == "")
+                if (code.IsEmpty)
                 {
                     character.CurrentHouse = this;
                     character.Dispatch(WorldMessage.KEY_DIALOG(false, 8));
                     return;
                 }
-                if (code != LockCode)
+                if (!code.SequenceEqual(LockCode))
                 {
                     character.Dispatch(WorldMessage.KEY_ERROR());
                     return;
@@ -217,12 +223,17 @@ namespace Game.House
 
         public void SetLockCode(CharacterEntity character, string code)
         {
+            SetLockCode(character, code.AsSpan());
+        }
+
+        public void SetLockCode(CharacterEntity character, ReadOnlySpan<char> code)
+        {
             if (character.Id != OwnerId)
             {
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
-            LockCode = code.Length > 8 ? code.Substring(0, 8) : code;
+            LockCode = (code.Length > 8 ? code.Slice(0, 8) : code).ToString();
             character.CurrentHouse = null;
             character.Dispatch(WorldMessage.KEY_CLOSE());
             character.Dispatch(WorldMessage.HOUSE_INFO(true, Id, IsLocked, IsForSale, GuildId != -1));
@@ -230,27 +241,28 @@ namespace Game.House
 
         public void SetGuildRights(CharacterEntity character, string data)
         {
+            SetGuildRights(character, data.AsSpan());
+        }
+
+        public void SetGuildRights(CharacterEntity character, ReadOnlySpan<char> data)
+        {
             if (character.Id != OwnerId)
             {
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
-            switch (data)
+            if (data.SequenceEqual("+"))
             {
-                case "+":
-                    if (character.GuildMember == null) return;
-                    GuildId = (int)character.GuildMember.GuildId;
-                    break;
-                case "-":
-                case "0":
-                    GuildId = -1;
-                    GuildRights = 0;
-                    break;
-                default:
-                    if (int.TryParse(data, out var rights))
-                        GuildRights = rights;
-                    break;
+                if (character.GuildMember == null) return;
+                GuildId = (int)character.GuildMember.GuildId;
             }
+            else if (data.SequenceEqual("-") || data.SequenceEqual("0"))
+            {
+                GuildId = -1;
+                GuildRights = 0;
+            }
+            else if (int.TryParse(data, out var rights))
+                GuildRights = rights;
             SendGuildRights(character);
         }
 

@@ -1,4 +1,4 @@
-﻿using Game.Spell;
+using Game.Spell;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,30 +7,15 @@ using System.Threading.Tasks;
 
 namespace Game.Fight.Effect.Type
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class DamageLifePercentEffect : AbstractSpellEffect
     {
-        /// <summary>
-        /// 
-        /// </summary>
         private EffectEnum m_damageType;
 
-        /// <summary>
-        /// /
-        /// </summary>
-        /// <param name="damageType"></param>
         public DamageLifePercentEffect(EffectEnum damageType)
         {
             m_damageType = damageType;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="castInfos"></param>
-        /// <returns></returns>
         public override FightActionResultEnum ApplyEffect(CastInfos castInfos)
         {
             if (castInfos.Target == null)

@@ -14,22 +14,25 @@ namespace Game.Database.Structure
         private int _spellLevel;
 
 
-        [Key] public int MonsterId
+        [Key]
+        public int MonsterId
         {
             get => _monsterId;
             set => SetProperty(ref _monsterId, value);
         }
-        [Key] public int GradeId
+        [Key]
+        public int GradeId
         {
             get => _gradeId;
             set => SetProperty(ref _gradeId, value);
         }
-        [Key] public int SpellId
+        [Key]
+        public int SpellId
         {
             get => _spellId;
             set => SetProperty(ref _spellId, value);
         }
-        
+
         public int SpellLevel
         {
             get => _spellLevel;
@@ -54,7 +57,6 @@ namespace Game.Database.Structure
             }
         }
 
-        /// <summary>The resolved SpellLevel object used by the combat engine.</summary>
         [Write(false)]
         public SpellLevel CombatLevel
         {

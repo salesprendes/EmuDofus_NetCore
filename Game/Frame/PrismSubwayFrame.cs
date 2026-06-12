@@ -23,10 +23,7 @@ namespace Game.Frame
 
         private void PrismLeave(CharacterEntity character, string message)
         {
-            character.AddMessage(() =>
-            {
-                character.StopAction(GameActionTypeEnum.PRISM_USE);
-            });
+            character.AddMessage(() => { character.StopAction(GameActionTypeEnum.PRISM_USE); });
         }
 
         private void PrismUse(CharacterEntity character, string message)
@@ -53,7 +50,7 @@ namespace Game.Frame
                     return;
                 }
 
-                // Solo prismas SubArea del mismo alineamiento son destinos validos
+
                 var destTerritory = ConquestManager.Instance.Territories.FirstOrDefault(t =>
                     t.PrismType == ConquestPrismType.SubArea
                     && t.AlignmentId == character.AlignmentId

@@ -7,10 +7,7 @@ namespace Game.Command
 {
     public sealed class MorphCommand : WorldStaffCommand
     {
-        private readonly string[] _aliases =
-        {
-            "skin"
-        };
+        private readonly string[] _aliases = { "skin" };
 
         public override string[] Aliases => _aliases;
 

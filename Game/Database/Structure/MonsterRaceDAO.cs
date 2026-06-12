@@ -32,8 +32,7 @@ namespace Game.Database.Structure
 
         private List<MonsterDAO> m_monsters = new List<MonsterDAO>();
 
-        [Write(false)]
-        public List<MonsterDAO> Monsters => m_monsters;
+        [Write(false)] public List<MonsterDAO> Monsters => m_monsters;
     }
 }
 

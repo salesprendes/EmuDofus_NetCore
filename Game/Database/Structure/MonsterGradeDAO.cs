@@ -9,9 +9,6 @@ using System.Threading.Tasks;
 
 namespace Game.Database.Structure
 {
-    /// <summary>
-    /// 
-    /// </summary>
     [Table("monstergrade")]
     public sealed class MonsterGradeDAO : DataAccessObject<MonsterGradeDAO>
     {
@@ -57,7 +54,7 @@ namespace Game.Database.Structure
             get => _grade;
             set => SetProperty(ref _grade, value);
         }
-        
+
         public int Level
         {
             get => _level;
@@ -152,15 +149,8 @@ namespace Game.Database.Structure
         {
             get => _experience;
             set => SetProperty(ref _experience, value);
-        }        
-        /// <summary>
-        /// 
-        /// </summary>
+        }
         private MonsterDAO m_template;
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         [Write(false)]
         public MonsterDAO Template
         {

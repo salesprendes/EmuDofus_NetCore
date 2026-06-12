@@ -7,7 +7,7 @@ namespace Game.Interactive.Type
 {
     public sealed class Pheonix : InteractiveObject
     {
-        public Pheonix(MapInstance map, int cellId) : base(map, cellId){}
+        public Pheonix(MapInstance map, int cellId) : base(map, cellId) { }
 
         public override int GetImplicitSkillId(CharacterEntity character)
         {

@@ -22,7 +22,7 @@ namespace Game.Fight.AI.Bosses
         private const int SpellKrakenTerciario = 1098;
         private const int SpellKrakenCuaternario = 1099;
 
-        public KralamarTentacleBrain(AIFighter fighter): base(fighter) {}
+        public KralamarTentacleBrain(AIFighter fighter) : base(fighter) { }
 
         protected override IEnumerable<AIDecision> Evaluate(AIContext context)
         {

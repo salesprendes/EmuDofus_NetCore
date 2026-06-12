@@ -20,13 +20,7 @@ namespace Game.Fight.AI.Core
 
         public static AIDecision EndTurn(string reason)
         {
-            return new AIDecision
-            {
-                Type = AIDecisionType.EndTurn,
-                Priority = AIDecisionPriority.Low,
-                Score = 1,
-                Reason = reason ?? string.Empty
-            };
+            return new AIDecision { Type = AIDecisionType.EndTurn, Priority = AIDecisionPriority.Low, Score = 1, Reason = reason ?? string.Empty };
         }
 
         public static AIDecision CastSpell(int spellId, int cellId, long targetId, int score, AIDecisionPriority priority, string reason)
@@ -45,14 +39,7 @@ namespace Game.Fight.AI.Core
 
         public static AIDecision Move(int cellId, int score, AIDecisionPriority priority, string reason)
         {
-            return new AIDecision
-            {
-                Type = AIDecisionType.Move,
-                CellId = (short)cellId,
-                Score = score,
-                Priority = priority,
-                Reason = reason ?? string.Empty
-            };
+            return new AIDecision { Type = AIDecisionType.Move, CellId = (short)cellId, Score = score, Priority = priority, Reason = reason ?? string.Empty };
         }
     }
 }

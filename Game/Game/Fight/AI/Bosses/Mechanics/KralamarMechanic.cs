@@ -10,20 +10,6 @@ using System.Linq;
 
 namespace Game.Fight.AI.Bosses.Mechanics
 {
-    /// <summary>
-    /// Kralamar Giant server-side mechanic.
-    ///
-    /// Dofus Retro flow:
-    ///   Water -> Quaternary tentacle
-    ///   Fire  -> Tertiary tentacle
-    ///   Earth -> Secondary tentacle
-    ///   Air   -> Primary tentacle
-    ///
-    /// Only one tentacle is prepared between two Kralamar turns. Hitting the boss
-    /// with another elemental attack before the pending tentacle is summoned, or
-    /// hitting with the wrong element, breaks the sequence and leaves Kraken as
-    /// the boss punishment/benefit spell.
-    /// </summary>
     public sealed class KralamarMechanic : IBossMechanic
     {
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(KralamarMechanic));
@@ -52,13 +38,7 @@ namespace Game.Fight.AI.Bosses.Mechanics
         private const int TentaculoTerciario = 1091;
         private const int TentaculoSecundario = 1092;
 
-        private static readonly HashSet<int> RequiredTentacleTemplateIds = new HashSet<int>
-        {
-            TentaculoCuaternario,
-            TentaculoTerciario,
-            TentaculoSecundario,
-            TentaculoPrimario
-        };
+        private static readonly HashSet<int> RequiredTentacleTemplateIds = new HashSet<int> { TentaculoCuaternario, TentaculoTerciario, TentaculoSecundario, TentaculoPrimario };
 
         private static readonly TentacleStep[] SummonOrder =
         {
@@ -68,7 +48,7 @@ namespace Game.Fight.AI.Bosses.Mechanics
             new TentacleStep(KralamarElement.Air,   SpellInvocPrimario,    TentaculoPrimario,    "Primario",    FighterStateEnum.STATE_KRALAMAR_DESIRE_KILL)
         };
 
-        private readonly object m_sync = new object();
+        private readonly object m_sync = new object ();
         private int m_expectedStep;
         private TentacleStep m_pendingTentacle;
         private bool m_punishmentPending;
@@ -357,11 +337,9 @@ namespace Game.Fight.AI.Bosses.Mechanics
             m_lastActivatingSpellId = -1;
             m_punishmentPending = true;
 
-            // El tentáculo a invocar corresponde al elemento que rompió la secuencia.
-            // Si ese tentáculo ya está vivo, busca el siguiente disponible.
-            var stepIdx = triggerElement != KralamarElement.None
-                ? FindStepForElement(triggerElement)
-                : -1;
+
+
+            var stepIdx = triggerElement != KralamarElement.None ? FindStepForElement(triggerElement) : -1;
 
             if (stepIdx < 0 || HasLivingTentacle(kralamar, SummonOrder[stepIdx].TemplateId))
                 stepIdx = FindNextAvailableStep(kralamar, stepIdx >= 0 ? (stepIdx + 1) % SummonOrder.Length : 0);
@@ -405,14 +383,12 @@ namespace Game.Fight.AI.Bosses.Mechanics
             if (!HasAllRequiredTentacles(context))
                 return false;
 
-            return context.Enemies.Any(f =>
-                f?.StateManager?.HasState(FighterStateEnum.STATE_KRALAMAR_QUATERNARY_INK) == true);
+            return context.Enemies.Any(f => f?.StateManager?.HasState(FighterStateEnum.STATE_KRALAMAR_QUATERNARY_INK) == true);
         }
 
         private static bool HasAllRequiredTentacles(AIContext context)
         {
-            return RequiredTentacleTemplateIds.All(templateId =>
-                context.Allies.Any(f => GetMonsterId(f) == templateId && !f.IsFighterDead));
+            return RequiredTentacleTemplateIds.All(templateId => context.Allies.Any(f => GetMonsterId(f) == templateId && !f.IsFighterDead));
         }
 
         private static bool TryGetElement(EffectEnum effectType, out KralamarElement element)
@@ -445,14 +421,13 @@ namespace Game.Fight.AI.Bosses.Mechanics
 
                 default:
                     element = KralamarElement.None;
-                return false;
+                    return false;
             }
         }
 
         private static bool HasLivingTentacle(AbstractFighter kralamar, int templateId)
         {
-            return kralamar?.Team?.AliveFighters != null
-                && kralamar.Team.AliveFighters.Any(f => GetMonsterId(f) == templateId && !f.IsFighterDead);
+            return kralamar?.Team?.AliveFighters != null && kralamar.Team.AliveFighters.Any(f => GetMonsterId(f) == templateId && !f.IsFighterDead);
         }
 
         private static bool IsKralamar(AbstractFighter fighter)

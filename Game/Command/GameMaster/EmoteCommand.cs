@@ -4,10 +4,7 @@ namespace Game.Command
 {
     public sealed class EmoteCommand : WorldStaffCommand
     {
-        private readonly string[] _aliases =
-        {
-            "emote"
-        };
+        private readonly string[] _aliases = { "emote" };
 
         public override string[] Aliases => _aliases;
 

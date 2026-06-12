@@ -1,4 +1,4 @@
-﻿using Game.Action;
+using Game.Action;
 using Game.Entity;
 using Game.Map;
 using Game.Network;
@@ -8,108 +8,66 @@ using System.Text;
 
 namespace Game.Fight
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class TaxCollectorFight : AbstractFight, IDisposable
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public CharacterEntity Attacker
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public TaxCollectorEntity TaxCollector
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool CanDefend
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private StringBuilder m_serializedFlag;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public TaxCollectorFight(MapInstance map, long id, CharacterEntity attacker, TaxCollectorEntity taxCollector) : base(FightTypeEnum.TYPE_PVT, map, id, attacker.Id, 0, attacker.CellId, taxCollector.Id, 0, taxCollector.CellId, 60000, 30000)
         {
             CanDefend = true;
             Attacker = attacker;
             TaxCollector = taxCollector;
-            
+
             JoinFight(Attacker, Team0);
             JoinFight(TaxCollector, Team1);
 
             AddTimer(45000, TeleportDefenders, true);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void TeleportDefenders()
         {
             CanDefend = false;
 
-            foreach(var defender in TaxCollector.Defenders)
+            foreach (var defender in TaxCollector.Defenders)
             {
                 var character = defender.Character;
-                if(character != null)
+                if (character != null)
                 {
-                    character.AddMessage(() =>
-                    {
-                        character.StopAction(GameActionTypeEnum.TAXCOLLECTOR_AGGRESSION);
-
-                        JoinFight(character, Team1);
-                    });
+                    character.AddMessage(() => { character.StopAction(GameActionTypeEnum.TAXCOLLECTOR_AGGRESSION); JoinFight(character, Team1); });
                 }
             }
 
             TaxCollector.Defenders.Clear();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="team"></param>
         public override void OnCharacterJoin(CharacterEntity character, FightTeam team)
         {
             TaxCollector.Guild.TaxCollectorAttackerJoin(TaxCollector.Id, character);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <returns></returns>
         public override bool CanJoin(CharacterEntity character)
         {
             return true;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="kick"></param>
-        /// <returns></returns>
         public override FightActionResultEnum FightQuit(CharacterEntity character, bool kick = false)
         {
             if (LoopState == FightLoopStateEnum.STATE_WAIT_END || LoopState == FightLoopStateEnum.STATE_ENDED)
@@ -120,7 +78,7 @@ namespace Game.Fight
                 case FightStateEnum.STATE_PLACEMENT:
                     if (TryKillFighter(character, character, true, true) == FightActionResultEnum.RESULT_END)
                         return FightActionResultEnum.RESULT_END;
-                    
+
                     if (kick)
                     {
                         character.Fight.Dispatch(WorldMessage.FIGHT_FLAG_UPDATE(OperatorEnum.OPERATOR_REMOVE, character.Team.LeaderId, character));
@@ -132,7 +90,7 @@ namespace Game.Fight
                     TaxCollector.Guild.TaxColectorAttackerLeave(TaxCollector.Id, character);
 
                     return FightActionResultEnum.RESULT_NOTHING;
-                    
+
 
                 case FightStateEnum.STATE_FIGHTING:
                     if (character.IsSpectating)
@@ -156,11 +114,7 @@ namespace Game.Fight
 
             return FightActionResultEnum.RESULT_NOTHING;
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
+
         public override void SerializeAs_FightList(StringBuilder message)
         {
             message.Append(Id.ToString()).Append(';');
@@ -174,10 +128,6 @@ namespace Game.Fight
             message.Append('|');
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
         public override void SerializeAs_FightFlag(StringBuilder message)
         {
             if (m_serializedFlag == null)
@@ -188,7 +138,7 @@ namespace Game.Fight
                 m_serializedFlag.Append(Team0.LeaderId).Append(';');
                 m_serializedFlag.Append(Team0.FlagCellId).Append(';');
                 m_serializedFlag.Append('0').Append(';');
-                m_serializedFlag.Append("-1").Append('|'); // neutral
+                m_serializedFlag.Append("-1").Append('|');
                 m_serializedFlag.Append(Team1.LeaderId).Append(';');
                 m_serializedFlag.Append(Team1.FlagCellId).Append(';');
                 m_serializedFlag.Append('3').Append(';');
@@ -197,9 +147,6 @@ namespace Game.Fight
             message.Append(m_serializedFlag.ToString());
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override void Dispose()
         {
             Attacker = null;

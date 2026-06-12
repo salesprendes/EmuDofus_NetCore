@@ -1,4 +1,4 @@
-﻿using Game.Entity;
+using Game.Entity;
 using Game.Job;
 using Game.Map;
 using Game.Network;
@@ -6,9 +6,6 @@ using System.Text;
 
 namespace Game.Interactive
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public enum InteractiveObjectIdEnum
     {
         INTERACTIVE_ALEMBIC = 62,
@@ -167,12 +164,6 @@ namespace Game.Interactive
             m_frameId = 0;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="currentFrameId"></param>
-        /// <param name="nextFrameId"></param>
-        /// <param name="activated"></param>
         public void UpdateFrame(int currentFrameId, int nextFrameId, bool activated = false)
         {
             IsActive = activated;
@@ -183,45 +174,28 @@ namespace Game.Interactive
             m_frameId = nextFrameId;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void SendUpdate()
         {
             base.Dispatch(WorldMessage.INTERACTIVE_DATA_FRAME(CellId, m_frameId, IsActive));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
         public void SendUpdateTo(AbstractEntity entity)
         {
             entity.Dispatch(WorldMessage.INTERACTIVE_DATA_FRAME(CellId, m_frameId, IsActive));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void Activate()
         {
             IsActive = true;
             SendUpdate();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void Deactivate()
         {
             IsActive = false;
             SendUpdate();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
         public void SerializeAs_InteractiveListMessage(StringBuilder message)
         {
             message.Append(CellId).Append(';');
@@ -229,22 +203,13 @@ namespace Game.Interactive
             message.Append(IsActive ? '1' : '0').Append('|');
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
         public void SerializeAs_FightInteractiveListMessage(StringBuilder message)
         {
             message.Append(CellId).Append(';');
             message.Append(m_frameId).Append(';');
-            message.Append('0').Append('|'); // not activated for fights
+            message.Append('0').Append('|');
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="skillId"></param>
         public virtual void UseWithSkill(CharacterEntity character, JobSkill skill)
         {
             character.Dispatch(WorldMessage.BASIC_NO_OPERATION());

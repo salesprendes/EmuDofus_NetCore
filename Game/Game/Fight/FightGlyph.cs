@@ -1,4 +1,4 @@
-﻿using Game.Fight.Effect;
+using Game.Fight.Effect;
 using Game.Network;
 using System;
 using System.Collections.Generic;
@@ -8,27 +8,13 @@ using System.Threading.Tasks;
 
 namespace Game.Fight
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class FightGlyph : AbstractActivableObject
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fight"></param>
-        /// <param name="caster"></param>
-        /// <param name="effect"></param>
-        /// <param name="cell"></param>
-        /// <param name="duration"></param>
         public FightGlyph(AbstractFight fight, AbstractFighter caster, CastInfos effect, int cell, int duration)
-            : base(FightObstacleTypeEnum.TYPE_GLYPH, ActiveType.ACTIVE_BEGINTURN, fight, caster, effect, cell, duration, 307, true, true)
+    : base(FightObstacleTypeEnum.TYPE_GLYPH, ActiveType.ACTIVE_BEGINTURN, fight, caster, effect, cell, duration, 307, true, true)
         {
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override void AppearForAll()
         {
             m_fight.CachedBuffer = true;
@@ -37,17 +23,10 @@ namespace Game.Fight
             m_fight.CachedBuffer = false;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dispatcher"></param>
         public override void Appear(MessageDispatcher dispatcher)
         {
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override void DisappearForAll()
         {
             m_fight.CachedBuffer = true;

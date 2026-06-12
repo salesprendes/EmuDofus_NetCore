@@ -7,7 +7,7 @@ namespace Game.Fight.AI.Bosses.Mechanics
     {
         public IEnumerable<AIDecision> Evaluate(AIContext context)
         {
-            // TODO: wire Kimbo glyph/state logic when states and fight metadata expose the required data.
+
             yield break;
         }
     }

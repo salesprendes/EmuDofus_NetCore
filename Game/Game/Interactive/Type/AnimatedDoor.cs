@@ -5,9 +5,6 @@ using Game.Map;
 
 namespace Game.Interactive.Type
 {
-    /// <summary>
-    /// Door-like animated map object that temporarily makes its cell walkable.
-    /// </summary>
     public sealed class AnimatedDoor : InteractiveObject
     {
         public const int FRAME_CLOSED = 1;

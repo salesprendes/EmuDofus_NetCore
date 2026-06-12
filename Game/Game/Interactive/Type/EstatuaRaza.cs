@@ -8,7 +8,7 @@ namespace Game.Interactive.Type
 {
     public sealed class EstatuaRaza : InteractiveObject
     {
-        public EstatuaRaza(MapInstance map, int cellId) : base(map, cellId) {}
+        public EstatuaRaza(MapInstance map, int cellId) : base(map, cellId) { }
 
         public override void UseWithSkill(CharacterEntity character, JobSkill skill)
         {
@@ -35,14 +35,14 @@ namespace Game.Interactive.Type
                 character.Dispatch(WorldMessage.IM_ERROR_MESSAGE(InformationEnum.ERROR_YOU_ARE_AWAY));
                 return;
             }
-            
+
             if (Pathfinding.GoalDistance(Map, character.CellId, CellId) > 1)
             {
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
-            var destMap  = WorldConfig.GetStartMap(character.Breed);
+            var destMap = WorldConfig.GetStartMap(character.Breed);
             var destCell = WorldConfig.GetStartCell(character.Breed);
             character.Teleport(destMap, destCell);
         }

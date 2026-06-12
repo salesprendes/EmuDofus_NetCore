@@ -17,7 +17,7 @@ namespace Game.Fight.AI.Evaluation
             if (context?.Enemies == null || cellId < 0)
                 return 0;
 
-            // Memoized per turn — the movement evaluators score the same cells repeatedly.
+
             var cache = context.TurnCache?.CellRiskScores;
             var cacheKey = (cellId << 1) | (meleeOrTank ? 1 : 0);
             if (cache != null && cache.TryGetValue(cacheKey, out var cachedPenalty))

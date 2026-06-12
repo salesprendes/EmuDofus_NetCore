@@ -6,10 +6,7 @@ namespace Game.Command
 {
     public sealed class AddFightActionCommand : WorldStaffCommand
     {
-        private readonly string[] _aliases =
-        {
-            "accioncombate", "addfightaction"
-        };
+        private readonly string[] _aliases = { "accioncombate", "addfightaction" };
 
         public override string[] Aliases => _aliases;
         public override string Description => "Anade una accion que se ejecuta al terminar un combate en el mapa.";

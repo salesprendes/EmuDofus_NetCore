@@ -17,18 +17,7 @@ namespace Login.App
             AuthService.Instance.Start("./config.json");
 
             var shutdown = new ManualResetEventSlim(false);
-            ConsoleShutdownHandler.Register(() =>
-            {
-                Logger.Info("Apagando servidor...");
-                try
-                {
-                    AuthService.Instance.Stop();
-                }
-                finally
-                {
-                    shutdown.Set();
-                }
-            });
+            ConsoleShutdownHandler.Register(() => { Logger.Info("Apagando servidor..."); try { AuthService.Instance.Stop(); } finally { shutdown.Set(); } });
 
             shutdown.Wait();
             Logger.Info("Servidor detenido.");

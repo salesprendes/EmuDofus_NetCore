@@ -1,8 +1,5 @@
-﻿namespace Game.Fight.Effect.Type
+namespace Game.Fight.Effect.Type
 {
-    /// <summary>
-    /// Weapon mastery buffs are self-targeted even when the client does not provide a target entity.
-    /// </summary>
     public sealed class MasteryEffect : AbstractSpellEffect
     {
         public override FightActionResultEnum ApplyEffect(CastInfos castInfos)

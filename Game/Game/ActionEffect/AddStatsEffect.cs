@@ -1,4 +1,4 @@
-﻿using Game.Database.Structure;
+using Game.Database.Structure;
 using Game.Entity;
 using Game.Spell;
 using Game.Stats;
@@ -11,38 +11,20 @@ using System.Threading.Tasks;
 
 namespace Game.ActionEffect
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class AddStatsEffect : AbstractActionEffect<AddStatsEffect>
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="item"></param>
-        /// <param name="effect"></param>
-        /// <param name="targetId"></param>
-        /// <param name="targetCell"></param>
-        /// <returns></returns>
         public override bool ProcessItem(CharacterEntity character, ItemDAO item, GenericEffect effect, long targetId, int targetCell)
         {
             return Process(character, new Dictionary<string, string>() { { "statsId", effect.Id.ToString() }, { "value", effect.RandomJet.ToString() } });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="parameters"></param>
-        /// <returns></returns>
         public override bool Process(CharacterEntity character, Dictionary<string, string> parameters)
         {
             var addEffect = EffectEnum.None;
             var effectType = (EffectEnum)int.Parse(parameters["statsId"]);
             var value = int.Parse(parameters["value"]);
 
-            switch(effectType)
+            switch (effectType)
             {
                 case EffectEnum.AddVitality:
                 case EffectEnum.AddCaractVitality:
@@ -62,7 +44,7 @@ namespace Game.ActionEffect
                     character.DatabaseRecord.Intelligence += value;
                     break;
 
-                case  EffectEnum.AddStrength:
+                case EffectEnum.AddStrength:
                 case EffectEnum.AddCaractStrength:
                     addEffect = EffectEnum.AddStrength;
                     character.DatabaseRecord.Strength += value;

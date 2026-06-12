@@ -1,4 +1,4 @@
-﻿using Game.Entity;
+using Game.Entity;
 using Game.Job;
 using Game.Map;
 using System;
@@ -9,42 +9,22 @@ using System.Threading.Tasks;
 
 namespace Game.Interactive.Type
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class CraftPlan : InteractiveObject
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public const int FRAME_STOP_CRAFT = 1;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public const int FRAME_CRAFTING = 2;
 
-        /// <summary>
-        /// 
-        /// </summary>
         private int m_craftersCount;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public CraftPlan(MapInstance map, int cellId)
-            : base(map, cellId)
+    : base(map, cellId)
         {
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="skill"></param>
         public override void UseWithSkill(CharacterEntity character, JobSkill skill)
         {
-            switch(skill.Id)
+            switch (skill.Id)
             {
                 case SkillIdEnum.SKILL_SCIER:
                 case SkillIdEnum.SKILL_COUDRE_UN_CHAPEAU:
@@ -77,16 +57,27 @@ namespace Game.Interactive.Type
                 case SkillIdEnum.SKILL_BRICOLER:
                 case SkillIdEnum.SKILL_PREPARER:
                 case SkillIdEnum.SKILL_VIDER_POISSON:
+
+                case SkillIdEnum.SKILL_REFORGER_UNE_EPEE:
+                case SkillIdEnum.SKILL_REFORGER_UNE_DAGUE:
+                case SkillIdEnum.SKILL_REFORGER_UN_MARTEAU:
+                case SkillIdEnum.SKILL_REFORGER_UNE_PELLE:
+                case SkillIdEnum.SKILL_REFORGER_UNE_HACHE:
+                case SkillIdEnum.SKILL_RESCULPTER_UN_ARC:
+                case SkillIdEnum.SKILL_RESCULPTER_UNE_BAGUETTE:
+                case SkillIdEnum.SKILL_RESCULPTER_UN_BATON:
+                case SkillIdEnum.SKILL_AMELIORER_DES_BOTTES:
+                case SkillIdEnum.SKILL_AMELIORER_UNE_CEINTURE:
+                case SkillIdEnum.SKILL_AMELIORER_UN_ANNEAU:
+                case SkillIdEnum.SKILL_AMELIORER_UNE_AMULETTE:
+                case SkillIdEnum.SKILL_AMELIORER_UN_CHAPEAU:
+                case SkillIdEnum.SKILL_AMELIORER_UNE_CAPE:
+                case SkillIdEnum.SKILL_AMELIORER_UN_SAC:
                     Craft(character, skill);
                     break;
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="skill"></param>
         private void Craft(CharacterEntity character, JobSkill skill)
         {
             character.CraftStart(this, skill);
@@ -96,9 +87,6 @@ namespace Game.Interactive.Type
             UpdateFrame(FRAME_CRAFTING, FRAME_CRAFTING, true);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void StopCraft()
         {
             m_craftersCount--;

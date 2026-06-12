@@ -1,4 +1,4 @@
-﻿using Game.Entity;
+using Game.Entity;
 using Game.Job;
 using Game.Manager;
 using Game.Map;
@@ -6,27 +6,15 @@ using Game.Network;
 
 namespace Game.Interactive.Type
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class Waypoint : InteractiveObject
     {
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="cellId"></param>
         public Waypoint(MapInstance map, int cellId)
-            : base(map, cellId)
+    : base(map, cellId)
         {
             WaypointManager.Instance.AddWaypoint(Map.Id, this);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="skill"></param>
         public override void UseWithSkill(CharacterEntity character, JobSkill skill)
         {
             if (character.AddWaypoint(Map.Id))
@@ -46,10 +34,6 @@ namespace Game.Interactive.Type
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
         public void Save(CharacterEntity character)
         {
             character.SavedMapId = Map.Id;
@@ -57,10 +41,6 @@ namespace Game.Interactive.Type
             character.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, InformationEnum.INFO_WAYPOINT_SAVED));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
         public void Use(CharacterEntity character)
         {
             character.WaypointStart(this);

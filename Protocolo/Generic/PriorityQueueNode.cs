@@ -34,7 +34,7 @@ namespace Protocolo.Framework.Generic
                 SiftDown(i);
         }
 
-        // Indexed access into the underlying heap array — same semantics as original base[index].
+
         public T this[int index]
         {
             get => _heap[index];

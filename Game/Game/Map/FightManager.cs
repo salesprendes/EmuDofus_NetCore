@@ -1,4 +1,4 @@
-﻿using Game.Action;
+using Game.Action;
 using Game.Condition;
 using Game.Database.Repository;
 using Game.Database.Structure;
@@ -13,31 +13,19 @@ namespace Game.Map
 {
     public sealed class FightManager : MessageDispatcher
     {
-        /// <summary>
-        /// 
-        /// </summary>
         private readonly Dictionary<long, AbstractFight> m_fightList;
         private readonly List<FightActionDAO> m_fightActions;
         private readonly MapInstance m_map;
         private long m_fightId = 1;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long FightCount
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public IEnumerable<AbstractFight> Fights => m_fightList.Values;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public FightManager(MapInstance map)
         {
             m_map = map;
@@ -51,35 +39,18 @@ namespace Game.Map
         public bool CanStartFight(CharacterEntity character) => m_map.FightTeam0Cells.Count > 0 && m_map.FightTeam1Cells.Count > 0;
 
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="map"></param>
-        /// <param name="attacker"></param>
-        /// <param name="defender"></param>
         public void StartChallenge(CharacterEntity attacker, CharacterEntity defender)
         {
             if (CanStartFight(attacker))
                 Add(new ChallengerFight(m_map, m_fightId++, attacker, defender));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="aggressor"></param>
-        /// <param name="victim"></param>
         public void StartAggression(CharacterEntity aggressor, CharacterEntity victim)
         {
             if (CanStartFight(aggressor))
                 Add(new AlignmentFight(m_map, m_fightId++, aggressor, victim));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="monsters"></param>
-        /// <param name="victim"></param>
-        /// <returns></returns>
         public bool StartAggression(MonsterGroupEntity monsters, CharacterEntity victim)
         {
             if (CanStartFight(victim))
@@ -174,10 +145,6 @@ namespace Game.Map
             AddUpdatable(fight);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fight"></param>
         public void Remove(AbstractFight fight)
         {
             FightCount--;

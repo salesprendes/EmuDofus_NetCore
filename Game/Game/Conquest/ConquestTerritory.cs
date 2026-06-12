@@ -40,7 +40,7 @@ namespace Game.Conquest
         public bool IsNeutral => m_record.AlignmentId <= 0;
         public bool IsPersisted => m_isPersisted;
 
-        // persisted=false: temporary neutral territory created for a fight; persisted to DB on capture.
+
         public ConquestTerritory(ConquestTerritoryDAO record, bool persisted = true)
         {
             m_record = record;
@@ -66,9 +66,7 @@ namespace Game.Conquest
         public void SetFight(AbstractFight fight)
         {
             m_currentFight = fight;
-            m_record.State = fight != null
-                ? (int)ConquestTerritoryStateEnum.STATE_UNDER_ATTACK
-                : (int)ConquestTerritoryStateEnum.STATE_NORMAL;
+            m_record.State = fight != null ? (int)ConquestTerritoryStateEnum.STATE_UNDER_ATTACK : (int)ConquestTerritoryStateEnum.STATE_NORMAL;
         }
 
         public void SetVulnerable()

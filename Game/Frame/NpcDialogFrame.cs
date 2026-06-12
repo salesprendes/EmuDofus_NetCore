@@ -1,4 +1,4 @@
-﻿using Protocolo.Framework.Network;
+using Protocolo.Framework.Network;
 using Game.Action;
 using Game.Entity;
 using Game.Network;
@@ -10,16 +10,8 @@ using System.Threading.Tasks;
 
 namespace Game.Frame
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class NpcDialogFrame : AbstractNetworkFrame<NpcDialogFrame, CharacterEntity, string>
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
         public override Action<CharacterEntity, string> GetHandler(string message)
         {
             if (message.Length < 2)
@@ -45,11 +37,6 @@ namespace Game.Frame
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         public void DialogReply(CharacterEntity character, string message)
         {
             var dialogData = message.AsSpan(2);
@@ -69,23 +56,12 @@ namespace Game.Frame
                 return;
             }
 
-            character.AddMessage(() =>
-                {
-                    ((GameNpcDialogAction)character.CurrentAction).Dialog.ProcessResponse(responseId);
-                });
+            character.AddMessage(() => { ((GameNpcDialogAction)character.CurrentAction).Dialog.ProcessResponse(responseId); });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         public void DialogLeave(CharacterEntity character, string message)
         {
-            character.AddMessage(() =>
-                {
-                    character.StopAction(GameActionTypeEnum.NPC_DIALOG);
-                });
+            character.AddMessage(() => { character.StopAction(GameActionTypeEnum.NPC_DIALOG); });
         }
     }
 }

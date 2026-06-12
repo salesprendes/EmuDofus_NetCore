@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -11,10 +11,6 @@ namespace Protocolo.Framework.Database
         private readonly List<PropertyInfo> _properties;
         private readonly Type _type;
 
-        /// <summary>
-        /// Creates default type map
-        /// </summary>
-        /// <param name="type">Entity type</param>
         public DefaultTypeMap(Type type)
         {
             if (type == null)
@@ -36,10 +32,7 @@ namespace Protocolo.Framework.Database
 
         internal static List<PropertyInfo> GetSettableProps(Type t)
         {
-            return t
-                  .GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                  .Where(p => GetPropertySetter(p, t) != null)
-                  .ToList();
+            return t.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).Where(p => GetPropertySetter(p, t) != null).ToList();
         }
 
         internal static List<FieldInfo> GetSettableFields(Type t)
@@ -47,12 +40,6 @@ namespace Protocolo.Framework.Database
             return t.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).ToList();
         }
 
-        /// <summary>
-        /// Finds best constructor
-        /// </summary>
-        /// <param name="names">DataReader column names</param>
-        /// <param name="types">DataReader column types</param>
-        /// <returns>Matching constructor or default one</returns>
         public ConstructorInfo FindConstructor(string[] names, Type[] types)
         {
             var constructors = _type.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
@@ -100,12 +87,6 @@ namespace Protocolo.Framework.Database
             return null;
         }
 
-        /// <summary>
-        /// Gets mapping for constructor parameter
-        /// </summary>
-        /// <param name="constructor">Constructor to resolve</param>
-        /// <param name="columnName">DataReader column name</param>
-        /// <returns>Mapping implementation</returns>
         public SqlMapper.IMemberMap GetConstructorParameter(ConstructorInfo constructor, string columnName)
         {
             var parameters = constructor.GetParameters();
@@ -113,11 +94,6 @@ namespace Protocolo.Framework.Database
             return new SimpleMemberMap(columnName, parameters.FirstOrDefault(p => string.Equals(p.Name, columnName, StringComparison.OrdinalIgnoreCase)));
         }
 
-        /// <summary>
-        /// Gets member mapping for column
-        /// </summary>
-        /// <param name="columnName">DataReader column name</param>
-        /// <returns>Mapping implementation</returns>
         public SqlMapper.IMemberMap GetMember(string columnName)
         {
             var property = _properties.FirstOrDefault(p => string.Equals(p.Name, columnName, StringComparison.Ordinal))
@@ -140,7 +116,4 @@ namespace Protocolo.Framework.Database
         }
     }
 
-    /// <summary>
-    /// Implements custom property mapping by user provided criteria (usually presence of some custom attribute with column to member mapping)
-    /// </summary>
 }

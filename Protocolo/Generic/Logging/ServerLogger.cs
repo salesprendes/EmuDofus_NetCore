@@ -9,18 +9,10 @@ namespace Protocolo.Framework.Generic.Logging
     public sealed class ServerLogger : ILogger
     {
         private static readonly string[] LevelNames = { "DEBUG", "INFO ", "WARN ", "ERROR", "FATAL", "OFF" };
-        private static readonly ConsoleColor[] LevelColors =
-        {
-            ConsoleColor.DarkGray,
-            ConsoleColor.White,
-            ConsoleColor.Yellow,
-            ConsoleColor.Red,
-            ConsoleColor.DarkRed,
-            ConsoleColor.White
-        };
+        private static readonly ConsoleColor[] LevelColors = { ConsoleColor.DarkGray, ConsoleColor.White, ConsoleColor.Yellow, ConsoleColor.Red, ConsoleColor.DarkRed, ConsoleColor.White };
 
         private static volatile LogOptions _options = LogOptions.Load();
-        private static readonly object _writerLock = new object();
+        private static readonly object _writerLock = new object ();
         private static readonly Channel<LogEntry> _channel = Channel.CreateBounded<LogEntry>(new BoundedChannelOptions(_options.QueueCapacity) { SingleReader = true, SingleWriter = false, AllowSynchronousContinuations = false, FullMode = BoundedChannelFullMode.Wait });
         private static readonly Thread _writerThread;
         private readonly string _name;
@@ -34,11 +26,7 @@ namespace Protocolo.Framework.Generic.Logging
         static ServerLogger()
         {
             _lastFlushTicks = DateTime.UtcNow.Ticks;
-            _writerThread = new Thread(DrainQueue)
-            {
-                IsBackground = true,
-                Name = "Logger-Writer"
-            };
+            _writerThread = new Thread(DrainQueue) { IsBackground = true, Name = "Logger-Writer" };
             _writerThread.Start();
 
             AppDomain.CurrentDomain.ProcessExit += static (_, _) => Shutdown();
@@ -162,10 +150,7 @@ namespace Protocolo.Framework.Generic.Logging
                 _fileWriter?.Flush();
                 _fileWriter?.Dispose();
                 Directory.CreateDirectory(options.LogDirectory);
-                _fileWriter = new StreamWriter(Path.Combine(options.LogDirectory, date + ".log"), append: true, Encoding.UTF8, 64 * 1024)
-                {
-                    AutoFlush = false
-                };
+                _fileWriter = new StreamWriter(Path.Combine(options.LogDirectory, date + ".log"), append: true, Encoding.UTF8, 64 * 1024) { AutoFlush = false };
                 _currentDate = date;
             }
 
@@ -186,10 +171,7 @@ namespace Protocolo.Framework.Generic.Logging
             var options = _options;
             var resolvedMinimumLevel = LogOptions.ParseLevel(minimumLevel, options.MinimumLevel);
 
-            _options = options.WithLevels(
-                resolvedMinimumLevel,
-                LogOptions.ParseLevel(consoleLevel, resolvedMinimumLevel),
-                LogOptions.ParseLevel(fileLevel, resolvedMinimumLevel));
+            _options = options.WithLevels(resolvedMinimumLevel, LogOptions.ParseLevel(consoleLevel, resolvedMinimumLevel), LogOptions.ParseLevel(fileLevel, resolvedMinimumLevel));
         }
 
         public static void Shutdown()
@@ -254,16 +236,7 @@ namespace Protocolo.Framework.Generic.Logging
 
             public LogOptions WithLevels(LogLevel minimumLevel, LogLevel consoleLevel, LogLevel fileLevel)
             {
-                return new LogOptions(
-                    minimumLevel,
-                    consoleLevel,
-                    fileLevel,
-                    ConsoleEnabled,
-                    FileEnabled,
-                    LogDirectory,
-                    TimestampFormat,
-                    QueueCapacity,
-                    FlushIntervalTicks);
+                return new LogOptions(minimumLevel, consoleLevel, fileLevel, ConsoleEnabled, FileEnabled, LogDirectory, TimestampFormat, QueueCapacity, FlushIntervalTicks);
             }
 
             public static LogOptions Load()

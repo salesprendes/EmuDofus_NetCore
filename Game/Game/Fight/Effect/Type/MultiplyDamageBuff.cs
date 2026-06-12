@@ -1,10 +1,7 @@
-﻿using System;
+using System;
 
 namespace Game.Fight.Effect.Type
 {
-    /// <summary>
-    /// Multiplies the direct damage of the owner's next attacks for the buff duration.
-    /// </summary>
     public sealed class MultiplyDamageBuff : AbstractSpellBuff
     {
         public MultiplyDamageBuff(CastInfos castInfos, AbstractFighter target)

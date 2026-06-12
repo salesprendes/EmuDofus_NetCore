@@ -11,7 +11,7 @@
  Target Server Version : 80403 (8.4.3)
  File Encoding         : 65001
 
- Date: 10/06/2026 23:49:22
+ Date: 12/06/2026 20:25:18
 */
 
 SET NAMES utf8mb4;
@@ -40,7 +40,7 @@ CREATE TABLE `account`  (
 -- ----------------------------
 -- Records of account
 -- ----------------------------
-INSERT INTO `account` VALUES (1, 'test', 'test', 'test', 1000, '2026-05-08 19:30:10', '2026-06-10 23:23:10', '127.0.0.1', '2026-05-08 20:30:13', 0, 'test', 'test');
+INSERT INTO `account` VALUES (1, 'test', 'test', 'test', 1000, '2026-05-08 19:30:10', '2026-06-12 20:13:18', '127.0.0.1', '2026-05-08 20:30:13', 0, 'test', 'test');
 INSERT INTO `account` VALUES (2, 'test2', 'test', 'test', 1000, '2000-01-01 00:00:00', '2026-06-09 22:44:53', '127.0.0.1', '2000-01-01 00:00:00', 0, '', '');
 
 -- ----------------------------
@@ -93,6 +93,7 @@ CREATE TABLE `characterinstance`  (
   `AlignmentDishonour` int NOT NULL DEFAULT 0,
   `AlignmentEnabled` bit(1) NOT NULL DEFAULT b'0',
   `Zaaps` text CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
+  `Jobs` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT '',
   `DisconnectedAt` datetime NOT NULL DEFAULT '2000-01-01 00:00:00',
   PRIMARY KEY (`Id`) USING BTREE,
   INDEX `IX_characterinstance_account`(`AccountId` ASC, `ServerId` ASC) USING BTREE,

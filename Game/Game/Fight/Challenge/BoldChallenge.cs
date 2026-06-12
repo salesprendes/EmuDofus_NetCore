@@ -1,4 +1,4 @@
-﻿using Game.Map;
+using Game.Map;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,16 +7,10 @@ using System.Threading.Tasks;
 
 namespace Game.Fight.Challenge
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class BoldChallenge : AbstractChallenge
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public BoldChallenge()
-            : base(ChallengeTypeEnum.BOLD)
+    : base(ChallengeTypeEnum.BOLD)
         {
             BasicDropBonus = 25;
             BasicXpBonus = 25;
@@ -26,10 +20,6 @@ namespace Game.Fight.Challenge
 
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
         public override void EndTurn(AbstractFighter fighter)
         {
             var nearestEnnemis = Pathfinding.GetEnnemiesNear(fighter.Fight, fighter.Team, fighter.Cell.Id);

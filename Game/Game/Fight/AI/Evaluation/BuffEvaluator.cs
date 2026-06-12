@@ -37,32 +37,27 @@ namespace Game.Fight.AI.Evaluation
                     if (ally.MaxLife > 0)
                         score += (int)(60 * (1.0 - (double)ally.Life / ally.MaxLife));
 
-                    // Penalizar el buff si ya tiene estados relacionados activos
-                    // (aunque no exactamente el mismo — reducir ligeramente el score)
+
+
                     int activeStatePenalty = CountRelatedActiveStates(spell, ally) * 25;
                     score = System.Math.Max(1, score - activeStatePenalty);
 
                     yield return new AIDecision
                     {
-                        Type     = AIDecisionType.Buff,
+                        Type = AIDecisionType.Buff,
                         Priority = AIDecisionPriority.Normal,
-                        Score    = score,
-                        SpellId  = spell.SpellId,
+                        Score = score,
+                        SpellId = spell.SpellId,
                         TargetId = ally.Id,
-                        CellId   = (short)ally.Cell.Id,
-                        Reason   = "Buff útil sobre aliado"
+                        CellId = (short)ally.Cell.Id,
+                        Reason = "Buff útil sobre aliado"
                     };
                 }
             }
         }
 
-        // ─────────────────────────────────────────────────────────────────────────────
 
-        /// <summary>
-        /// Devuelve true si el hechizo aplica un estado (EffectEnum.AddState)
-        /// que el objetivo ya tiene activo en su StateManager.
-        /// Esto evita desperdiciar PA relanzando buffs de estado duplicados.
-        /// </summary>
+
         private static bool WouldRecastActiveState(SpellLevel spell, AbstractFighter target)
         {
             if (spell?.Effects == null || target?.StateManager == null)
@@ -73,7 +68,7 @@ namespace Game.Fight.AI.Evaluation
                 if (effect == null)
                     continue;
 
-                // EffectEnum.AddState = 950; el stateId va en Value3
+
                 if (effect.TypeEnum == EffectEnum.AddState && effect.Value3 > 0)
                 {
                     if (target.StateManager.HasState((FighterStateEnum)effect.Value3))
@@ -84,10 +79,6 @@ namespace Game.Fight.AI.Evaluation
             return false;
         }
 
-        /// <summary>
-        /// Cuenta cuántos estados aplicados por el hechizo ya están activos en el objetivo.
-        /// Usado para penalizar el score cuando el buff es parcialmente redundante.
-        /// </summary>
         private static int CountRelatedActiveStates(SpellLevel spell, AbstractFighter target)
         {
             if (spell?.Effects == null || target?.StateManager == null)

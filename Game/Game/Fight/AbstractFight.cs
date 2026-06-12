@@ -1,4 +1,4 @@
-﻿using Game.Action;
+using Game.Action;
 using Game.Database.Structure;
 using Game.Entity;
 using Game.Fight.AI;
@@ -18,9 +18,6 @@ using System.Text;
 
 namespace Game.Fight
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public enum FightTypeEnum
     {
         TYPE_CHALLENGE = 0,
@@ -32,9 +29,6 @@ namespace Game.Fight
         TYPE_PVMU = 6,
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public enum FightStateEnum
     {
         STATE_PLACEMENT = 2,
@@ -42,9 +36,6 @@ namespace Game.Fight
         STATE_ENDED = 4,
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public enum FightLoopStateEnum
     {
         STATE_INIT,
@@ -59,9 +50,6 @@ namespace Game.Fight
         STATE_ENDED,
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public enum FightEndStateEnum
     {
         STATE_END_INITIALIZE,
@@ -71,9 +59,6 @@ namespace Game.Fight
         STATE_ENDED,
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public enum FightActionResultEnum
     {
         RESULT_NOTHING,
@@ -83,9 +68,6 @@ namespace Game.Fight
         RESULT_END,
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public enum FightSpellLaunchResultEnum
     {
         RESULT_NO_AP,
@@ -96,9 +78,6 @@ namespace Game.Fight
         RESULT_ERROR,
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public enum FightEndTypeEnum
     {
         END_LOSER = 0,
@@ -106,49 +85,26 @@ namespace Game.Fight
         END_TAXCOLLECTOR = 5,
     }
 
-    /// <summary>
-    /// /
-    /// </summary>
     public sealed class FightEndResult : IDisposable
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public long FightId
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool CanWinHonor
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public string Message => m_message.ToString();
 
-        /// <summary>
-        /// 
-        /// </summary>
         private StringBuilder m_message;
 
-        /// <summary>
-        /// 
-        /// </summary>
         private HashSet<long> m_resultFighterIds;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fightId"></param>
-        /// <param name="CanWinHonor"></param>
         public FightEndResult(long fightId, bool canWinHonor)
         {
             CanWinHonor = canWinHonor;
@@ -160,39 +116,21 @@ namespace Game.Fight
             m_message.Append(CanWinHonor ? '1' : '0');
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
-        /// <returns></returns>
         public bool HasResult(AbstractFighter fighter)
         {
             return fighter != null && m_resultFighterIds.Contains(fighter.Id);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
-        /// <param name="win"></param>
-        /// <param name="leave"></param>
-        /// <param name="kamas"></param>
-        /// <param name="exp"></param>
-        /// <param name="honour"></param>
-        /// <param name="dishonour"></param>
-        /// <param name="guildxp"></param>
-        /// <param name="mountxp"></param>
-        /// <param name="items"></param>
         public void AddResult(AbstractFighter fighter,
-            FightEndTypeEnum type = FightEndTypeEnum.END_LOSER,
-            bool leave = false,
-            long kamas = 0,
-            long exp = 0,
-            long honour = 0,
-            long dishonour = 0,
-            long guildxp = 0,
-            long mountxp = 0,
-            Dictionary<int, int> items = null)
+    FightEndTypeEnum type = FightEndTypeEnum.END_LOSER,
+    bool leave = false,
+    long kamas = 0,
+    long exp = 0,
+    long honour = 0,
+    long dishonour = 0,
+    long guildxp = 0,
+    long mountxp = 0,
+    Dictionary<int, int> items = null)
         {
             if (fighter == null)
             {
@@ -305,9 +243,6 @@ namespace Game.Fight
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void Dispose()
         {
             m_message.Clear();
@@ -317,57 +252,38 @@ namespace Game.Fight
         }
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class FightCell : IDisposable
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public int Id
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool Walkable
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool LineOfSight
         {
             get;
             private set;
         }
 
-        /// <summary>Ground elevation level (0-15) copied from MapCell. Used for height-difference movement checks.</summary>
         public int GroundLevel
         {
             get;
             private set;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public PriorityQueue<IFightObstacle> FightObjects
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool CanWalk
         {
             get
@@ -376,9 +292,6 @@ namespace Game.Fight
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool CanPutObject
         {
             get
@@ -387,12 +300,6 @@ namespace Game.Fight
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="walkable"></param>
-        /// <param name="los"></param>
         public FightCell(int id, bool walkable, bool los, int groundLevel = 7)
         {
             Id = id;
@@ -402,21 +309,11 @@ namespace Game.Fight
             FightObjects = new PriorityQueue<IFightObstacle>();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
         public bool HasObject(FightObstacleTypeEnum type)
         {
             return FightObjects.Any(obj => obj.ObstacleType == type);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fightObject"></param>
-        /// <returns></returns>
         public FightActionResultEnum AddObject(IFightObstacle fightObject)
         {
             FightObjects.Add(fightObject);
@@ -445,11 +342,6 @@ namespace Game.Fight
             return FightActionResultEnum.RESULT_NOTHING;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="obstacle"></param>
-        /// <returns></returns>
         public FightActionResultEnum RemoveObject(IFightObstacle obstacle)
         {
             FightObjects?.Remove(obstacle);
@@ -457,11 +349,6 @@ namespace Game.Fight
             return FightActionResultEnum.RESULT_NOTHING;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
-        /// <returns></returns>
         public FightActionResultEnum BeginTurn(AbstractFighter fighter)
         {
             for (int i = FightObjects.Count - 1; i > -1; i--)
@@ -480,9 +367,6 @@ namespace Game.Fight
             return FightActionResultEnum.RESULT_NOTHING;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void Dispose()
         {
             FightObjects.Clear();
@@ -492,163 +376,106 @@ namespace Game.Fight
 
     public abstract class AbstractFight : MessageDispatcher, IMovementHandler, IDisposable
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public FightTypeEnum Type
         {
             get;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public FieldTypeEnum FieldType => FieldTypeEnum.TYPE_FIGHT;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool CancelButton
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public FightStateEnum State
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public FightLoopStateEnum LoopState
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public FightLoopStateEnum NextLoopState
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public FightEndStateEnum LoopEndState
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long Id
         {
             get;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public MapInstance Map
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public AbstractFighter CurrentFighter
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public AbstractFighter CurrentProcessingFighter
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public FightTeam Team0
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public FightTeam Team1
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public Dictionary<int, FightCell> Cells
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public FightTurnProcessor TurnProcessor
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public SpectatorTeam SpectatorTeam
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long TurnTime
         {
             get;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long StartTime
         {
             get;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long TurnTimeLeft
         {
             get
@@ -662,14 +489,8 @@ namespace Game.Fight
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool LoopTimedout => NextLoopTimeout <= UpdateTime;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long CurrentLoopTimeout
         {
             get
@@ -683,9 +504,6 @@ namespace Game.Fight
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long NextLoopTimeout
         {
             get
@@ -698,14 +516,8 @@ namespace Game.Fight
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool TurnTimedout => NextTurnTimeout <= UpdateTime;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long NextTurnTimeout
         {
             get
@@ -718,14 +530,8 @@ namespace Game.Fight
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool SubActionTimedout => NextSubActionTimeout <= UpdateTime;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long CurrentSubActionTimeout
         {
             get
@@ -739,9 +545,6 @@ namespace Game.Fight
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long NextSubActionTimeout
         {
             get
@@ -754,9 +557,6 @@ namespace Game.Fight
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool ActionTimedout
         {
             get
@@ -786,16 +586,9 @@ namespace Game.Fight
 
         public string FightPlaces => Team0.Places + "|" + Team1.Places;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        private bool IsAllReady =>
-            Fighters.OfType<CharacterEntity>().All(fighter => fighter.TurnReady || fighter.IsFighterDead);
+        private bool IsAllReady => Fighters.OfType<CharacterEntity>().All(fighter => fighter.TurnReady || fighter.IsFighterDead);
 
 
-        /// <summary>
-        /// 
-        /// </summary>
         private bool IsAllReadyToStart
         {
             get
@@ -819,45 +612,24 @@ namespace Game.Fight
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public IEnumerable<AbstractFighter> Fighters =>
-            Team0.Fighters.Concat(Team1.Fighters);
+        public IEnumerable<AbstractFighter> Fighters => Team0.Fighters.Concat(Team1.Fighters);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public IEnumerable<AbstractFighter> AliveFighters =>
-            Fighters.Where(fighter => !fighter.IsFighterDead);
+        public IEnumerable<AbstractFighter> AliveFighters => Fighters.Where(fighter => !fighter.IsFighterDead);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public AbstractGameFightAction CurrentAction =>
-            CurrentFighter?.CurrentAction as AbstractGameFightAction;
+        public AbstractGameFightAction CurrentAction => CurrentFighter?.CurrentAction as AbstractGameFightAction;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public Func<FightActionResultEnum> CurrentSubAction
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public FightEndResult Result
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public IEnumerable<int> Obstacles
         {
             get
@@ -866,9 +638,6 @@ namespace Game.Fight
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long NextFighterId
         {
             get
@@ -877,9 +646,6 @@ namespace Game.Fight
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool IsNeutralAgression
         {
             get;
@@ -893,9 +659,6 @@ namespace Game.Fight
         public FightTeam WinnerTeam { get; private set; }
         public FightTeam LoserTeam { get; private set; }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private long m_loopTimeout, m_turnTimeout, m_subActionTimeout, m_synchronizationTimeout;
         private Dictionary<AbstractFighter, List<AbstractActivableObject>> m_activableObjects;
         private LinkedList<CastInfos> m_processingTargets;
@@ -954,9 +717,6 @@ namespace Game.Fight
             AddHandler(Team1.Dispatch);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void Start()
         {
             AddMessage(() =>
@@ -970,21 +730,12 @@ namespace Game.Fight
                 });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="action"></param>
-        /// <param name="timeout"></param>
         public void SetSubAction(Func<FightActionResultEnum> action, int timeout)
         {
             CurrentSubAction = action;
             NextSubActionTimeout = timeout;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="infos"></param>
         public void AddProcessingTarget(CastInfos infos)
         {
             if (infos.Target == null)
@@ -1009,11 +760,6 @@ namespace Game.Fight
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="cellId"></param>
-        /// <returns></returns>
         public FightCell GetCell(int cellId)
         {
             if (Cells.ContainsKey(cellId))
@@ -1024,10 +770,6 @@ namespace Game.Fight
             return null;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public void KickSpectators()
         {
             AddMessage(() =>
@@ -1044,10 +786,6 @@ namespace Game.Fight
             });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
         public void TrySpectate(CharacterEntity character)
         {
             AddMessage(() =>
@@ -1077,11 +815,6 @@ namespace Game.Fight
                     });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="teamId"></param>
         public void TryJoin(CharacterEntity character, long teamId)
         {
             AddMessage(() =>
@@ -1118,11 +851,6 @@ namespace Game.Fight
                 });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
-        /// <param name="team"></param>
         public void JoinFight(AbstractFighter fighter, FightTeam team)
         {
             if (team.FreePlace == null)
@@ -1147,12 +875,6 @@ namespace Game.Fight
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
-        /// <param name="team"></param>
-        /// <param name="cellId"></param>
         public FightActionResultEnum SummonFighter(AbstractFighter fighter, FightTeam team, int cellId)
         {
             fighter.JoinFight(this, team);
@@ -1179,7 +901,7 @@ namespace Game.Fight
             switch (State)
             {
                 case FightStateEnum.STATE_PLACEMENT:
-                    // implicit turnready after start fighting
+
                     break;
 
                 case FightStateEnum.STATE_FIGHTING:
@@ -1192,10 +914,6 @@ namespace Game.Fight
             return result;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
         public void FighterDisconnect(AbstractFighter fighter)
         {
             AddMessage(() =>
@@ -1227,13 +945,6 @@ namespace Game.Fight
             });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
-        /// <param name="killerId"></param>
-        /// <param name="force"></param>
-        /// <returns></returns>
         public FightActionResultEnum TryKillFighter(AbstractFighter fighter, AbstractFighter killer, bool force = false, bool quit = false)
         {
             if (LoopState == FightLoopStateEnum.STATE_ENDED ||
@@ -1269,8 +980,8 @@ namespace Game.Fight
                 fighter.OnDeath(killer);
                 killer.OnKill(fighter);
 
-                // A fighter leaving via flee/quit is not a combat death: it must not flip the
-                // team's challenges to "failed". Only genuine kills resolve challenges.
+
+
                 if (!quit)
                 {
                     Team0.CheckDeath(fighter);
@@ -1290,7 +1001,7 @@ namespace Game.Fight
 
                 if (State != FightStateEnum.STATE_PLACEMENT)
                 {
-                    NextLoopTimeout = CurrentLoopTimeout + 1300; // time delayed because of the death
+                    NextLoopTimeout = CurrentLoopTimeout + 1300;
                 }
 
                 if (WillFinish())
@@ -1315,25 +1026,11 @@ namespace Game.Fight
         }
 
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
         public void FighterReady(AbstractFighter fighter)
         {
-            AddMessage(() =>
-            {
-                fighter.TurnReady = fighter.TurnReady == false;
-
-                Dispatch(WorldMessage.FIGHT_READY(fighter.Id, fighter.TurnReady));
-            });
+            AddMessage(() => { fighter.TurnReady = fighter.TurnReady == false; Dispatch(WorldMessage.FIGHT_READY(fighter.Id, fighter.TurnReady)); });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
-        /// <param name="cellId"></param>
         public void FighterPlacementChange(AbstractFighter fighter, int cellId)
         {
             AddMessage(() =>
@@ -1356,9 +1053,6 @@ namespace Game.Fight
             });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private void SetAllUnReady()
         {
             foreach (var fighter in Fighters)
@@ -1367,9 +1061,6 @@ namespace Game.Fight
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private void StartFight()
         {
             AddMessage(() =>
@@ -1398,9 +1089,6 @@ namespace Game.Fight
             });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private void BeginTurn()
         {
             AddMessage(() =>
@@ -1454,35 +1142,16 @@ namespace Game.Fight
                 });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private void MiddleTurn()
         {
-            AddMessage(() =>
-                {
-                    if (!HasLeft(CurrentFighter))
-                    {
-                        CurrentFighter.MiddleTurn();
-                    }
-
-                    base.Dispatch(WorldMessage.FIGHT_TURN_MIDDLE(Fighters));
-                });
+            AddMessage(() => { if (!HasLeft(CurrentFighter)) { CurrentFighter.MiddleTurn(); } base.Dispatch(WorldMessage.FIGHT_TURN_MIDDLE(Fighters)); });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
-        /// <returns></returns>
         public bool HasLeft(AbstractFighter fighter)
         {
             return !Fighters.Contains(fighter);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private void EndTurn()
         {
             AddMessage(() =>
@@ -1532,10 +1201,6 @@ namespace Game.Fight
             });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public bool WillFinish()
         {
             if (LoopState == FightLoopStateEnum.STATE_WAIT_END)
@@ -1564,20 +1229,11 @@ namespace Game.Fight
             return false;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="cellId"></param>
-        /// <returns></returns>
         public AbstractFighter GetFighterOnCell(int cellId)
         {
             return AliveFighters.FirstOrDefault(fighter => fighter.Cell != null && fighter.Cell.Id == cellId);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public FightTeam GetWinners()
         {
             if (!Team0.HasSomeoneAlive)
@@ -1593,10 +1249,6 @@ namespace Game.Fight
             return null;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="updateDelta"></param>
         public override void Update(long updateDelta)
         {
             try
@@ -1629,7 +1281,7 @@ namespace Game.Fight
                         break;
 
                     case FightLoopStateEnum.STATE_WAIT_TURN:
-                        if (LoopTimedout) // death time
+                        if (LoopTimedout)
                         {
                             if (TurnTimedout || HasLeft(CurrentFighter) || CurrentFighter.TurnPass || CurrentFighter.IsFighterDead)
                             {
@@ -1744,7 +1396,7 @@ namespace Game.Fight
                                 {
                                     case FightActionResultEnum.RESULT_END:
                                         Logger.Debug("FightBase::Update el combate ha terminado tras la subaccion.");
-                                    return;
+                                        return;
 
                                     case FightActionResultEnum.RESULT_DEATH:
                                         if (CurrentFighter.IsFighterDead)
@@ -1968,12 +1620,6 @@ namespace Game.Fight
             return FightSpellLaunchResultEnum.RESULT_OK;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
-        /// <param name="cellId"></param>
-        /// <returns></returns>
         public bool CanUseWeapon(AbstractFighter fighter, ItemDAO weapon, int cellId)
         {
             if (fighter == null || weapon?.Template == null || fighter.Cell == null || fighter.Statistics == null)
@@ -2007,8 +1653,8 @@ namespace Game.Fight
                 return false;
             }
 
-            // Block only when durability IS tracked (MaxDurability > 0) and exhausted (Durability == 0).
-            // MaxDurability == 0 means the weapon has unlimited charges (no tracking).
+
+
             if (weapon.IsEthereal && weapon.MaxDurability > 0 && weapon.Durability == 0)
             {
                 Logger.Debug("Fight::CanUseWeapon el arma eterea ya no tiene durabilidad: " + fighter.Name);
@@ -2032,11 +1678,6 @@ namespace Game.Fight
             return true;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
-        /// <param name="cellId"></param>
         public void TryUseWeapon(AbstractFighter fighter, int cellId, int actionTime = 5000)
         {
             AddMessage(() =>
@@ -2225,12 +1866,6 @@ namespace Game.Fight
                 });
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="fighter"></param>
-        /// <param name="spellId"></param>
-        /// <param name="castCellId"></param>
         public void TryLaunchSpell(AbstractFighter fighter, int spellId, int castCellId, int actionTime = 5000)
         {
             if (fighter == null)
@@ -2399,7 +2034,7 @@ namespace Game.Fight
                                 {
                                     if (targetType != -1)
                                     {
-                                        // affect caster : 32
+
                                         if (((((targetType >> 5) & 1) == 1) && (fighter.Id != fighterObject.Id)))
                                         {
                                             if (!targetLists[effect].Contains(fighter))
@@ -2410,31 +2045,31 @@ namespace Game.Fight
                                             continue;
                                         }
 
-                                        // doesnt affect team mates : 1
+
                                         if (((targetType & 1) == 1) && fighter.Team == fighterObject.Team)
                                         {
                                             continue;
                                         }
 
-                                        // doesnt affect the caster : 2
+
                                         if ((((targetType >> 1) & 1) == 1) && fighter.Id == fighterObject.Id)
                                         {
                                             continue;
                                         }
 
-                                        // doesnt affect ennemies : 4
+
                                         if ((((targetType >> 2) & 1) == 1) && fighter.Team != fighterObject.Team)
                                         {
                                             continue;
                                         }
 
-                                        // only invocation : 8
+
                                         if (((((targetType >> 3) & 1) == 1) && (fighterObject.Invocator == null)))
                                         {
                                             continue;
                                         }
 
-                                        // doesnt affect invocs : 16
+
                                         if (((((targetType >> 4) & 1) == 1) && (fighterObject.Invocator != null)))
                                         {
                                             continue;
@@ -2532,9 +2167,6 @@ namespace Game.Fight
         }
 
 
-        /// <summary>
-        /// 
-        /// </summary>
         protected virtual void FightEnd()
         {
             if (State == FightStateEnum.STATE_PLACEMENT)
@@ -2579,9 +2211,6 @@ namespace Game.Fight
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         protected virtual void FightEndError()
         {
             if (State == FightStateEnum.STATE_PLACEMENT)
@@ -2605,17 +2234,11 @@ namespace Game.Fight
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private void FightEnded()
         {
             Map.FightManager.Remove(this);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override void Dispose()
         {
             foreach (var cell in Cells)
@@ -2656,12 +2279,6 @@ namespace Game.Fight
             base.Dispose();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="type"></param>
-        /// <param name="cell"></param>
-        /// <returns></returns>
         public bool HasObjectOnCell(FightObstacleTypeEnum type, int cell)
         {
             var fightCell = GetCell(cell);
@@ -2673,11 +2290,6 @@ namespace Game.Fight
             return fightCell.HasObject(type);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="cellId"></param>
-        /// <returns></returns>
         public bool CanPutObject(int cellId)
         {
             var cell = GetCell(cellId);
@@ -2689,11 +2301,6 @@ namespace Game.Fight
             return cell.CanPutObject;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="caster"></param>
-        /// <param name="obj"></param>
         public void AddActivableObject(AbstractFighter caster, AbstractActivableObject obj)
         {
             if (!m_activableObjects.ContainsKey(caster))
@@ -2704,18 +2311,8 @@ namespace Game.Fight
             m_activableObjects[caster].Add(obj);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool CanAbortMovement => false;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="cellId"></param>
-        /// <param name="path"></param>
-        /// <returns></returns>
         public void Move(AbstractEntity entity, int cellId, string path)
         {
             if (entity == null)
@@ -2764,7 +2361,7 @@ namespace Game.Fight
                     return;
                 }
 
-                // Pas assez de point de mouvement
+
                 if (movementPath.MovementLength > fighter.MP)
                 {
                     Logger.Debug("Fight::Move no tiene PM suficientes para moverse: " + entity.Name);
@@ -2863,7 +2460,7 @@ namespace Game.Fight
                 switch (State)
                 {
                     case FightStateEnum.STATE_PLACEMENT:
-                        fighter.Dispatch(WorldMessage.FIGHT_AVAILABLE_PLACEMENTS(fighter.Team.Id, FightPlaces)); // GamePlace
+                        fighter.Dispatch(WorldMessage.FIGHT_AVAILABLE_PLACEMENTS(fighter.Team.Id, FightPlaces));
                         if (fighter.IsDisconnected)
                         {
                             fighter.IsDisconnected = false;
@@ -2911,9 +2508,6 @@ namespace Game.Fight
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public virtual void OnFightStart()
         {
             foreach (var character in Fighters.OfType<CharacterEntity>())
@@ -2932,40 +2526,17 @@ namespace Game.Fight
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
         public virtual void OnCharacterJoin(CharacterEntity character, FightTeam team)
         {
         }
 
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <returns></returns>
         public abstract bool CanJoin(CharacterEntity character);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="kick"></param>
-        /// <returns></returns>
         public abstract FightActionResultEnum FightQuit(CharacterEntity character, bool kick = false);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
         public abstract void SerializeAs_FightList(StringBuilder message);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
         public abstract void SerializeAs_FightFlag(StringBuilder message);
     }
 }

@@ -3,9 +3,6 @@ using Protocolo.Framework.Database;
 
 namespace Game.Database.Structure
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public enum ZoneTypeEnum
     {
         TYPE_SUBAREA = 0,
@@ -14,9 +11,6 @@ namespace Game.Database.Structure
         TYPE_MAP = 3,
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     [Table("monsterspawn")]
     public sealed class MonsterSpawnDAO : DataAccessObject<MonsterSpawnDAO>
     {
@@ -26,9 +20,6 @@ namespace Game.Database.Structure
         private double _probability;
 
 
-        /// <summary>
-        /// 
-        /// </summary>
         [Key]
         public int ZoneType
         {
@@ -36,24 +27,14 @@ namespace Game.Database.Structure
             set => SetProperty(ref _zoneType, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        [Write(false)]
-        public ZoneTypeEnum Type => (ZoneTypeEnum)ZoneType;
+        [Write(false)] public ZoneTypeEnum Type => (ZoneTypeEnum)ZoneType;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int ZoneId
         {
             get => _zoneId;
             set => SetProperty(ref _zoneId, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int GradeId
         {
             get => _gradeId;
@@ -66,14 +47,8 @@ namespace Game.Database.Structure
             set => SetProperty(ref _probability, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private MonsterGradeDAO m_grade;
 
-        /// <summary>
-        /// 
-        /// </summary>
         [Write(false)]
         public MonsterGradeDAO Grade
         {

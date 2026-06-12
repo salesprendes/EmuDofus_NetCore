@@ -1,4 +1,4 @@
-﻿using Game.Entity;
+using Game.Entity;
 using Game.Fight.Challenge;
 using Game.Map;
 using Game.Network;
@@ -11,53 +11,38 @@ using Game.Fight.Ending;
 
 namespace Game.Fight
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class ChallengerFight : AbstractFight, IDisposable
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public CharacterEntity Attacker
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public CharacterEntity Defender
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private StringBuilder m_serializedFlag;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public ChallengerFight(MapInstance map, long id, CharacterEntity attacker, CharacterEntity defender)
-            : base(FightTypeEnum.TYPE_CHALLENGE,
-                  map, 
-                  id, 
-                  attacker.Id, 
-                  0, 
-                  attacker.CellId, 
-                  defender.Id, 
-                  0, 
-                  defender.CellId, 
-                  60000,
-                  30000, 
-                  true,
-                  false,
-                  new RegenerateLosersBehavior(),
-                  new RegenerateWinnersBehavior())
+    : base(FightTypeEnum.TYPE_CHALLENGE,
+          map,
+          id,
+          attacker.Id,
+          0,
+          attacker.CellId,
+          defender.Id,
+          0,
+          defender.CellId,
+          60000,
+          30000,
+          true,
+          false,
+          new RegenerateLosersBehavior(),
+          new RegenerateWinnersBehavior())
         {
             Attacker = attacker;
             Defender = defender;
@@ -66,22 +51,11 @@ namespace Game.Fight
             JoinFight(Defender, Team1);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <returns></returns>
         public override bool CanJoin(CharacterEntity character)
         {
             return true;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="kick"></param>
-        /// <returns></returns>
         public override FightActionResultEnum FightQuit(CharacterEntity character, bool kick = false)
         {
             if (LoopState == FightLoopStateEnum.STATE_WAIT_END || LoopState == FightLoopStateEnum.STATE_ENDED)
@@ -102,7 +76,7 @@ namespace Game.Fight
 
                         return FightActionResultEnum.RESULT_END;
                     }
-                    
+
                     character.Fight.Dispatch(WorldMessage.FIGHT_FLAG_UPDATE(OperatorEnum.OPERATOR_REMOVE, character.Team.LeaderId, character));
                     character.Fight.Dispatch(WorldMessage.GAME_MAP_INFORMATIONS(OperatorEnum.OPERATOR_REMOVE, character));
                     character.EndFight(true);
@@ -133,25 +107,17 @@ namespace Game.Fight
             return FightActionResultEnum.RESULT_NOTHING;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
         public override void SerializeAs_FightList(StringBuilder message)
         {
             message.Append(Id.ToString()).Append(';');
             message.Append(UpdateTime).Append(';');
-            message.Append("0,-1,"); 
+            message.Append("0,-1,");
             message.Append(Team0.AliveFighters.Count()).Append(';');
             message.Append("0,-1,");
             message.Append(Team1.AliveFighters.Count()).Append(';');
             message.Append('|');
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
         public override void SerializeAs_FightFlag(StringBuilder message)
         {
             if (m_serializedFlag == null)
@@ -172,14 +138,11 @@ namespace Game.Fight
             message.Append(m_serializedFlag.ToString());
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override void Dispose()
         {
             Attacker = null;
             Defender = null;
-            
+
             m_serializedFlag.Clear();
             m_serializedFlag = null;
 

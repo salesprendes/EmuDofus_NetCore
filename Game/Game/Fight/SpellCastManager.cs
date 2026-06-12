@@ -1,4 +1,4 @@
-﻿using Game.Spell;
+using Game.Spell;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,32 +7,19 @@ using System.Threading.Tasks;
 
 namespace Game.Fight
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class SpellCastManager : IDisposable
     {
         private Dictionary<int, List<SpellTarget>> m_targets = new Dictionary<int, List<SpellTarget>>();
         private Dictionary<int, SpellCooldown> m_cooldowns = new Dictionary<int, SpellCooldown>();
         private Dictionary<int, int> m_gameCasts = new Dictionary<int, int>();
 
-        /// <summary>
-        ///
-        /// </summary>
         public void Clear()
         {
             m_targets.Clear();
             m_cooldowns.Clear();
             m_gameCasts.Clear();
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="spell"></param>
-        /// <param name="spellId"></param>
-        /// <param name="targetId"></param>
-        /// <returns></returns>
+
         public bool CanLaunchSpell(SpellLevel spell, int spellId, long targetId)
         {
             if (spell.Cooldown > 0)
@@ -80,12 +67,6 @@ namespace Game.Fight
             return true;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="spell"></param>
-        /// <param name="spellId"></param>
-        /// <param name="targetId"></param>
         public void Actualize(SpellLevel spell, int spellId, long targetId)
         {
             if (spell.Cooldown > 0)
@@ -115,9 +96,6 @@ namespace Game.Fight
             m_targets[spellId].Add(new SpellTarget(targetId));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void EndTurn()
         {
             foreach (var target in m_targets.Values)
@@ -127,9 +105,6 @@ namespace Game.Fight
                 cooldown.Decrement();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void Dispose()
         {
             m_targets.Clear();
@@ -141,56 +116,33 @@ namespace Game.Fight
         }
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class SpellCooldown
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public int Cooldown
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="cooldown"></param>
         public SpellCooldown(int cooldown)
         {
             Cooldown = cooldown;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void Decrement()
         {
             Cooldown--;
         }
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class SpellTarget
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public long TargetId
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="targetId"></param>
         public SpellTarget(long targetId)
         {
             TargetId = targetId;

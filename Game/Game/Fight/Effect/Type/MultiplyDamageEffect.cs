@@ -1,8 +1,5 @@
-﻿namespace Game.Fight.Effect.Type
+namespace Game.Fight.Effect.Type
 {
-    /// <summary>
-    /// Some buffs like Roue de la Fortune are encoded as a direct damage multiplier.
-    /// </summary>
     public sealed class MultiplyDamageEffect : AbstractSpellEffect
     {
         public override FightActionResultEnum ApplyEffect(CastInfos castInfos)

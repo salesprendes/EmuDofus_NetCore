@@ -38,28 +38,14 @@ namespace Protocolo.Framework.Generic
             m_cts = new CancellationTokenSource();
             m_running = true;
             m_queueTimer.Start();
-            m_updateThread = new Thread(InternalStart)
-            {
-                IsBackground = true,
-                Name = $"TaskProcessor-{Name}"
-            };
+            m_updateThread = new Thread(InternalStart) { IsBackground = true, Name = $"TaskProcessor-{Name}"};
             m_updateThread.Start();
         }
 
-        /// <summary>
-        /// Encola el stop para que se procese después de los mensajes ya pendientes.
-        /// El CancellationToken interrumpe el TryTake bloqueante si el hilo está en espera.
-        /// </summary>
         public void Stop()
         {
             m_cts?.Cancel();
-            AddMessage(() =>
-            {
-                m_running = false;
-                m_queueTimer.Reset();
-                LastUpdate = 0;
-                Logger.Info($"TaskQueue[{Name}] detenida.");
-            });
+            AddMessage(() => { m_running = false; m_queueTimer.Reset(); LastUpdate = 0; Logger.Info($"TaskQueue[{Name}] detenida."); });
         }
 
         public void AddMessage(Action message)
@@ -71,22 +57,12 @@ namespace Protocolo.Framework.Generic
         public void AddLinkedMessages(params Action[] messages)
         {
             if (messages == null || messages.Length == 0) return;
-            AddMessage(() =>
-            {
-                messages[0]();
-                if (messages.Length > 1)
-                    AddLinkedMessages(1, messages);
-            });
+            AddMessage(() => { messages[0](); if (messages.Length > 1) AddLinkedMessages(1, messages); });
         }
 
         public void AddLinkedMessages(int index, params Action[] messages)
         {
-            AddMessage(() =>
-            {
-                messages[index]();
-                if (messages.Length > ++index)
-                    AddLinkedMessages(index, messages);
-            });
+            AddMessage(() => { messages[index](); if (messages.Length > ++index) AddLinkedMessages(index, messages); });
         }
 
         public void AddUpdatable(Updatable updatable) =>
@@ -125,7 +101,7 @@ namespace Protocolo.Framework.Generic
             var updateDelta = timeStart - LastUpdate;
             LastUpdate = timeStart;
 
-            // Timers — bucle invertido para poder hacer RemoveAt en-place sin encolar
+
             for (int i = m_timerList.Count - 1; i >= 0; i--)
             {
                 var timer = m_timerList[i];
@@ -141,7 +117,7 @@ namespace Protocolo.Framework.Generic
                 }
             }
 
-            // Updatables
+
             int updatableCount = m_updatableObjects.Count;
             for (int i = 0; i < updatableCount; i++)
             {
@@ -152,7 +128,7 @@ namespace Protocolo.Framework.Generic
                 }
             }
 
-            // Drenar todos los mensajes ya disponibles sin bloquear
+
             Action msg;
             while (m_messageQueue.TryTake(out msg))
             {
@@ -178,7 +154,7 @@ namespace Protocolo.Framework.Generic
                     }
                 }
             }
-            catch (OperationCanceledException) { /* Stop() canceló el token — salida limpia */ }
+            catch (OperationCanceledException) { }
         }
     }
 }

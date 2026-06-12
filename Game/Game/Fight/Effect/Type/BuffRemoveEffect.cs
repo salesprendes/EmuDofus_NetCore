@@ -1,4 +1,4 @@
-﻿using Game.Spell;
+using Game.Spell;
 using Game.Network;
 using System;
 using System.Collections.Generic;
@@ -8,16 +8,8 @@ using System.Threading.Tasks;
 
 namespace Game.Fight.Effect.Type
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class BuffRemoveEffect : AbstractSpellEffect
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="CastInfos"></param>
-        /// <returns></returns>
         public override FightActionResultEnum ApplyEffect(CastInfos CastInfos)
         {
             if (CastInfos.Target == null)

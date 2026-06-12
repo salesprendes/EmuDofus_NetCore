@@ -1,21 +1,14 @@
-﻿using Protocolo.Framework.Generic;
 using Game.Database.Structure;
 using Game.Entity;
 using Game.Interactive.Type;
 using Game.Job;
 using Game.Job.Skill;
 using Game.Network;
-using System;
+using Protocolo.Framework.Generic;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.Exchange
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class CraftPlanExchange : AbstractExchange, IValidableExchange, IRetryableExchange
     {
         private const int LOOP_OK = 1;
@@ -23,45 +16,30 @@ namespace Game.Exchange
         private const int LOOP_ERROR = 3;
         private const int LOOP_INVALID = 4;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public CharacterEntity Character
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public CharacterJobDAO Job
+        public int JobId
         {
             get;
             private set;
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
+
         public CraftSkill Skill
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int MaxCase
         {
             get;
             set;
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
+
         private Dictionary<long, int> m_caseItems;
         private Dictionary<long, int> m_lastCaseItems;
         private Dictionary<int, long> m_templateQuantity;
@@ -70,36 +48,23 @@ namespace Game.Exchange
         private UpdatableTimer m_loopTimer;
         private CraftPlan m_plan;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="skill"></param>
-        /// <param name="type"></param>
         public CraftPlanExchange(CharacterEntity character, CraftPlan plan, JobSkill skill, ExchangeTypeEnum type = ExchangeTypeEnum.EXCHANGE_CRAFTPLAN)
-            : base(type)
+    : base(type)
         {
             m_caseItems = new Dictionary<long, int>();
             m_templateQuantity = new Dictionary<int, long>();
             m_plan = plan;
             Character = character;
             Skill = (CraftSkill)skill;
-            Job = Character.CharacterJobs.GetJob(skill.Id);
-            MaxCase = Job.CraftMaxCase;
+            JobId = Character.CharacterJobs.GetJobId(skill.Id);
+            MaxCase = Character.CharacterJobs.GetCraftMaxCase(JobId);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         protected override string SerializeAs_ExchangeCreate()
         {
             return MaxCase + ";" + (int)Skill.Id;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="success"></param>
         public override void Leave(bool success = false)
         {
             CancelRetry();
@@ -109,13 +74,6 @@ namespace Game.Exchange
             base.Leave(success);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="guid"></param>
-        /// <param name="quantity"></param>
-        /// <param name="price"></param>
         public override int AddItem(AbstractEntity entity, long guid, int quantity, long price = -1)
         {
             var item = Character.Inventory.GetItem(guid);
@@ -136,7 +94,7 @@ namespace Game.Exchange
                 }
 
                 if (!m_templateQuantity.ContainsKey(item.TemplateId))
-                    m_templateQuantity.Add(item.TemplateId, 0);                
+                    m_templateQuantity.Add(item.TemplateId, 0);
                 m_templateQuantity[item.TemplateId] += quantity;
                 m_caseItems[guid] += quantity;
 
@@ -150,12 +108,6 @@ namespace Game.Exchange
             return 0;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="guid"></param>
-        /// <param name="quantity"></param>
         public override int RemoveItem(AbstractEntity entity, long guid, int quantity)
         {
             if (m_caseItems.ContainsKey(guid))
@@ -173,25 +125,19 @@ namespace Game.Exchange
                 m_templateQuantity[item.TemplateId] -= quantity;
                 if (m_templateQuantity[item.TemplateId] == 0)
                     m_templateQuantity.Remove(item.TemplateId);
-                
+
                 CheckCraftable();
 
                 var exists = m_caseItems.ContainsKey(guid);
                 Character.Dispatch(WorldMessage.EXCHANGE_LOCAL_MOVEMENT(ExchangeMoveEnum.MOVE_OBJECT, OperatorEnum.OPERATOR_REMOVE, item.Id.ToString()));
                 if (exists)
                     Character.Dispatch(WorldMessage.EXCHANGE_LOCAL_MOVEMENT(ExchangeMoveEnum.MOVE_OBJECT, OperatorEnum.OPERATOR_ADD, item.Id.ToString() + '|' + m_caseItems[guid]));
-                
+
                 return quantity;
             }
             return 0;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="guid"></param>
-        /// <returns></returns>
         private int GetQuantity(long guid)
         {
             if (m_caseItems.ContainsKey(guid))
@@ -200,20 +146,12 @@ namespace Game.Exchange
                 m_caseItems.Add(guid, 0);
             return 0;
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
+
         private void CheckCraftable()
         {
             m_craftItem = (m_caseItems.Count > 0) ? Skill.Craftables.Find(entry => entry.MatchCraft(m_templateQuantity)) : null;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <returns></returns>
         public bool Validate(AbstractEntity entity)
         {
             Character.CachedBuffer = true;
@@ -226,21 +164,18 @@ namespace Game.Exchange
 
             if (m_craftItem != null)
             {
-                var chance = Job.CraftSuccessPercent(m_caseItems.Count);
+                var chance = Character.CharacterJobs.GetCraftSuccessPercent(JobId, m_caseItems.Count);
                 var success = Util.Next(0, 100) < chance;
 
-                if(success)
+                if (success)
                 {
                     ItemDAO item = m_craftItem.Create(Character.Id, (int)Character.Type);
                     Character.Inventory.AddItem(item);
                     item = Character.Inventory.Items.Find(entry => entry.TemplateId == m_craftItem.Id);
 
-                    Character.Dispatch(WorldMessage.EXCHANGE_DISTANT_MOVEMENT(
-                        ExchangeMoveEnum.MOVE_OBJECT,
-                        OperatorEnum.OPERATOR_ADD,
-                        item.Id + "|1|" + m_craftItem.Id + "|" + item.StringEffects));
+                    Character.Dispatch(WorldMessage.EXCHANGE_DISTANT_MOVEMENT(ExchangeMoveEnum.MOVE_OBJECT, OperatorEnum.OPERATOR_ADD, item.Id + "|1|" + m_craftItem.Id + "|" + item.StringEffects));
                     Character.Dispatch(WorldMessage.CRAFT_TEMPLATE_CREATED(item.TemplateId));
-                    if(m_loopTimer == null)
+                    if (m_loopTimer == null)
                         Character.Map.Dispatch(WorldMessage.CRAFT_INTERACTIVE_SUCCESS(Character.Id, item.TemplateId));
                 }
                 else
@@ -250,14 +185,14 @@ namespace Game.Exchange
                         Character.Map.Dispatch(WorldMessage.CRAFT_INTERACTIVE_FAILED(Character.Id, m_craftItem.Id));
                 }
 
-                Character.CharacterJobs.AddExperience(Job, Job.CraftExperience(m_templateQuantity.Count));
+                Character.CharacterJobs.AddExperience(JobId, Character.CharacterJobs.GetCraftExperience(JobId, m_templateQuantity.Count));
             }
             else
             {
                 Character.Dispatch(WorldMessage.CRAFT_NO_RESULT());
                 if (m_loopTimer == null)
                     Character.Map.Dispatch(WorldMessage.CRAFT_INTERACTIVE_NOTHING(Character.Id));
-            }            
+            }
 
             Character.CachedBuffer = false;
 
@@ -267,10 +202,6 @@ namespace Game.Exchange
             return false;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="count"></param>
         public void Retry(int count)
         {
             if (m_loopTimer != null)
@@ -280,9 +211,6 @@ namespace Game.Exchange
             m_loopTimer = base.AddTimer(1100, Loop);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void CancelRetry()
         {
             if (m_loopTimer == null)
@@ -291,9 +219,6 @@ namespace Game.Exchange
             EndLoop(LOOP_INTERUPT);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private void Loop()
         {
             Character.CachedBuffer = true;
@@ -310,10 +235,10 @@ namespace Game.Exchange
                     return;
                 }
                 AddItem(Character, ingredient.Key, ingredient.Value);
-            }            
-                       
+            }
+
             Validate(null);
-            
+
             m_loopCount--;
 
             if (m_loopCount == 0)
@@ -326,9 +251,6 @@ namespace Game.Exchange
             Character.CachedBuffer = false;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private void EndLoop(int reason)
         {
             Character.Dispatch(WorldMessage.CRAFT_LOOP_END(reason));

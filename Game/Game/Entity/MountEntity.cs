@@ -1,4 +1,4 @@
-﻿using Game.Database.Structure;
+using Game.Database.Structure;
 using Game.Manager;
 using Game.Mount;
 using Game.Network;
@@ -23,9 +23,6 @@ namespace Game.Entity
         CHAMELEON = 256,
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class MountEntity : AbstractEntity
     {
         public const int MAX_REPRODUCTION = 10;
@@ -38,26 +35,17 @@ namespace Game.Entity
 
         private static long NextId = -10000;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override int BaseLife
         {
             get;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override int CellId
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override int Level
         {
             get
@@ -69,9 +57,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override int MapId
         {
             get
@@ -85,35 +70,20 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override string Name => m_record.Name;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override int RealLife
         {
             get; set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override int Restriction
         {
             get; set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public string Capacities => ",";
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int MapEnergyCost
         {
             get
@@ -132,9 +102,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int RideEnergyCost
         {
             get
@@ -181,18 +148,13 @@ namespace Game.Entity
         public int MaturityPercent => (int)((Maturity / (double)Template.MaxMaturity) * 100);
         public int Size => (int)Math.Round((double)(45 * (1 / (MaturityPercent + 1)) + MaturityPercent));
 
-        // TODO: fecondation.time <= template.gestationtime
+
         public bool PregnancyTerminated => false;
 
-        // TODO: fecondation.hours + 1
+
         public string SerializedPregnancyTime => "-1";
 
-        public bool Fecondable =>
-            !Pregnant &&
-            Love >= 7500 &&
-            Stamina >= 7500 &&
-            Reproduction < MAX_REPRODUCTION &&
-            Level >= 5;
+        public bool Fecondable => !Pregnant && Love >= 7500 && Stamina >= 7500 && Reproduction < MAX_REPRODUCTION && Level >= 5;
 
         public bool Pregnant => m_fecondation != null;
 
@@ -232,28 +194,17 @@ namespace Game.Entity
         public int TemplateId => m_record.TemplateId;
         public MountTemplateDAO Template => m_record.Template;
 
-        /// <summary>
-        /// 
-        /// </summary>
         private MountDAO m_record;
 
-        // TODO FECONDATION
+
         private Fecondation m_fecondation = null;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="record"></param>
         public MountEntity(MountDAO record)
-            : base(EntityTypeEnum.TYPE_MOUNT, Interlocked.Decrement(ref NextId))
+    : base(EntityTypeEnum.TYPE_MOUNT, Interlocked.Decrement(ref NextId))
         {
             m_record = record;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public GenericStats GetStatistics()
         {
             var statistics = new GenericStats();
@@ -265,18 +216,9 @@ namespace Game.Entity
             return statistics;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="capacity"></param>
-        /// <returns></returns>
         public bool HasCapacity(MountCapacityEnum capacity)
-            => (Capacity & capacity) == capacity;
+    => (Capacity & capacity) == capacity;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public string SerializeAs_MountLightInfos()
         {
             if (HasCapacity(MountCapacityEnum.CHAMELEON))
@@ -289,70 +231,49 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
         public string SerializeAs_MountInfos()
         {
             var message = new StringBuilder();
             message.Append(Id).Append(':');
             message.Append(TemplateId).Append(':');
 
-            // TODO : ANCESTORS
+
             message.Append(string.Empty).Append(':');
 
-            // TODO : CAPACITIES
+
             message.Append(Capacities).Append(':');
 
             message.Append(Name).Append(':');
             message.Append(Sex ? "1" : "0").Append(':');
 
-            message.Append(Experience).Append(',')
-                .Append(ExperienceFloorCurrent).Append(',')
-                .Append(ExperienceFloorNext).Append(':');
+            message.Append(Experience).Append(',').Append(ExperienceFloorCurrent).Append(',').Append(ExperienceFloorNext).Append(':');
 
             message.Append(Level).Append(':');
             message.Append(Ridable ? "1" : "0").Append(':');
             message.Append(MaxPods).Append(':');
             message.Append(Wild ? "1" : "0").Append(':');
 
-            message.Append(Stamina).Append(',')
-                .Append(MAX_STAMINA).Append(':');
+            message.Append(Stamina).Append(',').Append(MAX_STAMINA).Append(':');
 
-            message.Append(Maturity).Append(',')
-                .Append(Template.MaxMaturity).Append(':');
+            message.Append(Maturity).Append(',').Append(Template.MaxMaturity).Append(':');
 
-            message.Append(Energy).Append(',')
-                .Append(MAX_ENERGY).Append(':');
+            message.Append(Energy).Append(',').Append(MAX_ENERGY).Append(':');
 
-            message.Append(Serenity)
-                .Append(',')
-                .Append(MIN_SERENITY)
-                .Append(',')
-                .Append(MAX_SERENITY).Append(':');
+            message.Append(Serenity).Append(',').Append(MIN_SERENITY).Append(',').Append(MAX_SERENITY).Append(':');
 
-            message.Append(Love).Append(',')
-                .Append(MAX_LOVE).Append(':');
+            message.Append(Love).Append(',').Append(MAX_LOVE).Append(':');
 
             message.Append(SerializedPregnancyTime).Append(':');
             message.Append(Fecondable ? "1" : "0").Append(':');
             message.Append(GetStatistics().ToItemStats()).Append(':');
 
-            message.Append(Tired).Append(',')
-                .Append(MAX_TIRED).Append(':');
+            message.Append(Tired).Append(',').Append(MAX_TIRED).Append(':');
 
-            message.Append(Castrated ? "-1" : Reproduction.ToString()).Append(',')
-                .Append(MAX_REPRODUCTION).Append(':');
+            message.Append(Castrated ? "-1" : Reproduction.ToString()).Append(',').Append(MAX_REPRODUCTION).Append(':');
 
             return message.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="operation"></param>
-        /// <param name="message"></param>
         public override void SerializeAs_GameMapInformations(OperatorEnum operation, StringBuilder message)
         {
             message.Append(CellId).Append(';');

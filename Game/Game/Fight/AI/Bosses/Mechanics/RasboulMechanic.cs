@@ -7,7 +7,7 @@ namespace Game.Fight.AI.Bosses.Mechanics
     {
         public IEnumerable<AIDecision> Evaluate(AIContext context)
         {
-            // TODO: wire Rasboul charge/vulnerability logic after confirming real states and spells.
+
             yield break;
         }
     }

@@ -1,4 +1,4 @@
-﻿using Game.Spell;
+using Game.Spell;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,14 +7,8 @@ using System.Threading.Tasks;
 
 namespace Game.Fight.Effect.Type
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class StatsStealEffect : AbstractSpellEffect
     {
-        /// <summary>
-        /// 
-        /// </summary>
         private static Dictionary<EffectEnum, EffectEnum> _targetMalus = new Dictionary<EffectEnum, EffectEnum>()
         {
             { EffectEnum.StrengthSteal          , EffectEnum.SubStrength         },
@@ -41,11 +35,6 @@ namespace Game.Fight.Effect.Type
             { EffectEnum.POSteal                , EffectEnum.AddPO            },
         };
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="CastInfos"></param>
-        /// <returns></returns>
         public override FightActionResultEnum ApplyEffect(CastInfos CastInfos)
         {
             if (CastInfos.Target == null)
@@ -61,14 +50,14 @@ namespace Game.Fight.Effect.Type
             if (CastInfos.Target == CastInfos.Caster)
                 return FightActionResultEnum.RESULT_NOTHING;
 
-            // Malus a la cible
+
             var BuffStats = new StatsBuff(malusInfos, CastInfos.Target);
             if (BuffStats.ApplyEffect(ref damageValue) == FightActionResultEnum.RESULT_END)
                 return FightActionResultEnum.RESULT_END;
 
             CastInfos.Target.BuffManager.AddBuff(BuffStats);
 
-            // Bonus au lanceur
+
             BuffStats = new StatsBuff(bonusInfos, CastInfos.Caster);
             CastInfos.Caster.BuffManager.AddBuff(BuffStats);
 

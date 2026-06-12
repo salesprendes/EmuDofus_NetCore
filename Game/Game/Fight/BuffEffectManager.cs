@@ -1,4 +1,4 @@
-﻿using Game.Fight.Effect;
+using Game.Fight.Effect;
 using Game.Spell;
 using System;
 using System.Collections.Generic;
@@ -8,19 +8,10 @@ using System.Threading.Tasks;
 
 namespace Game.Fight
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class BuffEffectManager
     {
-        /// <summary>
-        /// 
-        /// </summary>
         private readonly AbstractFighter m_fighter;
 
-        /// <summary>
-        ///
-        /// </summary>
         private Dictionary<ActiveType, List<AbstractSpellBuff>> ActiveBuffs = new Dictionary<ActiveType, List<AbstractSpellBuff>>()
         {
             { ActiveType.ACTIVE_ATTACKED_AFTER_JET, new List<AbstractSpellBuff>() },
@@ -33,9 +24,6 @@ namespace Game.Fight
             { ActiveType.ACTIVE_STATS, new List<AbstractSpellBuff>() },
         };
 
-        /// <summary>
-        /// 
-        /// </summary>
         private Dictionary<DecrementType, List<AbstractSpellBuff>> DecrementBuffs = new Dictionary<DecrementType, List<AbstractSpellBuff>>()
         {
             { DecrementType.TYPE_BEGINTURN, new List<AbstractSpellBuff>()},
@@ -43,29 +31,17 @@ namespace Game.Fight
             { DecrementType.TYPE_ENDMOVE, new List<AbstractSpellBuff>()},
         };
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
         public BuffEffectManager(AbstractFighter fighter)
         {
             m_fighter = fighter;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="Buff"></param>
         public void AddBuff(AbstractSpellBuff Buff)
         {
             ActiveBuffs[Buff.ActiveType].Add(Buff);
             DecrementBuffs[Buff.DecrementType].Add(Buff);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="state"></param>
         public void RemoveState(int state)
         {
             foreach (var buffList in ActiveBuffs.Values)
@@ -82,9 +58,6 @@ namespace Game.Fight
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void RemoveStealth()
         {
             foreach (var buffList in ActiveBuffs.Values)
@@ -101,9 +74,6 @@ namespace Game.Fight
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void RemoveSkin()
         {
             foreach (var buffList in ActiveBuffs.Values)
@@ -120,28 +90,21 @@ namespace Game.Fight
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="buff"></param>
         public void RemoveBuff(AbstractSpellBuff buff)
         {
             ActiveBuffs[buff.ActiveType].Remove(buff);
             DecrementBuffs[buff.DecrementType].Remove(buff);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public FightActionResultEnum BeginTurn()
         {
             var damage = 0;
             foreach (var buff in ActiveBuffs[ActiveType.ACTIVE_BEGINTURN].ToArray())
             {
                 var result = buff.ApplyEffect(ref damage);
-                if(result != FightActionResultEnum.RESULT_NOTHING)
+                if (result != FightActionResultEnum.RESULT_NOTHING)
                     return result;
-            }            
+            }
 
             foreach (var buff in DecrementBuffs[DecrementType.TYPE_BEGINTURN].ToArray())
             {
@@ -149,7 +112,7 @@ namespace Game.Fight
                 {
                     DecrementBuffs[DecrementType.TYPE_BEGINTURN].Remove(buff);
                     var result = buff.RemoveEffect();
-                    if(result != FightActionResultEnum.RESULT_NOTHING)                    
+                    if (result != FightActionResultEnum.RESULT_NOTHING)
                         return result;
                 }
             }
@@ -160,9 +123,6 @@ namespace Game.Fight
             return m_fighter.Fight.TryKillFighter(m_fighter, m_fighter);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public FightActionResultEnum EndTurn()
         {
             foreach (var buff in DecrementBuffs[DecrementType.TYPE_ENDTURN].ToArray())
@@ -190,16 +150,13 @@ namespace Game.Fight
             return m_fighter.Fight.TryKillFighter(m_fighter, m_fighter);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public FightActionResultEnum EndMove()
         {
             var damage = 0;
             foreach (var buff in ActiveBuffs[ActiveType.ACTIVE_ENDMOVE].ToArray())
             {
                 var result = buff.ApplyEffect(ref damage);
-                if(result != FightActionResultEnum.RESULT_NOTHING)
+                if (result != FightActionResultEnum.RESULT_NOTHING)
                     return result;
             }
 
@@ -208,17 +165,12 @@ namespace Game.Fight
             return m_fighter.Fight.TryKillFighter(m_fighter, m_fighter);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="castInfos"></param>
-        /// <param name="damageValue"></param>
         public FightActionResultEnum OnAttackBeforeJet(CastInfos castInfos, ref int damageValue)
         {
             foreach (var buff in ActiveBuffs[ActiveType.ACTIVE_ATTACK_BEFORE_JET].ToArray())
             {
                 var result = buff.ApplyEffect(ref damageValue, castInfos);
-                if(result != FightActionResultEnum.RESULT_NOTHING)
+                if (result != FightActionResultEnum.RESULT_NOTHING)
                 {
                     return result;
                 }
@@ -227,18 +179,12 @@ namespace Game.Fight
             return m_fighter.Fight.TryKillFighter(m_fighter, m_fighter);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="castInfos"></param>
-        /// <param name="damageValue"></param>
-        /// <returns></returns>
         public FightActionResultEnum OnAttackAfterJet(CastInfos castInfos, ref int damageValue)
         {
             foreach (var buff in ActiveBuffs[ActiveType.ACTIVE_ATTACK_AFTER_JET].ToArray())
             {
                 var result = buff.ApplyEffect(ref damageValue, castInfos);
-                if(result != FightActionResultEnum.RESULT_NOTHING)
+                if (result != FightActionResultEnum.RESULT_NOTHING)
                 {
                     return result;
                 }
@@ -247,43 +193,30 @@ namespace Game.Fight
             return m_fighter.Fight.TryKillFighter(m_fighter, m_fighter);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="castInfos"></param>
-        /// <param name="damageValue"></param>
         public FightActionResultEnum OnAttackedBeforeJet(CastInfos castInfos, ref int damageValue)
         {
             foreach (var buff in ActiveBuffs[ActiveType.ACTIVE_ATTACKED_BEFORE_JET].ToArray())
             {
                 var result = buff.ApplyEffect(ref damageValue, castInfos);
-                if(result !=  FightActionResultEnum.RESULT_NOTHING)
+                if (result != FightActionResultEnum.RESULT_NOTHING)
                     return result;
             }
 
             return m_fighter.Fight.TryKillFighter(m_fighter, m_fighter);
         }
 
-        /// <summary>
-        /// Subit des dommages, activation des buffs de reduction, renvois, anihilation des dommages apres le calcul du jet
-        /// </summary>
-        /// <param name="castInfos"></param>
-        /// <param name="damageValue"></param>
         public FightActionResultEnum OnAttackedAfterJet(CastInfos castInfos, ref int damageValue)
         {
             foreach (var buff in ActiveBuffs[ActiveType.ACTIVE_ATTACKED_AFTER_JET].ToArray())
             {
                 var result = buff.ApplyEffect(ref damageValue, castInfos);
-                if(result != FightActionResultEnum.RESULT_NOTHING)
+                if (result != FightActionResultEnum.RESULT_NOTHING)
                     return result;
             }
 
             return m_fighter.Fight.TryKillFighter(m_fighter, m_fighter);
         }
 
-        /// <summary>
-        /// Returns all active buffs across every ActiveType bucket (no duplicates).
-        /// </summary>
         public IEnumerable<AbstractSpellBuff> GetAllBuffs()
         {
             foreach (var buffList in ActiveBuffs.Values)
@@ -291,17 +224,13 @@ namespace Game.Fight
                     yield return buff;
         }
 
-        /// <summary>
-        /// Debuff le personnage de tous les effets
-        /// </summary>
-        /// <returns></returns>
         public FightActionResultEnum Debuff()
         {
             foreach (var buff in DecrementBuffs[DecrementType.TYPE_BEGINTURN].ToArray())
                 if (buff.IsDebuffable)
                 {
                     var result = buff.RemoveEffect();
-                    if(result != FightActionResultEnum.RESULT_NOTHING)
+                    if (result != FightActionResultEnum.RESULT_NOTHING)
                         return result;
                 }
 
@@ -309,7 +238,7 @@ namespace Game.Fight
                 if (buff.IsDebuffable)
                 {
                     var result = buff.RemoveEffect();
-                    if(result != FightActionResultEnum.RESULT_NOTHING)
+                    if (result != FightActionResultEnum.RESULT_NOTHING)
                         return result;
                 }
 
@@ -320,10 +249,7 @@ namespace Game.Fight
 
             return m_fighter.Fight.TryKillFighter(m_fighter, m_fighter);
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
+
         public void Dispose()
         {
             DecrementBuffs[DecrementType.TYPE_BEGINTURN].Clear();

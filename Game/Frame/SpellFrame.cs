@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Protocolo.Framework.Network;
 using Game;
 using Game.Entity;
@@ -6,16 +6,8 @@ using Game.Network;
 
 namespace Game.Frame
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class SpellFrame : AbstractNetworkFrame<SpellFrame, CharacterEntity, string>
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
         public override Action<CharacterEntity, string> GetHandler(string message)
         {
             if (message.Length < 2)
@@ -38,11 +30,6 @@ namespace Game.Frame
             return null;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="client"></param>
-        /// <param name="message"></param>
         private void SpellMove(CharacterEntity character, string message)
         {
             var data = message.AsSpan(2);
@@ -94,11 +81,6 @@ namespace Game.Frame
                 });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void SpellBoost(CharacterEntity character, string message)
         {
             var spellId = -1;

@@ -1,4 +1,4 @@
-﻿using Game.Database.Structure;
+using Game.Database.Structure;
 using System;
 using System.Collections.Generic;
 using Game.Manager;

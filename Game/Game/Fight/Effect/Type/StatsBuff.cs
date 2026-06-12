@@ -1,4 +1,4 @@
-﻿using Game.Entity;
+using Game.Entity;
 using Game.Network;
 using Game.Spell;
 
@@ -6,7 +6,7 @@ namespace Game.Fight.Effect.Type
 {
     public sealed class StatsBuff : AbstractSpellBuff
     {
-        public StatsBuff(CastInfos castInfos, AbstractFighter target) : base(castInfos, target, ActiveType.ACTIVE_STATS, DecrementType.TYPE_ENDTURN) {}
+        public StatsBuff(CastInfos castInfos, AbstractFighter target) : base(castInfos, target, ActiveType.ACTIVE_STATS, DecrementType.TYPE_ENDTURN) { }
 
         public override FightActionResultEnum ApplyEffect(ref int damageValue, CastInfos damageInfos = null)
         {
@@ -19,11 +19,11 @@ namespace Game.Fight.Effect.Type
                 case EffectEnum.SubAPDodgeable:
                 case EffectEnum.SubMPDodgeable:
                     showValue = -CastInfos.Value1;
-                break;
+                    break;
 
                 default:
                     showValue = CastInfos.Value1;
-                break;
+                    break;
             }
 
             if (CastInfos.EffectType != EffectEnum.ReflectSpell)
@@ -37,7 +37,7 @@ namespace Game.Fight.Effect.Type
 
             return base.ApplyEffect(ref damageValue, damageInfos);
         }
-        
+
         public override FightActionResultEnum RemoveEffect()
         {
             Target.Statistics.GetEffect(CastInfos.EffectType).Boosts -= CastInfos.Value1;
@@ -55,14 +55,14 @@ namespace Game.Fight.Effect.Type
                     case EffectEnum.SubMP:
                     case EffectEnum.SubMPDodgeable:
                         Target.Fight.Dispatch(WorldMessage.GAME_ACTION(CastInfos.EffectType, Target.Id, Target.Id + "," + CastInfos.Value1 + "," + 1));
-                    break;
+                        break;
 
                     case EffectEnum.AddAP:
                     case EffectEnum.AddAPBis:
                     case EffectEnum.AddMP:
                     case EffectEnum.MPBonus:
                         Target.Fight.Dispatch(WorldMessage.GAME_ACTION(CastInfos.EffectType, Target.Id, Target.Id + "," + (-CastInfos.Value1) + "," + 1));
-                    break;
+                        break;
                 }
             }
 

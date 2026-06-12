@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using Protocolo.Framework.Network;
 using Game;
@@ -18,14 +18,14 @@ namespace Game.Frame
                 return null;
 
             switch (message[0])
-            {                
+            {
                 case 'E':
                     switch (message[1])
                     {
                         case 'Q':
                             return MerchantModeProcess;
 
-                        case 'q': // merchant mode : taxes
+                        case 'q':
                             return MerchantModeTaxe;
 
                         case 'H':
@@ -43,7 +43,7 @@ namespace Game.Frame
                                 case 'B':
                                     return AuctionHouseBuyItem;
 
-                                    // SEARCH
+
                                 case 'S':
                                     return null;
 
@@ -70,18 +70,11 @@ namespace Game.Frame
                         case 'S':
                             return ExchangeSell;
 
-                        case 'M': 
+                        case 'M':
                             if (message.Length < 3)
                                 return null;
 
-                            return message[2] switch
-                            {
-                                'G' => ExchangeMoveGold,
-                                'O' => ExchangeMoveObject,
-                                'R' => ExchangeRetry,
-                                'r' => ExchangeCancelRetry,
-                                _ => null,
-                            };
+                            return message[2] switch { 'G' => ExchangeMoveGold, 'O' => ExchangeMoveObject, 'R' => ExchangeRetry, 'r' => ExchangeCancelRetry, _ => null, };
                     }
                     break;
             }
@@ -89,16 +82,11 @@ namespace Game.Frame
             return null;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void MerchantModeProcess(CharacterEntity character, string message)
         {
             character.AddMessage(() =>
                 {
-                    if(character.Inventory.Kamas < character.MerchantTaxe)
+                    if (character.Inventory.Kamas < character.MerchantTaxe)
                     {
                         character.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_NOT_ENOUGH_KAMAS_TO_PAY_MERCHANT_MODE_TAXE));
                         return;
@@ -116,7 +104,7 @@ namespace Game.Frame
                         return;
                     }
 
-                    if(character.HasPlayerRestriction(PlayerRestrictionEnum.RESTRICTION_CANT_BE_MERCHANT))
+                    if (character.HasPlayerRestriction(PlayerRestrictionEnum.RESTRICTION_CANT_BE_MERCHANT))
                     {
                         character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                         return;
@@ -125,25 +113,20 @@ namespace Game.Frame
                     character.Inventory.SubKamas(character.MerchantTaxe);
                     character.Merchant = true;
                     character.ServerKick("Merchant mode");
-                });            
+                });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void MerchantModeTaxe(CharacterEntity character, string message)
         {
             character.AddMessage(() =>
                 {
-                    if(character.Map.Entities.OfType<MerchantEntity>().Count() >= 5)
+                    if (character.Map.Entities.OfType<MerchantEntity>().Count() >= 5)
                     {
                         character.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_TOO_MANY_MERCHANT_ON_MAP, 5));
                         return;
                     }
 
-                    if(character.PersonalShop.Items.Count == 0)
+                    if (character.PersonalShop.Items.Count == 0)
                     {
                         character.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_NOT_ENOUGH_ITEMS_TO_BE_MERCHANT));
                         return;
@@ -152,12 +135,7 @@ namespace Game.Frame
                     character.Dispatch(WorldMessage.MERCHANT_MODE_TAXE(character.MerchantTaxe));
                 });
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
+
         private void AuctionHouseMiddlePrice(CharacterEntity character, string message)
         {
             int templateId = -1;
@@ -189,11 +167,6 @@ namespace Game.Frame
             });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void AuctionHouseBuyItem(CharacterEntity character, string message)
         {
             var data = message.AsSpan(3);
@@ -246,11 +219,6 @@ namespace Game.Frame
             });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void AuctionHouseGetItemsList(CharacterEntity character, string message)
         {
             int templateId = -1;
@@ -280,15 +248,10 @@ namespace Game.Frame
             });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void AuctionHouseGetTemplatesList(CharacterEntity character, string message)
         {
             int type = -1;
-            if(!int.TryParse(message.AsSpan(3), out type))
+            if (!int.TryParse(message.AsSpan(3), out type))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -302,7 +265,7 @@ namespace Game.Frame
                         character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                         return;
                     }
-                    
+
                     var exchangeAction = character.CurrentAction as AbstractGameAuctionHouseAction;
                     if (exchangeAction == null)
                     {
@@ -314,11 +277,6 @@ namespace Game.Frame
                 });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void ExchangeRequest(CharacterEntity character, string message)
         {
             var exchangeData = message.AsSpan(2);
@@ -326,7 +284,7 @@ namespace Game.Frame
             var exchangePartCount = exchangeData.Split(exchangeParts, '|', StringSplitOptions.RemoveEmptyEntries);
             int exchangeTypeId = -1;
 
-            if(exchangePartCount < 1 || !int.TryParse(exchangeData[exchangeParts[0]], out exchangeTypeId))
+            if (exchangePartCount < 1 || !int.TryParse(exchangeData[exchangeParts[0]], out exchangeTypeId))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -370,7 +328,7 @@ namespace Game.Frame
 
                 if (!distantEntity.CanGameAction(GameActionTypeEnum.EXCHANGE) || !distantEntity.CanBeExchanged(exchangeType))
                 {
-                    if(distantEntity.Type == EntityTypeEnum.TYPE_CHARACTER)
+                    if (distantEntity.Type == EntityTypeEnum.TYPE_CHARACTER)
                         character.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_PLAYER_AWAY_NOT_INVITABLE));
                     else
                         character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
@@ -387,7 +345,7 @@ namespace Game.Frame
                             return;
                         }
 
-                        if(!character.GuildMember.HasRight(Game.Guild.GuildRightEnum.COLLECT_TAXCOLLECTOR))
+                        if (!character.GuildMember.HasRight(Game.Guild.GuildRightEnum.COLLECT_TAXCOLLECTOR))
                         {
                             character.GuildMember.SendHasNotEnoughRights();
                             return;
@@ -401,18 +359,18 @@ namespace Game.Frame
                         break;
 
                     case EntityTypeEnum.TYPE_CHARACTER:
-                        if (exchangeType == ExchangeTypeEnum.EXCHANGE_PERSONAL_SHOP_EDIT && character.Id == distantEntity.Id)                        
-                            character.ExchangePersonalShop();                        
-                        else                        
-                            character.ExchangePlayer((CharacterEntity)distantEntity);                        
+                        if (exchangeType == ExchangeTypeEnum.EXCHANGE_PERSONAL_SHOP_EDIT && character.Id == distantEntity.Id)
+                            character.ExchangePersonalShop();
+                        else
+                            character.ExchangePlayer((CharacterEntity)distantEntity);
                         break;
 
                     case EntityTypeEnum.TYPE_NPC:
                         NonPlayerCharacterEntity npc = (NonPlayerCharacterEntity)distantEntity;
-                        switch(exchangeType)
+                        switch (exchangeType)
                         {
                             case ExchangeTypeEnum.EXCHANGE_NPC:
-                                character.ExchangeNpc(npc);                                
+                                character.ExchangeNpc(npc);
                                 break;
 
                             case ExchangeTypeEnum.EXCHANGE_SHOP:
@@ -432,13 +390,8 @@ namespace Game.Frame
             });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void ExchangeAccept(CharacterEntity character, string message)
-        {            
+        {
             character.AddMessage(() =>
             {
                 if (!character.HasGameAction(GameActionTypeEnum.EXCHANGE))
@@ -468,11 +421,6 @@ namespace Game.Frame
             });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void ExchangeLeave(CharacterEntity character, string message)
         {
             character.AddMessage(() =>
@@ -488,13 +436,8 @@ namespace Game.Frame
             });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void ExchangeValidate(CharacterEntity character, string message)
-        {      
+        {
             character.AddMessage(() =>
                 {
                     if (!character.HasGameAction(GameActionTypeEnum.EXCHANGE))
@@ -506,7 +449,7 @@ namespace Game.Frame
 
                     var action = character.CurrentAction as AbstractGameExchangeAction;
                     var exchange = action.Exchange as IValidableExchange;
-                    if(exchange == null)
+                    if (exchange == null)
                     {
                         character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                         return;
@@ -521,37 +464,32 @@ namespace Game.Frame
                 });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void ExchangeSell(CharacterEntity character, string message)
         {
             var data = message.AsSpan(2);
             Span<Range> parts = stackalloc Range[3];
             var partCount = data.Split(parts, '|');
 
-            if(partCount != 2)
+            if (partCount != 2)
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
             long itemId = -1;
-            if(!long.TryParse(data[parts[0]], out itemId))
+            if (!long.TryParse(data[parts[0]], out itemId))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
             int quantity = -1;
-            if(!int.TryParse(data[parts[1]], out quantity))
+            if (!int.TryParse(data[parts[1]], out quantity))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
-            
+
             character.AddMessage(() =>
             {
                 if (!character.HasGameAction(GameActionTypeEnum.EXCHANGE))
@@ -565,18 +503,13 @@ namespace Game.Frame
             });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void ExchangeBuy(CharacterEntity character, string message)
         {
             var data = message.AsSpan(2);
             Span<Range> parts = stackalloc Range[3];
             var partCount = data.Split(parts, '|');
 
-            if(partCount != 2)
+            if (partCount != 2)
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -590,7 +523,7 @@ namespace Game.Frame
             }
 
             int quantity = -1;
-            if(!int.TryParse(data[parts[1]], out quantity))
+            if (!int.TryParse(data[parts[1]], out quantity))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -615,15 +548,10 @@ namespace Game.Frame
             });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void ExchangeMoveGold(CharacterEntity character, string message)
         {
             long kamas = -1;
-            if(!long.TryParse(message.AsSpan(3), out kamas))
+            if (!long.TryParse(message.AsSpan(3), out kamas))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
@@ -648,11 +576,6 @@ namespace Game.Frame
             });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void ExchangeMoveObject(CharacterEntity character, string message)
         {
             var data = message.AsSpan(3);
@@ -701,32 +624,27 @@ namespace Game.Frame
             {
                 if (!character.HasGameAction(GameActionTypeEnum.EXCHANGE))
                 {
-                    Logger.Debug("ExchangeFrame::MoveObject la entidad no esta en un intercambio: " + character.Name);     
+                    Logger.Debug("ExchangeFrame::MoveObject la entidad no esta en un intercambio: " + character.Name);
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
-                
-                if (add)                
-                    ((AbstractGameExchangeAction)character.CurrentAction).Exchange.AddItem(character, itemId, quantity, price);                
-                else                
-                    ((AbstractGameExchangeAction)character.CurrentAction).Exchange.RemoveItem(character, itemId, quantity);                
+
+                if (add)
+                    ((AbstractGameExchangeAction)character.CurrentAction).Exchange.AddItem(character, itemId, quantity, price);
+                else
+                    ((AbstractGameExchangeAction)character.CurrentAction).Exchange.RemoveItem(character, itemId, quantity);
             });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void ExchangeRetry(CharacterEntity character, string message)
         {
             var count = -1;
-            if(!int.TryParse(message.AsSpan(3), out count))
+            if (!int.TryParse(message.AsSpan(3), out count))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
-            
+
             character.AddMessage(() =>
             {
                 if (!character.HasGameAction(GameActionTypeEnum.EXCHANGE))
@@ -748,11 +666,6 @@ namespace Game.Frame
             });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void ExchangeCancelRetry(CharacterEntity character, string message)
         {
             character.AddMessage(() =>

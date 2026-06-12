@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Reflection;
 
 namespace Protocolo.Framework.Database
@@ -10,11 +10,6 @@ namespace Protocolo.Framework.Database
         private readonly FieldInfo _field;
         private readonly ParameterInfo _parameter;
 
-        /// <summary>
-        /// Creates instance for simple property mapping
-        /// </summary>
-        /// <param name="columnName">DataReader column name</param>
-        /// <param name="property">Target property</param>
         public SimpleMemberMap(string columnName, PropertyInfo property)
         {
             if (columnName == null)
@@ -31,11 +26,6 @@ namespace Protocolo.Framework.Database
             _property = property;
         }
 
-        /// <summary>
-        /// Creates instance for simple field mapping
-        /// </summary>
-        /// <param name="columnName">DataReader column name</param>
-        /// <param name="field">Target field</param>
         public SimpleMemberMap(string columnName, FieldInfo field)
         {
             if (columnName == null)
@@ -52,11 +42,6 @@ namespace Protocolo.Framework.Database
             _field = field;
         }
 
-        /// <summary>
-        /// Creates instance for simple constructor parameter mapping
-        /// </summary>
-        /// <param name="columnName">DataReader column name</param>
-        /// <param name="parameter">Target constructor parameter</param>
         public SimpleMemberMap(string columnName, ParameterInfo parameter)
         {
             if (columnName == null)
@@ -73,17 +58,11 @@ namespace Protocolo.Framework.Database
             _parameter = parameter;
         }
 
-        /// <summary>
-        /// DataReader column name
-        /// </summary>
         public string ColumnName
         {
             get { return _columnName; }
         }
 
-        /// <summary>
-        /// Target member type
-        /// </summary>
         public Type MemberType
         {
             get
@@ -107,32 +86,20 @@ namespace Protocolo.Framework.Database
             }
         }
 
-        /// <summary>
-        /// Target property
-        /// </summary>
         public PropertyInfo Property
         {
             get { return _property; }
         }
 
-        /// <summary>
-        /// Target field
-        /// </summary>
         public FieldInfo Field
         {
             get { return _field; }
         }
 
-        /// <summary>
-        /// Target constructor parameter
-        /// </summary>
         public ParameterInfo Parameter
         {
             get { return _parameter; }
         }
     }
 
-    /// <summary>
-    /// Represents default type mapping strategy used by Dapper
-    /// </summary>
 }

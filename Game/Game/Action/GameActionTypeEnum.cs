@@ -1,8 +1,5 @@
-﻿namespace Game.Action
+namespace Game.Action
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public enum GameActionTypeEnum : int
     {
         MAP_MOVEMENT = 1,
@@ -37,7 +34,7 @@
         PRISM_USE = 512,
         PRISM_AGGRESSION = 912,
 
-        // custom
+
         MAP,
         EXCHANGE,
         PLAYER_EXCHANGE,

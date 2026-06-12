@@ -1,4 +1,4 @@
-﻿using Game.Database.Repository;
+using Game.Database.Repository;
 using Game.Database.Structure;
 using Game.Stats;
 using Game.Network;
@@ -11,14 +11,8 @@ using System.Threading.Tasks;
 
 namespace Game.Entity.Inventory
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public class EntityInventory : PersistentInventory
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public override long Kamas
         {
             get
@@ -31,36 +25,20 @@ namespace Game.Entity.Inventory
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public AbstractEntity Entity
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private Dictionary<int, int> m_equippedSets;
 
-        /// <summary>
-        /// 
-        /// </summary>
         private StringBuilder m_entityLookCache;
 
-        /// <summary>
-        /// 
-        /// </summary>
         private bool m_entityLookRefresh;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
         public EntityInventory(AbstractEntity entity, int type, long id)
-            : base(type, id)
+    : base(type, id)
         {
             m_equippedSets = new Dictionary<int, int>();
 
@@ -68,9 +46,6 @@ namespace Game.Entity.Inventory
             AddHandler(Entity.Dispatch);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void Initialize()
         {
             var now = DateTime.Now;
@@ -106,20 +81,13 @@ namespace Game.Entity.Inventory
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="quantity"></param>
-        /// <returns></returns>
         public override IEnumerable<ItemDAO> RemoveItems()
         {
             CachedBuffer = true;
             foreach (var item in Items.ToArray())
             {
                 if (item.IsEquiped)
-                    Entity.Statistics.UnMerge(item.IsBoostEquiped ? StatsType.TYPE_BOOST : StatsType.TYPE_ITEM,
-                        item.Statistics);
+                    Entity.Statistics.UnMerge(item.IsBoostEquiped ? StatsType.TYPE_BOOST : StatsType.TYPE_ITEM, item.Statistics);
                 item.SlotId = (int)ItemSlotEnum.SLOT_INVENTORY;
                 InventoryItemRepository.Instance.RemoveOwnerReference(item);
                 yield return base.RemoveItem(item.Id, item.Quantity);
@@ -128,12 +96,6 @@ namespace Game.Entity.Inventory
             m_entityLookRefresh = true;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="itemId"></param>
-        /// <param name="quantity"></param>
-        /// <returns></returns>
         public override ItemDAO RemoveItem(long itemId, int quantity = 1)
         {
             var item = Items.Find(entry => entry.Id == itemId);
@@ -149,12 +111,6 @@ namespace Game.Entity.Inventory
             return base.RemoveItem(itemId, quantity);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="item"></param>
-        /// <param name="slot"></param>
-        /// <param name="quantity"></param>
         public void MoveItem(ItemDAO item, ItemSlotEnum slot, int quantity = 1)
         {
             if (slot == item.Slot)
@@ -181,7 +137,7 @@ namespace Game.Entity.Inventory
 
                 RemoveSet(item);
 
-                // send new stats
+
                 if (Entity.Type == EntityTypeEnum.TYPE_CHARACTER)
                 {
                     Entity.MovementHandler.Dispatch(WorldMessage.ENTITY_OBJECT_ACTUALIZE(Entity));
@@ -190,8 +146,8 @@ namespace Game.Entity.Inventory
                     if (!merged)
                         Dispatch(WorldMessage.OBJECT_MOVE_SUCCESS(item.Id, item.SlotId));
                     Dispatch(WorldMessage.ACCOUNT_STATS((CharacterEntity)Entity));
-                    if (item.Template.SetId != 0)                    
-                        Dispatch(WorldMessage.ITEM_SET(item.Template.Set, Items.Where(entry => entry.Template.SetId == item.Template.SetId && entry.IsEquiped)));                    
+                    if (item.Template.SetId != 0)
+                        Dispatch(WorldMessage.ITEM_SET(item.Template.Set, Items.Where(entry => entry.Template.SetId == item.Template.SetId && entry.IsEquiped)));
                     CachedBuffer = false;
                 }
                 return;
@@ -209,7 +165,7 @@ namespace Game.Entity.Inventory
                         return;
                     }
 
-                    // Slot is empty: validate using LivingType and allow standalone equip
+
                     var livingType = GetLivingEffectValue(item, EffectEnum.LivingType);
                     var validSlots = ItemTemplateDAO.GetSlotByType((ItemTypeEnum)livingType);
                     if ((validSlots & slot) != slot)
@@ -226,14 +182,14 @@ namespace Game.Entity.Inventory
                     return;
                 }
 
-                // level required
+
                 if (Entity.Level < item.Template.Level)
                 {
                     base.Dispatch(WorldMessage.OBJECT_MOVE_ERROR_REQUIRED_LEVEL());
                     return;
                 }
 
-                // Already equiped template                    
+
                 if (HasTemplateEquiped(item.TemplateId))
                 {
                     base.Dispatch(WorldMessage.OBJECT_MOVE_ERROR_ALREADY_EQUIPED());
@@ -251,12 +207,12 @@ namespace Game.Entity.Inventory
 
                 var equipedItem = Items.Find(entry => entry.SlotId == (int)slot && entry.Id != item.Id);
 
-                // already equiped in slot ? remove it
+
                 if (equipedItem != null)
                 {
                     MoveItem(equipedItem, ItemSlotEnum.SLOT_INVENTORY);
                 }
-                
+
                 m_entityLookRefresh = true;
                 var newItem = MoveQuantity(item, 1);
                 newItem.SlotId = (int)slot;
@@ -268,8 +224,8 @@ namespace Game.Entity.Inventory
                     Entity.Statistics.Merge(StatsType.TYPE_BOOST, item.Statistics);
                 else
                     Entity.Statistics.Merge(StatsType.TYPE_ITEM, item.Statistics);
-               
-                // send new stats
+
+
                 if (Entity.Type == EntityTypeEnum.TYPE_CHARACTER)
                 {
                     Entity.MovementHandler.Dispatch(WorldMessage.ENTITY_OBJECT_ACTUALIZE(Entity));
@@ -277,7 +233,7 @@ namespace Game.Entity.Inventory
                     base.CachedBuffer = true;
                     Entity.MovementHandler.Dispatch(WorldMessage.ENTITY_OBJECT_ACTUALIZE(Entity));
                     base.Dispatch(WorldMessage.ACCOUNT_STATS((CharacterEntity)Entity));
-                    if(item.Template.SetId != 0)                    
+                    if (item.Template.SetId != 0)
                         base.Dispatch(WorldMessage.ITEM_SET(item.Template.Set, Items.Where(entry => entry.Template.SetId == item.Template.SetId && entry.IsEquiped)));
                     if (newItem.Slot == ItemSlotEnum.SLOT_WEAPON)
                     {
@@ -291,14 +247,11 @@ namespace Game.Entity.Inventory
             {
                 var newItem = MoveQuantity(item, quantity);
                 newItem.SlotId = (int)slot;
-                if(!AddItem(newItem, false))
-                   base.Dispatch(WorldMessage.OBJECT_MOVE_SUCCESS(item.Id, item.SlotId));
+                if (!AddItem(newItem, false))
+                    base.Dispatch(WorldMessage.OBJECT_MOVE_SUCCESS(item.Id, item.SlotId));
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void SendSets()
         {
             if (Entity.Type == EntityTypeEnum.TYPE_CHARACTER)
@@ -310,11 +263,7 @@ namespace Game.Entity.Inventory
                 base.CachedBuffer = false;
             }
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="item"></param>
+
         public void AddSet(ItemDAO item)
         {
             if (item.Template.SetId == 0 || item.Template.Set == null)
@@ -324,7 +273,7 @@ namespace Game.Entity.Inventory
             if (!m_equippedSets.ContainsKey(set.Id))
                 m_equippedSets.Add(set.Id, 0);
             var count = ++m_equippedSets[set.Id];
-            
+
             if (count > 0)
             {
                 Entity.Statistics.UnMerge(Stats.StatsType.TYPE_ITEM, set.GetStats(count - 1));
@@ -332,9 +281,6 @@ namespace Game.Entity.Inventory
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void RemoveSet(ItemDAO item)
         {
             if (item.Template.SetId == 0 || item.Template.Set == null)
@@ -563,10 +509,6 @@ namespace Game.Entity.Inventory
             RefreshLivingItem(targetItem);
         }
 
-        /// <summary>
-        /// Feeds an associated living item with an item of the same real type.
-        /// Client packet: Of{itemId}|{slot}|{foodItemId}
-        /// </summary>
         public void FeedLivingItem(long associatedItemId, long foodItemId)
         {
             var associatedItem = Items.Find(x => x.Id == associatedItemId);
@@ -578,8 +520,8 @@ namespace Game.Entity.Inventory
             }
 
             var foodItem = Items.Find(x => x.Id == foodItemId);
-            // For standalone vivants, LivingType must be read from the effect directly (template type is TYPE_OBJET_VIVANT = 113).
-            // For associated items, fall back to host item's template type if the effect is missing.
+
+
             var livingType = isStandalone
                 ? GetLivingEffectValue(associatedItem, EffectEnum.LivingType, 0, false)
                 : GetLivingEffectValue(associatedItem, EffectEnum.LivingType, associatedItem.Template.Type);
@@ -597,9 +539,9 @@ namespace Game.Entity.Inventory
 
             var currentMood = GetLivingEffectValue(associatedItem, EffectEnum.LivingMood, LIVING_MOOD_LEAN, false);
 
-            // FAT: cannot eat at all until the 12h cycle resets back to LEAN
-            // LEAN: can only eat if 12h have passed since the last cycle (CanLivingItemEat)
-            // SATISFIED: can eat again immediately (no cooldown) to reach FAT
+
+
+
             if (currentMood == LIVING_MOOD_FAT || (currentMood == LIVING_MOOD_LEAN && !CanLivingItemEat(associatedItem, now)))
             {
                 if (metadataChanged)
@@ -611,7 +553,7 @@ namespace Game.Entity.Inventory
                 return;
             }
 
-            // Advance mood: LEAN → SATISFIED (1st meal), SATISFIED → FAT (2nd meal, immediate)
+
             int newMood = currentMood == LIVING_MOOD_LEAN ? LIVING_MOOD_SATISFIED : LIVING_MOOD_FAT;
             SetLivingMood(associatedItem, newMood);
             ItemDAO.SetDateEffect(associatedItem.Statistics, EffectEnum.LastEat, now);
@@ -631,10 +573,6 @@ namespace Game.Entity.Inventory
             RefreshLivingItem(associatedItem);
         }
 
-        /// <summary>
-        /// Changes the visual skin of an associated living item.
-        /// Client packet: Os{itemId}|{slot}|{skinId}
-        /// </summary>
         public void SetLivingItemSkin(long associatedItemId, int skinId)
         {
             var associatedItem = Items.Find(x => x.Id == associatedItemId);
@@ -658,10 +596,6 @@ namespace Game.Entity.Inventory
             RefreshLivingItem(associatedItem);
         }
 
-        /// <summary>
-        /// Dissociates a living item from its host item and recreates the detached living object.
-        /// Client packet: Ox{itemId}|{slot}
-        /// </summary>
         public void DissociateLivingItem(long associatedItemId)
         {
             var associatedItem = Items.Find(x => x.Id == associatedItemId);
@@ -703,22 +637,13 @@ namespace Game.Entity.Inventory
             var livingTemplateId = GetLivingEffectValue(item, EffectEnum.LivingGfxId);
             if (livingTemplateId > 0)
             {
-                message
-                    .Append(livingTemplateId.ToString("x"))
-                    .Append('~')
-                    .Append(item.Template.Type)
-                    .Append('~')
-                    .Append(GetLivingEffectValue(item, EffectEnum.LivingSkin, 1));
+                message.Append(livingTemplateId.ToString("x")).Append('~').Append(item.Template.Type).Append('~').Append(GetLivingEffectValue(item, EffectEnum.LivingSkin, 1));
                 return;
             }
 
             message.Append(item.TemplateId.ToString("x"));
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="message"></param>
         public void SerializeAs_ActorLookMessage(StringBuilder message)
         {
             if (m_entityLookRefresh || m_entityLookCache == null)

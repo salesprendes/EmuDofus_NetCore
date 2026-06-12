@@ -1,4 +1,4 @@
-﻿using Game.Database.Structure;
+using Game.Database.Structure;
 using Game.Entity;
 using Game.Stats;
 using System;
@@ -9,28 +9,10 @@ using System.Threading.Tasks;
 
 namespace Game.ActionEffect
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public interface IActionEffect
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="item"></param>
-        /// <param name="effect"></param>
-        /// <param name="targetId"></param>
-        /// <param name="targetCell"></param>
-        /// <returns></returns>
         bool ProcessItem(CharacterEntity character, ItemDAO item, GenericEffect effect, long targetId, int targetCell);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="parameters"></param>
-        /// <returns></returns>
         bool Process(CharacterEntity character, Dictionary<string, string> parameters);
     }
 }

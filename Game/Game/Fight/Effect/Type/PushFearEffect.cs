@@ -1,4 +1,4 @@
-﻿using Game.Action;
+using Game.Action;
 using Game.Map;
 using Game.Spell;
 using Game.Network;
@@ -10,16 +10,8 @@ using System.Threading.Tasks;
 
 namespace Game.Fight.Effect.Type
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class PushFearEffect : AbstractSpellEffect
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="castInfos"></param>
-        /// <returns></returns>
         public override FightActionResultEnum ApplyEffect(CastInfos castInfos)
         {
             DirectionEnum direction = Pathfinding.GetDirection(castInfos.Map, castInfos.Caster.Cell.Id, castInfos.CellId);
@@ -42,10 +34,7 @@ namespace Game.Fight.Effect.Type
                     {
                         castInfos.Fight.Dispatch(WorldMessage.GAME_ACTION(GameActionTypeEnum.MAP_PUSHBACK, target.Id, target.Id + "," + nextCell.Id));
 
-                        castInfos.Fight.SetSubAction(() =>
-                        {
-                            return target.SetCell(nextCell);
-                        }, 1 + ++i * WorldConfig.FIGHT_PUSH_CELL_TIME);
+                        castInfos.Fight.SetSubAction(() => { return target.SetCell(nextCell); }, 1 + ++i * WorldConfig.FIGHT_PUSH_CELL_TIME);
 
                         return FightActionResultEnum.RESULT_NOTHING;
                     }
@@ -57,10 +46,7 @@ namespace Game.Fight.Effect.Type
                         castInfos.Fight.Dispatch(WorldMessage.GAME_ACTION(GameActionTypeEnum.MAP_PUSHBACK, target.Id, target.Id + "," + currentCell.Id));
                     }
 
-                    castInfos.Fight.SetSubAction(() =>
-                    {
-                        return target.SetCell(currentCell);
-                    }, 1 + (i * WorldConfig.FIGHT_PUSH_CELL_TIME));
+                    castInfos.Fight.SetSubAction(() => { return target.SetCell(currentCell); }, 1 + (i * WorldConfig.FIGHT_PUSH_CELL_TIME));
 
                     return FightActionResultEnum.RESULT_NOTHING;
                 }
@@ -70,10 +56,7 @@ namespace Game.Fight.Effect.Type
 
             castInfos.Fight.Dispatch(WorldMessage.GAME_ACTION(GameActionTypeEnum.MAP_PUSHBACK, target.Id, target.Id + "," + currentCell.Id));
 
-            castInfos.Fight.SetSubAction(() =>
-            {
-                return target.SetCell(currentCell);
-            }, 1 + distance * WorldConfig.FIGHT_PUSH_CELL_TIME);
+            castInfos.Fight.SetSubAction(() => { return target.SetCell(currentCell); }, 1 + distance * WorldConfig.FIGHT_PUSH_CELL_TIME);
 
             return FightActionResultEnum.RESULT_NOTHING;
         }

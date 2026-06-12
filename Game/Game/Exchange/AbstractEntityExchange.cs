@@ -1,4 +1,4 @@
-﻿using Game.Database.Structure;
+using Game.Database.Structure;
 using Game.Action;
 using Game.Entity;
 using Game.Network;
@@ -10,98 +10,42 @@ using System.Threading.Tasks;
 
 namespace Game.Exchange
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public interface IValidableExchange
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <returns></returns>
         bool Validate(AbstractEntity entity);
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public interface IRetryableExchange
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="count"></param>
         void Retry(int count);
 
-        /// <summary>
-        /// 
-        /// </summary>
         void CancelRetry();
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public abstract class AbstractEntityExchange : AbstractExchange, IValidableExchange
     {
-         /// <summary>
-        /// 
-        /// </summary>
         protected AbstractEntity m_local, m_distant;
 
-        /// <summary>
-        /// 
-        /// </summary>
         protected Dictionary<long, Dictionary<long, int>> m_exchangedItems;
 
-        /// <summary>
-        /// 
-        /// </summary>
         protected Dictionary<long, long> m_exchangedKamas;
 
-        /// <summary>
-        /// 
-        /// </summary>
         protected Dictionary<long, bool> m_validated;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="local"></param>
-        /// <param name="distant"></param>
         public AbstractEntityExchange(ExchangeTypeEnum type, AbstractEntity local, AbstractEntity distant)
-            : base(type)
-        {            
+    : base(type)
+        {
             m_local = local;
             m_distant = distant;
             if (m_local.Inventory == null || m_distant.Inventory == null)
             {
                 Logger.Debug("EntityExchange: se ha intentado intercambiar con una entidad sin inventario.");
             }
-            m_exchangedItems = new Dictionary<long, Dictionary<long, int>>()
-            {
-                { m_local.Id, new Dictionary<long, int>() },
-                { m_distant.Id, new Dictionary<long, int>() },
-            };
-            m_exchangedKamas = new Dictionary<long, long>()
-            {
-                { m_local.Id, 0},
-                { m_distant.Id, 0},
-            };
-            m_validated = new Dictionary<long, bool>()
-            {
-                { m_local.Id, false },
-                { m_distant.Id, false },
-            };
+            m_exchangedItems = new Dictionary<long, Dictionary<long, int>>() { { m_local.Id, new Dictionary<long, int>() }, { m_distant.Id, new Dictionary<long, int>() }, };
+            m_exchangedKamas = new Dictionary<long, long>() { { m_local.Id, 0 }, { m_distant.Id, 0 }, };
+            m_validated = new Dictionary<long, bool>() { { m_local.Id, false }, { m_distant.Id, false }, };
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="guid"></param>
-        /// <param name="quantity"></param>
         public override int AddItem(AbstractEntity entity, long guid, int quantity, long price = -1)
         {
             if (quantity < 1)
@@ -134,14 +78,14 @@ namespace Game.Exchange
                     if (quantity > realQuantity)
                         quantity = realQuantity;
                 }
-                
-                m_exchangedItems[entity.Id][guid] += quantity;                
+
+                m_exchangedItems[entity.Id][guid] += quantity;
 
                 if (entity.Id == m_local.Id)
                 {
-                    if(m_local.Type == EntityTypeEnum.TYPE_CHARACTER)
+                    if (m_local.Type == EntityTypeEnum.TYPE_CHARACTER)
                         m_local.Dispatch(WorldMessage.EXCHANGE_LOCAL_MOVEMENT(ExchangeMoveEnum.MOVE_OBJECT, OperatorEnum.OPERATOR_ADD, item.Id.ToString() + '|' + m_exchangedItems[entity.Id][guid]));
-                    if(m_distant.Type == EntityTypeEnum.TYPE_CHARACTER)
+                    if (m_distant.Type == EntityTypeEnum.TYPE_CHARACTER)
                         m_distant.Dispatch(WorldMessage.EXCHANGE_DISTANT_MOVEMENT(ExchangeMoveEnum.MOVE_OBJECT, OperatorEnum.OPERATOR_ADD, item.Id.ToString() + '|' + m_exchangedItems[entity.Id][guid] + '|' + item.TemplateId + '|' + item.StringEffects));
                 }
                 else
@@ -150,7 +94,7 @@ namespace Game.Exchange
                         m_local.Dispatch(WorldMessage.EXCHANGE_DISTANT_MOVEMENT(ExchangeMoveEnum.MOVE_OBJECT, OperatorEnum.OPERATOR_ADD, item.Id.ToString() + '|' + m_exchangedItems[entity.Id][guid] + '|' + item.TemplateId + '|' + item.StringEffects));
                     if (m_distant.Type == EntityTypeEnum.TYPE_CHARACTER)
                         m_distant.Dispatch(WorldMessage.EXCHANGE_LOCAL_MOVEMENT(ExchangeMoveEnum.MOVE_OBJECT, OperatorEnum.OPERATOR_ADD, item.Id.ToString() + '|' + m_exchangedItems[entity.Id][guid]));
-                 }
+                }
 
                 return quantity;
             }
@@ -158,12 +102,6 @@ namespace Game.Exchange
             return 0;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="guid"></param>
-        /// <returns></returns>
         private int GetQuantity(AbstractEntity entity, long guid)
         {
             if (m_exchangedItems[entity.Id].ContainsKey(guid))
@@ -173,12 +111,6 @@ namespace Game.Exchange
             return 0;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="guid"></param>
-        /// <param name="quantity"></param>
         public override int RemoveItem(AbstractEntity entity, long guid, int quantity)
         {
             if (quantity < 1)
@@ -205,14 +137,14 @@ namespace Game.Exchange
                     if (m_local.Type == EntityTypeEnum.TYPE_CHARACTER)
                     {
                         m_local.Dispatch(WorldMessage.EXCHANGE_LOCAL_MOVEMENT(ExchangeMoveEnum.MOVE_OBJECT, OperatorEnum.OPERATOR_REMOVE, item.Id.ToString()));
-                        if(exists)
+                        if (exists)
                             m_local.Dispatch(WorldMessage.EXCHANGE_LOCAL_MOVEMENT(ExchangeMoveEnum.MOVE_OBJECT, OperatorEnum.OPERATOR_ADD, item.Id.ToString() + '|' + m_exchangedItems[entity.Id][guid]));
                     }
                     if (m_distant.Type == EntityTypeEnum.TYPE_CHARACTER)
                     {
                         m_distant.Dispatch(WorldMessage.EXCHANGE_DISTANT_MOVEMENT(ExchangeMoveEnum.MOVE_OBJECT, OperatorEnum.OPERATOR_REMOVE, item.Id.ToString()));
                         if (exists)
-                            m_distant.Dispatch(WorldMessage.EXCHANGE_DISTANT_MOVEMENT(ExchangeMoveEnum.MOVE_OBJECT, OperatorEnum.OPERATOR_ADD, item.Id.ToString() + '|' + m_exchangedItems[entity.Id][guid] + '|' + item.TemplateId + '|' + item.StringEffects));           
+                            m_distant.Dispatch(WorldMessage.EXCHANGE_DISTANT_MOVEMENT(ExchangeMoveEnum.MOVE_OBJECT, OperatorEnum.OPERATOR_ADD, item.Id.ToString() + '|' + m_exchangedItems[entity.Id][guid] + '|' + item.TemplateId + '|' + item.StringEffects));
                     }
                 }
                 else
@@ -235,11 +167,6 @@ namespace Game.Exchange
             return 0;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="quantity"></param>
         public override long MoveKamas(AbstractEntity entity, long quantity)
         {
             if (quantity < 0)
@@ -268,9 +195,6 @@ namespace Game.Exchange
             return quantity;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void UnValidateAll()
         {
             m_validated[m_local.Id] = false;
@@ -280,14 +204,9 @@ namespace Game.Exchange
             base.Dispatch(WorldMessage.EXCHANGE_VALIDATE(m_distant.Id, false));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <returns></returns>
         public virtual bool Validate(AbstractEntity entity)
         {
-            m_validated[entity.Id] = m_validated[entity.Id] == false; // inverse de la valeur actuelle
+            m_validated[entity.Id] = m_validated[entity.Id] == false;
 
             base.Dispatch(WorldMessage.EXCHANGE_VALIDATE(entity.Id, m_validated[entity.Id]));
 

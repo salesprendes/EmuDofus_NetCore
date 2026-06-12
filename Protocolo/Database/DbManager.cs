@@ -5,8 +5,7 @@ using System.Collections.Generic;
 
 namespace Protocolo.Framework.Database
 {
-    public abstract class DbManager<T> : Singleton<T>
-        where T : class, new()
+    public abstract class DbManager<T> : Singleton<T> where T : class, new()
     {
         private readonly List<IRepository> m_repositories;
         private readonly SqlManager m_sqlMgr;

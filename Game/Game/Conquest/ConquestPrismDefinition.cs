@@ -35,7 +35,7 @@ namespace Game.Conquest
         {
             if (alignmentId == 2) return BrakmarTemplateId;
             if (alignmentId == 1) return BontaTemplateId;
-            // Neutral: return Bonta template as visual default
+
             return BontaTemplateId;
         }
     }

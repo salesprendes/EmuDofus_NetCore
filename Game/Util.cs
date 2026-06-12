@@ -1,4 +1,4 @@
-﻿using Game.Entity;
+using Game.Entity;
 using Game.Fight;
 using Protocolo.Framework.Utils;
 using System;
@@ -38,7 +38,7 @@ namespace Game
             if (input < 0)
                 buf[--pos] = '-';
 
-            return new string(buf.Slice(pos));
+            return new string (buf.Slice(pos));
         }
 
         public static long CalculPVMExperience(IEnumerable<MonsterEntity> monsters, IEnumerable<AbstractFighter> droppers, int level, int wisdom, double challengeBonus = 1.0, int ageBonus = 0)

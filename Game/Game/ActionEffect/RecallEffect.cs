@@ -1,4 +1,4 @@
-﻿using Game.Database.Structure;
+using Game.Database.Structure;
 using Game.Action;
 using Game.Entity;
 using Game.Network;
@@ -10,34 +10,16 @@ using System.Threading.Tasks;
 
 namespace Game.ActionEffect
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class RecallEffect : AbstractActionEffect<RecallEffect>
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="item"></param>
-        /// <param name="effect"></param>
-        /// <param name="targetId"></param>
-        /// <param name="targetCell"></param>
-        /// <returns></returns>
         public override bool ProcessItem(CharacterEntity character, ItemDAO item, Stats.GenericEffect effect, long targetId, int targetCell)
         {
             return Process(character, null);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="parameters"></param>
-        /// <returns></returns>
         public override bool Process(CharacterEntity character, Dictionary<string, string> parameters)
         {
-            if(!character.CanGameAction(GameActionTypeEnum.MAP_TELEPORT))
+            if (!character.CanGameAction(GameActionTypeEnum.MAP_TELEPORT))
             {
                 character.Dispatch(WorldMessage.IM_ERROR_MESSAGE(InformationEnum.ERROR_YOU_ARE_AWAY));
                 return false;

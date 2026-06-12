@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,16 +6,10 @@ using System.Threading.Tasks;
 
 namespace Game.Fight.Challenge
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class PetulantChallenge : AbstractChallenge
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public PetulantChallenge()
-             : base(ChallengeTypeEnum.PETULANT)
+     : base(ChallengeTypeEnum.PETULANT)
         {
             BasicDropBonus = 10;
             BasicXpBonus = 10;
@@ -25,10 +19,6 @@ namespace Game.Fight.Challenge
 
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
         public override void EndTurn(AbstractFighter fighter)
         {
             if (fighter.AP > 0)

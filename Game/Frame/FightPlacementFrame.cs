@@ -1,4 +1,4 @@
-﻿using Game.Action;
+using Game.Action;
 using Game.Entity;
 using Game.Fight;
 using Game.Network;
@@ -7,16 +7,8 @@ using System;
 
 namespace Game.Frame
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class FightPlacementFrame : AbstractNetworkFrame<FightPlacementFrame, CharacterEntity, string>
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
         public override Action<CharacterEntity, string> GetHandler(string message)
         {
             if (message.Length < 2)
@@ -61,11 +53,6 @@ namespace Game.Frame
             return null;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="actor"></param>
-        /// <param name="message"></param>
         private void FightOption(CharacterEntity character, string message)
         {
             var optionType = (FightOptionTypeEnum)message[1];
@@ -89,11 +76,6 @@ namespace Game.Frame
                 });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="actor"></param>
-        /// <param name="message"></param>
         private void FightReady(CharacterEntity character, string message)
         {
             character.AddMessage(() =>
@@ -108,11 +90,6 @@ namespace Game.Frame
                 });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="actor"></param>
-        /// <param name="message"></param>
         private void FightPlacement(CharacterEntity character, string message)
         {
             character.AddMessage(() =>
@@ -142,11 +119,6 @@ namespace Game.Frame
                 });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="actor"></param>
-        /// <param name="message"></param>
         private void FightQuit(CharacterEntity character, string message)
         {
             character.AddMessage(() =>
@@ -244,8 +216,7 @@ namespace Game.Frame
                     return;
                 }
 
-                character.Fight.AddMessage(() =>
-                    character.Fight.Dispatch(WorldMessage.FIGHT_CELL_FLAG(cellId, character.Id)));
+                character.Fight.AddMessage(() => character.Fight.Dispatch(WorldMessage.FIGHT_CELL_FLAG(cellId, character.Id)));
             });
         }
     }

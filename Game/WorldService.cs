@@ -1,4 +1,4 @@
-﻿using Game.Command;
+using Game.Command;
 using Game.Database;
 using Game.Database.Repository;
 using Game.Frame;
@@ -83,11 +83,7 @@ namespace Game
 
         protected override void OnClientConnected(WorldClient client)
         {
-            AddMessage(() =>
-            {
-                client.FrameManager.AddFrame(AuthentificationFrame.Instance);
-                client.Send(WorldMessage.HELLO_GAME());
-            });
+            AddMessage(() => { client.FrameManager.AddFrame(AuthentificationFrame.Instance); client.Send(WorldMessage.HELLO_GAME()); });
         }
 
         protected override void OnClientDisconnected(WorldClient client)

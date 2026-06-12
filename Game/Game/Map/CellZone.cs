@@ -6,15 +6,12 @@ namespace Game.Map
     {
         private const int MaxRadius = 63;
 
-        private static readonly DirectionEnum[] CardinalDirections =
-        {
-            DirectionEnum.Este, DirectionEnum.Sur, DirectionEnum.Oeste, DirectionEnum.Norte
-        };
+        private static readonly DirectionEnum[] CardinalDirections = { DirectionEnum.Este, DirectionEnum.Sur, DirectionEnum.Oeste, DirectionEnum.Norte };
 
         public static IEnumerable<int> GetAdjacentCells(MapInstance map, int cellId)
         {
             if (map == null) yield break;
-            
+
             yield return Pathfinding.NextCell(map, cellId, DirectionEnum.Este);
             yield return Pathfinding.NextCell(map, cellId, DirectionEnum.Sur);
             yield return Pathfinding.NextCell(map, cellId, DirectionEnum.Oeste);
@@ -41,8 +38,8 @@ namespace Game.Map
 
             radius = Clamp(radius, 0, MaxRadius);
 
-            var cells    = new HashSet<int> { currentCell };
-            var frontier = new List<int>    { currentCell };
+            var cells = new HashSet<int> { currentCell };
+            var frontier = new List<int> { currentCell };
 
             for (int i = 0; i < radius; i++)
             {
@@ -64,13 +61,11 @@ namespace Game.Map
         public static IEnumerable<int> GetRingCells(MapInstance map, int currentCell, int radiusIn, int radiusOut)
         {
             if (map == null) yield break;
-            radiusIn  = Clamp(radiusIn,  0, MaxRadius);
+            radiusIn = Clamp(radiusIn, 0, MaxRadius);
             radiusOut = Clamp(radiusOut, 0, MaxRadius);
             if (radiusIn > radiusOut) yield break;
 
-            var inner = radiusIn > 0
-                ? new HashSet<int>(GetCircleCells(map, currentCell, radiusIn - 1))
-                : new HashSet<int>();
+            var inner = radiusIn > 0 ? new HashSet<int>(GetCircleCells(map, currentCell, radiusIn - 1)) : new HashSet<int>();
 
             foreach (var cell in GetCircleCells(map, currentCell, radiusOut))
             {
@@ -104,7 +99,7 @@ namespace Game.Map
 
             for (int loc9 = firstLoc9; loc9 < maxRadius; loc9 += 2)
             {
-                var outer    = new HashSet<int>(GetCircleCells(map, currentCell, loc9 + 1));
+                var outer = new HashSet<int>(GetCircleCells(map, currentCell, loc9 + 1));
                 var innerSet = new HashSet<int>(GetCircleCells(map, currentCell, loc9));
                 foreach (var cell in outer)
                 {
@@ -117,7 +112,7 @@ namespace Game.Map
         public static IEnumerable<int> GetRectangleCells(MapInstance map, int cellId, int width, int height)
         {
             if (map == null) yield break;
-            width  = Clamp(width,  1, MaxRadius);
+            width = Clamp(width, 1, MaxRadius);
             height = Clamp(height, 1, MaxRadius);
 
             for (int h = 0; h < height; h++)
@@ -153,7 +148,7 @@ namespace Game.Map
         public static IEnumerable<int> GetCrossRingCells(MapInstance map, int currentCell, int radiusIn, int radiusOut)
         {
             if (map == null) yield break;
-            radiusIn  = Clamp(radiusIn,  0, MaxRadius);
+            radiusIn = Clamp(radiusIn, 0, MaxRadius);
             radiusOut = Clamp(radiusOut, 0, MaxRadius);
             if (radiusIn > radiusOut) yield break;
 
@@ -176,7 +171,7 @@ namespace Game.Map
             length = Clamp(length, 0, MaxRadius);
 
             var perpDir = (DirectionEnum)(((int)direction + 2) % 8);
-            var oppDir  = Pathfinding.OppositeDirection(perpDir);
+            var oppDir = Pathfinding.OppositeDirection(perpDir);
 
             yield return cellId;
 
@@ -218,64 +213,64 @@ namespace Game.Map
                         foreach (var cell in GetCircleCells(map, cellId, r))
                             yield return cell;
                     }
-                break;
+                    break;
 
                 case 'X':
-                {
-                    int r = range.Length >= 2 ? ParseRadius(range[1]) : 0;
-                    foreach (var cell in GetCrossCells(map, cellId, r))
-                        yield return cell;
-                }
-                break;
+                    {
+                        int r = range.Length >= 2 ? ParseRadius(range[1]) : 0;
+                        foreach (var cell in GetCrossCells(map, cellId, r))
+                            yield return cell;
+                    }
+                    break;
 
                 case 'T':
-                {
-                    int len = range.Length >= 2 ? ParseRadius(range[1]) : 0;
-                    foreach (var cell in GetTLineCells(map, cellId, Pathfinding.GetDirection(map, currentCell, cellId), len))
-                        yield return cell;
-                    break;
-                }
+                    {
+                        int len = range.Length >= 2 ? ParseRadius(range[1]) : 0;
+                        foreach (var cell in GetTLineCells(map, cellId, Pathfinding.GetDirection(map, currentCell, cellId), len))
+                            yield return cell;
+                        break;
+                    }
 
                 case 'L':
-                {
-                    var len = range.Length >= 2 ? ParseRadius(range[1]) : 0;
-                    foreach (var cell in GetLineCells(map, cellId, Pathfinding.GetDirection(map, currentCell, cellId), len))
-                        yield return cell;
-                    break;
-                }
+                    {
+                        var len = range.Length >= 2 ? ParseRadius(range[1]) : 0;
+                        foreach (var cell in GetLineCells(map, cellId, Pathfinding.GetDirection(map, currentCell, cellId), len))
+                            yield return cell;
+                        break;
+                    }
 
                 case 'P':
                     yield return cellId;
-                break;
+                    break;
 
                 case 'O':
-                {
-                    int r = range.Length >= 2 ? ParseRadius(range[1]) : 0;
-                    foreach (var cell in GetOutlineCells(map, cellId, r))
-                        yield return cell;
-                    break;
-                }
+                    {
+                        int r = range.Length >= 2 ? ParseRadius(range[1]) : 0;
+                        foreach (var cell in GetOutlineCells(map, cellId, r))
+                            yield return cell;
+                        break;
+                    }
 
                 case 'D':
-                {
-                    int r = range.Length >= 2 ? ParseRadius(range[1]) : 0;
-                    foreach (var cell in GetDiamondRingsCells(map, cellId, r))
-                        yield return cell;
-                    break;
-                }
+                    {
+                        int r = range.Length >= 2 ? ParseRadius(range[1]) : 0;
+                        foreach (var cell in GetDiamondRingsCells(map, cellId, r))
+                            yield return cell;
+                        break;
+                    }
 
                 case 'R':
-                {
-                    var w = range.Length >= 2 ? ParseRadius(range[1]) : 1;
-                    var h = range.Length >= 3 ? ParseRadius(range[2]) : 1;
-                    foreach (var cell in GetRectangleCells(map, cellId, w, h))
-                        yield return cell;
-                    break;
-                }
+                    {
+                        var w = range.Length >= 2 ? ParseRadius(range[1]) : 1;
+                        var h = range.Length >= 3 ? ParseRadius(range[2]) : 1;
+                        foreach (var cell in GetRectangleCells(map, cellId, w, h))
+                            yield return cell;
+                        break;
+                    }
 
                 default:
                     yield return cellId;
-                break;
+                    break;
             }
         }
 
@@ -285,7 +280,7 @@ namespace Game.Map
             return Clamp(v < 0 ? 0 : v, 0, MaxRadius);
         }
 
-        private static bool IsInBounds(MapInstance map, int cellId)=> cellId >= 0 && cellId < map.Cells.Count;
+        private static bool IsInBounds(MapInstance map, int cellId) => cellId >= 0 && cellId < map.Cells.Count;
         private static int Clamp(int value, int min, int max) => value < min ? min : value > max ? max : value;
     }
 }

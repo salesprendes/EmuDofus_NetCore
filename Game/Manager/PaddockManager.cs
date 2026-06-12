@@ -1,4 +1,4 @@
-﻿using Protocolo.Framework.Generic;
+using Protocolo.Framework.Generic;
 using Game.Database.Repository;
 using Game.Mount;
 using System;
@@ -9,9 +9,6 @@ using System.Threading.Tasks;
 
 namespace Game.Manager
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class PaddockManager : Singleton<PaddockManager>
     {
         private readonly Dictionary<int, Paddock> m_paddockByMap;
@@ -24,7 +21,7 @@ namespace Game.Manager
         public void Initialize()
         {
             var count = 0;
-            foreach(var paddock in PaddockRepository.Instance.All)
+            foreach (var paddock in PaddockRepository.Instance.All)
             {
                 m_paddockByMap.Add(paddock.MapId, new Paddock(paddock));
                 count++;

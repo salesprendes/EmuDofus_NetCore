@@ -1,4 +1,4 @@
-﻿using Game.Action;
+using Game.Action;
 using System.Collections.Generic;
 using System.Linq;
 using Game.Network;
@@ -10,9 +10,6 @@ using Game.Manager;
 
 namespace Game.Fight
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public enum FightOptionTypeEnum
     {
         TYPE_NEW_PLAYER_BIS = 'A',
@@ -22,64 +19,29 @@ namespace Game.Fight
         TYPE_SPECTATOR = 'S',
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class SpectatorTeam : MessageDispatcher
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public List<CharacterEntity> Spectators => m_spectators;
-
-        /// <summary>
-        /// 
-        /// </summary>
         private List<CharacterEntity> m_spectators;
-
-        /// <summary>
-        /// 
-        /// </summary>
         private AbstractFight m_fight;
+        public bool CanJoin => m_fight.State == FightStateEnum.STATE_FIGHTING && !m_fight.Team0.IsOptionLocked(FightOptionTypeEnum.TYPE_SPECTATOR) && !m_fight.Team1.IsOptionLocked(FightOptionTypeEnum.TYPE_SPECTATOR);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public bool CanJoin => m_fight.State == FightStateEnum.STATE_FIGHTING &&
-                               !m_fight.Team0.IsOptionLocked(FightOptionTypeEnum.TYPE_SPECTATOR) &&
-                               !m_fight.Team1.IsOptionLocked(FightOptionTypeEnum.TYPE_SPECTATOR);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fight"></param>
         public SpectatorTeam(AbstractFight fight)
         {
             m_fight = fight;
             m_spectators = new List<CharacterEntity>();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
         public void AddSpectator(CharacterEntity fighter)
         {
             m_spectators.Add(fighter);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
         public void RemoveSpectator(CharacterEntity fighter)
         {
             m_spectators.Remove(fighter);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override void Dispose()
         {
             m_fight = null;
@@ -90,74 +52,44 @@ namespace Game.Fight
         }
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class FightTeam : MessageDispatcher
-    {       
-        /// <summary>
-        /// 
-        /// </summary>
+    {
         public List<AbstractFighter> Fighters => m_fighters;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public IEnumerable<AbstractFighter> AliveFighters => Fighters.Where(fighter => !fighter.IsFighterDead);
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Id
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public AbstractFight Fight
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public AbstractFighter Leader => m_fighters.FirstOrDefault();
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long LeaderId
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int FlagCellId
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public FightTeam OpponentTeam
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public FightCell FreePlace
         {
             get
@@ -168,14 +100,11 @@ namespace Game.Fight
 
         public int PlacesCount => m_places.Count;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool HasSomeoneAlive
         {
             get
             {
-                switch(Fight.Type)
+                switch (Fight.Type)
                 {
                     case FightTypeEnum.TYPE_PVT:
                         if (m_fighters[0].IsFighterDead)
@@ -185,29 +114,27 @@ namespace Game.Fight
                     case FightTypeEnum.TYPE_PVMA:
                         if (m_fighters[0] is ConquestPrismEntity)
                         {
-                            // Defender team: alive as long as any character defender is alive
+
                             var charDefenders = m_fighters.OfType<CharacterEntity>();
                             if (charDefenders.Any())
                                 return charDefenders.Any(f => !f.IsFighterDead);
-                            // No characters joined yet — fall back to prism alive check
+
                             return !m_fighters[0].IsFighterDead;
                         }
-                        // Attacker team: leader death = defeat
+
                         if (m_fighters[0].IsFighterDead)
                             return false;
                         break;
                 }
-                
+
                 return m_fighters.Any(fighter => !fighter.IsFighterDead && fighter.Invocator == null);
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public string Places
         {
-            get {
+            get
+            {
                 return m_placesCache ?? (m_placesCache = string.Create(m_places.Count * 2, m_places, static (destination, places) =>
                 {
                     for (int i = 0; i < places.Count; i++)
@@ -218,18 +145,12 @@ namespace Game.Fight
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int AlignmentId
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public IEnumerable<AbstractChallenge> SucceededChallenges
         {
             get
@@ -237,25 +158,13 @@ namespace Game.Fight
                 return m_challenges.Where(challenge => challenge.Success);
             }
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
+
         private Dictionary<FightOptionTypeEnum, bool> m_blockedOption;
         private List<AbstractFighter> m_fighters;
         private List<FightCell> m_places;
         private List<AbstractChallenge> m_challenges;
         private string m_placesCache;
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="leaderId"></param>
-        /// <param name="alignment"></param>
-        /// <param name="flagCell"></param>
-        /// <param name="fight"></param>
-        /// <param name="places"></param>
         public FightTeam(int id, long leaderId, int alignment, int flagCell, AbstractFight fight, List<FightCell> places)
         {
             Id = id;
@@ -263,12 +172,12 @@ namespace Game.Fight
             LeaderId = leaderId;
             AlignmentId = alignment;
             FlagCellId = flagCell;
-            
+
             m_challenges = new List<AbstractChallenge>();
             m_fighters = new List<AbstractFighter>();
             m_places = places;
             m_blockedOption = new Dictionary<FightOptionTypeEnum, bool>()
-            {            
+            {
                 { FightOptionTypeEnum.TYPE_NEW_PLAYER_BIS, false },
                 { FightOptionTypeEnum.TYPE_HELP, false },
                 { FightOptionTypeEnum.TYPE_PARTY, false },
@@ -276,74 +185,53 @@ namespace Game.Fight
             };
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="challenge"></param>
         public void AddChallenge(AbstractChallenge challenge)
         {
             challenge.AddHandler(base.Dispatch);
             m_challenges.Add(challenge);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
         public void AddFighter(AbstractFighter fighter)
         {
             m_fighters.Add(fighter);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
         public void RemoveFighter(AbstractFighter fighter)
         {
             m_fighters.Remove(fighter);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighterId"></param>
         public AbstractFighter GetFighter(long fighterId)
         {
             return m_fighters.Find(fighter => fighter.Id == fighterId);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <returns></returns>
         public bool CanJoinBeforeStart(CharacterEntity character)
         {
-            if (LeaderId < 0 && AlignmentId == -1) // cant join taxcollector or monsters
+            if (LeaderId < 0 && AlignmentId == -1)
                 return false;
 
-            // No more fighter accepted
+
             if (FreePlace == null || IsOptionLocked(FightOptionTypeEnum.TYPE_NEW_PLAYER_BIS))
             {
                 character.Dispatch(WorldMessage.GAME_ACTION(GameActionTypeEnum.FIGHT_JOIN, character.Id, "f"));
                 return false;
             }
-            
+
             if (IsOptionLocked(FightOptionTypeEnum.TYPE_PARTY) && character.PartyId != ((CharacterEntity)m_fighters[0]).PartyId)
             {
                 character.Dispatch(WorldMessage.GAME_ACTION(GameActionTypeEnum.FIGHT_JOIN, character.Id, "f"));
                 return false;
             }
 
-            // no more place
-            if(FreePlace == null)
+
+            if (FreePlace == null)
             {
-                character.Dispatch(WorldMessage.GAME_ACTION(GameActionTypeEnum.FIGHT_JOIN, character.Id, "c")); // FULL
+                character.Dispatch(WorldMessage.GAME_ACTION(GameActionTypeEnum.FIGHT_JOIN, character.Id, "c"));
                 return false;
             }
 
-            switch(Fight.Type)
+            switch (Fight.Type)
             {
                 case FightTypeEnum.TYPE_PVT:
                     var taxCollector = OpponentTeam.Fighters[0] as TaxCollectorEntity;
@@ -351,8 +239,8 @@ namespace Game.Fight
                         return false;
 
                     if (character.GuildMember != null && character.GuildMember.GuildId == taxCollector.Guild.Id)
-                    return false;
-                break;
+                        return false;
+                    break;
 
                 case FightTypeEnum.TYPE_PVM:
                 case FightTypeEnum.TYPE_AGGRESSION:
@@ -362,9 +250,6 @@ namespace Game.Fight
             return true;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void SendChallengeInfos()
         {
             foreach (var challenge in m_challenges)
@@ -381,97 +266,54 @@ namespace Game.Fight
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
         public void SendChallengeInfos(AbstractFighter fighter)
         {
             foreach (var challenge in m_challenges)
-                fighter.Dispatch(WorldMessage.FIGHT_CHALLENGE_INFORMATIONS(challenge.Id,
-                    challenge.ShowTarget,
-                    challenge.TargetId,
-                    challenge.BasicXpBonus,
-                    challenge.TeamXpBonus,
-                    challenge.BasicDropBonus,
-                    challenge.TeamDropBonus,
-                    challenge.Success));
+                fighter.Dispatch(WorldMessage.FIGHT_CHALLENGE_INFORMATIONS(challenge.Id, challenge.ShowTarget, challenge.TargetId, challenge.BasicXpBonus, challenge.TeamXpBonus, challenge.BasicDropBonus, challenge.TeamDropBonus, challenge.Success));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
         public void BeginTurn(AbstractFighter fighter)
         {
-                foreach (var challenge in m_challenges)
-                    challenge.BeginTurn(fighter);
+            foreach (var challenge in m_challenges)
+                challenge.BeginTurn(fighter);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
-        /// <param name="castInfos"></param>
         public void CheckSpell(AbstractFighter fighter, CastInfos castInfos)
         {
-                foreach (var challenge in m_challenges)
-                    challenge.CheckSpell(fighter, castInfos);
+            foreach (var challenge in m_challenges)
+                challenge.CheckSpell(fighter, castInfos);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
-        /// <param name="beginCell"></param>
-        /// <param name="endCell"></param>
-        /// <param name="movementLength"></param>
         public void CheckMovement(AbstractFighter fighter, int beginCell, int endCell, int movementLength)
         {
-                foreach (var challenge in m_challenges)
-                    challenge.CheckMovement(fighter, beginCell, endCell, movementLength);
+            foreach (var challenge in m_challenges)
+                challenge.CheckMovement(fighter, beginCell, endCell, movementLength);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
-        /// <param name="weapon"></param>
         public void CheckWeapon(AbstractFighter fighter, ItemTemplateDAO weapon)
         {
-                foreach (var challenge in m_challenges)
-                    challenge.CheckWeapon(fighter, weapon);
+            foreach (var challenge in m_challenges)
+                challenge.CheckWeapon(fighter, weapon);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
         public void CheckDeath(AbstractFighter fighter)
         {
-                // Once this team has been wiped out, the fight is lost for it: don't resolve its
-                // challenges to "failed" off the very death that defeats it. They stay unresolved
-                // (FightEnd only auto-succeeds challenges for a team that still HasSomeoneAlive).
-                if (!HasSomeoneAlive)
-                    return;
 
-                foreach (var challenge in m_challenges)
-                    challenge.CheckDeath(fighter);
+
+
+            if (!HasSomeoneAlive)
+                return;
+
+            foreach (var challenge in m_challenges)
+                challenge.CheckDeath(fighter);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
         public void EndTurn(AbstractFighter fighter)
         {
-                foreach (var challenge in m_challenges)
-                    challenge.EndTurn(fighter);
+            foreach (var challenge in m_challenges)
+                challenge.EndTurn(fighter);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void FightEnd()
         {
             foreach (var challenge in m_challenges)
@@ -481,11 +323,6 @@ namespace Game.Fight
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="team"></param>
-        /// <param name="type"></param>
         public void OptionLock(FightOptionTypeEnum type)
         {
             AddMessage(() =>
@@ -535,35 +372,23 @@ namespace Game.Fight
                 });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
         public void SendMapFightInfos(AbstractEntity entity)
         {
             entity.Dispatch(WorldMessage.FIGHT_FLAG_UPDATE(OperatorEnum.OPERATOR_ADD, LeaderId, Fighters.ToArray()));
-            foreach (var option in m_blockedOption)            
+            foreach (var option in m_blockedOption)
                 entity.Dispatch(WorldMessage.FIGHT_OPTION(option.Key, option.Value, LeaderId));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="toggle"></param>
-        /// <returns></returns>
         public bool IsOptionLocked(FightOptionTypeEnum toggle)
         {
             return m_blockedOption[toggle];
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override void Dispose()
         {
             Fight = null;
             OpponentTeam = null;
-                        
+
             foreach (var challenge in m_challenges) challenge.Dispose();
             m_challenges.Clear();
             m_challenges = null;

@@ -179,8 +179,8 @@ namespace Game.Entity
             base.Dispose();
         }
 
-        // Village: GM|+268;5;38;-1;541;-3;1200^100;1;-1,-1,-1;0,0,0,0
-        // SubArea: GM|+cellId;orientation;0;id;monsterId;-10;gfx^scale;level;grade;alignment
+
+
         private void SerializeMapActor(StringBuilder message)
         {
             message.Append(m_cellId).Append(';');

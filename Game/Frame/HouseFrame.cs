@@ -44,34 +44,25 @@ namespace Game.Frame
             return null;
         }
 
-        // hB — buy the house currently displayed
+
         private void HouseBuy(CharacterEntity character, string message)
         {
-            character.AddMessage(() =>
-            {
-                character.CurrentHouse?.Buy(character);
-            });
+            character.AddMessage(() => { character.CurrentHouse?.Buy(character); });
         }
 
-        // hG[+|-|0|<rights>] — guild sharing
+
         private void HouseGuild(CharacterEntity character, string message)
         {
-            character.AddMessage(() =>
-            {
-                character.CurrentHouse?.SetGuildRights(character, message.Substring(2));
-            });
+            character.AddMessage(() => { character.CurrentHouse?.SetGuildRights(character, message.AsSpan(2)); });
         }
 
-        // hQ<characterId> — kick player from house (currently unsupported client-side for basic houses)
+
         private void HouseKick(CharacterEntity character, string message)
         {
-            character.AddMessage(() =>
-            {
-                character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
-            });
+            character.AddMessage(() => { character.Dispatch(WorldMessage.BASIC_NO_OPERATION()); });
         }
 
-        // hS<price> — set sale price (0 = remove from sale)
+
         private void HouseSetPrice(CharacterEntity character, string message)
         {
             character.AddMessage(() =>
@@ -85,45 +76,29 @@ namespace Game.Frame
             });
         }
 
-        // hV — close buy dialog
+
         private void HouseCloseDialog(CharacterEntity character, string message)
         {
-            character.AddMessage(() =>
-            {
-                character.CurrentHouse = null;
-                character.Dispatch(WorldMessage.HOUSE_CLOSE_BUY_DIALOG());
-            });
+            character.AddMessage(() => { character.CurrentHouse = null; character.Dispatch(WorldMessage.HOUSE_CLOSE_BUY_DIALOG()); });
         }
 
-        // KV — close key dialog
+
         private void KeyClose(CharacterEntity character, string message)
         {
-            character.AddMessage(() =>
-            {
-                character.CurrentHouse = null;
-                character.Dispatch(WorldMessage.KEY_CLOSE());
-            });
+            character.AddMessage(() => { character.CurrentHouse = null; character.Dispatch(WorldMessage.KEY_CLOSE()); });
         }
 
-        // KK0|<code> — enter code to access house or chest
+
         private void KeyEnter(CharacterEntity character, string message)
         {
-            // Format: KK0|<code>  (pipe is at index 3)
-            var code = message.Length > 4 ? message.Substring(4) : "";
-            character.AddMessage(() =>
-            {
-                character.CurrentHouse?.TryEnter(character, code);
-            });
+
+            character.AddMessage(() => { character.CurrentHouse?.TryEnter(character, message.Length > 4 ? message.AsSpan(4) : ReadOnlySpan<char>.Empty); });
         }
 
-        // KK1|<code> — set new lock code
+
         private void KeySet(CharacterEntity character, string message)
         {
-            var code = message.Length > 4 ? message.Substring(4) : "";
-            character.AddMessage(() =>
-            {
-                character.CurrentHouse?.SetLockCode(character, code);
-            });
+            character.AddMessage(() => { character.CurrentHouse?.SetLockCode(character, message.Length > 4 ? message.AsSpan(4) : ReadOnlySpan<char>.Empty); });
         }
     }
 }

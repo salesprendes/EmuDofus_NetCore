@@ -1,4 +1,4 @@
-﻿using Game.Entity;
+using Game.Entity;
 using Game.Exchange;
 using Game.Network;
 using System;
@@ -9,36 +9,20 @@ using System.Threading.Tasks;
 
 namespace Game.Action
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class GamePlayerExchangeAction : AbstractGameExchangeAction
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="localEntity"></param>
-        /// <param name="distantEntity"></param>
         public GamePlayerExchangeAction(CharacterEntity localEntity, CharacterEntity distantEntity)
-            : base(new PlayerExchange(localEntity, distantEntity), localEntity, distantEntity)
+    : base(new PlayerExchange(localEntity, distantEntity), localEntity, distantEntity)
         {
             Exchange.Dispatch(WorldMessage.EXCHANGE_REQUEST(Entity.Id, DistantEntity.Id));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="args"></param>
         public override void Stop(params object[] args)
         {
             base.Leave(true);
             base.Stop(args);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="args"></param>
         public override void Abort(params object[] args)
         {
             base.Leave();

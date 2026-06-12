@@ -8,18 +8,11 @@ using System.Threading.Tasks;
 
 namespace Game.Database.Repository
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class DropTemplateRepository : Repository<DropTemplateRepository, DropTemplateDAO>
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="drop"></param>
         public override void OnObjectAdded(DropTemplateDAO drop)
         {
-            if(drop.Monster != null)
+            if (drop.Monster != null)
             {
                 drop.Monster.AddDrop(drop);
             }

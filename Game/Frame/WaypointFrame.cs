@@ -1,4 +1,4 @@
-﻿using Protocolo.Framework.Network;
+using Protocolo.Framework.Network;
 using Game.Action;
 using Game.Entity;
 using Game.Manager;
@@ -11,44 +11,23 @@ using System.Threading.Tasks;
 
 namespace Game.Frame
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    public sealed class WaypointFrame: AbstractNetworkFrame<WaypointFrame, CharacterEntity, string>
+    public sealed class WaypointFrame : AbstractNetworkFrame<WaypointFrame, CharacterEntity, string>
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
         public override Action<CharacterEntity, string> GetHandler(string message)
         {
-            switch(message[1])
+            switch (message[1])
             {
                 case 'U': return WaypointUse;
-                case 'V': return WaypointLeave; 
+                case 'V': return WaypointLeave;
             }
             return null;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void WaypointLeave(CharacterEntity character, string message)
         {
-            character.AddMessage(() =>
-                {
-                    character.StopAction(GameActionTypeEnum.WAYPOINT);
-                });
+            character.AddMessage(() => { character.StopAction(GameActionTypeEnum.WAYPOINT); });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void WaypointUse(CharacterEntity character, string message)
         {
             int mapId = -1;
@@ -61,20 +40,20 @@ namespace Game.Frame
             character.AddMessage(() =>
             {
                 var waypointAction = character.CurrentAction as GameWaypointAction;
-                if(waypointAction == null)
+                if (waypointAction == null)
                 {
                     character.Dispatch(WorldMessage.WAYPOINT_USE_ERROR());
                     return;
                 }
 
-                if(mapId == character.MapId)
+                if (mapId == character.MapId)
                 {
                     character.Dispatch(WorldMessage.WAYPOINT_USE_ERROR());
                     return;
                 }
 
                 var waypoint = WaypointManager.Instance.GetByMapId(mapId);
-                if(waypoint == null)
+                if (waypoint == null)
                 {
                     character.Dispatch(WorldMessage.WAYPOINT_USE_ERROR());
                     return;
@@ -85,9 +64,9 @@ namespace Game.Frame
                     character.Dispatch(WorldMessage.WAYPOINT_USE_ERROR());
                     return;
                 }
-                
+
                 var price = 10 * (Math.Abs(waypoint.Map.X - character.Map.X) + Math.Abs(waypoint.Map.Y - character.Map.Y) - 1);
-                if(character.Inventory.Kamas < price)
+                if (character.Inventory.Kamas < price)
                 {
                     character.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_NOT_ENOUGH_KAMAS, price));
                     return;

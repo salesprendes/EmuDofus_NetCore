@@ -1,8 +1,5 @@
-﻿namespace Protocolo.RPC.Protocol
+namespace Protocolo.RPC.Protocol
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public enum GameStateEnum
     {
         OFFLINE = 0,

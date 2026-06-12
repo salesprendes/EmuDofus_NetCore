@@ -19,20 +19,8 @@ namespace Game.Fight.AI.Core
         public AITurnCache TurnCache { get; private set; }
         public AILastDecisionMemory LastDecisionMemory { get; private set; }
 
-        /// <summary>
-        /// Lista de objetivos enemigos enriquecida con distancia pre-calculada,
-        /// ordenada por distancia ascendente.  Se construye una vez por turno.
-        /// Consume <see cref="Cache.AICellCache.GetDistance"/> para aprovechar
-        /// el caché interno y evitar llamadas redundantes a Pathfinding.GoalDistance.
-        /// </summary>
         public IReadOnlyList<AITargetInfo> EnemyTargets { get; private set; }
 
-        /// <summary>
-        /// Fase semántica del turno en curso.
-        /// <see cref="AIBrain"/> la actualiza antes de vincular cada decisión.
-        /// Los cerebros de boss pueden establecerla a <see cref="AITurnPhase.CriticalMechanic"/>
-        /// cuando están evaluando mecánicas críticas.
-        /// </summary>
         public AITurnPhase CurrentPhase { get; set; }
 
         public AIContext(AIFighter fighter)
@@ -50,7 +38,7 @@ namespace Game.Fight.AI.Core
             Budget = new AITurnBudget();
             TurnCache = new AITurnCache(fighter, Allies, Enemies, SpellBook);
 
-            // EnemyTargets se construye después de TurnCache para usar GetDistance cacheado.
+
             EnemyTargets = BuildEnemyTargets(fighter, Enemies, TurnCache);
             CurrentPhase = AITurnPhase.Start;
         }
@@ -60,9 +48,7 @@ namespace Game.Fight.AI.Core
             if (fighter?.Team?.AliveFighters == null)
                 return new List<AbstractFighter>();
 
-            return fighter.Team.AliveFighters
-                .Where(f => f != null && !f.IsFighterDead)
-                .ToList();
+            return fighter.Team.AliveFighters.Where(f => f != null && !f.IsFighterDead).ToList();
         }
 
         private static IReadOnlyList<AbstractFighter> LoadEnemies(AIFighter fighter)
@@ -70,9 +56,7 @@ namespace Game.Fight.AI.Core
             if (fighter?.Team?.OpponentTeam?.AliveFighters == null)
                 return new List<AbstractFighter>();
 
-            return fighter.Team.OpponentTeam.AliveFighters
-                .Where(f => f != null && !f.IsFighterDead)
-                .ToList();
+            return fighter.Team.OpponentTeam.AliveFighters.Where(f => f != null && !f.IsFighterDead).ToList();
         }
 
         private static IReadOnlyList<AITargetInfo> BuildEnemyTargets(
@@ -84,11 +68,7 @@ namespace Game.Fight.AI.Core
                 return new List<AITargetInfo>();
 
             var origin = fighter.Cell.Id;
-            return enemies
-                .Where(e => e?.Cell != null)
-                .Select(e => new AITargetInfo(e, cache.Cells.GetDistance(origin, e.Cell.Id)))
-                .OrderBy(t => t.Distance)
-                .ToList();
+            return enemies.Where(e => e?.Cell != null).Select(e => new AITargetInfo(e, cache.Cells.GetDistance(origin, e.Cell.Id))).OrderBy(t => t.Distance).ToList();
         }
     }
 }

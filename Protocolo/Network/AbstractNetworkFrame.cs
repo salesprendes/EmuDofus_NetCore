@@ -1,24 +1,13 @@
-﻿using Protocolo.Framework.Generic;
+using Protocolo.Framework.Generic;
 using System;
 
 namespace Protocolo.Framework.Network
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <typeparam name="TClient"></typeparam>
-    /// <typeparam name="TMessage"></typeparam>
     public interface IFrame<TClient, TMessage>
     {
         bool Process(TClient client, TMessage message);
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <typeparam name="TFrame"></typeparam>
-    /// <typeparam name="TClient"></typeparam>
-    /// <typeparam name="TMessage"></typeparam>
     public abstract class AbstractNetworkFrame<TFrame, TClient, TMessage> : Singleton<TFrame>, IFrame<TClient, TMessage> where TFrame : AbstractNetworkFrame<TFrame, TClient, TMessage>, new()
     {
         public abstract Action<TClient, TMessage> GetHandler(TMessage message);

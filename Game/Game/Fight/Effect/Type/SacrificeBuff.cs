@@ -1,4 +1,4 @@
-﻿using Game.Spell;
+using Game.Spell;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,14 +9,14 @@ namespace Game.Fight.Effect.Type
 {
     public sealed class SacrificeBuff : AbstractSpellBuff
     {
-        public SacrificeBuff(CastInfos castInfos, AbstractFighter target) : base(castInfos, target, ActiveType.ACTIVE_ATTACKED_AFTER_JET, DecrementType.TYPE_ENDTURN) {}
+        public SacrificeBuff(CastInfos castInfos, AbstractFighter target) : base(castInfos, target, ActiveType.ACTIVE_ATTACKED_AFTER_JET, DecrementType.TYPE_ENDTURN) { }
 
         public override FightActionResultEnum ApplyEffect(ref int damageValue, CastInfos damageInfos = null)
         {
             if (damageInfos.IsReflect || damageInfos.IsReturnedDamages || damageInfos.IsPoison)
                 return FightActionResultEnum.RESULT_NOTHING;
 
-            if(Caster.IsFighterDead)
+            if (Caster.IsFighterDead)
             {
                 Target.BuffManager.RemoveBuff(this);
                 return FightActionResultEnum.RESULT_NOTHING;

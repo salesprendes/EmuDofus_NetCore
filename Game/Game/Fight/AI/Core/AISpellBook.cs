@@ -29,8 +29,8 @@ namespace Game.Fight.AI.Core
             var all = fighter?.SpellBook?.GetSpells()?.Where(s => s != null).ToList() ?? new List<SpellLevel>();
             AllSpells = all;
 
-            // Single pass: classify each spell into every matching bucket at once, instead of
-            // iterating the full spell list 16 times (one Where(...).ToList() per category).
+
+
             var damage = new List<SpellLevel>();
             var heal = new List<SpellLevel>();
             var buff = new List<SpellLevel>();
@@ -95,8 +95,7 @@ namespace Game.Fight.AI.Core
 
         public static bool HasBuffEffect(SpellLevel spell)
         {
-            return HasEffect(spell, e => CastInfos.IsBonusEffect(e.TypeEnum) && e.TypeEnum != EffectEnum.Heal)
-                && !HasDamageEffect(spell);
+            return HasEffect(spell, e => CastInfos.IsBonusEffect(e.TypeEnum) && e.TypeEnum != EffectEnum.Heal) && !HasDamageEffect(spell);
         }
 
         public static bool HasDebuffEffect(SpellLevel spell)
@@ -106,9 +105,7 @@ namespace Game.Fight.AI.Core
 
         public static bool HasSummonEffect(SpellLevel spell)
         {
-            return HasEffect(spell, e => e.TypeEnum == EffectEnum.Invocation
-                || e.TypeEnum == EffectEnum.InvocDouble
-                || e.TypeEnum == EffectEnum.InvocationStatic);
+            return HasEffect(spell, e => e.TypeEnum == EffectEnum.Invocation || e.TypeEnum == EffectEnum.InvocDouble || e.TypeEnum == EffectEnum.InvocationStatic);
         }
 
         public static bool HasMovementEffect(SpellLevel spell)
@@ -131,30 +128,22 @@ namespace Game.Fight.AI.Core
 
         public static bool HasRemoveAPEffect(SpellLevel spell)
         {
-            return HasEffect(spell, e => e.TypeEnum == EffectEnum.SubAP
-                || e.TypeEnum == EffectEnum.SubAPDodgeable
-                || e.TypeEnum == EffectEnum.APSteal);
+            return HasEffect(spell, e => e.TypeEnum == EffectEnum.SubAP || e.TypeEnum == EffectEnum.SubAPDodgeable || e.TypeEnum == EffectEnum.APSteal);
         }
 
         public static bool HasRemoveMPEffect(SpellLevel spell)
         {
-            return HasEffect(spell, e => e.TypeEnum == EffectEnum.SubMP
-                || e.TypeEnum == EffectEnum.SubMPDodgeable
-                || e.TypeEnum == EffectEnum.MPSteal);
+            return HasEffect(spell, e => e.TypeEnum == EffectEnum.SubMP || e.TypeEnum == EffectEnum.SubMPDodgeable || e.TypeEnum == EffectEnum.MPSteal);
         }
 
         public static bool HasPushPullEffect(SpellLevel spell)
         {
-            return HasEffect(spell, e => e.TypeEnum == EffectEnum.PushBack
-                || e.TypeEnum == EffectEnum.PushFront
-                || e.TypeEnum == EffectEnum.PushFear
-                || e.TypeEnum == EffectEnum.PandaLaunch);
+            return HasEffect(spell, e => e.TypeEnum == EffectEnum.PushBack || e.TypeEnum == EffectEnum.PushFront || e.TypeEnum == EffectEnum.PushFear || e.TypeEnum == EffectEnum.PandaLaunch);
         }
 
         public static bool HasRemoveRangeEffect(SpellLevel spell)
         {
-            return HasEffect(spell, e => e.TypeEnum == EffectEnum.SubPO
-                || e.TypeEnum == EffectEnum.POSteal);
+            return HasEffect(spell, e => e.TypeEnum == EffectEnum.SubPO || e.TypeEnum == EffectEnum.POSteal);
         }
 
         public static bool HasDefensiveEffect(SpellLevel spell)
@@ -164,8 +153,7 @@ namespace Game.Fight.AI.Core
 
         public static bool HasUnbewitchEffect(SpellLevel spell)
         {
-            return HasEffect(spell, e => e.TypeEnum == EffectEnum.DeleteAllBonus
-                || e.TypeEnum == EffectEnum.RemoveState);
+            return HasEffect(spell, e => e.TypeEnum == EffectEnum.DeleteAllBonus || e.TypeEnum == EffectEnum.RemoveState);
         }
 
         public static bool HasVulnerabilityEffect(SpellLevel spell)

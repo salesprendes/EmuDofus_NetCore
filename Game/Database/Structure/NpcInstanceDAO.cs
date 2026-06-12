@@ -2,9 +2,6 @@ using Protocolo.Framework.Database;
 using Game.Database.Repository;
 namespace Game.Database.Structure
 {
-    /// <summary>
-    /// 
-    /// </summary>
     [Table("npcinstance")]
     public sealed class NpcInstanceDAO : DataAccessObject<NpcInstanceDAO>
     {
@@ -48,14 +45,8 @@ namespace Game.Database.Structure
             set => SetProperty(ref _questionId, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private NpcTemplateDAO m_template;
 
-        /// <summary>
-        /// 
-        /// </summary>
         [Write(false)]
         public NpcTemplateDAO Template
         {
@@ -67,14 +58,8 @@ namespace Game.Database.Structure
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private MapTemplateDAO m_map;
 
-        /// <summary>
-        /// 
-        /// </summary>
         [Write(false)]
         public MapTemplateDAO Map
         {
@@ -86,14 +71,8 @@ namespace Game.Database.Structure
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private NpcQuestionDAO m_question;
 
-        /// <summary>
-        /// 
-        /// </summary>
         [Write(false)]
         public NpcQuestionDAO Question
         {

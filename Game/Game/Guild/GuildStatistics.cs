@@ -1,4 +1,4 @@
-﻿using Game.Database.Structure;
+using Game.Database.Structure;
 using Game.Spell;
 using Game.Stats;
 using ProtoBuf;
@@ -11,17 +11,9 @@ using System.Threading.Tasks;
 
 namespace Game.Guild
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    [ProtoContract(ImplicitFields=ImplicitFields.AllPublic)]
+    [ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
     public sealed class GuildStatistics
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
         public static GuildStatistics Deserialize(byte[] data)
         {
             using (var stream = new MemoryStream(data))
@@ -30,11 +22,6 @@ namespace Game.Guild
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="stats"></param>
-        /// <returns></returns>
         public byte[] Serialize()
         {
             using (var stream = new MemoryStream())
@@ -45,41 +32,23 @@ namespace Game.Guild
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static GuildStatistics Create(GuildDAO guild)
         {
-            return new GuildStatistics
-            {
-                Spells = GuildSpellBook.Create(),
-                BaseStatistics = new GenericStats(guild),
-                MaxTaxcollector = 1
-            };
+            return new GuildStatistics { Spells = GuildSpellBook.Create(), BaseStatistics = new GenericStats(guild), MaxTaxcollector = 1 };
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public GuildSpellBook Spells
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public GenericStats BaseStatistics
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int MaxTaxcollector
         {
             get;

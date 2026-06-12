@@ -1,4 +1,4 @@
-﻿using Game.Database.Structure;
+using Game.Database.Structure;
 using Game.Entity;
 using Game.Network;
 using System;
@@ -9,46 +9,26 @@ using System.Threading.Tasks;
 
 namespace Game.Exchange
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class PersonalShopExchange : AbstractExchange
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public CharacterEntity Character
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public PersonalShopExchange(CharacterEntity character)
-            : base(ExchangeTypeEnum.EXCHANGE_PERSONAL_SHOP_EDIT)
+    : base(ExchangeTypeEnum.EXCHANGE_PERSONAL_SHOP_EDIT)
         {
             Character = character;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override void Create()
         {
             base.Create();
             SendItemsList();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="actor"></param>
-        /// <param name="guid"></param>
-        /// <param name="quantity"></param>
-        /// <param name="price"></param>
-        /// <returns></returns>
         public override int AddItem(AbstractEntity actor, long guid, int quantity, long price = -1)
         {
             if (price < 1)
@@ -78,12 +58,12 @@ namespace Game.Exchange
             else
                 item = Character.PersonalShop.GetItem(guid);
 
-            if(item == null)
+            if (item == null)
             {
                 base.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return 0;
             }
-            
+
             item.MerchantPrice = price;
 
             if (quantity > 0)
@@ -97,13 +77,6 @@ namespace Game.Exchange
             return item.Quantity;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="actor"></param>
-        /// <param name="guid"></param>
-        /// <param name="quantity"></param>
-        /// <returns></returns>
         public override int RemoveItem(AbstractEntity actor, long guid, int quantity)
         {
             if (quantity < 1)
@@ -126,10 +99,7 @@ namespace Game.Exchange
 
             return item.Quantity;
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
+
         public void SendItemsList()
         {
             base.Dispatch(WorldMessage.EXCHANGE_PERSONAL_SHOP_ITEMS_LIST(Character.PersonalShop.Items));

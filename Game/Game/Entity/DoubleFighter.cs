@@ -1,4 +1,4 @@
-﻿using Game.Fight;
+using Game.Fight;
 using Game.Fight.AI;
 using Game.Fight.AI.Core;
 using Game.Spell;
@@ -8,11 +8,6 @@ using System.Text;
 
 namespace Game.Entity
 {
-    /// <summary>
-    /// Sram double.
-    /// Internally it behaves like an AI summon, but it is serialized as a character
-    /// so the client renders the clone with the summoner's appearance.
-    /// </summary>
     public sealed class DoubleFighter : AIFighter
     {
         private readonly CharacterEntity m_source;
@@ -78,7 +73,7 @@ namespace Game.Entity
             Statistics = new GenericStats();
             Statistics.Merge(source.Statistics);
 
-            // The double does not cast spells, but the AI expects a spellbook instance.
+
             SpellBook = new SpellBook((int)EntityTypeEnum.TYPE_MONSTER_FIGHTER, 0);
 
             Invocator = source;

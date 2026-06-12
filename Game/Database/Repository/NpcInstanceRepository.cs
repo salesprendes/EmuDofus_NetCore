@@ -8,9 +8,6 @@ using System.Threading.Tasks;
 
 namespace Game.Database.Repository
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class NpcInstanceRepository : Repository<NpcInstanceRepository, NpcInstanceDAO>
     {
 

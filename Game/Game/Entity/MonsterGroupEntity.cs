@@ -1,4 +1,4 @@
-﻿using Protocolo.Framework.Generic;
+using Protocolo.Framework.Generic;
 using Game.Database.Structure;
 using Game.Manager;
 using Game.Network;
@@ -10,37 +10,22 @@ using Game.Entity.Inventory;
 
 namespace Game.Entity
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class MonsterGroupEntity : AbstractEntity
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public override string Name => "MonsterGroup_" + Id;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override int MapId
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override int CellId
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override int Level
         {
             get
@@ -53,9 +38,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override int RealLife
         {
             get
@@ -67,30 +49,21 @@ namespace Game.Entity
                 throw new NotImplementedException();
             }
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
+
         public override int BaseLife
         {
-            get 
-            { 
-                throw new NotImplementedException(); 
+            get
+            {
+                throw new NotImplementedException();
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override int Restriction
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int AggressionRange
         {
             get;
@@ -107,63 +80,32 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public IEnumerable<MonsterEntity> Monsters => m_monsters;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool HasMonsters => m_monsters.Count > 0;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int AgeBonus
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool Resurect
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private StringBuilder m_serializedMapInformations;
 
-        /// <summary>
-        /// 
-        /// </summary>
         private List<MonsterEntity> m_monsters;
 
-        /// <summary>
-        /// 
-        /// </summary>
         private UpdatableTimer m_ageTimer;
 
-        /// <summary>
-        /// 
-        /// </summary>
         private int m_nextMonsterId;
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="mapId"></param>
-        /// <param name="cellId"></param>
-        /// <param name="grade"></param>
+
         public MonsterGroupEntity(long id, int mapId, int cellId)
-            : base(EntityTypeEnum.TYPE_MONSTER_GROUP, id)
+    : base(EntityTypeEnum.TYPE_MONSTER_GROUP, id)
         {
             m_monsters = new List<MonsterEntity>();
             m_nextMonsterId = -1;
@@ -176,27 +118,16 @@ namespace Game.Entity
             Inventory = new EntityInventory(this, (int)EntityTypeEnum.TYPE_MONSTER_GROUP, Id);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="mapId"></param>
-        /// <param name="cellId"></param>
-        /// <param name="monsters"></param>
         public MonsterGroupEntity(long id, int mapId, int cellId, IEnumerable<MonsterGradeDAO> monsters)
-            : this(id, mapId, cellId)
+    : this(id, mapId, cellId)
         {
             Resurect = false;
-            foreach(var grade in monsters)
+            foreach (var grade in monsters)
                 m_monsters.Add(new MonsterEntity(m_nextMonsterId--, grade));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
         public MonsterGroupEntity(long id, int mapId, int cellId, IEnumerable<MonsterSpawnDAO> monsters, int maxSize = 6)
-            : this(id, mapId, cellId)
+    : this(id, mapId, cellId)
         {
             var size = 1;
             if (monsters.All(monster => monster.Probability == 1))
@@ -246,9 +177,6 @@ namespace Game.Entity
             base.AddTimer(m_ageTimer = new UpdatableTimer(1000 * WorldConfig.PVM_STAR_BONUS_PERCENT_SECONDS, UpdateAge));
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public void UpdateAge()
         {
             if (AgeBonus > WorldConfig.PVM_MAX_STAR_BONUS - 2)
@@ -256,19 +184,11 @@ namespace Game.Entity
             AgeBonus++;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public override bool CanBeMoved()
         {
             return true;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         private static int GetRandomOrientation()
         {
             switch (Util.Next(0, 4))
@@ -287,50 +207,24 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="monster"></param>
-        /// <returns></returns>
         private static string SerializeMonsterGroupLook(MonsterEntity monster)
         {
             return SerializeMonsterGroupColors(monster) + ";0,0,0,0";
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="monster"></param>
-        /// <returns></returns>
         private static string SerializeMonsterGroupGfx(MonsterEntity monster)
         {
             return monster.SkinBase + "^" + monster.SkinSizeBase;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="monster"></param>
-        /// <returns></returns>
         private static string SerializeMonsterGroupColors(MonsterEntity monster)
         {
             var rawColors = monster.Grade.Template.Colors ?? string.Empty;
             var colors = rawColors.Replace(';', ',').Split(',');
 
-            return string.Join(",", new[]
-            {
-                GetMonsterGroupColor(colors, 0),
-                GetMonsterGroupColor(colors, 1),
-                GetMonsterGroupColor(colors, 2)
-            });
+            return string.Join(",", new[] { GetMonsterGroupColor(colors, 0), GetMonsterGroupColor(colors, 1), GetMonsterGroupColor(colors, 2) });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="colors"></param>
-        /// <param name="index"></param>
-        /// <returns></returns>
         private static string GetMonsterGroupColor(string[] colors, int index)
         {
             if (colors.Length <= index)
@@ -339,12 +233,7 @@ namespace Game.Entity
             var color = colors[index].Trim();
             return color.Length == 0 ? "-1" : color;
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="operation"></param>
-        /// <param name="message"></param>
+
         public override void SerializeAs_GameMapInformations(OperatorEnum operation, StringBuilder message)
         {
             switch (operation)
@@ -354,8 +243,8 @@ namespace Game.Entity
                     break;
 
                 case OperatorEnum.OPERATOR_ADD:
-                case OperatorEnum.OPERATOR_REFRESH: 
-                    // cell/orientation/bonus may change
+                case OperatorEnum.OPERATOR_REFRESH:
+
                     message.Append(CellId).Append(";");
                     message.Append(Orientation).Append(';');
                     message.Append(AgeBonus).Append(';');

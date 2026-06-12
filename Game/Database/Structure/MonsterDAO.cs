@@ -85,9 +85,6 @@ namespace Game.Database.Structure
         private List<DropTemplateDAO> m_drops = new List<DropTemplateDAO>();
         private Dictionary<int, MonsterGradeDAO> m_monsterGrades = new Dictionary<int, MonsterGradeDAO>();
 
-        /// <summary>
-        /// 
-        /// </summary>
         [Write(false)]
         public int MinKamas
         {
@@ -99,9 +96,6 @@ namespace Game.Database.Structure
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         [Write(false)]
         public int MaxKamas
         {
@@ -113,22 +107,10 @@ namespace Game.Database.Structure
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        [Write(false)]
-        public IEnumerable<MonsterGradeDAO> Grades => m_monsterGrades.Values;
+        [Write(false)] public IEnumerable<MonsterGradeDAO> Grades => m_monsterGrades.Values;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        [Write(false)]
-        public IEnumerable<DropTemplateDAO> Drops => m_drops;
+        [Write(false)] public IEnumerable<DropTemplateDAO> Drops => m_drops;
 
-        /// <summary>
-        /// 
-        /// </summary>
         private void InitKamas()
         {
             var data = Kamas.Split(';');
@@ -136,29 +118,16 @@ namespace Game.Database.Structure
             m_maxKamas = int.Parse(data[1]);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="grade"></param>
         public void AddGrade(MonsterGradeDAO grade)
         {
             m_monsterGrades.Add(grade.Grade, grade);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="drop"></param>
         public void AddDrop(DropTemplateDAO drop)
         {
             m_drops.Add(drop);
-        }        
+        }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="grade"></param>
-        /// <returns></returns>
         public MonsterGradeDAO GetGrade(int grade)
         {
             if (!m_monsterGrades.ContainsKey(grade))

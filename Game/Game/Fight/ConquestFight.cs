@@ -52,11 +52,10 @@ namespace Game.Fight
             ConquestManager.Instance.TerritoryAttacked(territory, map);
         }
 
-        // -1 to exclude the prism's placement cell
+
         private int MaxDefenders => Math.Max(0, Team1.PlacesCount - 1);
 
-        public IEnumerable<CharacterEntity> AllDefenders =>
-            Team1.Fighters.OfType<CharacterEntity>().Concat(m_defenders);
+        public IEnumerable<CharacterEntity> AllDefenders => Team1.Fighters.OfType<CharacterEntity>().Concat(m_defenders);
 
         public void DefenderJoin(CharacterEntity character)
         {
@@ -72,7 +71,7 @@ namespace Game.Fight
             }
             else
             {
-                // Queue full — bump lowest-level defender if new one has higher level
+
                 var weakest = m_defenders.OrderBy(d => d.Level).FirstOrDefault(d => d.Level < character.Level);
                 if (weakest == null)
                 {
@@ -100,11 +99,7 @@ namespace Game.Fight
             foreach (var defender in m_defenders.OrderByDescending(d => d.Level))
             {
                 var character = defender;
-                character.AddMessage(() =>
-                {
-                    character.StopAction(GameActionTypeEnum.PRISM_AGGRESSION);
-                    JoinFight(character, Team1);
-                });
+                character.AddMessage(() => { character.StopAction(GameActionTypeEnum.PRISM_AGGRESSION); JoinFight(character, Team1); });
             }
 
             m_defenders.Clear();
@@ -117,10 +112,10 @@ namespace Game.Fight
 
         public override bool CanJoin(CharacterEntity character)
         {
-            // Defenders (same alignment as prism) can join
+
             if (character.AlignmentId == Territory.AlignmentId)
                 return State == FightStateEnum.STATE_PLACEMENT;
-            // Attackers from same alignment as attacker can join
+
             if (character.AlignmentId == Attacker.AlignmentId)
                 return State == FightStateEnum.STATE_PLACEMENT;
             return false;
@@ -172,7 +167,7 @@ namespace Game.Fight
             {
                 if (Territory.PrismType != ConquestPrismType.SubArea)
                 {
-                    // Village prism defeated: city is captured by the attacking alignment
+
                     var capturer = WinnerTeam.Fighters.OfType<CharacterEntity>().FirstOrDefault() ?? Attacker;
                     Territory.SetPrismPosition(Map.Id, Prism.MapCellId);
                     Territory.Capture(capturer);

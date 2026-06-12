@@ -5,10 +5,7 @@ namespace Game.Command
 {
     public sealed class SaveMapCommand : WorldStaffCommand
     {
-        private readonly string[] _aliases =
-        {
-            "guardarmapa", "savemap"
-        };
+        private readonly string[] _aliases = { "guardarmapa", "savemap" };
 
         public override string[] Aliases => _aliases;
 

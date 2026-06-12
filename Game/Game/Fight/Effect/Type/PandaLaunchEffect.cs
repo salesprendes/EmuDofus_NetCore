@@ -1,4 +1,4 @@
-﻿using Game.Map;
+using Game.Map;
 using Game.Spell;
 using Game.Network;
 using System;
@@ -9,16 +9,8 @@ using System.Threading.Tasks;
 
 namespace Game.Fight.Effect.Type
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class PandaLaunchEffect : AbstractSpellEffect
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="CastInfos"></param>
-        /// <returns></returns>
         public override FightActionResultEnum ApplyEffect(CastInfos CastInfos)
         {
             var infos = CastInfos.Caster.StateManager.FindState(FighterStateEnum.STATE_CARRIER);

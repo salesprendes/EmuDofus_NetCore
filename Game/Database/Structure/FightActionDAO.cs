@@ -10,9 +10,6 @@ using System.Threading.Tasks;
 
 namespace Game.Database.Structure
 {
-    /// <summary>
-    /// 
-    /// </summary>
     [Table("fightaction")]
     public sealed class FightActionDAO : DataAccessObject<FightActionDAO>
     {
@@ -31,8 +28,7 @@ namespace Game.Database.Structure
             set => SetProperty(ref _zoneType, value);
         }
 
-        [Write(false)]
-        public ZoneTypeEnum Zone => (ZoneTypeEnum)ZoneType;
+        [Write(false)] public ZoneTypeEnum Zone => (ZoneTypeEnum)ZoneType;
 
         [Key]
         public int ZoneId
@@ -48,8 +44,7 @@ namespace Game.Database.Structure
             set => SetProperty(ref _fightType, value);
         }
 
-        [Write(false)]
-        public FightTypeEnum Fight => (FightTypeEnum)FightType;
+        [Write(false)] public FightTypeEnum Fight => (FightTypeEnum)FightType;
 
         [Key]
         public int FightState
@@ -58,8 +53,7 @@ namespace Game.Database.Structure
             set => SetProperty(ref _fightState, value);
         }
 
-        [Write(false)]
-        public FightStateEnum State => (FightStateEnum)FightState;
+        [Write(false)] public FightStateEnum State => (FightStateEnum)FightState;
 
         public string Conditions
         {
@@ -73,14 +67,8 @@ namespace Game.Database.Structure
             set => SetProperty(ref _actions, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private ActionList m_actions;
 
-        /// <summary>
-        /// 
-        /// </summary>
         [Write(false)]
         public ActionList ActionsList
         {

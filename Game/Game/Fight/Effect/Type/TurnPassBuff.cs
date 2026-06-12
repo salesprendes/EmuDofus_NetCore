@@ -1,11 +1,8 @@
-﻿using Game.Network;
+using Game.Network;
 using Game.Spell;
 
 namespace Game.Fight.Effect.Type
 {
-    /// <summary>
-    /// Forces the target to immediately skip its turn when the buff triggers at begin turn.
-    /// </summary>
     public sealed class TurnPassBuff : AbstractSpellBuff
     {
         public TurnPassBuff(CastInfos castInfos, AbstractFighter target)

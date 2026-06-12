@@ -1,4 +1,4 @@
-﻿using Game.Entity;
+using Game.Entity;
 using Game.Network;
 using System;
 using System.Collections.Generic;
@@ -6,31 +6,13 @@ using System.Linq;
 
 namespace Game.ActionEffect
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class OpenBankEffect : AbstractActionEffect<OpenBankEffect>
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="item"></param>
-        /// <param name="effect"></param>
-        /// <param name="targetId"></param>
-        /// <param name="targetCell"></param>
-        /// <returns></returns>
         public override bool ProcessItem(CharacterEntity character, Database.Structure.ItemDAO item, Stats.GenericEffect effect, long targetId, int targetCell)
         {
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="parameters"></param>
-        /// <returns></returns>
         public override bool Process(CharacterEntity character, Dictionary<string, string> parameters)
         {
             if (!character.CanGameAction(Action.GameActionTypeEnum.EXCHANGE))

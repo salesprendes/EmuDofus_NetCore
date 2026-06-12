@@ -65,9 +65,7 @@ namespace Game.Fight.AI.Cache
                 return new List<int>();
             }
 
-            cells = CellZone.GetAdjacentCells(map, cellId)
-                .Where(c => c >= 0 && m_fighter.Fight.GetCell(c) != null)
-                .ToList();
+            cells = CellZone.GetAdjacentCells(map, cellId).Where(c => c >= 0 && m_fighter.Fight.GetCell(c) != null).ToList();
             m_neighbors[cellId] = cells;
             return cells;
         }
@@ -141,12 +139,10 @@ namespace Game.Fight.AI.Cache
                 {
                     path = m_fighter.Fight.Map.Pathmaker.FindPathAsString(m_fighter.Cell.Id, targetCell, false, m_fighter.MP, m_fighter.Fight.Obstacles);
 
-                    // Validate the path in the fight context (handles stop cells, fighters on cells, etc.).
-                    // If IsValidPath returns null OR MovementLength == 0 (fighter immediately blocked —
-                    // e.g. the target cell is occupied by an enemy), the path is considered unusable.
-                    var validatedPath = string.IsNullOrEmpty(path)
-                        ? null
-                        : Pathfinding.IsValidPath(m_fighter.Fight, m_fighter, m_fighter.Cell.Id, path);
+
+
+
+                    var validatedPath = string.IsNullOrEmpty(path) ? null : Pathfinding.IsValidPath(m_fighter.Fight, m_fighter, m_fighter.Cell.Id, path);
 
                     if (validatedPath == null || validatedPath.MovementLength <= 0)
                     {

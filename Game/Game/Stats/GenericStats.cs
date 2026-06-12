@@ -1,4 +1,4 @@
-﻿using Game.Database.Structure;
+using Game.Database.Structure;
 using Game.Spell;
 using ProtoBuf;
 using System;
@@ -8,9 +8,6 @@ using System.Text;
 
 namespace Game.Stats
 {
-    /// <summary>
-    /// 
-    /// </summary>
     [Flags]
     public enum StatsType
     {
@@ -20,15 +17,9 @@ namespace Game.Stats
         TYPE_DON,
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     [ProtoContract(ImplicitFields = ImplicitFields.AllFields)]
     public sealed class GenericStats : IDisposable
     {
-        /// <summary>
-        /// 
-        /// </summary>
         private static readonly Dictionary<EffectEnum, List<EffectEnum>> OppositeStats = new Dictionary<EffectEnum, List<EffectEnum>>()
         {
             {EffectEnum.AddInitiative, new List<EffectEnum>() { EffectEnum.SubInitiative }},
@@ -73,22 +64,15 @@ namespace Game.Stats
         };
 
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="breed"></param>
-        /// <param name="statId"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
         public static int GetRequiredStatsPoint(CharacterBreedEnum breed, int statId, int value)
         {
             switch (statId)
             {
-                case 11://Vita
+                case 11:
                     return 1;
-                case 12://Sage
+                case 12:
                     return 3;
-                case 10://Strength
+                case 10:
                     switch (breed)
                     {
                         case CharacterBreedEnum.BREED_SACRIEUR:
@@ -205,7 +189,7 @@ namespace Game.Stats
 
                     }
                     break;
-                case 13://Chance
+                case 13:
                     switch (breed)
                     {
                         case CharacterBreedEnum.BREED_FECA:
@@ -329,7 +313,7 @@ namespace Game.Stats
                             return 5;
                     }
                     break;
-                case 14://Agilit�
+                case 14:
                     switch (breed)
                     {
                         case CharacterBreedEnum.BREED_FECA:
@@ -453,7 +437,7 @@ namespace Game.Stats
                             return 5;
                     }
                     break;
-                case 15://Intelligence
+                case 15:
                     switch (breed)
                     {
                         case CharacterBreedEnum.BREED_XELOR:
@@ -579,8 +563,8 @@ namespace Game.Stats
             return 5;
         }
 
-        // Parses StringEffects format: "idHex#v1hex#v2hex#v3hex#args,..." into a GenericStats.
-        // Handles 4-field format (no args) for manual DB inserts.
+
+
         public static GenericStats ParseFromString(string stringEffects)
         {
             var stats = new GenericStats();
@@ -602,8 +586,7 @@ namespace Game.Stats
             return stats;
         }
 
-        [ProtoIgnore]
-        public Dictionary<EffectEnum, GenericEffect> Effects => m_effects;
+        [ProtoIgnore] public Dictionary<EffectEnum, GenericEffect> Effects => m_effects;
 
         [ProtoIgnore]
         public IEnumerable<KeyValuePair<EffectEnum, GenericEffect>> WeaponEffects
@@ -616,17 +599,10 @@ namespace Game.Stats
 
         private Dictionary<EffectEnum, GenericEffect> m_effects = new Dictionary<EffectEnum, GenericEffect>();
 
-        /// <summary>
-        /// 
-        /// </summary>
         public GenericStats()
         {
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="monster"></param>
         public GenericStats(MonsterGradeDAO monster)
         {
             m_effects.Add(EffectEnum.AddAP, new GenericEffect(EffectEnum.AddAP, monster.AP));
@@ -649,10 +625,6 @@ namespace Game.Stats
             m_effects.Add(EffectEnum.AddMPDodge, new GenericEffect(EffectEnum.AddMPDodge, monster.MPDodgePercent));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="guild"></param>
         public GenericStats(GuildDAO guild)
         {
             m_effects.Add(EffectEnum.AddAP, new GenericEffect(EffectEnum.AddAP, 6));
@@ -674,10 +646,6 @@ namespace Game.Stats
             m_effects.Add(EffectEnum.AddReduceDamagePercentNeutral, new GenericEffect(EffectEnum.AddReduceDamagePercentNeutral, guild.Level / 2));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
         public GenericStats(CharacterDAO character)
         {
             m_effects.Add(EffectEnum.AddAP, new GenericEffect(EffectEnum.AddAP, character.Level >= 100 ? 7 : 6));
@@ -694,11 +662,6 @@ namespace Game.Stats
             m_effects.Add(EffectEnum.AddChance, new GenericEffect(EffectEnum.AddChance, character.Chance));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="effect"></param>
-        /// <returns></returns>
         public GenericEffect GetTotalEffect(EffectEnum effectType)
         {
             var effect = GetEffect(effectType);
@@ -742,11 +705,6 @@ namespace Game.Stats
             return new GenericEffect(effectType, totalBase, totalItems, totalDons, totalBoosts);
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="effectType"></param>
-        /// <returns></returns>
         public int GetTotal(EffectEnum effectType)
         {
             int total = 0;
@@ -778,14 +736,6 @@ namespace Game.Stats
             return total;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="value1"></param>
-        /// <param name="value2"></param>
-        /// <param name="args"></param>
-        /// <returns></returns>
         public void AddEffect(EffectEnum id, int value1, int value2 = 0, int value3 = 0, string args = "0")
         {
             if (m_effects.ContainsKey(id))
@@ -812,11 +762,6 @@ namespace Game.Stats
             }
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
         public GenericEffect GetEffect(EffectEnum id)
         {
             if (!m_effects.ContainsKey(id))
@@ -824,21 +769,11 @@ namespace Game.Stats
             return m_effects[id];
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
         public bool HasEffect(EffectEnum id)
         {
             return m_effects.ContainsKey(id);
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
         public bool RemoveEffect(EffectEnum id)
         {
             if (!m_effects.Remove(id))
@@ -848,11 +783,6 @@ namespace Game.Stats
             return true;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="EffectType"></param>
-        /// <param name="value"></param>
         public void AddBase(EffectEnum id, int value)
         {
             if (!m_effects.ContainsKey(id))
@@ -860,11 +790,6 @@ namespace Game.Stats
             m_effects[id].Base += value;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="EffectType"></param>
-        /// <param name="value"></param>
         public void AddDon(EffectEnum effectType, int value)
         {
             if (!m_effects.ContainsKey(effectType))
@@ -872,11 +797,6 @@ namespace Game.Stats
             m_effects[effectType].Dons += value;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="EffectType"></param>
-        /// <param name="value"></param>
         public void AddBoosts(EffectEnum effectType, int value)
         {
             if (!m_effects.ContainsKey(effectType))
@@ -884,10 +804,6 @@ namespace Game.Stats
             m_effects[effectType].Boosts += value;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="Stats"></param>
         public void Merge(StatsType type, GenericStats Stats)
         {
             foreach (var effect in Stats.Effects.Except(Stats.WeaponEffects))
@@ -898,10 +814,6 @@ namespace Game.Stats
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="Stats"></param>
         public void UnMerge(StatsType type, GenericStats Stats)
         {
             foreach (var effect in Stats.Effects.Except(Stats.WeaponEffects))
@@ -912,10 +824,6 @@ namespace Game.Stats
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="Stats"></param>
         public void Merge(GenericStats Stats)
         {
             foreach (var effect in Stats.Effects)
@@ -926,10 +834,6 @@ namespace Game.Stats
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="Stats"></param>
         public void UnMerge(GenericStats Stats)
         {
             foreach (var effect in Stats.Effects)
@@ -940,9 +844,6 @@ namespace Game.Stats
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void ClearDons()
         {
             foreach (var effect in m_effects)
@@ -955,23 +856,14 @@ namespace Game.Stats
                 effect.Value.Boosts = 0;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void StatisticsChanged()
         {
             m_serialized = null;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         [ProtoIgnore]
         private string m_serialized;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public string ToItemStats()
         {
             if (m_serialized == null)
@@ -988,9 +880,6 @@ namespace Game.Stats
             return m_serialized;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void Dispose()
         {
             m_effects.Clear();

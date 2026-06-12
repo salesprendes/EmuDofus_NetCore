@@ -1,4 +1,4 @@
-﻿using Game.Action;
+using Game.Action;
 using Game.Network;
 
 namespace Game.Fight.Effect.Type
@@ -19,7 +19,7 @@ namespace Game.Fight.Effect.Type
 
             FightCell cell = lanzador.Fight.GetCell(castInfos.CellId);
 
-            if(!cell.CanWalk)
+            if (!cell.CanWalk)
                 return FightActionResultEnum.RESULT_NOTHING;
 
             if (cell != null)

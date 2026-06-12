@@ -15,10 +15,7 @@ namespace Game.Fight.AI.Core
         {
             get
             {
-                return ActionsUsed < MaxActions
-                    && FailedActions < MaxFailedActions
-                    && SpellCastsUsed <= MaxSpellCasts
-                    && MovementsUsed <= MaxMovements;
+                return ActionsUsed < MaxActions && FailedActions < MaxFailedActions && SpellCastsUsed <= MaxSpellCasts && MovementsUsed <= MaxMovements;
             }
         }
 
@@ -62,11 +59,7 @@ namespace Game.Fight.AI.Core
 
         private static bool IsSpellDecision(AIDecisionType type)
         {
-            return type == AIDecisionType.CastSpell
-                || type == AIDecisionType.Heal
-                || type == AIDecisionType.Buff
-                || type == AIDecisionType.Debuff
-                || type == AIDecisionType.Summon;
+            return type == AIDecisionType.CastSpell || type == AIDecisionType.Heal || type == AIDecisionType.Buff || type == AIDecisionType.Debuff || type == AIDecisionType.Summon;
         }
     }
 }

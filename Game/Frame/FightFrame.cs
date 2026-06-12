@@ -1,4 +1,4 @@
-﻿using Game.Action;
+using Game.Action;
 using Game.Entity;
 using Game.Fight;
 using Game.Network;
@@ -7,16 +7,8 @@ using System;
 
 namespace Game.Frame
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class FightFrame : AbstractNetworkFrame<FightFrame, CharacterEntity, string>
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
         public override Action<CharacterEntity, string> GetHandler(string message)
         {
             if (message.Length < 2)
@@ -63,11 +55,6 @@ namespace Game.Frame
             return null;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="actor"></param>
-        /// <param name="message"></param>
         private void FightOption(CharacterEntity character, string message)
         {
             character.AddMessage(() =>
@@ -83,11 +70,6 @@ namespace Game.Frame
                 });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="actor"></param>
-        /// <param name="message"></param>
         private void FightTurnReady(CharacterEntity character, string message)
         {
             character.AddMessage(() =>
@@ -98,9 +80,9 @@ namespace Game.Frame
                     return;
                 }
 
-                // GT is the in-fight turn-transition ACK. Placement readiness goes through
-                // GR (FighterReady), so reject it outside the fighting phase to avoid
-                // silently flipping TurnReady during placement or end states.
+
+
+
                 if (character.Fight.State != FightStateEnum.STATE_FIGHTING)
                 {
                     Logger.Debug("GameFight::TurnReady el combate no esta en fase de lucha: " + character.Name);
@@ -119,11 +101,6 @@ namespace Game.Frame
             });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="actor"></param>
-        /// <param name="message"></param>
         private void FightTurnPass(CharacterEntity character, string message)
         {
             character.AddMessage(() =>
@@ -152,11 +129,6 @@ namespace Game.Frame
             });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="actor"></param>
-        /// <param name="message"></param>
         private void FightQuit(CharacterEntity character, string message)
         {
             character.AddMessage(() =>

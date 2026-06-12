@@ -1,4 +1,4 @@
-﻿using Game.Fight.Effect;
+using Game.Fight.Effect;
 using Game.Map;
 using Game.Spell;
 using Game.Manager;
@@ -11,170 +11,98 @@ using System.Threading.Tasks;
 
 namespace Game.Fight
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public abstract class AbstractActivableObject : IFightObstacle
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public FightObstacleTypeEnum ObstacleType
         {
             get;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Priority
         {
             get;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public ActiveType ActivationType
         {
             get;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Color
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool CanGoThrough
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool CanStack
         {
             get;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Duration
         {
             get;
             protected set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Length
         {
             get;
             protected set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool Hide
         {
             get;
             protected set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int ActionId
         {
             get;
             protected set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public List<FightCell> AffectedCells
         {
             get;
             protected set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool Activated
         {
             get;
             protected set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public FightCell Cell
         {
             get;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public List<AbstractFighter> Targets
         {
             get;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         protected AbstractFight m_fight;
         protected AbstractFighter m_caster;
         protected SpellTemplate m_actionSpell;
         protected SpellLevel m_actionEffect;
         protected int m_spellId;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public abstract void AppearForAll();
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dispatcher"></param>
         public abstract void Appear(MessageDispatcher dispatcher);
 
-        /// <summary>
-        /// 
-        /// </summary>
         public abstract void DisappearForAll();
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="type"></param>
-        /// <param name="activeType"></param>
-        /// <param name="fight"></param>
-        /// <param name="caster"></param>
-        /// <param name="castInfos"></param>
-        /// <param name="cell"></param>
-        /// <param name="duration"></param>
-        /// <param name="actionId"></param>
-        /// <param name="canGoThrough"></param>
-        /// <param name="canStack"></param>
-        /// <param name="hide"></param>
         protected AbstractActivableObject(FightObstacleTypeEnum type, ActiveType activeType, AbstractFight fight, AbstractFighter caster, CastInfos castInfos, int cell, int duration, int actionId, bool canGoThrough, bool canStack, bool hide = false)
         {
             m_fight = fight;
@@ -195,16 +123,16 @@ namespace Game.Fight
             Duration = duration;
             ActionId = actionId;
             Hide = hide;
-                        
-            foreach(var effect in m_actionEffect.Effects)
+
+            foreach (var effect in m_actionEffect.Effects)
             {
-                if(CastInfos.IsDamageEffect(effect.TypeEnum))
+                if (CastInfos.IsDamageEffect(effect.TypeEnum))
                 {
                     Priority--;
                 }
             }
 
-            // On ajout l'objet a toutes les cells qu'il affecte
+
             foreach (var cellId in CellZone.GetCircleCells(fight.Map, cell, Length))
             {
                 var fightCell = m_fight.GetCell(cellId);
@@ -221,13 +149,9 @@ namespace Game.Fight
                 AppearForAll();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="target"></param>
         public void LoadTargets(AbstractFighter target)
         {
-            if(!Targets.Contains(target))
+            if (!Targets.Contains(target))
                 Targets.Add(target);
 
             switch (ActivationType)
@@ -241,10 +165,6 @@ namespace Game.Fight
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="activator"></param>
         public void Activate(AbstractFighter activator)
         {
             Activated = true;
@@ -283,9 +203,6 @@ namespace Game.Fight
                 Remove();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void DecrementDuration()
         {
             Duration--;
@@ -294,9 +211,6 @@ namespace Game.Fight
                 Remove();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void Remove()
         {
             DisappearForAll();
@@ -307,11 +221,6 @@ namespace Game.Fight
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <returns></returns>
         public int CompareTo(IFightObstacle obj)
         {
             return Priority.CompareTo(obj.Priority);

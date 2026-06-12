@@ -1,10 +1,7 @@
-﻿using Game.Database.Structure;
+using Game.Database.Structure;
 
 namespace Game.Fight.Effect.Type
 {
-    /// <summary>
-    /// Applies weapon mastery only to matching weapon attacks.
-    /// </summary>
     public sealed class MasteryBuff : AbstractSpellBuff
     {
         public MasteryBuff(CastInfos castInfos, AbstractFighter target)

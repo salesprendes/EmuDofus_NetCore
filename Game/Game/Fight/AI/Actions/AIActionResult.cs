@@ -9,33 +9,17 @@ namespace Game.Fight.AI.Actions
 
         public static AIActionResult Ok(int delayMs, string reason = null)
         {
-            return new AIActionResult
-            {
-                Success = true,
-                DelayMs = delayMs,
-                Reason = reason ?? string.Empty
-            };
+            return new AIActionResult { Success = true, DelayMs = delayMs, Reason = reason ?? string.Empty };
         }
 
         public static AIActionResult Fail(string reason)
         {
-            return new AIActionResult
-            {
-                Success = false,
-                DelayMs = 0,
-                Reason = reason ?? string.Empty
-            };
+            return new AIActionResult { Success = false, DelayMs = 0, Reason = reason ?? string.Empty };
         }
 
         public static AIActionResult EndTurn(string reason)
         {
-            return new AIActionResult
-            {
-                Success = true,
-                DelayMs = 0,
-                Reason = reason ?? string.Empty,
-                ShouldEndTurn = true
-            };
+            return new AIActionResult { Success = true, DelayMs = 0, Reason = reason ?? string.Empty, ShouldEndTurn = true };
         }
     }
 }

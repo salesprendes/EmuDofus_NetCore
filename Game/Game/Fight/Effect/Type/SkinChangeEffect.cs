@@ -21,7 +21,7 @@ namespace Game.Fight.Effect.Type
 
             return FightActionResultEnum.RESULT_NOTHING;
         }
-        
+
         public static FightActionResultEnum ApplySkinChange(CastInfos castInfos)
         {
             if (castInfos.Value1 <= 0 && castInfos.Value2 <= 0 && castInfos.Value3 <= 0)

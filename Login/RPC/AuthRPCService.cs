@@ -1,4 +1,4 @@
-﻿using Protocolo.Framework.Configuration;
+using Protocolo.Framework.Configuration;
 using Protocolo.RPC.Protocol;
 using Protocolo.RPC.Service;
 using Login.Database.Repository;
@@ -7,19 +7,16 @@ namespace Login.RPC
 {
     public sealed class AuthRPCService : AbstractRpcService<AuthRPCService, AuthRPCServiceClient, AuthMessageBuilder>
     {
-        [Configurable("RPCServiceIP")]
-        public static string RPCServiceIP = "127.0.0.1";
+        [Configurable("RPCServiceIP")] public static string RPCServiceIP = "127.0.0.1";
 
-        [Configurable("RPCServicePort")]
-        public static int RPCServicePort = 4321;
+        [Configurable("RPCServicePort")] public static int RPCServicePort = 4321;
 
-        [Configurable("RPCPassword")]
-        public static string RPCPassword = "servidorDofus";
+        [Configurable("RPCPassword")] public static string RPCPassword = "servidorDofus";
 
         public AuthRPCService()
         {
             RegisterHandler((int)MessageIdEnum.WORLD_TO_AUTH_CREDENTIAL, HandleAuthentification);
-            RegisterHandler((int)MessageIdEnum.WORLD_TO_AUTH_STATE_UPDATE,  HandleGameStateUpdate);
+            RegisterHandler((int)MessageIdEnum.WORLD_TO_AUTH_STATE_UPDATE, HandleGameStateUpdate);
             RegisterHandler((int)MessageIdEnum.WORLD_TO_AUTH_ID_UPDATE, HandleGameIdUpdate);
             RegisterHandler((int)MessageIdEnum.WORLD_TO_AUTH_ACCOUNT_DISCONNECTED, HandleGameAccountDisconnected);
             RegisterHandler((int)MessageIdEnum.WORLD_TO_AUTH_ACCOUNT_CONNECTED_LIST, HandleAccountConnectedLists);
@@ -66,13 +63,13 @@ namespace Login.RPC
                 result = AuthResultEnum.SUCCESS;
 
                 client.RemoteIp = authMessage.RemoteIp;
-                
+
                 Logger.Info(string.Format("AuthServiceRPC [{0}] Autenticado correctamente", client.Ip));
             }
-            
-            client.Send(new AuthentificationResult(result));                       
+
+            client.Send(new AuthentificationResult(result));
         }
-        
+
         private void HandleGameIdUpdate(AuthRPCServiceClient client, AbstractRcpMessage message)
         {
             if (client.AuthState != AuthStateEnum.SUCCESS)
@@ -106,7 +103,7 @@ namespace Login.RPC
                 return;
 
             var accountId = ((AccountDisconnected)message).AccountId;
-            
+
             Logger.Info(string.Format("AuthServiceRPC [{0}][{1}] Cuenta del juego desconectada cuentaId={2}", client.Ip, client.GameId, accountId));
 
             AuthService.Instance.AddMessage(() => client.Players.Remove(accountId));

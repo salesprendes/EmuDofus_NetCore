@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Protocolo.Framework.Utils
 {
@@ -26,10 +26,6 @@ namespace Protocolo.Framework.Utils
 
         #region Public Methods [Reinitialisation]
 
-        /// <summary>
-        /// Reinitialises using an int value as a seed.
-        /// </summary>
-        /// <param name="seed"></param>
         public void Reinitialise(int seed)
         {
             x = (uint)seed;
@@ -73,12 +69,12 @@ namespace Protocolo.Framework.Utils
             uint t = (x ^ (x << 11));
             x = y; y = z; z = w;
 
-            // The explicit int cast before the first multiplication gives better performance.
-            // See comments in NextDouble.
+
+
             int range = upperBound - lowerBound;
             if (range < 0)
-            {   // If range is <0 then an overflow has occured and must resort to using long integer arithmetic instead (slower).
-                // We also must use all 32 bits of precision, instead of the normal 31, which again is slower.  
+            {
+
                 return lowerBound + (int)((REAL_UNIT_UINT * (double)(w = (w ^ (w >> 19)) ^ (t ^ (t >> 8)))) * (double)((long)upperBound - (long)lowerBound));
             }
             return lowerBound + (int)((REAL_UNIT_INT * (double)(int)(0x7FFFFFFF & (w = (w ^ (w >> 19)) ^ (t ^ (t >> 8))))) * (double)range);
@@ -93,18 +89,13 @@ namespace Protocolo.Framework.Utils
         }
 
 
-        /// <summary>
-        /// Fills the provided byte array with random bytes.
-        /// This method is functionally equivalent to System.Random.NextBytes().
-        /// </summary>
-        /// <param name="buffer"></param>
         public void NextBytes(byte[] buffer)
         {
-            // Fill up the bulk of the buffer in chunks of 4 bytes at a time.
+
             uint x = this.x, y = this.y, z = this.z, w = this.w;
             int i = 0;
             uint t;
-            for (int bound = buffer.Length - 3; i < bound; )
+            for (int bound = buffer.Length - 3; i < bound;)
             {
                 t = (x ^ (x << 11));
                 x = y; y = z; z = w;
@@ -116,10 +107,10 @@ namespace Protocolo.Framework.Utils
                 buffer[i++] = (byte)(w >> 24);
             }
 
-            // Fill up any remaining bytes in the buffer.
+
             if (i < buffer.Length)
             {
-                // Generate 4 bytes.
+
                 t = (x ^ (x << 11));
                 x = y; y = z; z = w;
                 w = (w ^ (w >> 19)) ^ (t ^ (t >> 8));
@@ -166,12 +157,12 @@ namespace Protocolo.Framework.Utils
         {
             if (bitMask == 1)
             {
-                // Generate 32 more bits.
+
                 uint t = (x ^ (x << 11));
                 x = y; y = z; z = w;
                 bitBuffer = w = (w ^ (w >> 19)) ^ (t ^ (t >> 8));
 
-                // Reset the bitMask that tells us which bit to read next.
+
                 bitMask = 0x80000000;
                 return (bitBuffer & bitMask) == 0;
             }

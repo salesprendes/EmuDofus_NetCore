@@ -1,4 +1,4 @@
-﻿using Protocolo.Framework.Database;
+using Protocolo.Framework.Database;
 using Game.Database.Structure;
 using Game.Entity;
 using System.Collections.Generic;
@@ -11,7 +11,7 @@ namespace Game.Database.Repository
 
         public SpellBookEntryRepository()
         {
-            // TYPE_MONSTER_FIGHTER removed — monster spells live in MonsterSpellRepository.
+
             m_spellBookEntriesByOwner = new Dictionary<int, Dictionary<long, List<SpellBookEntryDAO>>>
             {
                 { (int)EntityTypeEnum.TYPE_CHARACTER,      new Dictionary<long, List<SpellBookEntryDAO>>() },
@@ -37,7 +37,7 @@ namespace Game.Database.Repository
 
         public void RemoveAll(int ownerType, long ownerId)
         {
-            if (m_spellBookEntriesByOwner[ownerType].ContainsKey(ownerId))                
+            if (m_spellBookEntriesByOwner[ownerType].ContainsKey(ownerId))
                 base.Removed(m_spellBookEntriesByOwner[ownerType][ownerId].ToArray());
         }
 
@@ -51,34 +51,13 @@ namespace Game.Database.Repository
         }
 
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="ownerType"></param>
-        /// <param name="ownerId"></param>
-        /// <param name="spellId"></param>
-        /// <param name="level"></param>
-        /// <param name="position"></param>
-        /// <returns></returns>
         public SpellBookEntryDAO Create(int ownerType, long ownerId, int spellId, int level, int position)
         {
-            var instance = new SpellBookEntryDAO()
-            {
-                OwnerType = ownerType,
-                OwnerId = ownerId,
-                SpellId = spellId,
-                Level = level,
-                Position = position
-            };
+            var instance = new SpellBookEntryDAO() { OwnerType = ownerType, OwnerId = ownerId, SpellId = spellId, Level = level, Position = position };
             base.Created(instance);
             return instance;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="ownerId"></param>
-        /// <param name="breed"></param>
         public void GenerateForBreed(long ownerId, CharacterBreedEnum breed)
         {
             switch (breed)

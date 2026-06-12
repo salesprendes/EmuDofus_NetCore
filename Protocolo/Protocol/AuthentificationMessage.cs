@@ -1,70 +1,45 @@
-﻿using Protocolo.RPC.Service;
+using Protocolo.RPC.Service;
 
 namespace Protocolo.RPC.Protocol
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class AuthentificationMessage : AbstractRcpMessage
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public override int Id
         {
-            get 
-            { 
+            get
+            {
                 return (int)MessageIdEnum.WORLD_TO_AUTH_CREDENTIAL;
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public string Password
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public string RemoteIp
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public AuthentificationMessage()
         {
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="password"></param>
         public AuthentificationMessage(string password, string remoteIp)
         {
             Password = password;
             RemoteIp = remoteIp;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override void Deserialize()
         {
             Password = base.ReadString();
             RemoteIp = base.ReadString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override void Serialize()
         {
             base.WriteString(Password);

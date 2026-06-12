@@ -1,4 +1,4 @@
-﻿using Game.Database.Structure;
+using Game.Database.Structure;
 using Game.Entity;
 using Game.Manager;
 using Game.Network;
@@ -156,10 +156,7 @@ namespace Game.Frame
                 }
             }
 
-            character.AddMessage(() =>
-                {
-                    ActionEffectManager.Instance.ApplyEffects(character, itemId, targetId, targetCell);
-                });
+            character.AddMessage(() => { ActionEffectManager.Instance.ApplyEffects(character, itemId, targetId, targetCell); });
         }
 
         private void LivingObjectFeed(CharacterEntity character, string message)
@@ -288,10 +285,7 @@ namespace Game.Frame
                 return;
             }
 
-            character.AddMessage(() =>
-            {
-                character.Inventory.RemoveItem(itemId, quantity);
-            });
+            character.AddMessage(() => { character.Inventory.RemoveItem(itemId, quantity); });
         }
     }
 }

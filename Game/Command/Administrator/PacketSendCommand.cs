@@ -2,10 +2,7 @@ namespace Game.Command
 {
     public sealed class PacketSendCommand : WorldStaffCommand
     {
-        private readonly string[] _aliases =
-        {
-            "paquete", "packet", "send"
-        };
+        private readonly string[] _aliases = { "paquete", "packet", "send" };
 
         public override string[] Aliases => _aliases;
 

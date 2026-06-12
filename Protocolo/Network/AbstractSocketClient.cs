@@ -60,10 +60,7 @@ namespace Protocolo.Framework.Network
             ConfigureSocket(socket);
             m_socket = socket;
 
-            m_connectSaea = new SocketAsyncEventArgs
-            {
-                RemoteEndPoint = new IPEndPoint(ResolveHost(host), port)
-            };
+            m_connectSaea = new SocketAsyncEventArgs { RemoteEndPoint = new IPEndPoint(ResolveHost(host), port) };
             m_connectSaea.Completed += IOCompleted;
 
             try

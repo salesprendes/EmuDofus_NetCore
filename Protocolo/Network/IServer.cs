@@ -1,4 +1,4 @@
-﻿namespace Protocolo.Framework.Network
+namespace Protocolo.Framework.Network
 {
     public interface IServer<TClient>
     {

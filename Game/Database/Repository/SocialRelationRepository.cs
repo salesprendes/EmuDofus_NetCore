@@ -8,28 +8,15 @@ using System.Threading.Tasks;
 
 namespace Game.Database.Repository
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class SocialRelationRepository : Repository<SocialRelationRepository, SocialRelationDAO>
     {
-        /// <summary>
-        /// 
-        /// </summary>
         private Dictionary<long, List<SocialRelationDAO>> m_relationByAccountId;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public SocialRelationRepository()
         {
             m_relationByAccountId = new Dictionary<long, List<SocialRelationDAO>>();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="relation"></param>
         public override void OnObjectAdded(SocialRelationDAO relation)
         {
             if (!m_relationByAccountId.ContainsKey(relation.AccountId))
@@ -37,20 +24,11 @@ namespace Game.Database.Repository
             m_relationByAccountId[relation.AccountId].Add(relation);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="relation"></param>
         public override void OnObjectRemoved(SocialRelationDAO relation)
         {
             m_relationByAccountId[relation.AccountId].Remove(relation);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="accountId"></param>
-        /// <returns></returns>
         public List<SocialRelationDAO> GetByAccountId(long accountId)
         {
             if (!m_relationByAccountId.ContainsKey(accountId))
@@ -58,21 +36,9 @@ namespace Game.Database.Repository
             return m_relationByAccountId[accountId];
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="accountId"></param>
-        /// <param name="pseudo"></param>
-        /// <param name="type"></param>
-        /// <returns></returns>
         public SocialRelationDAO Create(long accountId, string pseudo, int type)
         {
-            var relation = new SocialRelationDAO()
-            {
-                AccountId = accountId,
-                Pseudo = pseudo,
-                TypeId = type,
-            };
+            var relation = new SocialRelationDAO() { AccountId = accountId, Pseudo = pseudo, TypeId = type, };
 
             base.Created(relation);
 

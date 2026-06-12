@@ -1,4 +1,4 @@
-﻿using Game.Database.Structure;
+using Game.Database.Structure;
 using Game.Entity;
 using Game.Manager;
 using System;
@@ -24,19 +24,9 @@ namespace Game.Fight.Ending
             long kamasLoot = GetAdditionalKamas(fight);
             var itemLoot = new List<ItemDAO>(GetAdditionalLoot(fight));
 
-            var droppers = fight
-                .WinnerTeam
-                .Fighters
-                .Where(fighter => fighter.CanDrop)
-                .Concat(GetAdditionalDroppers(fight))
-                .ToList();
+            var droppers = fight.WinnerTeam.Fighters.Where(fighter => fighter.CanDrop).Concat(GetAdditionalDroppers(fight)).ToList();
 
-            var losers = fight
-                .LoserTeam
-                .Fighters
-                .OfType<T>()
-                .Where(fighter => fighter.Invocator == null)
-                .ToList();
+            var losers = fight.LoserTeam.Fighters.OfType<T>().Where(fighter => fighter.Invocator == null).ToList();
 
             var droppersTotalPP = droppers.Sum(fighter => fighter.Prospection);
 
@@ -69,7 +59,7 @@ namespace Game.Fight.Ending
                     case EntityTypeEnum.TYPE_MONSTER_FIGHTER:
                         var monsterFight = fight as MonsterFight;
 
-                        // case of monster winning
+
                         if (monsterFight != null && fight.WinnerTeam == fight.Team0)
                         {
                             foreach (var item in itemWon)

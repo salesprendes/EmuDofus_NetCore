@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,7 +19,7 @@ namespace Game.Quest.Impl
             {
                 NpcTemplateId = int.Parse(record.Parameters);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger.Warn("Quest::FindNpcObjective tipo de parametro incorrecto, parametro=" + record.Parameters, e);
             }

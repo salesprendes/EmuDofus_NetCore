@@ -1,4 +1,4 @@
-﻿using Protocolo.Framework.Generic;
+using Protocolo.Framework.Generic;
 using Game.Database.Structure;
 using Game.ActionEffect;
 using Game.Entity;
@@ -8,20 +8,11 @@ using System.Collections.Generic;
 
 namespace Game.Manager
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class ActionEffectManager : Singleton<ActionEffectManager>
     {
-        /// <summary>
-        /// 
-        /// </summary>
         private readonly Dictionary<EffectEnum, IActionEffect> m_effectById;
         private readonly Dictionary<ItemTypeEnum, List<IActionEffect>> m_effectByType;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public ActionEffectManager()
         {
             m_effectById = new Dictionary<EffectEnum, IActionEffect>
@@ -63,43 +54,28 @@ namespace Game.Manager
                 {EffectEnum.AddAgility, AddStatsEffect.Instance},
                 {EffectEnum.AddChance, AddStatsEffect.Instance}
             };
-            m_effectByType = new Dictionary<ItemTypeEnum, List<IActionEffect>>
-            {
-                {
-                    ItemTypeEnum.TYPE_FEE_ARTIFICE, new List<IActionEffect>()
-                    {
-                    }
-                }
-            };
+            m_effectByType = new Dictionary<ItemTypeEnum, List<IActionEffect>> { { ItemTypeEnum.TYPE_FEE_ARTIFICE, new List<IActionEffect>() { } } };
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="itemId"></param>
-        /// <param name="targetId"></param>
-        /// <param name="targetCell"></param>
-        /// <param name="parameters"></param>
         public void ApplyEffects(CharacterEntity character, long itemId, long targetId = -1, int targetCell = -1, Dictionary<string, string> parameters = null)
         {
             var item = character.Inventory.GetItem(itemId);
-            if(item == null)
+            if (item == null)
                 return;
 
             if (!item.Template.Usable && !item.Template.Buff && !item.Template.Targetable && targetId != -1 && targetCell != -1)
             {
-                Logger.Info("ActionEffectManager::Apply objeto no usable, sin bonificacion ni objetivo objeto=" + item.Template.Name + " personaje=" + character.Name);                
+                Logger.Info("ActionEffectManager::Apply objeto no usable, sin bonificacion ni objetivo objeto=" + item.Template.Name + " personaje=" + character.Name);
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
-            
-            if(!item.SatisfyConditions(character))
+
+            if (!item.SatisfyConditions(character))
             {
                 character.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_CONDITIONS_UNSATISFIED));
                 return;
             }
-            
+
             var used = false;
             if (item.StringEffects != string.Empty)
             {
@@ -107,8 +83,7 @@ namespace Game.Manager
                 {
                     if (m_effectById.ContainsKey(effect.EffectType))
                     {
-                        used = m_effectById[effect.EffectType].ProcessItem(character, item, effect, targetId, targetCell) 
-                            || used;
+                        used = m_effectById[effect.EffectType].ProcessItem(character, item, effect, targetId, targetCell) || used;
                     }
                 }
             }
@@ -116,10 +91,9 @@ namespace Game.Manager
             {
                 if (m_effectByType.ContainsKey((ItemTypeEnum)item.Template.Type))
                 {
-                    foreach(var effect in m_effectByType[(ItemTypeEnum)item.Template.Type])
+                    foreach (var effect in m_effectByType[(ItemTypeEnum)item.Template.Type])
                     {
-                        used = effect.ProcessItem(character, item, null, targetId, targetCell) 
-                            || used;
+                        used = effect.ProcessItem(character, item, null, targetId, targetCell) || used;
                     }
                 }
             }
@@ -130,15 +104,9 @@ namespace Game.Manager
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="effect"></param>
-        /// <param name="parameters"></param>
         public void ApplyEffect(CharacterEntity character, EffectEnum effect, Dictionary<string, string> parameters)
         {
-            if(m_effectById.ContainsKey(effect))
+            if (m_effectById.ContainsKey(effect))
                 m_effectById[effect].Process(character, parameters);
         }
     }

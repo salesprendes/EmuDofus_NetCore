@@ -4,10 +4,7 @@ namespace Game.Command
 {
     public sealed class TitleCommand : WorldStaffCommand
     {
-        private readonly string[] _aliases =
-        {
-            "titulo", "title"
-        };
+        private readonly string[] _aliases = { "titulo", "title" };
 
         public override string[] Aliases => _aliases;
         public override string Description => "Cambia el titulo visible de tu personaje. Uso: %titleId%";

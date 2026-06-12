@@ -45,7 +45,7 @@ namespace Game.Action
             else
                 stopCell = Entity.CellId;
 
-            // Cas d'une deconnexion
+
             if (stopCell == Entity.Id)
                 stopCell = Entity.CellId;
 
@@ -60,16 +60,16 @@ namespace Game.Action
 
             Entity.MovementHandler.MovementFinish(Entity, Path, Path.EndCell);
 
-            // Execute the queued interactive skill only when ALL of these hold:
-            //  1. A skill was actually queued (SkillId != -1).
-            //  2. The entity is still on the map where the skill was requested.
-            //  3. MovementFinish placed the entity at the expected destination
-            //     (it can return early on trigger-cell condition failure, leaving
-            //     CellId at the origin — the previous code fired the skill anyway).
-            //  4. The entity is a CharacterEntity (safe cast; avoids InvalidCastException
-            //     if the action is ever reused for a non-character entity in the future).
-            //  5. The character is in a state that allows interactive skill use
-            //     (not in a fight after aggro, not tombstoned, no IO restriction).
+
+
+
+
+
+
+
+
+
+
             if (SkillId != -1
                 && Entity.MapId == SkillMapId
                 && Entity.CellId == Path.EndCell

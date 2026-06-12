@@ -1,61 +1,40 @@
-﻿using Game.Entity;
+using Game.Entity;
 using Game.Network;
 
 namespace Game.Exchange
 {
     public sealed class ShopExchange : AbstractExchange
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public CharacterEntity Character
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public NonPlayerCharacterEntity Npc
         {
             get;
             private set;
         }
 
-        /// <param name="buyer"></param>
-        /// <param name="shop"></param>
         public ShopExchange(CharacterEntity character, NonPlayerCharacterEntity npc)
-            : base(ExchangeTypeEnum.EXCHANGE_SHOP)
+    : base(ExchangeTypeEnum.EXCHANGE_SHOP)
         {
             Character = character;
             Npc = npc;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override void Create()
         {
             base.Create();
             base.Dispatch(WorldMessage.EXCHANGE_SHOP_LIST(Npc));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="success"></param>
         public override void Leave(bool success = false)
         {
             base.Leave(success);
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="actor"></param>
-        /// <param name="templateId"></param>
-        /// <param name="quantity"></param>
+
         public override void BuyItem(AbstractEntity entity, long templateId, int quantity)
         {
             if (quantity < 1)
@@ -96,12 +75,6 @@ namespace Game.Exchange
             Character.CachedBuffer = false;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="actor"></param>
-        /// <param name="guid"></param>
-        /// <param name="quantity"></param>
         public override void SellItem(AbstractEntity entity, long guid, int quantity, long price = -1)
         {
             if (quantity < 1)
@@ -137,11 +110,7 @@ namespace Game.Exchange
             entity.Inventory.RemoveItem(guid, quantity);
             entity.Inventory.AddKamas(sellPrice);
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
+
         protected override string SerializeAs_ExchangeCreate()
         {
             return Npc.Id.ToString();

@@ -17,19 +17,7 @@ namespace Game.App
             WorldService.Instance.Start("./config.json");
 
             ManualResetEventSlim shutdown = new ManualResetEventSlim(false);
-            ConsoleShutdownHandler.Register(() =>
-            {
-                Logger.Info("Apagando servidor...");
-                try
-                {
-                    WorldService.SaveWorldSync();
-                    WorldService.Instance.Stop();
-                }
-                finally
-                {
-                    shutdown.Set();
-                }
-            });
+            ConsoleShutdownHandler.Register(() => { Logger.Info("Apagando servidor..."); try { WorldService.SaveWorldSync(); WorldService.Instance.Stop(); } finally { shutdown.Set(); } });
 
             shutdown.Wait();
             Logger.Info("Servidor detenido.");

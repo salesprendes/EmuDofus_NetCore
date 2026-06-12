@@ -1,4 +1,4 @@
-﻿using Game.Database.Structure;
+using Game.Database.Structure;
 using Game.Action;
 using Game.Entity;
 using Game.Network;
@@ -10,42 +10,25 @@ using System.Threading.Tasks;
 
 namespace Game.Exchange
 {
-    /// <summary>
-    /// type:kamas:quantity,type:itemId:quantity;type:kamas:quantity|
-    /// </summary>
     public sealed class NpcExchange : AbstractEntityExchange
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public CharacterEntity Character
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public NonPlayerCharacterEntity Npc
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private Dictionary<int, long> m_templateQuantity;
         private RewardEntry m_reward;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="npc"></param>
         public NpcExchange(CharacterEntity character, NonPlayerCharacterEntity npc)
-            : base(ExchangeTypeEnum.EXCHANGE_NPC, character, npc)
+    : base(ExchangeTypeEnum.EXCHANGE_NPC, character, npc)
         {
             m_templateQuantity = new Dictionary<int, long>();
 
@@ -53,21 +36,16 @@ namespace Game.Exchange
             Npc = npc;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <returns></returns>
         public override bool Validate(AbstractEntity entity)
         {
-            if(m_reward != null)
+            if (m_reward != null)
             {
                 Character.CachedBuffer = true;
                 Character.Inventory.SubKamas(m_exchangedKamas[Character.Id]);
                 foreach (var item in m_exchangedItems[Character.Id])
                     Character.Inventory.RemoveItem(item.Key, item.Value);
                 Character.Inventory.AddKamas(m_reward.RewardedKamas);
-                foreach(var item in m_reward.RewardedItems)
+                foreach (var item in m_reward.RewardedItems)
                     Character.Inventory.AddItem(item.Template.Create(Character.Id, (int)Character.Type, item.Quantity));
                 Character.CachedBuffer = false;
                 return true;
@@ -77,17 +55,10 @@ namespace Game.Exchange
             return false;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="guid"></param>
-        /// <param name="quantity"></param>
-        /// <param name="price"></param>
         public override int AddItem(AbstractEntity entity, long guid, int quantity, long price = -1)
-        {            
+        {
             var added = base.AddItem(entity, guid, quantity, price);
-            if(added > 0)
+            if (added > 0)
             {
                 var invItem = Character.Inventory.GetItem(guid);
                 if (invItem == null)
@@ -104,12 +75,6 @@ namespace Game.Exchange
             return 0;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="guid"></param>
-        /// <param name="quantity"></param>
         public override int RemoveItem(AbstractEntity entity, long guid, int quantity)
         {
             var removed = base.RemoveItem(entity, guid, quantity);
@@ -121,7 +86,7 @@ namespace Game.Exchange
                 m_templateQuantity[invItem.TemplateId] -= quantity;
                 if (m_templateQuantity[invItem.TemplateId] == 0)
                     m_templateQuantity.Remove(invItem.TemplateId);
-                                
+
                 CheckRewards();
 
                 return removed;
@@ -129,12 +94,6 @@ namespace Game.Exchange
             return 0;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="quantity"></param>
-        /// <returns></returns>
         public override long MoveKamas(AbstractEntity entity, long quantity)
         {
             var moved = base.MoveKamas(entity, quantity);
@@ -144,15 +103,12 @@ namespace Game.Exchange
             return moved;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private void CheckRewards()
         {
             Character.CachedBuffer = true;
 
-            if(m_reward != null)
-                foreach(var item in m_reward.RewardedItems)            
+            if (m_reward != null)
+                foreach (var item in m_reward.RewardedItems)
                     Character.Dispatch(WorldMessage.EXCHANGE_DISTANT_MOVEMENT(ExchangeMoveEnum.MOVE_OBJECT, OperatorEnum.OPERATOR_REMOVE, item.TemplateId.ToString()));
 
             m_reward = null;
@@ -163,7 +119,7 @@ namespace Game.Exchange
             if (m_reward != null)
             {
                 foreach (var item in m_reward.RewardedItems)
-                    Character.Dispatch(WorldMessage.EXCHANGE_DISTANT_MOVEMENT(ExchangeMoveEnum.MOVE_OBJECT, OperatorEnum.OPERATOR_ADD, item.TemplateId + "|" + item.Quantity + '|' + item.TemplateId + '|' + item.Template.Effects));   
+                    Character.Dispatch(WorldMessage.EXCHANGE_DISTANT_MOVEMENT(ExchangeMoveEnum.MOVE_OBJECT, OperatorEnum.OPERATOR_ADD, item.TemplateId + "|" + item.Quantity + '|' + item.TemplateId + '|' + item.Template.Effects));
                 Character.Dispatch(WorldMessage.EXCHANGE_DISTANT_MOVEMENT(ExchangeMoveEnum.MOVE_GOLD, OperatorEnum.OPERATOR_ADD, m_reward.RewardedKamas.ToString()));
             }
 

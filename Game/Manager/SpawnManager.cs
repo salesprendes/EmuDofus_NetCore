@@ -1,4 +1,4 @@
-﻿using Protocolo.Framework.Generic;
+using Protocolo.Framework.Generic;
 using Game.Database.Repository;
 using Game.Database.Structure;
 using Game.Map;
@@ -11,16 +11,10 @@ using System.Threading.Tasks;
 
 namespace Game.Manager
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class SpawnManager : Singleton<SpawnManager>
     {
         private readonly Dictionary<ZoneTypeEnum, Dictionary<int, SpawnQueue>> m_spawnQueueById;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public SpawnManager()
         {
             m_spawnQueueById = new Dictionary<ZoneTypeEnum, Dictionary<int, SpawnQueue>>();
@@ -30,12 +24,9 @@ namespace Game.Manager
             m_spawnQueueById.Add(ZoneTypeEnum.TYPE_MAP, new Dictionary<int, SpawnQueue>());
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void Initialize()
         {
-            foreach(var subArea in AreaManager.Instance.SubAreas)
+            foreach (var subArea in AreaManager.Instance.SubAreas)
             {
                 if (subArea.Spawns.Any())
                 {
@@ -46,10 +37,6 @@ namespace Game.Manager
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="map"></param>
         public void RegisterMap(MapInstance map)
         {
             if (m_spawnQueueById[ZoneTypeEnum.TYPE_SUBAREA].ContainsKey(map.SubAreaId))

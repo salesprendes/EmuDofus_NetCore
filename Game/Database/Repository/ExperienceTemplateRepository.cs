@@ -55,11 +55,6 @@ namespace Game.Database.Repository
             return m_experienceByLevel.Values.Max(template => template.Pvp);
         }
 
-        /// <summary>
-        /// Alignment/PVP grade (1..<paramref name="maxGrade"/>) for a given honour, using the
-        /// loaded PVP floors. A grade is reached when honour >= that level's PVP floor (floors are
-        /// ascending), mirroring the character alignment ladder.
-        /// </summary>
         public int GetPvpGrade(long honor, int maxGrade)
         {
             var grade = 1;

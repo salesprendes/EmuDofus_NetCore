@@ -30,12 +30,7 @@ namespace Game.Fight.AI.Actions
             if (spell == null || targetCell < 0)
                 return false;
 
-            return context.Fight.CanLaunchSpell(
-                context.Fighter,
-                spell,
-                Decision.SpellId.Value,
-                context.Fighter.Cell.Id,
-                targetCell) == FightSpellLaunchResultEnum.RESULT_OK;
+            return context.Fight.CanLaunchSpell(context.Fighter, spell, Decision.SpellId.Value, context.Fighter.Cell.Id, targetCell) == FightSpellLaunchResultEnum.RESULT_OK;
         }
 
         public virtual AIActionResult Execute(AIContext context)

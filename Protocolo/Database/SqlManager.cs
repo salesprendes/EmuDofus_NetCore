@@ -6,24 +6,12 @@ using System.Linq;
 
 namespace Protocolo.Framework.Database
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class SqlManager
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public static ILogger Logger = LogManager.GetLogger(typeof(SqlManager));
 
-        /// <summary>
-        /// 
-        /// </summary>
         private string m_connectionString;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public MySqlConnection CreateConnection()
         {
             var connection = new MySqlConnection(m_connectionString);
@@ -31,21 +19,11 @@ namespace Protocolo.Framework.Database
             return connection;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="connectionString"></param>
         public void Initialize(string connectionString)
         {
             m_connectionString = connectionString;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="query"></param>
-        /// <param name="param"></param>
-        /// <returns></returns>
         public IEnumerable<T> Query<T>(string query, object param = null)
         {
             using (var connection = CreateConnection())
@@ -54,12 +32,6 @@ namespace Protocolo.Framework.Database
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="query"></param>
-        /// <param name="param"></param>
-        /// <returns></returns>
         public T QuerySingle<T>(string query, object param = null)
         {
             using (var connection = CreateConnection())
@@ -68,12 +40,6 @@ namespace Protocolo.Framework.Database
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="query"></param>
-        /// <param name="param"></param>
-        /// <returns></returns>
         public int ExecuteQuery(string query, object param = null)
         {
             using (var connection = CreateConnection())
@@ -82,11 +48,6 @@ namespace Protocolo.Framework.Database
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="dataObject"></param>
         public bool Insert<T>(T dataObject) where T : DataAccessObject<T>, new()
         {
             using (var connection = CreateConnection())
@@ -104,11 +65,6 @@ namespace Protocolo.Framework.Database
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="dataObject"></param>
         public bool InsertWithKey<T>(T dataObject) where T : DataAccessObject<T>, new()
         {
             using (var connection = CreateConnection())
@@ -126,11 +82,6 @@ namespace Protocolo.Framework.Database
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="dataObject"></param>
         public bool InsertWithKey<T>(IEnumerable<T> dataObjects) where T : DataAccessObject<T>, new()
         {
             using (var connection = CreateConnection())
@@ -153,12 +104,6 @@ namespace Protocolo.Framework.Database
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="dataObjects"></param>
-        /// <returns></returns>
         public bool Insert<T>(IEnumerable<T> dataObjects) where T : DataAccessObject<T>, new()
         {
             using (var connection = CreateConnection())
@@ -181,12 +126,6 @@ namespace Protocolo.Framework.Database
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="dataObject"></param>
-        /// <returns></returns>
         public bool Delete<T>(T dataObject) where T : DataAccessObject<T>, new()
         {
             using (var connection = CreateConnection())
@@ -195,44 +134,21 @@ namespace Protocolo.Framework.Database
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="dataObject"></param>
-        /// <returns></returns>
         public void Delete<T>(MySqlConnection connection, MySqlTransaction transaction, IEnumerable<T> dataObjects) where T : DataAccessObject<T>, new()
         {
             connection.Delete<T>(dataObjects, transaction);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="dataObject"></param>
-        /// <returns></returns>
         public void InsertWithKey<T>(MySqlConnection connection, MySqlTransaction transaction, IEnumerable<T> dataObjects) where T : DataAccessObject<T>, new()
         {
             connection.InsertWithKey<T>(dataObjects, transaction);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="dataObjects"></param>
-        /// <returns></returns>
         public void Update<T>(MySqlConnection connection, MySqlTransaction transaction, IEnumerable<T> dataObjects) where T : DataAccessObject<T>, new()
         {
             connection.Update<T>(dataObjects, transaction);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="dataObject"></param>
         public bool Update<T>(T dataObject) where T : DataAccessObject<T>, new()
         {
             using (var connection = CreateConnection())

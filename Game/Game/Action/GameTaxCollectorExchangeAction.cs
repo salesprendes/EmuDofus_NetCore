@@ -1,4 +1,4 @@
-﻿using Game.Entity;
+using Game.Entity;
 using Game.Exchange;
 using System;
 using System.Collections.Generic;
@@ -8,43 +8,24 @@ using System.Threading.Tasks;
 
 namespace Game.Action
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class GameTaxCollectorExchangeAction : AbstractGameExchangeAction
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="taxCollector"></param>
         public GameTaxCollectorExchangeAction(CharacterEntity character, TaxCollectorEntity taxCollector)
-            : base(new TaxCollectorExchange(character, taxCollector), character, taxCollector)
+    : base(new TaxCollectorExchange(character, taxCollector), character, taxCollector)
         {
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override void Start()
         {
             Exchange.Create();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="args"></param>
         public override void Stop(params object[] args)
         {
             base.Leave(true);
             base.Stop(args);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="args"></param>
         public override void Abort(params object[] args)
         {
             base.Leave();

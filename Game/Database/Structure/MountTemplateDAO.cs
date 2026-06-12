@@ -74,15 +74,9 @@ namespace Game.Database.Structure
             get => _learningTime;
             set => SetProperty(ref _learningTime, value);
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
+
         private RandomStatistics m_effects;
 
-        /// <summary>
-        /// 
-        /// </summary>
         [Write(false)]
         public RandomStatistics RandomEffects
         {

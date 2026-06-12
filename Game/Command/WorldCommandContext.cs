@@ -1,4 +1,4 @@
-﻿using Protocolo.Framework.Command;
+using Protocolo.Framework.Command;
 using Game.Entity;
 
 namespace Game.Command
@@ -12,7 +12,7 @@ namespace Game.Command
 
         public CharacterEntity Character
         {
-            get; 
+            get;
             set;
         }
     }

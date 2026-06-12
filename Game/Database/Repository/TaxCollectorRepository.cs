@@ -1,4 +1,4 @@
-﻿using Protocolo.Framework.Database;
+using Protocolo.Framework.Database;
 using Game.Database.Structure;
 using System;
 using System.Collections.Generic;
@@ -8,14 +8,8 @@ using System.Threading.Tasks;
 
 namespace Game.Database.Repository
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class TaxCollectorRepository : Repository<TaxCollectorRepository, TaxCollectorDAO>
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public long NextTaxCollectorId
         {
             get
@@ -25,23 +19,13 @@ namespace Game.Database.Repository
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private long m_nextTaxCollectorId;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public TaxCollectorRepository()
         {
             m_nextTaxCollectorId = 1000;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="obj"></param>
         public override void OnObjectAdded(TaxCollectorDAO obj)
         {
             if (obj.Id >= m_nextTaxCollectorId)

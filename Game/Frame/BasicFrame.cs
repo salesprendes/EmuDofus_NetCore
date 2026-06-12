@@ -1,4 +1,4 @@
-﻿using Game.Action;
+using Game.Action;
 using Game.Command;
 using Game.Database.Structure;
 using Game.Entity;
@@ -44,58 +44,58 @@ namespace Game.Frame
                 case 'g':
                     switch (message[1])
                     {
-                        case 'P': // member profil update
+                        case 'P':
                             return GuildProfilUpdate;
-                        case 'K': // kick member
+                        case 'K':
                             return GuildKick;
-                        case 'V': // creation leave
+                        case 'V':
                             return GuildCreationLeave;
-                        case 'C': // creation
+                        case 'C':
                             return GuildCreationRequest;
-                        case 'B': // boost caract
+                        case 'B':
                             return GuildBoostStats;
-                        case 'H': // hire tax collector
+                        case 'H':
                             return GuildHireTaxcollector;
-                        case 'F': // farm tax collector
+                        case 'F':
                             return GuildTaxCollectorRemove;
-                        case 'f': // teleport to guild farm ?? 
+                        case 'f':
                             break;
-                        case 'h': // teleport to guild house
+                        case 'h':
                             break;
-                        case 'b': // boost spell
+                        case 'b':
                             return GuildBoostSpell;
                         case 'J':
                             switch (message[2])
                             {
-                                case 'R': // invite 
+                                case 'R':
                                     return GuildJoinInvite;
-                                case 'K': // accept invite
+                                case 'K':
                                     return GuildJoinAccept;
-                                case 'E': // refuse invite
+                                case 'E':
                                     return GuildJoinRefuse;
                             }
                             break;
                         case 'T':
                             switch (message[2])
                             {
-                                case 'J': // join tax collector fight
+                                case 'J':
                                     return GuildTaxCollectorJoin;
-                                case 'V': // leave tax collector fight
+                                case 'V':
                                     return GuildTaxCollectorLeave;
                             }
                             break;
                         case 'I':
                             switch (message[2])
                             {
-                                case 'M': // guildMemberInfos
+                                case 'M':
                                     return GuildMembersInformations;
-                                case 'B': // boost infos
+                                case 'B':
                                     return GuildBoostInformations;
-                                case 'G': // general infos
+                                case 'G':
                                     return GuildGeneralInformations;
-                                case 'F': // mount park infos
+                                case 'F':
                                     break;
-                                case 'H': // house info
+                                case 'H':
                                     break;
                                 case 'T':
                                     if (message.Length > 3)
@@ -110,19 +110,19 @@ namespace Game.Frame
                 case 'P':
                     switch (message[1])
                     {
-                        case 'I': // PartyInvite
+                        case 'I':
                             return PartyInvite;
 
-                        case 'A': // PartyAccept
+                        case 'A':
                             return PartyAccept;
 
-                        case 'R': // PartyRefuse
+                        case 'R':
                             return PartyRefuse;
 
-                        case 'W': // ParyLocalize
+                        case 'W':
                             return PartyLocalize;
 
-                        case 'V': // Leave
+                        case 'V':
                             return PartyLeave;
                     }
                     break;
@@ -178,26 +178,39 @@ namespace Game.Frame
                     if (message.StartsWith("rpong"))
                         return BasicRPong;
                     break;
+
+                case 'J':
+                    if (message[1] == 'O')
+                        return JobChangeOptions;
+                    break;
             }
 
             return null;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
+        private void JobChangeOptions(CharacterEntity character, string message)
+        {
+            var data = message.AsSpan(2);
+            Span<Range> parts = stackalloc Range[4];
+            var partCount = data.Split(parts, '|');
+
+            if (partCount < 3
+                || !int.TryParse(data[parts[0]], out var jobId)
+                || !int.TryParse(data[parts[1]], out var optionParams)
+                || !int.TryParse(data[parts[2]], out var minSlots))
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
+            character.AddMessage(() => character.CharacterJobs.ChangeOptions(jobId, optionParams, minSlots));
+        }
+
         private void PartyLocalize(CharacterEntity character, string message)
         {
 
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void ChatChannelEnable(CharacterEntity character, string message)
         {
             var enabled = message[2] == '+';
@@ -205,21 +218,11 @@ namespace Game.Frame
             character.SafeDispatch(WorldMessage.CHAT_CHANNEL(enabled, channel));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void BasicAway(CharacterEntity character, string message)
         {
             character.AddMessage(character.SetAway);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void BasicCommand(CharacterEntity character, string message)
         {
             if (!WorldCommandPermissions.CanUseStaffConsole(character))
@@ -229,22 +232,17 @@ namespace Game.Frame
                 return;
             }
 
-            var command = message.Substring(2);
+            var command = message.AsSpan(2).ToString();
 
             character.AddMessage(() =>
             {
                 if (!WorldService.Instance.CommandManager.Execute(new WorldCommandContext(character, command)))
                     character.Dispatch(WorldMessage.BASIC_CONSOLE_MESSAGE("Comando no reconocido. Escribe help para ver la lista."));
                 else
-                    Logger.Info("[COMANDO CONSOLA] nombre=" + character.Name + " ip=" + character.Ip + " comando=" + command);
+                    Logger.Info($"[COMANDO CONSOLA] nombre={character.Name} ip={character.Ip} comando={command}");
             });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void GuildTaxCollectorRemove(CharacterEntity character, string message)
         {
             long taxCollectorId = -1;
@@ -279,11 +277,6 @@ namespace Game.Frame
                 });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void GuildTaxCollectorInterfaceLeave(CharacterEntity character, string message)
         {
             if (character.GuildMember == null)
@@ -295,11 +288,6 @@ namespace Game.Frame
             character.GuildMember.TaxCollectorsInterfaceLeave();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         public static void GuildTaxCollectorLeave(CharacterEntity character, string message)
         {
             character.AddMessage(() =>
@@ -320,11 +308,6 @@ namespace Game.Frame
                 });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void GuildTaxCollectorJoin(CharacterEntity character, string message)
         {
             if (character.GuildMember == null)
@@ -342,11 +325,6 @@ namespace Game.Frame
             character.GuildMember.TaxCollectorJoin(taxCollectorId);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="message"></param>
         private void GuildHireTaxcollector(CharacterEntity entity, string message)
         {
             entity.AddMessage(() =>
@@ -367,11 +345,6 @@ namespace Game.Frame
                 });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="message"></param>
         private void GuildBoostStats(CharacterEntity character, string message)
         {
             if (character.GuildMember == null)
@@ -383,11 +356,6 @@ namespace Game.Frame
             character.GuildMember.BoostGuildStats(message[2]);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void GuildBoostSpell(CharacterEntity character, string message)
         {
             if (character.GuildMember == null)
@@ -405,11 +373,6 @@ namespace Game.Frame
             character.GuildMember.BoostGuildSpell(spellId);
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void GuildTaxCollectorsList(CharacterEntity character, string message)
         {
             if (character.GuildMember == null)
@@ -423,11 +386,6 @@ namespace Game.Frame
         }
 
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void GuildBoostInformations(CharacterEntity character, string message)
         {
             if (character.GuildMember == null)
@@ -439,11 +397,6 @@ namespace Game.Frame
             character.GuildMember.SendBoostInformations();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void GuildCreationRequest(CharacterEntity character, string message)
         {
             var guildData = message.AsSpan(2);
@@ -494,19 +447,11 @@ namespace Game.Frame
                         character.GuildMember.SendGuildStats();
                         character.RefreshOnMap();
 
-                        character.AddMessage(() =>
-                            {
-                                character.StopAction(GameActionTypeEnum.GUILD_CREATE);
-                            });
+                        character.AddMessage(() => { character.StopAction(GameActionTypeEnum.GUILD_CREATE); });
                     });
             });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void GuildCreationLeave(CharacterEntity character, string message)
         {
             character.AddMessage(() =>
@@ -520,11 +465,6 @@ namespace Game.Frame
                 });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void GuildKick(CharacterEntity character, string message)
         {
             if (character.GuildMember == null)
@@ -533,14 +473,9 @@ namespace Game.Frame
                 return;
             }
 
-            character.GuildMember.MemberKick(message.Substring(2));
+            character.GuildMember.MemberKick(message.AsSpan(2));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void GuildProfilUpdate(CharacterEntity character, string message)
         {
             if (character.GuildMember == null)
@@ -570,16 +505,11 @@ namespace Game.Frame
             character.GuildMember.MemberProfilUpdate(profilId, rank, xpSharePercent, power);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         public static void GuildJoinRefuse(CharacterEntity character, string message)
         {
             WorldService.Instance.AddMessage(() =>
                 {
-                    // if not being invited and not even inviting
+
                     if (character.GuildInvitedPlayerId == -1 && character.GuildInviterPlayerId == -1)
                     {
                         character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
@@ -588,13 +518,13 @@ namespace Game.Frame
 
                     CharacterEntity distantCharacter = null;
 
-                    // get the remote character
+
                     if (character.GuildInvitedPlayerId != -1)
                         distantCharacter = EntityManager.Instance.GetCharacterById(character.GuildInvitedPlayerId);
                     else
                         distantCharacter = EntityManager.Instance.GetCharacterById(character.GuildInviterPlayerId);
 
-                    // be safe even if this should never happend
+
                     if (distantCharacter != null)
                     {
                         if (character.Id == distantCharacter.GuildInvitedPlayerId)
@@ -615,16 +545,11 @@ namespace Game.Frame
                 });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void GuildJoinAccept(CharacterEntity character, string message)
         {
             WorldService.Instance.AddMessage(() =>
                 {
-                    // not being invited ?
+
                     if (character.GuildInviterPlayerId == -1)
                     {
                         character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
@@ -636,7 +561,7 @@ namespace Game.Frame
                     character.GuildInvitedPlayerId = -1;
                     character.GuildInviterPlayerId = -1;
 
-                    // should never happend
+
                     if (distantCharacter == null)
                     {
                         character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
@@ -654,25 +579,20 @@ namespace Game.Frame
                 });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void GuildJoinInvite(CharacterEntity character, string message)
         {
             WorldService.Instance.AddMessage(() =>
                 {
-                    // not in guild
+
                     if (character.GuildMember == null)
                     {
                         character.SafeDispatch(WorldMessage.GUILD_JOIN_ERROR_UNKNOW());
                         return;
                     }
 
-                    var distantCharacterName = message.Substring(3);
+                    var distantCharacterName = message.AsSpan(3).ToString();
 
-                    // if disconnected or fake
+
                     var distantCharacter = EntityManager.Instance.GetCharacterByName(distantCharacterName);
                     if (distantCharacter == null)
                     {
@@ -680,14 +600,14 @@ namespace Game.Frame
                         return;
                     }
 
-                    // if in guild or already being invited or even inviting
+
                     if (distantCharacter.GuildMember != null)
                     {
                         character.SafeDispatch(WorldMessage.GUILD_JOIN_ERROR_ALREADY_IN_GUILD());
                         return;
                     }
 
-                    // if being invited or inviting
+
                     if (character.GuildInvitedPlayerId != -1 ||
                         character.GuildInviterPlayerId != -1 ||
                         distantCharacter.GuildInvitedPlayerId != -1 ||
@@ -711,11 +631,6 @@ namespace Game.Frame
                 });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void GuildGeneralInformations(CharacterEntity character, string message)
         {
             if (character.GuildMember == null)
@@ -727,11 +642,6 @@ namespace Game.Frame
             character.GuildMember.SendGeneralInformations();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void GuildMembersInformations(CharacterEntity character, string message)
         {
             if (character.GuildMember == null)
@@ -743,18 +653,13 @@ namespace Game.Frame
             character.GuildMember.SendMembersInformations();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void PartyInvite(CharacterEntity character, string message)
         {
             WorldService.Instance.AddMessage(() =>
                 {
-                    var distantCharacterName = message.Substring(2);
+                    var distantCharacterName = message.AsSpan(2).ToString();
 
-                    // if disconnected or fake
+
                     var distantCharacter = EntityManager.Instance.GetCharacterByName(distantCharacterName);
                     if (distantCharacter == null)
                     {
@@ -762,21 +667,21 @@ namespace Game.Frame
                         return;
                     }
 
-                    // if in party or being invited or even inviting
+
                     if (distantCharacter.PartyId != -1 || distantCharacter.PartyInvitedPlayerId != -1 || distantCharacter.PartyInviterPlayerId != -1)
                     {
                         character.SafeDispatch(WorldMessage.PARTY_INVITE_ERROR_ALREADY_IN_PARTY());
                         return;
                     }
 
-                    // if being invited or inviting
+
                     if (character.PartyInvitedPlayerId != -1 || character.PartyInviterPlayerId != -1)
                     {
                         character.SafeDispatch(WorldMessage.PARTY_INVITE_ERROR_ALREADY_IN_PARTY());
                         return;
                     }
 
-                    // if party full
+
                     var party = PartyManager.Instance.GetParty(character.PartyId);
                     if (party != null)
                     {
@@ -797,16 +702,11 @@ namespace Game.Frame
                 });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         public static void PartyRefuse(CharacterEntity character, string message)
         {
             WorldService.Instance.AddMessage(() =>
                 {
-                    // if not being invited and not even inviting
+
                     if (character.PartyInvitedPlayerId == -1 && character.PartyInviterPlayerId == -1)
                     {
                         character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
@@ -815,13 +715,13 @@ namespace Game.Frame
 
                     CharacterEntity distantCharacter = null;
 
-                    // get the remote character
+
                     if (character.PartyInvitedPlayerId != -1)
                         distantCharacter = EntityManager.Instance.GetCharacterById(character.PartyInvitedPlayerId);
                     else
                         distantCharacter = EntityManager.Instance.GetCharacterById(character.PartyInviterPlayerId);
 
-                    // be safe even if this should never happend
+
                     if (distantCharacter != null)
                     {
                         distantCharacter.PartyInvitedPlayerId = -1;
@@ -835,16 +735,11 @@ namespace Game.Frame
                 });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void PartyAccept(CharacterEntity character, string message)
         {
             WorldService.Instance.AddMessage(() =>
             {
-                // not being invited ?
+
                 if (character.PartyInviterPlayerId == -1)
                 {
                     character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
@@ -856,7 +751,7 @@ namespace Game.Frame
                 character.PartyInvitedPlayerId = -1;
                 character.PartyInviterPlayerId = -1;
 
-                // should never happend
+
                 if (distantCharacter == null)
                 {
                     character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
@@ -868,7 +763,7 @@ namespace Game.Frame
 
                 distantCharacter.SafeDispatch(WorldMessage.PARTY_REFUSE());
 
-                // already in party so we add the new one
+
                 if (distantCharacter.PartyId != -1)
                 {
                     var party = PartyManager.Instance.GetParty(distantCharacter.PartyId);
@@ -882,28 +777,23 @@ namespace Game.Frame
                     return;
                 }
 
-                // create new party
+
                 PartyManager.Instance.CreateParty(distantCharacter, character);
             });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void PartyLeave(CharacterEntity character, string message)
         {
             WorldService.Instance.AddMessage(() =>
             {
-                // not in party ?
+
                 if (character.PartyId == -1)
                 {
                     character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
 
-                // null party should never happend but be sure
+
                 var party = PartyManager.Instance.GetParty(character.PartyId);
                 if (party == null)
                 {
@@ -911,7 +801,7 @@ namespace Game.Frame
                     return;
                 }
 
-                // wants to leave
+
                 if (message == "PV")
                 {
                     party.RemoveMember(character);
@@ -929,11 +819,6 @@ namespace Game.Frame
             });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void BoostStats(CharacterEntity character, string message)
         {
             if (!int.TryParse(message.AsSpan(2), out int statId))
@@ -994,11 +879,6 @@ namespace Game.Frame
             });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="message"></param>
         private void BasicPong(CharacterEntity character, string message)
         {
             character.SafeDispatch(WorldMessage.BASIC_PONG());
@@ -1085,7 +965,7 @@ namespace Game.Frame
                 return;
             }
 
-            // message format: BaM<x>,<y>
+
             var parts = message.AsSpan(3);
             var separatorIndex = parts.IndexOf(',');
             var yData = separatorIndex < 0 ? ReadOnlySpan<char>.Empty : parts.Slice(separatorIndex + 1);

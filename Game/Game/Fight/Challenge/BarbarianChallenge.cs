@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,16 +6,10 @@ using System.Threading.Tasks;
 
 namespace Game.Fight.Challenge
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class BarbarianChallenge : AbstractChallenge
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public BarbarianChallenge()
-            : base(ChallengeTypeEnum.BARBARIRAN)
+    : base(ChallengeTypeEnum.BARBARIRAN)
         {
             BasicDropBonus = 60;
             BasicXpBonus = 60;
@@ -25,11 +19,6 @@ namespace Game.Fight.Challenge
 
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
-        /// <param name="castInfos"></param>
         public override void CheckSpell(AbstractFighter fighter, Effect.CastInfos castInfos)
         {
             base.OnFailed(fighter.Name);

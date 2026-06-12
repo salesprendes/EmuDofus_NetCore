@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace Protocolo.Framework.Network
@@ -21,9 +21,9 @@ namespace Protocolo.Framework.Network
         {
             m_client = client;
             m_processing = false;
-            m_frames = new List<IFrame<TClient,TMessage>>();
-            m_framesToAdd = new List<IFrame<TClient,TMessage>>();
-            m_framesToRemove = new List<IFrame<TClient,TMessage>>();
+            m_frames = new List<IFrame<TClient, TMessage>>();
+            m_framesToAdd = new List<IFrame<TClient, TMessage>>();
+            m_framesToRemove = new List<IFrame<TClient, TMessage>>();
         }
 
         public bool HasFrame(IFrame<TClient, TMessage> frame)
@@ -36,23 +36,23 @@ namespace Protocolo.Framework.Network
             m_processing = true;
             var processed = false;
 
-            foreach(var frame in m_frames)            
-                if(frame.Process(m_client, message))
-                    processed =  true;
+            foreach (var frame in m_frames)
+                if (frame.Process(m_client, message))
+                    processed = true;
 
-            foreach(var frame in m_framesToAdd)
-                if(!m_frames.Contains(frame))
+            foreach (var frame in m_framesToAdd)
+                if (!m_frames.Contains(frame))
                     m_frames.Add(frame);
 
-            foreach(var frame in m_framesToRemove)
-                if(m_frames.Contains(frame))
+            foreach (var frame in m_framesToRemove)
+                if (m_frames.Contains(frame))
                     m_frames.Remove(frame);
 
             m_processing = false;
 
             m_framesToAdd.Clear();
             m_framesToRemove.Clear();
-            
+
             return processed;
         }
 
@@ -61,7 +61,7 @@ namespace Protocolo.Framework.Network
             if (m_processing)
                 m_framesToAdd.Add(frame);
             else
-                if(!m_frames.Contains(frame))
+                if (!m_frames.Contains(frame))
                     m_frames.Add(frame);
         }
 
@@ -70,7 +70,7 @@ namespace Protocolo.Framework.Network
             if (m_processing)
                 m_framesToRemove.Add(frame);
             else
-                if(m_frames.Contains(frame))
+                if (m_frames.Contains(frame))
                     m_frames.Remove(frame);
         }
 

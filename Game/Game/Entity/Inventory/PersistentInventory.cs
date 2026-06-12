@@ -1,54 +1,31 @@
-﻿using Game.Database.Repository;
+using Game.Database.Repository;
 using Game.Database.Structure;
 using System.Collections.Generic;
 
 namespace Game.Entity.Inventory
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public class PersistentInventory : AbstractInventory
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public int OwnerType
         {
             get;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long OwnerId
         {
             get;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override long Kamas
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override List<ItemDAO> Items => m_items;
 
-        /// <summary>
-        /// 
-        /// </summary>
         private readonly List<ItemDAO> m_items;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="ownerType"></param>
-        /// <param name="ownerId"></param>
         public PersistentInventory(int ownerType, long ownerId)
         {
             m_items = new List<ItemDAO>();
@@ -58,10 +35,6 @@ namespace Game.Entity.Inventory
             OwnerId = ownerId;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="item"></param>
         public override void OnOwnerChange(ItemDAO item)
         {
             item.OwnerId = OwnerId;

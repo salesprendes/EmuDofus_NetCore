@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Protocolo.Framework.Network;
 using Login.Database.Repository;
 using Login.Network;
@@ -28,7 +28,7 @@ namespace Login.Frames
             }
 
             var account = credentials[0];
-            var password = credentials[1].Substring(1);
+            var password = credentials[1].AsSpan(1).ToString();
 
             AuthService.Instance.AddMessage(() => ProcessAuthentification(client, account, password));
         }

@@ -1,4 +1,4 @@
-﻿using Protocolo.Framework.Generic;
+using Protocolo.Framework.Generic;
 using Game.Database.Structure;
 using Game.Entity;
 using Game.Fight;
@@ -9,20 +9,16 @@ namespace Game.Manager
 {
     public sealed class DropManager : Singleton<DropManager>
     {
-        /// <param name="prospection"></param>
-        /// <param name="monster"></param>
-        /// <param name="rate"></param>
-        /// <returns></returns>
         public List<ItemDAO> GetDrops(long prospection, MonsterEntity monster, double rate)
         {
             List<ItemDAO> drops = new List<ItemDAO>();
-            foreach(var drop in monster.Grade.Template.Drops)
+            foreach (var drop in monster.Grade.Template.Drops)
             {
                 for (var i = 0; i < drop.Max; i++)
                 {
                     if (TryDrop(prospection, drop, rate))
                     {
-                        if(drop.ItemTemplate != null)
+                        if (drop.ItemTemplate != null)
                         {
                             drops.Add(drop.ItemTemplate.Create(-1, 0));
                         }
@@ -32,13 +28,6 @@ namespace Game.Manager
             return drops;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="prospection"></param>
-        /// <param name="drop"></param>
-        /// <param name="rate"></param>
-        /// <returns></returns>
         public bool TryDrop(long prospection, DropTemplateDAO drop, double rate)
         {
             if (drop.PPThreshold > prospection)
@@ -50,21 +39,14 @@ namespace Game.Manager
             return chance <= realRate;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighters"></param>
-        /// <param name="totalProspection"></param>
-        /// <param name="drops"></param>
-        /// <returns></returns>
         public Dictionary<AbstractFighter, List<ItemDAO>> Distribute(IEnumerable<AbstractFighter> fighters, long totalProspection, List<ItemDAO> drops)
         {
             var abstractFighters = fighters as AbstractFighter[] ?? fighters.ToArray();
             var orderedPlayers = abstractFighters.OrderBy(player => player.Prospection);
             var distributed = abstractFighters.ToDictionary(player => player, player => new List<ItemDAO>());
-            while(drops.Count > 0)
+            while (drops.Count > 0)
             {
-                foreach(var player in abstractFighters)
+                foreach (var player in abstractFighters)
                 {
                     for (int i = drops.Count - 1; i > -1; i--)
                     {

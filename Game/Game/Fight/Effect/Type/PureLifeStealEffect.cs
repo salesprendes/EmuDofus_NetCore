@@ -1,4 +1,4 @@
-﻿using Game.Spell;
+using Game.Spell;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,16 +7,8 @@ using System.Threading.Tasks;
 
 namespace Game.Fight.Effect.Type
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class PureLifeStealEffect : AbstractSpellEffect
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="castInfos"></param>
-        /// <returns></returns>
         public override FightActionResultEnum ApplyEffect(CastInfos castInfos)
         {
             if (castInfos.Target == null)
@@ -25,7 +17,7 @@ namespace Game.Fight.Effect.Type
             var damageJet = castInfos.RandomJet;
             castInfos.EffectType = EffectEnum.DamageBrut;
 
-            // cannot kill the target if hes an ally
+
             if (castInfos.Caster.Team == castInfos.Target.Team && damageJet > castInfos.Target.Life)
                 damageJet = castInfos.Target.Life - 1;
 

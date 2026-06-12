@@ -1,4 +1,4 @@
-﻿using Game.Database.Structure;
+using Game.Database.Structure;
 using Game.Condition;
 using Game.Entity;
 using Game.Manager;
@@ -12,7 +12,7 @@ using Game.ActionEffect;
 
 namespace Game.Dialog
 {
-    public sealed class NpcDialog 
+    public sealed class NpcDialog
     {
         public const string BANK_COST = "%bankCost%";
         public const string NAME = "%name%";
@@ -37,21 +37,12 @@ namespace Game.Dialog
 
         private IEnumerable<NpcResponseDAO> m_possibleResponses;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="npc"></param>
         public NpcDialog(CharacterEntity character, NonPlayerCharacterEntity npc)
         {
             Character = character;
             Npc = npc;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="question"></param>
         public void SendQuestion(NpcQuestionDAO question)
         {
             CurrentQuestion = question;
@@ -60,30 +51,23 @@ namespace Game.Dialog
             Character.Dispatch(WorldMessage.DIALOG_QUESTION(CurrentQuestion.Id, ApplyParameter(), m_possibleResponses.Select(response => response.Id)));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="responseId"></param>
         public void ProcessResponse(int responseId)
         {
             var response = m_possibleResponses.First(entry => entry.Id == responseId);
 
-            if(response == null || !ConditionParser.Instance.Check(response.Conditions, Character))
+            if (response == null || !ConditionParser.Instance.Check(response.Conditions, Character))
             {
                 Character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
-            foreach(ActionEntry action in response.ActionsList)
+            foreach (ActionEntry action in response.ActionsList)
                 ActionEffectManager.Instance.ApplyEffect(Character, action.Effect, action.Parameters);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private string ApplyParameter()
         {
-            switch(CurrentQuestion.Params)
+            switch (CurrentQuestion.Params)
             {
                 case BANK_COST:
                     return Character.Bank.Items.GroupBy(item => item.TemplateId).Count().ToString();

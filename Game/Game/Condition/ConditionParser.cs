@@ -59,24 +59,14 @@ namespace Game.Condition
                 else
                 {
                     var captured = andFuncs.ToArray();
-                    orFuncs[i] = ch =>
-                    {
-                        foreach (var f in captured)
-                            if (!f(ch)) return false;
-                        return true;
-                    };
+                    orFuncs[i] = ch => { foreach (var f in captured) if (!f(ch)) return false; return true; };
                 }
             }
 
             if (orFuncs.Length == 1)
                 return orFuncs[0];
 
-            return ch =>
-            {
-                foreach (var f in orFuncs)
-                    if (f(ch)) return true;
-                return false;
-            };
+            return ch => { foreach (var f in orFuncs) if (f(ch)) return true; return false; };
         }
 
         private static Func<CharacterEntity, bool> ParseAtom(string expr)
@@ -84,7 +74,7 @@ namespace Game.Condition
             if (string.IsNullOrEmpty(expr))
                 return null;
 
-            // Inventory template checks use bool-returning methods
+
             if (expr.StartsWith("PO==", StringComparison.Ordinal))
             {
                 if (int.TryParse(expr.AsSpan(4), out int id))
@@ -98,7 +88,7 @@ namespace Game.Condition
                 return null;
             }
 
-            // Detect operator — multi-char first to avoid partial matches on > or <
+
             string op = null;
             int opIdx = -1;
 
@@ -131,11 +121,11 @@ namespace Game.Condition
             {
                 case "==": return ch => getter(ch) == value;
                 case "!=": return ch => getter(ch) != value;
-                case ">":  return ch => getter(ch) >  value;
-                case "<":  return ch => getter(ch) <  value;
+                case ">": return ch => getter(ch) > value;
+                case "<": return ch => getter(ch) < value;
                 case ">=": return ch => getter(ch) >= value;
                 case "<=": return ch => getter(ch) <= value;
-                default:   return null;
+                default: return null;
             }
         }
 
@@ -143,21 +133,21 @@ namespace Game.Condition
         {
             return code switch
             {
-                // Stats totales
+
                 "CI" => ch => ch.Statistics.GetTotal(EffectEnum.AddIntelligence),
                 "CV" => ch => ch.Statistics.GetTotal(EffectEnum.AddVitality),
                 "CA" => ch => ch.Statistics.GetTotal(EffectEnum.AddAgility),
                 "CW" => ch => ch.Statistics.GetTotal(EffectEnum.AddWisdom),
                 "CC" => ch => ch.Statistics.GetTotal(EffectEnum.AddChance),
                 "CS" => ch => ch.Statistics.GetTotal(EffectEnum.AddStrength),
-                // Stats base
+
                 "Ci" => ch => ch.DatabaseRecord.Intelligence,
                 "Cs" => ch => ch.DatabaseRecord.Strength,
                 "Cv" => ch => ch.DatabaseRecord.Vitality,
                 "Ca" => ch => ch.DatabaseRecord.Agility,
                 "Cw" => ch => ch.DatabaseRecord.Wisdom,
                 "Cc" => ch => ch.DatabaseRecord.Chance,
-                // Personaje
+
                 "Ps" => ch => ch.AlignmentId,
                 "Pa" => ch => ch.AlignmentPromotion,
                 "PP" => ch => ch.AlignmentLevel,
@@ -165,13 +155,13 @@ namespace Game.Condition
                 "PK" => ch => ch.Inventory.Kamas,
                 "PG" => ch => ch.BreedId,
                 "PS" => ch => ch.Sex,
-                "PZ" => ch => 1,     // Suscriptor (siempre true)
-                "PJ" => ch => 0,     // HasJob
-                "MK" => ch => 0,     // HasJob
-                "Pg" => ch => 0,     // Don
-                "PR" => ch => 0,     // Married
+                "PZ" => ch => 1,
+                "PJ" => ch => 0,
+                "MK" => ch => 0,
+                "Pg" => ch => 0,
+                "PR" => ch => 0,
                 "PX" => ch => ch.Account.Power,
-                "PW" => ch => 10000, // MaxWeight
+                "PW" => ch => 10000,
                 "PB" => ch => ch.Map.SubAreaId,
                 "SI" => ch => ch.MapId,
                 "MiS" => ch => ch.Id,

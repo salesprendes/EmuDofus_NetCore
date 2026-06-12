@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Game.Database.Structure;
@@ -21,7 +21,7 @@ namespace Game.Fight.Ending
 
         protected override IEnumerable<ItemDAO> GetAdditionalLoot(AbstractFight fight)
         {
-             var monsterFight = fight as MonsterFight;
+            var monsterFight = fight as MonsterFight;
             if (monsterFight != null)
                 if (fight.WinnerTeam == fight.Team0)
                     return monsterFight.MonsterGroup.Inventory.RemoveItems();
@@ -36,20 +36,12 @@ namespace Game.Fight.Ending
 
         protected override long GetTargetKamas(EndingArguments<MonsterEntity> arguments, MonsterEntity fighter)
         {
-            return (long)Math.Round(
-                    Util.Next(fighter.Grade.Template.MinKamas, fighter.Grade.Template.MaxKamas)
-                    * WorldConfig.RATE_KAMAS
-                    * arguments.Fight.ChallengeLootBonus);
+            return (long)Math.Round(Util.Next(fighter.Grade.Template.MinKamas, fighter.Grade.Template.MaxKamas) * WorldConfig.RATE_KAMAS * arguments.Fight.ChallengeLootBonus);
         }
 
         protected override IEnumerable<ItemDAO> GetTargetItems(EndingArguments<MonsterEntity> arguments, MonsterEntity fighter)
         {
-            return DropManager.Instance.GetDrops
-                (
-                    arguments.DroppersTotalPP,
-                    fighter,
-                    WorldConfig.RATE_DROP * arguments.Fight.ChallengeLootBonus
-                );
+            return DropManager.Instance.GetDrops(arguments.DroppersTotalPP, fighter, WorldConfig.RATE_DROP * arguments.Fight.ChallengeLootBonus);
         }
 
         protected override long GetExperienceWon(EndingArguments<MonsterEntity> arguments, AbstractFighter fighter)
@@ -69,7 +61,7 @@ namespace Game.Fight.Ending
                 case EntityTypeEnum.TYPE_TAX_COLLECTOR:
                     return Util.CalculPVMExperienceTaxCollector(
                                    arguments.Losers,
-                                   arguments.Droppers, 
+                                   arguments.Droppers,
                                    fighter.Level,
                                    fighter.Statistics.GetTotal(EffectEnum.AddWisdom),
                                    arguments.Fight.ChallengeXpBonus,
@@ -93,8 +85,7 @@ namespace Game.Fight.Ending
             var killedMonsters = monsterFight.KilledMonsters.ToList();
             if (killedMonsters.Count == 0) return 0;
 
-            var loserFighters = arguments.Fight.LoserTeam.Fighters
-                .Where(f => f.Invocator == null && !arguments.Fight.Result.HasResult(f));
+            var loserFighters = arguments.Fight.LoserTeam.Fighters.Where(f => f.Invocator == null && !arguments.Fight.Result.HasResult(f));
 
             return Util.CalculPVMExperience(killedMonsters, loserFighters, fighter.Level, fighter.Statistics.GetTotal(EffectEnum.AddWisdom), 1.0, monsterFight?.MonsterGroup.AgeBonus ?? 0);
         }

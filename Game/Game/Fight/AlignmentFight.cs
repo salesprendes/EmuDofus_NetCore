@@ -1,4 +1,4 @@
-﻿using Game.Database.Repository;
+using Game.Database.Repository;
 using Game.Database.Structure;
 using Game.Entity;
 using Game.Manager;
@@ -13,33 +13,17 @@ using Game.Fight.Ending;
 
 namespace Game.Fight
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class AlignmentFight : AbstractFight
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public MonsterGroupEntity Monsters
         {
             get;
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
+
         private StringBuilder m_serializedFlag;
 
-       /// <summary>
-       /// 
-       /// </summary>
-       /// <param name="map"></param>
-       /// <param name="id"></param>
-       /// <param name="aggressor"></param>
-       /// <param name="victim"></param>
         public AlignmentFight(MapInstance map, long id, AbstractFighter aggressor, CharacterEntity victim)
-            : base(FightTypeEnum.TYPE_AGGRESSION, map, id, aggressor.Id, aggressor.AlignmentId, aggressor.CellId, victim.Id, victim.AlignmentId, victim.CellId, 60000, 30000, false, true, new HonorGainBehavior())
+     : base(FightTypeEnum.TYPE_AGGRESSION, map, id, aggressor.Id, aggressor.AlignmentId, aggressor.CellId, victim.Id, victim.AlignmentId, victim.CellId, 60000, 30000, false, true, new HonorGainBehavior())
         {
             IsNeutralAgression = victim.AlignmentId == (int)ConquestManager.AlignmentTypeEnum.ALIGNMENT_NEUTRAL;
 
@@ -47,15 +31,8 @@ namespace Game.Fight
             JoinFight(victim, Team1);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="map"></param>
-        /// <param name="id"></param>
-        /// <param name="monsters"></param>
-        /// <param name="victim"></param>
         public AlignmentFight(MapInstance map, long id, MonsterGroupEntity monsters, CharacterEntity victim)
-            : base(FightTypeEnum.TYPE_AGGRESSION, map, id, monsters.Id, monsters.AlignmentId, monsters.CellId, victim.Id, victim.AlignmentId, victim.CellId, 60000, 30000, false, true)
+    : base(FightTypeEnum.TYPE_AGGRESSION, map, id, monsters.Id, monsters.AlignmentId, monsters.CellId, victim.Id, victim.AlignmentId, victim.CellId, 60000, 30000, false, true)
         {
             IsNeutralAgression = victim.AlignmentId == (int)ConquestManager.AlignmentTypeEnum.ALIGNMENT_NEUTRAL;
             Monsters = monsters;
@@ -66,9 +43,6 @@ namespace Game.Fight
             JoinFight(victim, Team1);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override void OnFightStart()
         {
             if (IsNeutralAgression && Monsters == null)
@@ -106,11 +80,6 @@ namespace Game.Fight
             base.OnFightStart();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="team"></param>
         public override void OnCharacterJoin(CharacterEntity character, FightTeam team)
         {
             if (!IsNeutralAgression)
@@ -119,23 +88,12 @@ namespace Game.Fight
                 if (team.AlignmentId != (int)ConquestManager.AlignmentTypeEnum.ALIGNMENT_NEUTRAL)
                     character.EnableAlignment();
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <returns></returns>
+
         public override bool CanJoin(CharacterEntity character)
         {
             return true;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="kick"></param>
-        /// <returns></returns>
         public override FightActionResultEnum FightQuit(CharacterEntity character, bool kick = false)
         {
             if (LoopState == FightLoopStateEnum.STATE_WAIT_END || LoopState == FightLoopStateEnum.STATE_ENDED)
@@ -200,10 +158,6 @@ namespace Game.Fight
             base.FightEnd();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
         public override void SerializeAs_FightList(StringBuilder message)
         {
             message.Append(Id.ToString()).Append(';');
@@ -217,10 +171,6 @@ namespace Game.Fight
             message.Append('|');
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
         public override void SerializeAs_FightFlag(StringBuilder message)
         {
             if (m_serializedFlag == null)
@@ -242,9 +192,6 @@ namespace Game.Fight
             message.Append(m_serializedFlag.ToString());
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override void Dispose()
         {
             m_serializedFlag.Clear();

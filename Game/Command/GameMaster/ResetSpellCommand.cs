@@ -5,10 +5,7 @@ namespace Game.Command
 {
     public sealed class ResetSpellCommand : WorldStaffCommand
     {
-        private readonly string[] _aliases =
-        {
-            "resethechizos", "resetspell"
-        };
+        private readonly string[] _aliases = { "resethechizos", "resetspell" };
 
         public override string[] Aliases => _aliases;
 
@@ -28,10 +25,7 @@ namespace Game.Command
                     return;
                 }
 
-                character.AddMessage(() =>
-                {
-                    character.HardResetSpells();
-                });
+                character.AddMessage(() => { character.HardResetSpells(); });
             });
         }
     }

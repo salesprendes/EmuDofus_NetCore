@@ -1,4 +1,4 @@
-﻿using Game.Database.Structure;
+using Game.Database.Structure;
 using Game.Action;
 using Game.Exchange;
 using Game.Guild;
@@ -12,51 +12,27 @@ using System.Threading.Tasks;
 
 namespace Game.Entity
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class MerchantEntity : CharacterEntity
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public List<CharacterEntity> Buyers
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private StringBuilder m_serializedMapInformations;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="power"></param>
-        /// <param name="characterDAO"></param>
         public MerchantEntity(CharacterDAO characterDAO)
-            : base(null, characterDAO, EntityTypeEnum.TYPE_MERCHANT)
+    : base(null, characterDAO, EntityTypeEnum.TYPE_MERCHANT)
         {
-            Buyers = new List<CharacterEntity>();    
+            Buyers = new List<CharacterEntity>();
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="exchangeType"></param>
-        /// <returns></returns>
+
         public override bool CanBeExchanged(ExchangeTypeEnum exchangeType)
         {
             return exchangeType == ExchangeTypeEnum.EXCHANGE_MERCHANT;
         }
-                
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="operation"></param>
-        /// <param name="message"></param>
+
         public override void SerializeAs_GameMapInformations(OperatorEnum operation, StringBuilder message)
         {
             switch (operation)
@@ -74,7 +50,7 @@ namespace Game.Entity
                             m_serializedMapInformations = new StringBuilder();
                             m_serializedMapInformations.Append(CellId).Append(';');
                             m_serializedMapInformations.Append(Orientation).Append(';');
-                            m_serializedMapInformations.Append(0).Append(';'); // ???
+                            m_serializedMapInformations.Append(0).Append(';');
                             m_serializedMapInformations.Append(Id).Append(';');
                             m_serializedMapInformations.Append(Name).Append(';');
                             m_serializedMapInformations.Append((int)Type).Append(';');
@@ -94,18 +70,14 @@ namespace Game.Entity
                                 m_serializedMapInformations.Append("").Append(';');
                                 m_serializedMapInformations.Append("").Append(';');
                             }
-                            m_serializedMapInformations.Append("0") // OffLineType
-                                .Append(';');
+                            m_serializedMapInformations.Append("0").Append(';');
                         }
                         message.Append(m_serializedMapInformations);
                     }
                     break;
             }
         }
-                
-        /// <summary>
-        /// 
-        /// </summary>
+
         public override void Dispose()
         {
             Buyers.Clear();

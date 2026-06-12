@@ -7,18 +7,12 @@ using System.Threading.Tasks;
 
 namespace Game.Database.Structure
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public enum SocialRelationTypeEnum
     {
         TYPE_FRIEND = 0,
         TYPE_ENNEMY = 1,
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     [Table("socialrelation")]
     public sealed class SocialRelationDAO : DataAccessObject<SocialRelationDAO>
     {
@@ -46,9 +40,8 @@ namespace Game.Database.Structure
             get => _typeId;
             set => SetProperty(ref _typeId, value);
         }
-        
-        [Write(false)]
-        public SocialRelationTypeEnum Type => (SocialRelationTypeEnum)TypeId;
+
+        [Write(false)] public SocialRelationTypeEnum Type => (SocialRelationTypeEnum)TypeId;
     }
 }
 

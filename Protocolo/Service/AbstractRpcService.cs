@@ -1,4 +1,4 @@
-﻿using Protocolo.Framework.Generic.Logging;
+using Protocolo.Framework.Generic.Logging;
 using Protocolo.Framework.Network;
 using System;
 using System.Collections.Generic;

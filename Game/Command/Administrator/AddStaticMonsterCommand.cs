@@ -6,10 +6,7 @@ namespace Game.Command
 {
     public sealed class AddStaticMonsterCommand : WorldStaffCommand
     {
-        private readonly string[] _aliases =
-        {
-            "monstruofijo", "addstaticmonster"
-        };
+        private readonly string[] _aliases = { "monstruofijo", "addstaticmonster" };
 
         public override string[] Aliases => _aliases;
 
@@ -20,13 +17,7 @@ namespace Game.Command
         protected override void Process(WorldCommandContext context)
         {
             var gradeId = int.Parse(context.TextCommandArgument.NextWord());
-            new MonsterSpawnDAO()
-            {
-                ZoneType = (int)ZoneTypeEnum.TYPE_MAP,
-                ZoneId = (int)context.Character.MapId,
-                GradeId = gradeId,
-                Probability = 1,
-            }.Insert();
+            new MonsterSpawnDAO() { ZoneType = (int)ZoneTypeEnum.TYPE_MAP, ZoneId = (int)context.Character.MapId, GradeId = gradeId, Probability = 1, }.Insert();
 
             context.Character.Dispatch(WorldMessage.BASIC_CONSOLE_MESSAGE("Punto de aparicion de monstruos anadido."));
         }

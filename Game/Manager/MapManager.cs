@@ -53,7 +53,7 @@ namespace Game.Manager
             foreach (var map in m_mapById.Values)
                 if (!WorldConfig.MULTIPLE_INSTANCE_MAP_ID.Contains(map.Id))
                     map.FreeRawData();
-                    
+
             foreach (var instances in m_balancedInstances.Values)
                 for (int i = 1; i < instances.Count; i++)
                     instances[i].FreeRawData();
@@ -93,7 +93,7 @@ namespace Game.Manager
         {
             if (WorldConfig.MULTIPLE_INSTANCE_MAP_ID.Contains(instance.Id))
                 m_creationPools[instance.Id].Push(instance);
-            // Balanced and regular instances are never pushed back — they are persistent
+
         }
 
         private static MapInstance GetLeastPopulated(List<MapInstance> instances)

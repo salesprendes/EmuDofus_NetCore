@@ -1,4 +1,4 @@
-﻿using Game.Database.Structure;
+using Game.Database.Structure;
 using Game.Entity;
 using Game.Fight;
 using Game.Quest.Impl;
@@ -50,13 +50,13 @@ namespace Game.Quest
         private readonly CharacterEntity m_character;
         private readonly CharacterQuestDAO m_record;
         private Quest m_template;
-        
+
         public CharacterQuest(CharacterEntity character, CharacterQuestDAO record)
         {
             m_character = character;
             m_record = record;
             Advancements = new List<ObjectiveAdvancement>();
-            
+
             Initialize();
         }
 
@@ -67,28 +67,20 @@ namespace Game.Quest
             m_character.AddEventListener(this);
             DeserializeObjectives();
         }
-        
+
         private void DeserializeObjectives()
         {
             Advancements.Clear();
-            foreach(var serializeObjective in m_record.SerializedObjectives.Split(new[] { SEPARATOR }, StringSplitOptions.RemoveEmptyEntries))
+            foreach (var serializeObjective in m_record.SerializedObjectives.Split(new[] { SEPARATOR }, StringSplitOptions.RemoveEmptyEntries))
             {
                 var data = serializeObjective.Split(new[] { SUB_SEPARATOR }, StringSplitOptions.RemoveEmptyEntries);
-                Advancements.Add(new ObjectiveAdvancement
-                {
-                    Id = int.Parse(data[0]),
-                    Value = data[1],
-                });
+                Advancements.Add(new ObjectiveAdvancement { Id = int.Parse(data[0]), Value = data[1], });
             }
         }
 
         private void SerializeObjectives()
         {
-            m_record.SerializedObjectives = string.Join
-                (
-                    SEPARATOR.ToString(), 
-                    Advancements.Select(a => a.Id.ToString() + SUB_SEPARATOR + a.Value)
-                );
+            m_record.SerializedObjectives = string.Join(SEPARATOR.ToString(), Advancements.Select(a => a.Id.ToString() + SUB_SEPARATOR + a.Value));
         }
 
         private void UpdateObjective<T>(int objectiveId, Func<string, T> transformer, Func<T, T> updater)
@@ -111,7 +103,7 @@ namespace Game.Quest
             {
                 foreach (var action in CurrentStep.ActionsList)
                     ActionEffectManager.Instance.ApplyEffect(m_character, action.Effect, action.Parameters);
-                
+
                 var nextStep = m_template.Steps.FirstOrDefault(s => s.Order > CurrentStep.Order);
                 if (nextStep != null)
                 {
@@ -142,10 +134,10 @@ namespace Game.Quest
                             foreach (var killMonster in CurrentStep.Objectives.OfType<KillMonsterObjective>().Where(killMonster => killMonster.MonsterTemplateId == monster.Grade.Template.Id))
                                 UpdateObjective(killMonster.Id, int.Parse, i => i + 1);
                         }
-                    break;
+                        break;
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger.Error("CharacterQuest::OnEntityEvent error al actualizar la mision", e);
             }

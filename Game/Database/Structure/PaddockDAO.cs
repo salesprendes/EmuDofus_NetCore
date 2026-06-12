@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Game.Database.Structure
-{    
+{
     [Table("paddockinstance")]
     public sealed class PaddockDAO : DataAccessObject<PaddockDAO>
     {

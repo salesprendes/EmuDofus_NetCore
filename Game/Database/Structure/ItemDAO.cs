@@ -9,9 +9,6 @@ using Game.Condition;
 
 namespace Game.Database.Structure
 {
-    /// <summary>
-    /// 
-    /// </summary>
     [Table("inventoryitem")]
     public sealed class ItemDAO : DataAccessObject<ItemDAO>
     {
@@ -25,9 +22,6 @@ namespace Game.Database.Structure
         private long _merchantPrice;
 
 
-        /// <summary>
-        /// 
-        /// </summary>
         [Key]
         public long Id
         {
@@ -35,45 +29,30 @@ namespace Game.Database.Structure
             set => SetProperty(ref _id, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int OwnerType
         {
             get => _ownerType;
             set => SetProperty(ref _ownerType, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long OwnerId
         {
             get => _ownerId;
             set => SetProperty(ref _ownerId, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int TemplateId
         {
             get => _templateId;
             set => SetProperty(ref _templateId, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int SlotId
         {
             get => _slotId;
             set => SetProperty(ref _slotId, value);
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
+
         public int Quantity
         {
             get => _quantity;
@@ -86,23 +65,23 @@ namespace Game.Database.Structure
             set => SetProperty(ref _stringEffects, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long MerchantPrice
         {
             get => _merchantPrice;
             set => SetProperty(ref _merchantPrice, value);
         }
-              
-        /// <summary>
-        /// 
-        /// </summary>
+
+        private double m_forgemagiePuits;
+
+        [Write(false)]
+        public double ForgemagiePuits
+        {
+            get => m_forgemagiePuits;
+            set => m_forgemagiePuits = value;
+        }
+
         private ItemTemplateDAO m_template;
 
-        /// <summary>
-        /// 
-        /// </summary>
         [Write(false)]
         public ItemTemplateDAO Template
         {
@@ -124,7 +103,7 @@ namespace Game.Database.Structure
             {
                 if (m_statistics == null)
                     m_statistics = GenericStats.ParseFromString(StringEffects);
-                    
+
                 return m_statistics;
             }
         }
@@ -135,31 +114,15 @@ namespace Game.Database.Structure
             StringEffects = Statistics.ToItemStats();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        [Write(false)]
-        public ItemSlotEnum Slot => (ItemSlotEnum)SlotId;
+        [Write(false)] public ItemSlotEnum Slot => (ItemSlotEnum)SlotId;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>        
-        [Write(false)]
-        public bool IsEquiped => IsEquipedSlot(Slot);
+        [Write(false)] public bool IsEquiped => IsEquipedSlot(Slot);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>        
-        [Write(false)]
-        public bool IsBoostEquiped => IsBoostSlot(Slot);
+        [Write(false)] public bool IsBoostEquiped => IsBoostSlot(Slot);
 
-        [Write(false)]
-        public bool IsEthereal => Template?.Ethereal ?? false;
+        [Write(false)] public bool IsEthereal => Template?.Ethereal ?? false;
 
-        // Returns current durability charges, or -1 if the weapon has no durability effect.
+
         [Write(false)]
         public int Durability
         {
@@ -171,7 +134,7 @@ namespace Game.Database.Structure
             }
         }
 
-        // Returns maximum durability charges, or -1 if the weapon has no durability effect.
+
         [Write(false)]
         public int MaxDurability
         {
@@ -188,18 +151,13 @@ namespace Game.Database.Structure
             if (!Statistics.HasEffect(EffectEnum.EtherealResist))
                 return;
             var effect = Statistics.GetEffect(EffectEnum.EtherealResist);
-            // Only decrease when durability is explicitly tracked (Value3 > 0 = has a max).
+
             if (effect.Value3 <= 0 || effect.Value2 <= 0)
                 return;
             effect.Value2--;
             SaveStats();
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="character"></param>
-        /// <returns></returns>
         public bool SatisfyConditions(CharacterEntity character)
         {
             if (Template.Conditions == string.Empty)
@@ -228,7 +186,7 @@ namespace Game.Database.Structure
                 SetDateEffect(stats, EffectEnum.Received, receivedAt);
                 changed = true;
 
-                // New items must start LEAN (hungry), regardless of what the DB template says
+
                 if (stats.HasEffect(EffectEnum.LivingMood))
                     stats.GetEffect(EffectEnum.LivingMood).Value3 = 0;
             }
@@ -282,35 +240,19 @@ namespace Game.Database.Structure
         public bool IsTemporarilyLockedFromExchange(DateTime? currentTime = null)
         {
             var exchangeDate = GetDateEffect(Statistics, EffectEnum.CanBeExchange);
-            return exchangeDate == null
-                ? Statistics.HasEffect(EffectEnum.CanBeExchange)
-                : exchangeDate.Value > (currentTime ?? DateTime.Now);
+            return exchangeDate == null ? Statistics.HasEffect(EffectEnum.CanBeExchange) : exchangeDate.Value > (currentTime ?? DateTime.Now);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="slot"></param>
-        /// <returns></returns>
         public static bool IsEquipedSlot(ItemSlotEnum slot)
         {
             return slot >= ItemSlotEnum.SLOT_AMULET && slot <= ItemSlotEnum.SLOT_BOOST_FOLLOWER;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="slot"></param>
-        /// <returns></returns>
         public static bool IsBoostSlot(ItemSlotEnum slot)
         {
             return slot >= ItemSlotEnum.SLOT_BOOST_MUTATION && slot <= ItemSlotEnum.SLOT_BOOST_FOLLOWER;
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
+
         public void SerializeAs_BagContent(StringBuilder message)
         {
             message
@@ -318,35 +260,23 @@ namespace Game.Database.Structure
                 .Append(TemplateId.ToString("x")).Append('~')
                 .Append(Quantity.ToString("x")).Append('~')
                 .Append((SlotId != (int)ItemSlotEnum.SLOT_INVENTORY ? SlotId.ToString("x") : "")).Append('~')
-                .Append(StringEffects).Append(';');        
+                .Append(StringEffects).Append(';');
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public override string ToString()
         {
-            return  (Id.ToString("x")) + ('~') +
+            return (Id.ToString("x")) + ('~') +
                    (TemplateId.ToString("x")) + ('~') +
-                   (Quantity.ToString("x")) +('~') +
+                   (Quantity.ToString("x")) + ('~') +
                    ((SlotId != (int)ItemSlotEnum.SLOT_INVENTORY ? SlotId.ToString("x") : "")) + ('~') +
-                   (StringEffects) + (';'); 
+                   (StringEffects) + (';');
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public string ToExchangeString()
         {
             return Id.ToString() + "|" + Quantity + "|" + TemplateId + "|" + StringEffects;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public ItemDAO Clone(int quantity)
         {
             return InventoryItemRepository.Instance.Create(TemplateId, OwnerId, OwnerType, quantity, Statistics, ItemSlotEnum.SLOT_INVENTORY);

@@ -9,9 +9,6 @@ using System.Threading.Tasks;
 
 namespace Game.Database.Structure
 {
-    /// <summary>
-    /// 
-    /// </summary>
     [Table("npcresponse")]
     public sealed class NpcResponseDAO : DataAccessObject<NpcResponseDAO>
     {
@@ -39,14 +36,8 @@ namespace Game.Database.Structure
             set => SetProperty(ref _actions, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private ActionList m_actions;
 
-        /// <summary>
-        /// 
-        /// </summary>
         [Write(false)]
         public ActionList ActionsList
         {

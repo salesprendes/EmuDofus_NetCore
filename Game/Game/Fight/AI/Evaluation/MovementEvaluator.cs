@@ -70,9 +70,7 @@ namespace Game.Fight.AI.Evaluation
             if (spell == null)
                 return 0;
 
-            var maxPo = spell.AllowPOBoost && spell.MaxPO != 0 && context?.Fighter?.Statistics != null
-                ? spell.MaxPO + context.Fighter.Statistics.GetTotal(EffectEnum.AddPO)
-                : spell.MaxPO;
+            var maxPo = spell.AllowPOBoost && spell.MaxPO != 0 && context?.Fighter?.Statistics != null ? spell.MaxPO + context.Fighter.Statistics.GetTotal(EffectEnum.AddPO) : spell.MaxPO;
 
             return System.Math.Max(spell.MinPO, maxPo);
         }
@@ -85,9 +83,9 @@ namespace Game.Fight.AI.Evaluation
 
         public int? GetBestCellNearEnemy(AIContext context)
         {
-            // Always target the NEAREST enemy for movement direction.
-            // Using GetWeakestEnemy caused the fighter to drift toward a low-HP but distant
-            // summon and stop there, wasting PM and never reaching the main threat.
+
+
+
             if (!CanMove(context))
                 return null;
 
@@ -135,11 +133,7 @@ namespace Game.Fight.AI.Evaluation
                 if (cellId == context.CurrentCellId)
                     continue;
 
-                var nearest = context.Enemies
-                    .Where(e => e?.Cell != null)
-                    .Select(e => context.TurnCache.Cells.GetDistance(cellId, e.Cell.Id))
-                    .DefaultIfEmpty(0)
-                    .Min();
+                var nearest = context.Enemies.Where(e => e?.Cell != null).Select(e => context.TurnCache.Cells.GetDistance(cellId, e.Cell.Id)).DefaultIfEmpty(0).Min();
 
                 var score = nearest * 70 - RiskEvaluator.ScoreCellRisk(context, cellId, false);
                 if (score > bestScore)
@@ -160,8 +154,8 @@ namespace Game.Fight.AI.Evaluation
             if (context?.Enemies == null || context.SpellBook?.DamageSpells == null || context.CurrentMP <= 0)
                 return null;
 
-            // Hoist the per-spell invariant gate (AP/level/state/summon-cap) out of the cell×enemy
-            // loops: only spells castable this turn survive, evaluated once each.
+
+
             var castableSpells = GetCastableDamageSpells(context);
             if (castableSpells.Count == 0)
                 return null;
@@ -184,22 +178,19 @@ namespace Game.Fight.AI.Evaluation
                         if (!SpellEvaluator.CanReachCell(context, spell, cellId, enemy.Cell.Id))
                             continue;
 
-                        // Proximity bonus: prefer cells that bring the fighter closer to the enemy.
-                        // Without this, all castable cells score the same (120 + damage), so the
-                        // function would pick arbitrarily — often a cell far from the enemy.
-                        var currentDist  = context.TurnCache.Cells.GetDistance(context.CurrentCellId, enemy.Cell.Id);
-                        var newDist      = context.TurnCache.Cells.GetDistance(cellId, enemy.Cell.Id);
+
+
+
+                        var currentDist = context.TurnCache.Cells.GetDistance(context.CurrentCellId, enemy.Cell.Id);
+                        var newDist = context.TurnCache.Cells.GetDistance(cellId, enemy.Cell.Id);
                         var proximityBonus = System.Math.Max(0, currentDist - newDist) * 15;
 
-                        var score = 120 + SpellEvaluator.EstimateDamage(spell)
-                            + TargetEvaluator.ScoreLowHp(enemy)
-                            + proximityBonus
-                            - RiskEvaluator.ScoreCellRisk(context, cellId, false);
+                        var score = 120 + SpellEvaluator.EstimateDamage(spell) + TargetEvaluator.ScoreLowHp(enemy) + proximityBonus - RiskEvaluator.ScoreCellRisk(context, cellId, false);
 
                         if (score > bestScore)
                         {
                             bestScore = score;
-                            bestCell  = cellId;
+                            bestCell = cellId;
                         }
                     }
                 }
@@ -208,13 +199,6 @@ namespace Game.Fight.AI.Evaluation
             return bestCell;
         }
 
-        /// <summary>
-        /// Finds the reachable cell from which the fighter can cast a damage spell and that
-        /// puts it as close as possible to an enemy — with NO risk penalty.
-        /// Designed for aggressive brains that want to close in and attack at melee range.
-        /// Returns null if no spell can be cast from any reachable cell that is closer than
-        /// the current position.
-        /// </summary>
         public int? GetBestCellForAggressiveApproach(AIContext context)
         {
             if (!CanMove(context))
@@ -228,9 +212,7 @@ namespace Game.Fight.AI.Evaluation
                 return null;
 
             int? bestCell = null;
-            var bestEnemyDist = context.EnemyTargets?.Count > 0
-                ? context.EnemyTargets[0].Distance   // current nearest-enemy distance
-                : int.MaxValue;
+            var bestEnemyDist = context.EnemyTargets?.Count > 0 ? context.EnemyTargets[0].Distance : int.MaxValue;
 
             var origin = context.CurrentCellId;
 
@@ -249,18 +231,18 @@ namespace Game.Fight.AI.Evaluation
                         if (!SpellEvaluator.CanReachCell(context, spell, cellId, enemy.Cell.Id))
                             continue;
 
-                        // Prefer cells that are closest to any enemy (minimum distance wins).
+
                         var dist = context.TurnCache.Cells.GetDistance(cellId, enemy.Cell.Id);
                         if (dist < bestEnemyDist)
                         {
                             bestEnemyDist = dist;
-                            bestCell      = cellId;
+                            bestCell = cellId;
                         }
                     }
                 }
             }
 
-            // Only return a cell if it is strictly closer to an enemy than the current position.
+
             return bestCell;
         }
 
@@ -300,9 +282,7 @@ namespace Game.Fight.AI.Evaluation
             if (context == null || !CanMove(context))
                 return new List<int>();
 
-            return context.TurnCache.Cells.GetReachableCells()
-                .Where(cell => RiskEvaluator.ScoreCellRisk(context, cell, false) < 160)
-                .ToList();
+            return context.TurnCache.Cells.GetReachableCells().Where(cell => RiskEvaluator.ScoreCellRisk(context, cell, false) < 160).ToList();
         }
 
         public int? GetBestSummonCell(AIContext context, SpellLevel spell)
@@ -322,11 +302,7 @@ namespace Game.Fight.AI.Evaluation
                 if (!SpellEvaluator.CanCastFromCurrentCell(context, spell, cellId))
                     continue;
 
-                var nearestEnemyDistance = context.Enemies
-                    .Where(e => e?.Cell != null)
-                    .Select(e => context.TurnCache.Cells.GetDistance(cellId, e.Cell.Id))
-                    .DefaultIfEmpty(0)
-                    .Min();
+                var nearestEnemyDistance = context.Enemies.Where(e => e?.Cell != null).Select(e => context.TurnCache.Cells.GetDistance(cellId, e.Cell.Id)).DefaultIfEmpty(0).Min();
 
                 var score = 100 - nearestEnemyDistance * 4 - RiskEvaluator.ScoreCellRisk(context, cellId, true);
                 if (score > bestScore)
@@ -370,9 +346,6 @@ namespace Game.Fight.AI.Evaluation
             return bestCell;
         }
 
-        /// <summary>
-        /// True when there is exactly one living enemy and that enemy is a ranged-class character.
-        /// </summary>
         private static bool HasSingleRangedEnemy(AIContext context)
         {
             if (context?.Enemies == null) return false;
@@ -381,10 +354,6 @@ namespace Game.Fight.AI.Evaluation
             return live[0] is CharacterEntity ch && AIBreedProfile.IsRanged(ch.Breed);
         }
 
-        /// <summary>
-        /// Returns the reachable cell that minimises distance to the nearest enemy,
-        /// with no risk penalty — pure aggressive approach using all available PM.
-        /// </summary>
         public int? GetBestCellForMaxApproach(AIContext context)
         {
             if (!CanMove(context)) return null;
@@ -411,16 +380,9 @@ namespace Game.Fight.AI.Evaluation
 
         private static bool CanMove(AIContext context)
         {
-            return context?.Fighter != null
-                && context.CurrentMP > 0
-                && context.Fighter.CanBeMoved();
+            return context?.Fighter != null && context.CurrentMP > 0 && context.Fighter.CanBeMoved();
         }
 
-        /// <summary>
-        /// Damage spells the fighter can actually cast this turn (AP/level/state/summon-cap),
-        /// preserving the spellbook order. Evaluated once so the per-cell/per-enemy scans only
-        /// run the cheap geometry check (<see cref="SpellEvaluator.CanReachCell"/>).
-        /// </summary>
         private static List<SpellLevel> GetCastableDamageSpells(AIContext context)
         {
             var result = new List<SpellLevel>();

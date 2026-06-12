@@ -1,4 +1,4 @@
-﻿using Game.Map;
+using Game.Map;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,16 +7,10 @@ using System.Threading.Tasks;
 
 namespace Game.Fight.Challenge
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class TightsChallenge : AbstractChallenge
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public TightsChallenge()
-            : base(ChallengeTypeEnum.TIGHTS)
+    : base(ChallengeTypeEnum.TIGHTS)
         {
             BasicDropBonus = 40;
             BasicXpBonus = 40;
@@ -26,15 +20,11 @@ namespace Game.Fight.Challenge
 
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
         public override void EndTurn(AbstractFighter fighter)
         {
             var nearestFighters = Pathfinding.GetFightersNear(fighter.Fight, fighter.Cell.Id);
             if (!nearestFighters.Any(f => f.Team == fighter.Team))
-                base.OnFailed(fighter.Name);            
+                base.OnFailed(fighter.Name);
         }
     }
 }

@@ -19,9 +19,7 @@ namespace Game.Command
 
         public static bool HasRole(CharacterEntity character, StaffRole role)
         {
-            return character != null &&
-                   character.Account != null &&
-                   character.Account.Power >= (int)role;
+            return character != null && character.Account != null && character.Account.Power >= (int)role;
         }
 
         public static bool CanUseStaffConsole(CharacterEntity character)

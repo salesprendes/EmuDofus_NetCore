@@ -14,20 +14,12 @@ namespace Protocolo.Framework.Generic
             if (shutdown == null)
                 throw new ArgumentNullException(nameof(shutdown));
 
-            Console.CancelKeyPress += (_, e) =>
-            {
-                e.Cancel = true;
-                RequestShutdown(shutdown);
-            };
+            Console.CancelKeyPress += (_, e) => { e.Cancel = true; RequestShutdown(shutdown); };
 
             if (Environment.OSVersion.Platform != PlatformID.Win32NT)
                 return;
 
-            m_windowsHandler = _ =>
-            {
-                RequestShutdown(shutdown);
-                return true;
-            };
+            m_windowsHandler = _ => { RequestShutdown(shutdown); return true; };
 
             SetConsoleCtrlHandler(m_windowsHandler, true);
         }

@@ -6,85 +6,42 @@ using System.Linq;
 
 namespace Protocolo.Framework.Database
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public interface IRepository
     {
-        /// <summary>
-        /// 
-        /// </summary>
         void Initialize(SqlManager sqlManager);
 
-        /// <summary>
-        /// 
-        /// </summary>
         int ObjectCount
         {
             get;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="connection"></param>
-        /// <param name="transaction"></param>
         void UpdateAll(MySqlConnection connection, MySqlTransaction transaction);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="connection"></param>
-        /// <param name="transaction"></param>
         void DeleteAll(MySqlConnection connection, MySqlTransaction transaction);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="connection"></param>
-        /// <param name="transaction"></param>
         void InsertAll(MySqlConnection connection, MySqlTransaction transaction);
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
     public abstract class Repository<TRepository, TDataObject> : Singleton<TRepository>, IRepository
-        where TDataObject : DataAccessObject<TDataObject>, new()
-        where TRepository : class, new()
+    where TDataObject : DataAccessObject<TDataObject>, new()
+    where TRepository : class, new()
     {
-        /// <summary>
-        /// 
-        /// </summary>
         private static string TableName = SqlMapperExtensions.GetTableName(typeof(TDataObject));
 
-        /// <summary>
-        /// 
-        /// </summary>
         public SqlManager SqlMgr
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        protected object m_syncLock = new object();
+        protected object m_syncLock = new object ();
 
-        /// <summary>
-        ///
-        /// </summary>
         protected List<TDataObject> m_dataObjects;
 
         private List<TDataObject> m_updateBuffer;
         private List<TDataObject> m_insertBuffer;
         private List<TDataObject> m_deleteBuffer;
 
-        /// <summary>
-        ///
-        /// </summary>
         public int ObjectCount
         {
             get
@@ -94,10 +51,6 @@ namespace Protocolo.Framework.Database
         }
 
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public IEnumerable<TDataObject> All
         {
             get
@@ -107,9 +60,6 @@ namespace Protocolo.Framework.Database
             }
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public List<TDataObject> UpdateObjects
         {
             get
@@ -131,9 +81,6 @@ namespace Protocolo.Framework.Database
             }
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public List<TDataObject> InsertObjects
         {
             get
@@ -156,9 +103,6 @@ namespace Protocolo.Framework.Database
             }
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public List<TDataObject> DeleteObjects
         {
             get
@@ -181,9 +125,6 @@ namespace Protocolo.Framework.Database
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public IEnumerable<TDataObject> SelectAll
         {
             get
@@ -192,27 +133,18 @@ namespace Protocolo.Framework.Database
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool LoadOnly
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool ReadOnly
         {
             get;
             private set;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public Repository(bool loadOnly = false, bool readOnly = false)
         {
             m_dataObjects = new List<TDataObject>();
@@ -233,9 +165,6 @@ namespace Protocolo.Framework.Database
         private void Subscribe(TDataObject obj) => obj.PropertyChanged += OnObjectPropertyChanged;
         private void Unsubscribe(TDataObject obj) => obj.PropertyChanged -= OnObjectPropertyChanged;
 
-        /// <summary>
-        ///
-        /// </summary>
         public virtual void Initialize(SqlManager sqlMgr)
         {
             SqlMgr = sqlMgr;
@@ -258,21 +187,11 @@ namespace Protocolo.Framework.Database
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="query"></param>
-        /// <returns></returns>
         public virtual TDataObject Load(string query, dynamic param = null)
         {
             return LoadMultiple(query, (object)param).FirstOrDefault();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="query"></param>
-        /// <returns></returns>
         public virtual IEnumerable<TDataObject> LoadMultiple(string query, dynamic param = null)
         {
             IEnumerable<TDataObject> objects = SqlMgr.Query<TDataObject>("select * from " + TableName + " where " + query, (object)param);
@@ -294,38 +213,24 @@ namespace Protocolo.Framework.Database
             return objects;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="objects"></param>
         public virtual void Update(MySqlConnection connection, MySqlTransaction transaction, List<TDataObject> objects)
         {
             if (objects.Count > 0)
                 SqlMgr.Update<TDataObject>(connection, transaction, objects);
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public virtual void Delete(MySqlConnection connection, MySqlTransaction transaction, List<TDataObject> objects)
         {
             if (objects.Count > 0)
                 SqlMgr.Delete<TDataObject>(connection, transaction, objects);
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public virtual void Insert(MySqlConnection connection, MySqlTransaction transaction, List<TDataObject> objects)
         {
             if (objects.Count > 0)
                 SqlMgr.InsertWithKey<TDataObject>(connection, transaction, objects);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public virtual bool Delete(TDataObject obj)
         {
             if (ReadOnly)
@@ -347,10 +252,6 @@ namespace Protocolo.Framework.Database
             return result;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public virtual void Removed(IEnumerable<TDataObject> objects)
         {
             if (ReadOnly)
@@ -367,10 +268,6 @@ namespace Protocolo.Framework.Database
                 }
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
         public virtual void Removed(TDataObject obj)
         {
             if (ReadOnly)
@@ -386,10 +283,6 @@ namespace Protocolo.Framework.Database
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public virtual void Created(TDataObject obj)
         {
             if (ReadOnly)
@@ -404,10 +297,6 @@ namespace Protocolo.Framework.Database
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public virtual bool Insert(TDataObject obj)
         {
             if (ReadOnly)
@@ -429,31 +318,18 @@ namespace Protocolo.Framework.Database
             return result;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="predicate"></param>
-        /// <returns></returns>
         public TDataObject Find(Predicate<TDataObject> match)
         {
             lock (m_syncLock)
                 return m_dataObjects.Find(match);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="math"></param>
-        /// <returns></returns>
         public IEnumerable<TDataObject> FindAll(Predicate<TDataObject> match)
         {
             lock (m_syncLock)
                 return m_dataObjects.FindAll(match);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public virtual void UpdateAll(MySqlConnection connection, MySqlTransaction transaction)
         {
             if (ReadOnly)
@@ -462,11 +338,6 @@ namespace Protocolo.Framework.Database
             Update(connection, transaction, UpdateObjects);
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="connection"></param>
-        /// <param name="transaction"></param>
         public virtual void DeleteAll(MySqlConnection connection, MySqlTransaction transaction)
         {
             if (ReadOnly)
@@ -485,11 +356,6 @@ namespace Protocolo.Framework.Database
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="connection"></param>
-        /// <param name="transaction"></param>
         public virtual void InsertAll(MySqlConnection connection, MySqlTransaction transaction)
         {
             if (ReadOnly)
@@ -498,26 +364,14 @@ namespace Protocolo.Framework.Database
             Insert(connection, transaction, InsertObjects);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="obj"></param>
         public virtual void OnObjectAdded(TDataObject obj)
         {
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="obj"></param>
         public virtual void OnObjectRemoved(TDataObject obj)
         {
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="obj"></param>
         public void ImplicitDeletion(TDataObject obj)
         {
             if (ReadOnly)

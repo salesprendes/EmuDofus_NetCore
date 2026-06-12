@@ -8,25 +8,15 @@ using System.Threading.Tasks;
 
 namespace Game.Database.Repository
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class NpcResponseRepository : Repository<NpcResponseRepository, NpcResponseDAO>
     {
         private Dictionary<int, NpcResponseDAO> m_reponseById;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public NpcResponseRepository()
         {
             m_reponseById = new Dictionary<int, NpcResponseDAO>();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="obj"></param>
         public override void OnObjectAdded(NpcResponseDAO response)
         {
             m_reponseById.Add(response.Id, response);
@@ -34,10 +24,6 @@ namespace Game.Database.Repository
             base.OnObjectAdded(response);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="question"></param>
         public override void OnObjectRemoved(NpcResponseDAO response)
         {
             m_reponseById.Remove(response.Id);
@@ -45,11 +31,6 @@ namespace Game.Database.Repository
             base.OnObjectRemoved(response);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="reponseId"></param>
-        /// <returns></returns>
         public NpcResponseDAO GetById(int reponseId)
         {
             return m_reponseById[reponseId];

@@ -1,4 +1,4 @@
-﻿using Protocolo.Framework.Database;
+using Protocolo.Framework.Database;
 using Game.Database.Repository;
 using Game.Database.Structure;
 
@@ -26,7 +26,6 @@ namespace Game.Database
             AddRepository(MountTemplateRepository.Instance);
             AddRepository(MountRepository.Instance);
             AddRepository(CharacterGuildRepository.Instance);
-            AddRepository(CharacterJobRepository.Instance);
             AddRepository(CharacterRepository.Instance);
             AddRepository(CharacterQuestRepository.Instance);
             AddRepository(SocialRelationRepository.Instance);

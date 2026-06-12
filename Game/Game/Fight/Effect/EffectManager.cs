@@ -1,4 +1,4 @@
-﻿using Game.Fight.Effect.Type;
+using Game.Fight.Effect.Type;
 using Game.Spell;
 using Protocolo.Framework.Generic;
 using System.Collections.Generic;
@@ -40,14 +40,14 @@ namespace Game.Fight.Effect
 
                 { EffectEnum.Heal, new HealEffect() },
 
-                // Teleporation
+
                 { EffectEnum.Teleport, new TeleportEffect() },
 
-                // Armure et bouclié feca
+
                 { EffectEnum.AddArmor, new ArmorEffect() },
                 { EffectEnum.AddArmorBis, new ArmorEffect() },
 
-                // Ajout ou reduction AP/MP
+
                 { EffectEnum.AddAP, new StatsEffect() },
                 { EffectEnum.AddAPBis, new StatsEffect() },
                 { EffectEnum.AddMP, new StatsEffect() },
@@ -61,7 +61,7 @@ namespace Game.Fight.Effect
                 { EffectEnum.SubAPDodge, new StatsEffect() },
                 { EffectEnum.SubMPDodge, new StatsEffect() },
 
-                // Caracteristiques Ajout/Reduction
+
                 { EffectEnum.AddReduceDamagePhysic, new StatsEffect() },
                 { EffectEnum.AddReduceDamageMagic, new StatsEffect() },
                 { EffectEnum.AddPO, new StatsEffect() },
@@ -82,11 +82,11 @@ namespace Game.Fight.Effect
                 { EffectEnum.AddInvocationMax, new StatsEffect() },
                 { EffectEnum.AddProspection, new StatsEffect() },
 
-                // Soins
+
                 { EffectEnum.AddHealCare, new StatsEffect() },
                 { EffectEnum.SubHealCare, new StatsEffect() },
 
-                // Resistances ajout/suppressions
+
                 { EffectEnum.AddReduceDamageAir, new StatsEffect() },
                 { EffectEnum.AddReduceDamageWater, new StatsEffect() },
                 { EffectEnum.AddReduceDamageFire, new StatsEffect() },
@@ -108,7 +108,7 @@ namespace Game.Fight.Effect
                 { EffectEnum.SubReduceDamagePercentNeutral, new StatsEffect() },
                 { EffectEnum.SubReduceDamagePercentEarth, new StatsEffect() },
 
-                // Ajout ou reduction de dommage
+
                 { EffectEnum.AddDamage, new StatsEffect() },
                 { EffectEnum.AddDamagePhysic, new StatsEffect() },
                 { EffectEnum.AddDamageMagic, new StatsEffect() },
@@ -123,21 +123,21 @@ namespace Game.Fight.Effect
                 { EffectEnum.AddReflectDamage, new StatsEffect() },
                 { EffectEnum.AddReflectDamageItem, new StatsEffect() },
 
-                // Chatiment sacris
+
                 { EffectEnum.AddChatiment, new PunishmentEffect() },
 
-                // Effet de push back/fear
+
                 { EffectEnum.PushBack, new PushEffect() },
                 { EffectEnum.PushFront, new PushEffect() },
                 { EffectEnum.PushFear, new PushFearEffect() },
 
-                // Ajout d'un etat / changement de skin
+
                 { EffectEnum.ChangeSkin, new SkinChangeEffect() },
                 { EffectEnum.AddState, new StateAddEffect() },
                 { EffectEnum.RemoveState, new StateRemoveEffect() },
                 { EffectEnum.Stealth, new StateAddEffect() },
 
-                // Steal de statistique
+
                 { EffectEnum.StrengthSteal, new StatsStealEffect() },
                 { EffectEnum.WisdomSteal, new StatsStealEffect() },
                 { EffectEnum.IntelligenceSteal, new StatsStealEffect() },
@@ -148,46 +148,41 @@ namespace Game.Fight.Effect
                 { EffectEnum.MPSteal, new StatsStealEffect() },
                 { EffectEnum.POSteal, new StatsStealEffect() },
 
-                // Autres
+
                 { EffectEnum.EcaflipChance, new EcaflipChanceEffect() },
                 { EffectEnum.Perception, new PerceptionEffect() },
                 { EffectEnum.TurnPass, new TurnPassEffect() },
                 { EffectEnum.MultiplyDamage, new MultiplyDamageEffect() },
                 { EffectEnum.Mastery, new MasteryEffect() },
 
-                // Sacrifice
+
                 { EffectEnum.Sacrifice, new SacrificeEffect() },
                 { EffectEnum.Transpose, new TransposeEffect() },
 
-                // Derobade
+
                 { EffectEnum.Evasion, new DamageDodgeEffect() },
 
-                // Augmente de X les domamges de base du sort Y
+
                 { EffectEnum.IncreaseSpellDamage, new IncreaseSpellJetEffect() },
 
-                // Invocation
+
                 { EffectEnum.Invocation, new SummoningEffect() },
                 { EffectEnum.InvocDouble, new SummoningEffect() },
                 { EffectEnum.InvocationStatic, new SummoningEffect(true) },
 
-                // Debuff
+
                 { EffectEnum.DeleteAllBonus, new BuffRemoveEffect() },
 
-                // Panda
+
                 { EffectEnum.PandaCarrier, new PandaCarrierEffect() },
                 { EffectEnum.PandaLaunch, new PandaLaunchEffect() },
 
-                // ActivableObjects
+
                 { EffectEnum.UseGlyph, new ActivableObjectEffect() },
                 { EffectEnum.UseTrap, new ActivableObjectEffect() }
             };
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="castInfos"></param>
-        /// <returns></returns>
         public FightActionResultEnum TryApplyEffect(CastInfos castInfos)
         {
             if (!m_effects.ContainsKey(castInfos.EffectType))

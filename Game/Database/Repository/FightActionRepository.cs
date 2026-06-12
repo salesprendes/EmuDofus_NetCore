@@ -5,9 +5,6 @@ using System.Linq;
 
 namespace Game.Database.Repository
 {
-    /// <summary>
-    ///
-    /// </summary>
     public sealed class FightActionRepository : Repository<FightActionRepository, FightActionDAO>
     {
         private Dictionary<long, List<FightActionDAO>> m_actionsByZoneKey;

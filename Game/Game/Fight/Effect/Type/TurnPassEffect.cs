@@ -1,8 +1,5 @@
-﻿namespace Game.Fight.Effect.Type
+namespace Game.Fight.Effect.Type
 {
-    /// <summary>
-    /// Delays the skipped turn until the target begins its next turn.
-    /// </summary>
     public sealed class TurnPassEffect : AbstractSpellEffect
     {
         public override FightActionResultEnum ApplyEffect(CastInfos castInfos)

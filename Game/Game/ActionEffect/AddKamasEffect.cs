@@ -1,4 +1,4 @@
-﻿using Game.Network;
+using Game.Network;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,31 +7,13 @@ using System.Threading.Tasks;
 
 namespace Game.ActionEffect
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class AddKamasEffect : AbstractActionEffect<AddKamasEffect>
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="item"></param>
-        /// <param name="effect"></param>
-        /// <param name="targetId"></param>
-        /// <param name="targetCell"></param>
-        /// <returns></returns>
         public override bool ProcessItem(Entity.CharacterEntity character, Database.Structure.ItemDAO item, Stats.GenericEffect effect, long targetId, int targetCell)
         {
-            return Process(character, new Dictionary<string, string> { { "kamas", effect.RandomJet.ToString() } } );
+            return Process(character, new Dictionary<string, string> { { "kamas", effect.RandomJet.ToString() } });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="parameters"></param>
-        /// <returns></returns>
         public override bool Process(Entity.CharacterEntity character, Dictionary<string, string> parameters)
         {
             var kamas = long.Parse(parameters["kamas"]);

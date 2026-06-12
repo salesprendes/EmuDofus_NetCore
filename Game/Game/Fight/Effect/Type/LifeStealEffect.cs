@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,16 +6,8 @@ using System.Threading.Tasks;
 
 namespace Game.Fight.Effect.Type
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class LifeStealEffect : AbstractSpellEffect
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="castInfos"></param>
-        /// <returns></returns>
         public override FightActionResultEnum ApplyEffect(CastInfos castInfos)
         {
             if (castInfos.Target == null)
@@ -28,7 +20,7 @@ namespace Game.Fight.Effect.Type
 
             castInfos.EffectType = Spell.EffectEnum.DamageBrut;
 
-            // On ne se soigne que de 50% des dégats
+
             var healJet = damageJet / 2;
 
             return HealEffect.ApplyHeal(castInfos, castInfos.Caster, ref healJet);

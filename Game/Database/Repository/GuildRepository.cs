@@ -1,4 +1,4 @@
-﻿using Protocolo.Framework.Database;
+using Protocolo.Framework.Database;
 using Game.Database.Structure;
 using Game.Guild;
 using System;
@@ -9,14 +9,8 @@ using System.Threading.Tasks;
 
 namespace Game.Database.Repository
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class GuildRepository : Repository<GuildRepository, GuildDAO>
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public long NextGuildId
         {
             get
@@ -26,36 +20,19 @@ namespace Game.Database.Repository
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private long m_nextGuildId;
 
 
-        /// <summary>
-        /// 
-        /// </summary>
         private Dictionary<long, GuildDAO> m_guildById;
 
-        /// <summary>
-        /// 
-        /// </summary>
         private Dictionary<string, GuildDAO> m_guildByName;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public GuildRepository()
         {
             m_guildById = new Dictionary<long, GuildDAO>();
             m_guildByName = new Dictionary<string, GuildDAO>();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
         public GuildDAO GetByName(string name)
         {
             name = name.ToLower();
@@ -64,22 +41,13 @@ namespace Game.Database.Repository
             return null;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
         public GuildDAO GetById(long id)
         {
             if (m_guildById.ContainsKey(id))
                 return m_guildById[id];
             return null;
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="guild"></param>
+
         public override void OnObjectAdded(GuildDAO guild)
         {
             m_guildById.Add(guild.Id, guild);
@@ -89,25 +57,12 @@ namespace Game.Database.Repository
                 m_nextGuildId = guild.Id + 1;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="obj"></param>
         public override void OnObjectRemoved(GuildDAO guild)
         {
             m_guildById.Remove(guild.Id);
             m_guildByName.Remove(guild.Name.ToLower());
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="backgroundId"></param>
-        /// <param name="backgroundColor"></param>
-        /// <param name="symbolId"></param>
-        /// <param name="symbolColor"></param>
-        /// <returns></returns>
         public GuildDAO Create(string name, int backgroundId, int backgroundColor, int symbolId, int symbolColor)
         {
             var instance = new GuildDAO()

@@ -1,4 +1,4 @@
-﻿using Game.Database.Repository;
+using Game.Database.Repository;
 using Game.Network;
 using System;
 using System.Collections.Generic;
@@ -7,20 +7,11 @@ namespace Game.ActionEffect
 {
     public sealed class AddItemEffect : AbstractActionEffect<AddItemEffect>
     {
-        /// <param name="character"></param>
-        /// <param name="item"></param>
-        /// <param name="effect"></param>
-        /// <param name="targetId"></param>
-        /// <param name="targetCell"></param>
-        /// <returns></returns>
         public override bool ProcessItem(Entity.CharacterEntity character, Database.Structure.ItemDAO item, Stats.GenericEffect effect, long targetId, int targetCell)
         {
             throw new NotImplementedException();
         }
 
-        /// <param name="character"></param>
-        /// <param name="parameters"></param>
-        /// <returns></returns>
         public override bool Process(Entity.CharacterEntity character, Dictionary<string, string> parameters)
         {
             var itemId = int.Parse(parameters["itemId"]);

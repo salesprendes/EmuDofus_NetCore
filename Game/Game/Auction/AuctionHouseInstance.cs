@@ -1,4 +1,4 @@
-﻿using Game.Action;
+using Game.Action;
 using Game.Database.Repository;
 using Game.Database.Structure;
 using Game.Entity;
@@ -10,9 +10,6 @@ using System.Linq;
 
 namespace Game.Auction
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public enum AuctionAddResultEnum
     {
         INVALID_ITEM,
@@ -27,90 +24,38 @@ namespace Game.Auction
         SUCCESS,
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class AuctionHouseInstance : MessageDispatcher
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public int Id => m_databaseRecord.Id;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int NpcId => m_databaseRecord.NpcId;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int ItemMaxLevel => m_databaseRecord.ItemMaxLevel;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int PlayerMaxItem => m_databaseRecord.PlayerMaxItem;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long Timeout => m_databaseRecord.Timeout;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Taxe => m_databaseRecord.Taxe;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public IEnumerable<int> AllowedTypes => m_allowedTypes;
 
-        /// <summary>
-        /// 
-        /// </summary>
         private readonly Dictionary<int, List<AuctionCategory>> m_categoriesByTemplate;
 
-        /// <summary>
-        /// 
-        /// </summary>
         private readonly Dictionary<int, AuctionCategory> m_categoryById;
 
-        /// <summary>
-        /// 
-        /// </summary>
         private readonly Dictionary<int, List<int>> m_templatesByType;
 
-        /// <summary>
-        /// 
-        /// </summary>
         private readonly Dictionary<long, List<AuctionEntry>> m_auctionsByAccount;
 
-        /// <summary>
-        /// 
-        /// </summary>
         private readonly Dictionary<int, long> m_templateMiddlePrice;
 
-        /// <summary>
-        /// 
-        /// </summary>
         private readonly List<int> m_allowedTypes;
 
-        /// <summary>
-        /// 
-        /// </summary>
         private readonly AuctionHouseDAO m_databaseRecord;
 
-        /// <summary>
-        /// 
-        /// </summary>
         private int m_nextCategoryId;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="record"></param>
         public AuctionHouseInstance(AuctionHouseDAO record)
         {
             m_databaseRecord = record;
@@ -122,20 +67,11 @@ namespace Game.Auction
             m_templateMiddlePrice = new Dictionary<int, long>();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
         public void AddAllowedType(int id)
         {
             m_allowedTypes.Add(id);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
         public AuctionCategoryFloorEnum GetFloorById(int id)
         {
             switch (id)
@@ -147,13 +83,6 @@ namespace Game.Auction
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="categoryId"></param>
-        /// <param name="floorId"></param>
-        /// <param name="price"></param>
         public void TryBuy(CharacterEntity character, int categoryId, int floorId, long price)
         {
             Logger.Debug("AuctionHouse::TryBuy categoriaId=" + categoryId + " plantaId=" + floorId + " precio=" + price);
@@ -211,7 +140,7 @@ namespace Game.Auction
                     {
                         auction.OwnerBank.AddKamas(price);
 
-                        // check if player online and notify
+
                         var seller = EntityManager.Instance.GetCharacterByAccount(auction.OwnerId);
                         if (seller != null)
                         {
@@ -240,11 +169,6 @@ namespace Game.Auction
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="category"></param>
-        /// <returns></returns>
         public bool CheckEmptyCategory(AuctionCategory category)
         {
             if (category.IsEmpty)
@@ -263,10 +187,6 @@ namespace Game.Auction
             return false;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="templateId"></param>
         public void UpdateMiddlePrice(int templateId)
         {
             if (!m_templateMiddlePrice.ContainsKey(templateId))
@@ -283,11 +203,6 @@ namespace Game.Auction
             m_templateMiddlePrice[templateId] = total / Math.Max(1, m_categoriesByTemplate[templateId].Count);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="templateId"></param>
-        /// <returns></returns>
         public long GetMiddlePrice(int templateId)
         {
             if (!m_templateMiddlePrice.ContainsKey(templateId))
@@ -298,11 +213,6 @@ namespace Game.Auction
             return m_templateMiddlePrice[templateId];
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="itemId"></param>
         public void TryRemove(CharacterEntity character, long itemId)
         {
             Logger.Debug("AuctionHouse::TryRemove objetoId=" + itemId);
@@ -342,14 +252,6 @@ namespace Game.Auction
             SendAuctionOwnerList(character);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="itemId"></param>
-        /// <param name="quantity"></param>
-        /// <param name="price"></param>
-        /// <returns></returns>
         public AuctionAddResultEnum TryAdd(CharacterEntity character, long itemId, int quantity, long price)
         {
             Logger.Debug("AuctionHouse::TryAdd objetoId=" + itemId + " cantidad=" + quantity + " precio=" + price);
@@ -428,10 +330,6 @@ namespace Game.Auction
             return AuctionAddResultEnum.SUCCESS;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entry"></param>
         public void Add(AuctionEntry entry)
         {
             var templateId = entry.Item.TemplateId;
@@ -483,10 +381,6 @@ namespace Game.Auction
             UpdateMiddlePrice(category.TemplateId);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
         public void SendAuctionOwnerList(CharacterEntity character)
         {
             if (!m_auctionsByAccount.ContainsKey(character.AccountId))
@@ -497,10 +391,6 @@ namespace Game.Auction
             character.Dispatch(WorldMessage.AUCTION_HOUSE_AUCTION_OWNER_LIST(m_auctionsByAccount[character.AccountId]));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
         public void SendTemplatesByTypeList(CharacterEntity character, int type)
         {
             var templates = new List<int>();
@@ -512,11 +402,6 @@ namespace Game.Auction
             character.Dispatch(WorldMessage.AUCTION_HOUSE_TEMPLATE_LIST(type, templates));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="templateId"></param>
         public void SendCategoriesByTemplate(CharacterEntity character, int templateId)
         {
             var categories = new List<AuctionCategory>();

@@ -13,9 +13,9 @@ namespace Protocolo.Framework.Configuration.Providers
 
         public JsonConfigurationProvider(string path)
         {
-            if (string.IsNullOrEmpty(path)) 
+            if (string.IsNullOrEmpty(path))
                 throw new ArgumentException("path");
-                
+
             Path = path;
         }
 
@@ -89,24 +89,24 @@ namespace Protocolo.Framework.Configuration.Providers
             switch (value.ValueKind)
             {
                 case JsonValueKind.String:
-                return value.GetString();
+                    return value.GetString();
 
                 case JsonValueKind.Number:
                     if (value.TryGetInt32(out var intValue))
                         return intValue;
                     if (value.TryGetInt64(out var longValue))
                         return longValue;
-                return value.GetDouble();
+                    return value.GetDouble();
 
                 case JsonValueKind.True:
                 case JsonValueKind.False:
-                return value.GetBoolean();
+                    return value.GetBoolean();
 
                 case JsonValueKind.Null:
-                return null;
+                    return null;
 
                 default:
-                return JsonSerializer.Deserialize<object>(value.GetRawText());
+                    return JsonSerializer.Deserialize<object>(value.GetRawText());
             }
         }
     }

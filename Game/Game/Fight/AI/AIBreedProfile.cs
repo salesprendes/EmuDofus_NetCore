@@ -8,7 +8,7 @@ namespace Game.Fight.AI
         Mixed,
         Ranged,
     }
-    
+
     public static class AIBreedProfile
     {
         public static BreedCombatStyle GetCombatStyle(CharacterBreedEnum breed)
@@ -25,8 +25,8 @@ namespace Game.Fight.AI
                 case CharacterBreedEnum.BREED_ECAFLIP:
                     return BreedCombatStyle.Mixed;
 
-                default: //OSAMODAS, ENUTROF, XELOR, ENIRIPSA, CRA, SADIDAS
-                return BreedCombatStyle.Ranged;
+                default:
+                    return BreedCombatStyle.Ranged;
             }
         }
 

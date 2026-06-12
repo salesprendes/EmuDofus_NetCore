@@ -8,7 +8,7 @@ namespace Game.Fight.Ending
 {
     public sealed class HonorGainBehavior : AbstractEndingBehavior
     {
-        // Index = AlignmentLevel (grade 0-10), grades 0-2 use default 1.0
+
         private static readonly double[] GradeMultiplicator = { 1.0, 1.0, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 6.0, 8.0, 12.0 };
 
         public override void Execute(AbstractFight fight)
@@ -29,12 +29,12 @@ namespace Game.Fight.Ending
 
             var isNeutralAggression = fight.IsNeutralAgression;
 
-            // Winner conditions (official retro formula)
+
             bool winnersAvgTooPowerful = winnerAvgLevel > loserAvgLevel + 20;
             double winnerLevelsSum = winnerAvgLevel * winnerCount;
             double loserLevelsSum = loserAvgLevel * loserCount;
             bool winnerGroupTooPowerful = winnerCount > 0 && (winnerLevelsSum - loserLevelsSum > 20.0 * winnerCount);
-            // Cap diffLevels when losers are much stronger
+
             double winnerDiffLevels = winnerAvgLevel < loserAvgLevel - 20 ? -20 : diffLevels;
 
             foreach (var fighter in fight.WinnerFighters)
@@ -63,7 +63,7 @@ namespace Game.Fight.Ending
                 fight.Result.AddResult(fighter, FightEndTypeEnum.END_WINNER, false, 0, 0, honour, dishonour);
             }
 
-            // Loser conditions (official retro formula)
+
             bool losersUnderdog = winnerCount > 0 && (winnerLevelsSum - loserLevelsSum > 20.0 * loserCount);
             double loserDiffLevels = diffLevels <= 0 ? 1.0 : diffLevels;
 

@@ -1,4 +1,4 @@
-﻿using Game.Dialog;
+using Game.Dialog;
 using Game.Entity;
 using Game.Network;
 using System;
@@ -9,49 +9,29 @@ using System.Threading.Tasks;
 
 namespace Game.Action
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class GameNpcDialogAction : AbstractGameAction
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public override bool CanAbort => true;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public NpcDialog Dialog
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public NonPlayerCharacterEntity Npc
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="npc"></param>
         public GameNpcDialogAction(CharacterEntity character, NonPlayerCharacterEntity npc)
-            : base(GameActionTypeEnum.NPC_DIALOG, character)
+    : base(GameActionTypeEnum.NPC_DIALOG, character)
         {
             Npc = npc;
             Dialog = new NpcDialog(character, npc);
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
+
         public override void Start()
         {
             Entity.Dispatch(WorldMessage.DIALOG_CREATE(Npc.Id));
@@ -59,20 +39,12 @@ namespace Game.Action
             base.Start();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="args"></param>
         public override void Abort(params object[] args)
         {
             Entity.Dispatch(WorldMessage.DIALOG_LEAVE());
             base.Abort(args);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="args"></param>
         public override void Stop(params object[] args)
         {
             Entity.Dispatch(WorldMessage.DIALOG_LEAVE());

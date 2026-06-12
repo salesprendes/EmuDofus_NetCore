@@ -5,10 +5,7 @@ namespace Game.Command
 {
     public sealed class KickCommand : WorldStaffCommand
     {
-        private readonly string[] _aliases =
-        {
-            "expulsar", "kick"
-        };
+        private readonly string[] _aliases = { "expulsar", "kick" };
 
         public override string[] Aliases => _aliases;
 

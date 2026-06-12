@@ -1,34 +1,19 @@
-﻿using Game.Entity;
+using Game.Entity;
 using Game.Map;
 using Game.Spell;
 using System.Linq;
 
 namespace Game.Fight.Effect.Type
 {
-    /// <summary>
-    ///
-    /// </summary>
     public sealed class SummoningEffect : AbstractSpellEffect
     {
-        /// <summary>
-        ///
-        /// </summary>
         private bool m_static;
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="staticInvoc"></param>
         public SummoningEffect(bool staticInvoc = false)
         {
             m_static = staticInvoc;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="castInfos"></param>
-        /// <returns></returns>
         public override FightActionResultEnum ApplyEffect(CastInfos castInfos)
         {
             var cell = FindFreeSummonCell(castInfos.Fight, castInfos.CellId);
@@ -51,7 +36,7 @@ namespace Game.Fight.Effect.Type
             if (monsterGrade == null)
                 return FightActionResultEnum.RESULT_NOTHING;
 
-            return castInfos.Fight.SummonFighter(new MonsterEntity(castInfos.Fight.NextFighterId, monsterGrade, castInfos.Caster, m_static),castInfos.Caster.Team, cell.Id);
+            return castInfos.Fight.SummonFighter(new MonsterEntity(castInfos.Fight.NextFighterId, monsterGrade, castInfos.Caster, m_static), castInfos.Caster.Team, cell.Id);
         }
 
         private static FightActionResultEnum SummonDouble(CastInfos castInfos, FightCell cell)
@@ -60,7 +45,7 @@ namespace Game.Fight.Effect.Type
             if (character == null)
                 return FightActionResultEnum.RESULT_NOTHING;
 
-            return castInfos.Fight.SummonFighter(new DoubleFighter(castInfos.Fight.NextFighterId, character),character.Team, cell.Id);
+            return castInfos.Fight.SummonFighter(new DoubleFighter(castInfos.Fight.NextFighterId, character), character.Team, cell.Id);
         }
 
         private static FightCell FindFreeSummonCell(AbstractFight fight, int centerCellId)
@@ -69,7 +54,7 @@ namespace Game.Fight.Effect.Type
             if (center != null && center.CanWalk)
                 return center;
 
-            // Target cell is occupied — search the closest free cell within radius 3
+
             return CellZone.GetCircleCells(fight.Map, centerCellId, 3)
                 .Where(cid => cid != centerCellId)
                 .Select(cid => fight.GetCell(cid))

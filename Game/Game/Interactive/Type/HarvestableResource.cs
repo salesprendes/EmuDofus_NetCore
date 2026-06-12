@@ -1,4 +1,4 @@
-﻿using Protocolo.Framework.Generic;
+using Protocolo.Framework.Generic;
 using Game.Database.Repository;
 using Game.Database.Structure;
 using Game.Action;
@@ -15,65 +15,38 @@ using System.Threading.Tasks;
 
 namespace Game.Interactive.Type
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class HarvestableResource : InteractiveObject
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public const int FRAME_FARMING = 3;
-        
-        /// <summary>
-        /// 
-        /// </summary>
+
         public const int FRAME_CUT = 4;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public const int FRAME_GROW = 5;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int GeneratedTemplateId
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int MinRespawnTime
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int MaxRespawnTime
         {
             get;
             private set;
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
+
         public int Experience
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public ItemTemplateDAO GeneratedTemplate
         {
             get
@@ -83,40 +56,19 @@ namespace Game.Interactive.Type
                 return m_generatedTemplate;
             }
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
+
         private UpdatableTimer m_harvestTimer;
 
-        /// <summary>
-        /// 
-        /// </summary>
         private CharacterEntity m_currentHarvester;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        private CharacterJobDAO m_currentJob;
+        private int m_currentJobId;
 
-        /// <summary>
-        /// 
-        /// </summary>
         private ItemTemplateDAO m_generatedTemplate;
 
-        /// <summary>
-        /// 
-        /// </summary>
         private int m_quantityFarmed;
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="map"></param>
-        /// <param name="cellId"></param>
-        /// <param name="walkThrough"></param>
+
         public HarvestableResource(MapInstance map, int cellId, int generatedTemplateId, int minRespawnTime, int maxRespawnTime, int experience, bool walkThrough = false)
-            : base(map, cellId, walkThrough)
+    : base(map, cellId, walkThrough)
         {
             GeneratedTemplateId = generatedTemplateId;
             MinRespawnTime = minRespawnTime;
@@ -124,11 +76,6 @@ namespace Game.Interactive.Type
             Experience = experience;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="skill"></param>
         public override void UseWithSkill(CharacterEntity character, JobSkill skill)
         {
             switch (skill.Id)
@@ -192,14 +139,9 @@ namespace Game.Interactive.Type
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="skill"></param>
         private void Harvest(CharacterEntity character, SkillIdEnum skill)
         {
-            if(!character.CanGameAction(GameActionTypeEnum.SKILL_HARVEST))
+            if (!character.CanGameAction(GameActionTypeEnum.SKILL_HARVEST))
             {
                 character.Dispatch(WorldMessage.IM_ERROR_MESSAGE(InformationEnum.ERROR_YOU_ARE_AWAY));
                 return;
@@ -208,12 +150,12 @@ namespace Game.Interactive.Type
             if (!IsActive)
                 return;
 
-            m_currentJob = character.CharacterJobs.GetJob(skill);
-            if (m_currentJob == null)            
+            m_currentJobId = character.CharacterJobs.GetJobId(skill);
+            if (m_currentJobId == 0)
                 return;
 
-            var duration = m_currentJob.HarvestDuration;
-            m_quantityFarmed = Util.Next(m_currentJob.HarvestMinQuantity, m_currentJob.HarvestMaxQuantity);
+            var duration = character.CharacterJobs.GetHarvestDuration(m_currentJobId);
+            m_quantityFarmed = Util.Next(character.CharacterJobs.GetHarvestMinQuantity(m_currentJobId), character.CharacterJobs.GetHarvestMaxQuantity(m_currentJobId));
 
             character.HarvestStart(this, duration);
             m_currentHarvester = character;
@@ -223,43 +165,52 @@ namespace Game.Interactive.Type
             m_harvestTimer = base.AddTimer(duration, StopHarvest, true);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
         public void AbortHarvest()
         {
+
+            if (m_currentHarvester == null)
+                return;
+
             Activate();
 
             m_currentHarvester = null;
-            m_currentJob = null;
+            m_currentJobId = 0;
+            m_quantityFarmed = 0;
 
             base.RemoveTimer(m_harvestTimer);
+            m_harvestTimer = null;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
         public void StopHarvest()
         {
-            m_currentHarvester.StopAction(GameActionTypeEnum.SKILL_HARVEST);
 
-            var exprienceWin = m_quantityFarmed * Experience;
 
-            m_currentHarvester.CachedBuffer = true;
-            m_currentHarvester.Inventory.AddItem(GeneratedTemplate.Create(m_currentHarvester.Id, (int)m_currentHarvester.Type, m_quantityFarmed));
-            m_currentHarvester.CharacterJobs.AddExperience(m_currentJob, exprienceWin);
-            m_currentHarvester.Dispatch(WorldMessage.INTERACTIVE_FARMED_QUANTITY(m_currentHarvester.Id, m_quantityFarmed));
-            m_currentHarvester.CachedBuffer = false;
+            var harvester = m_currentHarvester;
+            var jobId = m_currentJobId;
+            var quantity = m_quantityFarmed;
+
+            m_currentHarvester = null;
+            m_currentJobId = 0;
+            m_quantityFarmed = 0;
+            m_harvestTimer = null;
+
+            if (harvester == null)
+                return;
+
+            harvester.StopAction(GameActionTypeEnum.SKILL_HARVEST);
+
+            var experienceWin = quantity * Experience;
+
+            harvester.CachedBuffer = true;
+            harvester.Inventory.AddItem(GeneratedTemplate.Create(harvester.Id, (int)harvester.Type, quantity));
+            harvester.CharacterJobs.AddExperience(jobId, experienceWin);
+            harvester.Dispatch(WorldMessage.INTERACTIVE_FARMED_QUANTITY(harvester.Id, quantity));
+            harvester.CachedBuffer = false;
 
             base.UpdateFrame(FRAME_FARMING, FRAME_CUT);
             base.AddTimer(Util.Next(MinRespawnTime, MaxRespawnTime), Respawn, true);
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
+
         private void Respawn()
         {
             base.UpdateFrame(FRAME_GROW, FRAME_NORMAL, true);

@@ -7,6 +7,7 @@ namespace Login.Database.Structure
         private long _id;
         private int _serverId;
         private long _accountId;
+        private string _jobs;
 
 
         [Key]
@@ -26,6 +27,12 @@ namespace Login.Database.Structure
         {
             get => _accountId;
             set => SetProperty(ref _accountId, value);
+        }
+
+        public string Jobs
+        {
+            get => _jobs;
+            set => SetProperty(ref _jobs, value);
         }
     }
 }

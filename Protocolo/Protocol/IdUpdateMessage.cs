@@ -2,14 +2,8 @@ using Protocolo.RPC.Service;
 
 namespace Protocolo.RPC.Protocol
 {
-    /// <summary>
-    ///
-    /// </summary>
     public sealed class IdUpdateMessage : AbstractRcpMessage
     {
-        /// <summary>
-        ///
-        /// </summary>
         public override int Id
         {
             get
@@ -18,42 +12,26 @@ namespace Protocolo.RPC.Protocol
             }
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public int GameId
         {
             get;
             private set;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="gameId"></param>
         public IdUpdateMessage(int gameId)
         {
             GameId = gameId;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public IdUpdateMessage()
         {
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public override void Deserialize()
         {
             GameId = base.ReadInt();
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public override void Serialize()
         {
             base.WriteInt(GameId);

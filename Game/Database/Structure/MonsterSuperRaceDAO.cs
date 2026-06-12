@@ -7,9 +7,6 @@ using System.Threading.Tasks;
 
 namespace Game.Database.Structure
 {
-    /// <summary>
-    /// 
-    /// </summary>
     [Table("monstersuperrace")]
     public sealed class MonsterSuperRaceDAO : DataAccessObject<MonsterSuperRaceDAO>
     {
@@ -17,18 +14,12 @@ namespace Game.Database.Structure
         private string _name;
 
 
-        /// <summary>
-        /// 
-        /// </summary>
         [Key]
         public int Id
         {
             get => _id;
             set => SetProperty(ref _id, value);
         }
-        /// <summary>
-        /// 
-        /// </summary>
         public string Name
         {
             get => _name;

@@ -1,4 +1,4 @@
-﻿using Game.Map;
+using Game.Map;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,16 +7,10 @@ using System.Threading.Tasks;
 
 namespace Game.Fight.Challenge
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class AnachoriteChallenge : AbstractChallenge
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public AnachoriteChallenge()
-            : base(ChallengeTypeEnum.ANACHORITE)
+    : base(ChallengeTypeEnum.ANACHORITE)
         {
             BasicDropBonus = 20;
             BasicXpBonus = 20;
@@ -25,16 +19,12 @@ namespace Game.Fight.Challenge
             TeamXpBonus = 30;
 
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
+
         public override void EndTurn(AbstractFighter fighter)
         {
             var aroundFighters = Pathfinding.GetFightersNear(fighter.Fight, fighter.Cell.Id);
-            if(aroundFighters.Where(f => f.Team == fighter.Team).Count() > 0)            
-                base.OnFailed(fighter.Name);            
+            if (aroundFighters.Where(f => f.Team == fighter.Team).Count() > 0)
+                base.OnFailed(fighter.Name);
         }
     }
 }

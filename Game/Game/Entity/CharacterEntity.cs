@@ -1,4 +1,4 @@
-﻿using Game.Action;
+using Game.Action;
 using Game.Database.Repository;
 using Game.Database.Structure;
 using Game.Entity.Inventory;
@@ -23,9 +23,6 @@ using System.Text;
 
 namespace Game.Entity
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public enum EmoteTypeEnum
     {
         Sit = 1,
@@ -50,46 +47,28 @@ namespace Game.Entity
         VampyrAura = 4194304
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public enum DeathTypeEnum
     {
         TYPE_NORMAL = 1,
         TYPE_HEROIC = 2
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public class CharacterEntity : AbstractFighter, IDisposable
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public delegate void OnKick();
 
-        /// <summary>
-        /// 
-        /// </summary>
         public event OnKick KickEvent;
 
         private int m_pendingInteractiveSkillMapId = -1;
         private int m_pendingInteractiveSkillCellId = -1;
         private int m_pendingInteractiveSkillId = -1;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public FrameManager<CharacterEntity, string> FrameManager
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override string Name => DatabaseRecord.Name;
         public long RttMs { get; set; } = 300;
 
@@ -99,9 +78,6 @@ namespace Game.Entity
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int SavedMapId
         {
             get
@@ -114,9 +90,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int SavedCellId
         {
             get
@@ -129,9 +102,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override int MapId
         {
             get
@@ -145,9 +115,6 @@ namespace Game.Entity
         }
 
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override int CellId
         {
             get
@@ -188,9 +155,6 @@ namespace Game.Entity
             m_pendingInteractiveSkillId = -1;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override int Level
         {
             get
@@ -203,18 +167,12 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int LifeBeforeFight
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override int Restriction
         {
             get
@@ -227,9 +185,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override long Kamas
         {
             get
@@ -252,9 +207,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int CaractPoint
         {
             get
@@ -267,9 +219,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int SpellPoint
         {
             get
@@ -282,9 +231,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int EmoteCapacity
         {
             get
@@ -297,9 +243,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long Experience
         {
             get
@@ -312,14 +255,8 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long ExperienceFloorCurrent => ExperienceManager.Instance.GetFloor(Level, ExperienceTypeEnum.CHARACTER);
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long ExperienceFloorNext
         {
             get
@@ -334,14 +271,8 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override int AlignmentId => DatabaseRecord.AlignmentId;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Honour
         {
             get
@@ -354,9 +285,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Dishonour
         {
             get
@@ -369,9 +297,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int AlignmentLevel
         {
             get
@@ -384,9 +309,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int AlignmentPromotion
         {
             get
@@ -399,9 +321,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool AlignmentEnabled
         {
             get
@@ -414,9 +333,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long AlignmentExperienceFloorNext
         {
             get
@@ -431,14 +347,8 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long AlignmentExperienceFloorCurrent => ExperienceManager.Instance.GetFloor(AlignmentLevel, ExperienceTypeEnum.PVP);
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override int RealLife
         {
             get
@@ -451,9 +361,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Energy
         {
             get
@@ -476,12 +383,9 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override int BaseLife => 50 + (Level * 5);
 
-        public int MaxPods => Statistics.GetTotal(EffectEnum.AddPods) + Statistics.GetTotal(EffectEnum.AddStrength) * 5 + CharacterJobs.Jobs.Sum(job => job.Level * 5 + (job.Level >= 100 ? 1000 : 0));
+        public int MaxPods => Statistics.GetTotal(EffectEnum.AddPods) + Statistics.GetTotal(EffectEnum.AddStrength) * 5 + CharacterJobs.GetPodsBonus();
         public int CurrentPods => Inventory.Items.Sum(item => (item.Template?.Weight ?? 0) * item.Quantity);
         public string HexColor1 => DatabaseRecord.HexColor1;
         public string HexColor2 => DatabaseRecord.HexColor2;
@@ -516,9 +420,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int DeathCount
         {
             get
@@ -531,9 +432,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int MaxLevel
         {
             get
@@ -546,23 +444,14 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public CharacterDAO DatabaseRecord
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long AccountId => DatabaseRecord.AccountId;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public GuildMember GuildMember
         {
             get;
@@ -571,27 +460,18 @@ namespace Game.Entity
 
         public HouseInstance CurrentHouse { get; set; }
 
-        /// <summary>
-        ///
-        /// </summary>
         public JobBook CharacterJobs
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public List<CharacterQuest> Quests
         {
             get;
             private set;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public int Aura
         {
             get
@@ -610,81 +490,54 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override bool TurnReady
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override bool TurnPass
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long PartyId
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long PartyInvitedPlayerId
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long PartyInviterPlayerId
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long GuildInvitedPlayerId
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long GuildInviterPlayerId
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public AccountTicket Account
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public string Pseudo
         {
             get
@@ -698,45 +551,30 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public List<int> Waypoints
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public PersistentInventory PersonalShop
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public BankInventory Bank
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long MerchantTaxe
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool Merchant
         {
             get
@@ -749,9 +587,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int TitleId
         {
             get
@@ -764,9 +599,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public string TitleParams
         {
             get
@@ -779,9 +611,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public IEnumerable<SocialRelationDAO> Friends
         {
             get
@@ -790,9 +619,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public IEnumerable<SocialRelationDAO> Ennemies
         {
             get
@@ -801,18 +627,12 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public List<SocialRelationDAO> Relations
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool NotifyOnFriendConnection
         {
             get;
@@ -820,19 +640,10 @@ namespace Game.Entity
         }
 
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool IsGhost => SkinBase == 8004;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool IsTombestone => SkinBase == (BreedId * 10) + 3;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public DeathTypeEnum DeathType
         {
             get
@@ -845,9 +656,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int EquippedMount
         {
             get
@@ -860,39 +668,24 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool Away
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool RidingMount
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         protected string m_guildDisplayInfos;
         protected long m_lastRegenTime;
         protected double m_regenTimer;
         protected int m_lastEmoteId;
         protected MountEntity m_mount;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="account"></param>
-        /// <param name="characterDAO"></param>
-        /// <param name="type"></param>
         public CharacterEntity(AccountTicket account, CharacterDAO characterDAO, EntityTypeEnum type = EntityTypeEnum.TYPE_CHARACTER) : base(type, characterDAO.Id)
         {
             m_lastRegenTime = -1;
@@ -930,7 +723,7 @@ namespace Game.Entity
                 }
                 else
                 {
-                    SetCharacterGuild(guildMember); // Merchant
+                    SetCharacterGuild(guildMember);
                 }
             }
 
@@ -968,17 +761,11 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void SendAccountStats()
         {
             Dispatch(WorldMessage.ACCOUNT_STATS(this));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void CheckRestrictions()
         {
             if (IsTombestone)
@@ -1011,9 +798,6 @@ namespace Game.Entity
             SafeDispatch(WorldMessage.ACCOUNT_RESTRICTIONS(Restriction));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void Reborn()
         {
             DatabaseRecord.Skin = (BreedId * 10) + Sex;
@@ -1028,9 +812,6 @@ namespace Game.Entity
             CachedBuffer = false;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void HardResetSpells()
         {
             SpellBook.Reset(Breed);
@@ -1046,9 +827,6 @@ namespace Game.Entity
             CachedBuffer = false;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void FreeSoul()
         {
             switch (DeathType)
@@ -1076,9 +854,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void OnLoseFight(DeathTypeEnum type)
         {
             DeathType = type;
@@ -1095,7 +870,7 @@ namespace Game.Entity
                     LoseEnergy();
                     if (Energy > 0)
                     {
-                        // get back home if u still have energy babe
+
                         MapId = SavedMapId;
                         CellId = SavedCellId;
                     }
@@ -1103,9 +878,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void LoseEnergy()
         {
             var energyLost = Math.Min(Energy, Level * 10);
@@ -1149,10 +921,6 @@ namespace Game.Entity
             StartAction(GameActionTypeEnum.FIGHT);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public override FightActionResultEnum EndTurn()
         {
             if (IsDisconnected)
@@ -1174,10 +942,6 @@ namespace Game.Entity
             return base.EndTurn();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="win"></param>
         public override void EndFight(bool win = false)
         {
             if (!IsSpectating)
@@ -1206,9 +970,9 @@ namespace Game.Entity
                             OnLoseFight(DeathTypeEnum.TYPE_NORMAL);
                             break;
 
-                            //case FightTypeEnum.TYPE_PVM:
-                            //    OnLoseFight(DeathTypeEnum.TYPE_HEROIC);
-                            //    break;
+
+
+
                     }
                 }
 
@@ -1434,9 +1198,6 @@ namespace Game.Entity
             CachedBuffer = false;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void EnableAlignment()
         {
             if (AlignmentEnabled)
@@ -1459,9 +1220,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool DisableAlignment(bool force = false)
         {
             if (!AlignmentEnabled)
@@ -1491,18 +1249,11 @@ namespace Game.Entity
             return true;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="alignmentId"></param>
         public void SetAlignment(int alignmentId)
         {
             ResetAlignment(alignmentId);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void ResetAlignment(int alignmentId = 0)
         {
             DatabaseRecord.AlignmentId = alignmentId;
@@ -1516,9 +1267,6 @@ namespace Game.Entity
             RefreshOnMap();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void RefreshPersonalShopTaxe()
         {
             foreach (var item in PersonalShop.Items)
@@ -1529,18 +1277,11 @@ namespace Game.Entity
             MerchantTaxe /= 1000;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="reason"></param>
         public void ServerKick(string reason = "")
         {
             SafeKick("[Server]", reason);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void SafeKick(string kicker = "", string reason = "")
         {
             AddMessage(() =>
@@ -1554,9 +1295,6 @@ namespace Game.Entity
                 });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void RecoverOfflineEnergy()
         {
             if (DatabaseRecord.DisconnectedAt == default)
@@ -1613,38 +1351,21 @@ namespace Game.Entity
             Dispose();
             if (Merchant)
             {
-                WorldService.Instance.AddMessage(() =>
-                {
-                    var merchant = EntityManager.Instance.CreateMerchant(DatabaseRecord);
-                    merchant.StartAction(GameActionTypeEnum.MAP);
-                });
+                WorldService.Instance.AddMessage(() => { var merchant = EntityManager.Instance.CreateMerchant(DatabaseRecord); merchant.StartAction(GameActionTypeEnum.MAP); });
             }
             return true;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
         public bool HasSkill(SkillIdEnum id)
         {
             return HasSkill((int)id);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
         public bool HasSkill(int id)
         {
             return CharacterJobs.HasSkill(id);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void SetCharacterGuild(GuildMember characterGuild)
         {
             GuildMember = characterGuild;
@@ -1658,9 +1379,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void SetAway()
         {
             Away = Away == false;
@@ -1674,12 +1392,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="message"></param>
-        /// <param name="whispedCharacter"></param>
         public override bool DispatchChatMessage(ChatChannelEnum channel, string message, CharacterEntity whispedCharacter = null)
         {
             if (channel == ChatChannelEnum.CHANNEL_PRIVATE_SEND)
@@ -1697,47 +1409,26 @@ namespace Game.Entity
             return base.DispatchChatMessage(channel, message, whispedCharacter);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="pseudo"></param>
-        /// <returns></returns>
         public bool HasEnnemy(string pseudo)
         {
             return Ennemies.Any(ennemy => ennemy.Pseudo.Equals(pseudo, StringComparison.OrdinalIgnoreCase));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="pseudo"></param>
-        /// <returns></returns>
         public bool HasFriend(string pseudo)
         {
             return Friends.Any(friend => friend.Pseudo.Equals(pseudo, StringComparison.OrdinalIgnoreCase));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
         public void DispatchPartyMessage(string message)
         {
             PartyManager.Instance.PartyMessage(PartyId, message);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
         public void DispatchGuildMessage(string message)
         {
             GuildMember?.Guild.SafeDispatch(message);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void MountRideUnride()
         {
             if (m_mount != null)
@@ -1776,17 +1467,11 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void SendQuestsList()
         {
             Dispatch(WorldMessage.QUEST_LIST(Quests));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void SendQuestsStepsList(int questId)
         {
             var quest = Quests.FirstOrDefault(q => q.Id == questId);
@@ -1796,9 +1481,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void SendMountEquipped()
         {
             if (m_mount != null)
@@ -1815,29 +1497,18 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void GuildCreationOpen()
         {
             CurrentAction = new GameGuildCreationAction(this);
             StartAction(GameActionTypeEnum.GUILD_CREATE);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="paddock"></param>
         public void ExchangePaddock(Paddock paddock)
         {
             CurrentAction = new GameMountStorageExchangeAction(this, paddock);
             StartAction(GameActionTypeEnum.EXCHANGE);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="waypoint"></param>
         public void WaypointStart(Waypoint waypoint)
         {
             CurrentAction = new GameWaypointAction(this, waypoint);
@@ -1862,10 +1533,6 @@ namespace Game.Entity
             return true;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="npc"></param>
         public void NpcDialogStart(NonPlayerCharacterEntity npc)
         {
             CurrentAction = new GameNpcDialogAction(this, npc);
@@ -1891,41 +1558,30 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="resource"></param>
         public void HarvestStart(HarvestableResource resource, int duration)
         {
             CurrentAction = new GameHarvestAction(this, resource, duration);
             StartAction(GameActionTypeEnum.SKILL_HARVEST);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="plan"></param>
-        /// <param name="skill"></param>
         public void CraftStart(CraftPlan plan, JobSkill skill)
         {
-            CurrentAction = new GameCraftPlanExchangeAction(this, plan, skill);
+
+
+            if (skill is Game.Job.Skill.MagicSkill)
+                CurrentAction = new AccionIntercambioForjamagia(this, plan, skill);
+            else
+                CurrentAction = new GameCraftPlanExchangeAction(this, plan, skill);
+
             StartAction(GameActionTypeEnum.EXCHANGE);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="npc"></param>
         public void ExchangeNpc(NonPlayerCharacterEntity npc)
         {
             CurrentAction = new GameNpcExchangeAction(this, npc);
             StartAction(GameActionTypeEnum.EXCHANGE);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="taxCollector"></param>
         public void ExchangeTaxCollector(TaxCollectorEntity taxCollector)
         {
             CurrentAction = new GameTaxCollectorExchangeAction(this, taxCollector);
@@ -1934,39 +1590,24 @@ namespace Game.Entity
             StartAction(GameActionTypeEnum.EXCHANGE);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="merchant"></param>
         public void ExchangeMerchant(MerchantEntity merchant)
         {
             CurrentAction = new GameMerchantExchangeAction(this, merchant);
             StartAction(GameActionTypeEnum.EXCHANGE);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void ExchangePersonalShop()
         {
             CurrentAction = new GamePersonalShopExchangeAction(this);
             StartAction(GameActionTypeEnum.EXCHANGE);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
         public void ExchangePlayer(CharacterEntity player)
         {
             CurrentAction = new GamePlayerExchangeAction(this, player);
             player.CurrentAction = CurrentAction;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="defender"></param>
         public void ChallengePlayer(CharacterEntity player)
         {
             CurrentAction = new GameChallengeRequestAction(this, player);
@@ -1976,20 +1617,12 @@ namespace Game.Entity
             player.StartAction(GameActionTypeEnum.CHALLENGE_REQUEST);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
         public void ExchangeShop(NonPlayerCharacterEntity entity)
         {
             CurrentAction = new GameShopExchangeAction(this, entity);
             StartAction(GameActionTypeEnum.EXCHANGE);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="storage"></param>
         public void ExchangeStorage(StorageInventory storage)
         {
             CurrentAction = new GameStorageExchangeAction(this, storage);
@@ -2002,29 +1635,18 @@ namespace Game.Entity
             StartAction(GameActionTypeEnum.EXCHANGE);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
         public void ExchangeAuctionHouseBuy(NonPlayerCharacterEntity entity)
         {
             CurrentAction = new GameAuctionHouseBuyAction(this, entity);
             StartAction(GameActionTypeEnum.EXCHANGE);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
         public void ExchangeAuctionHouseSell(NonPlayerCharacterEntity entity)
         {
             CurrentAction = new GameAuctionHouseSellAction(this, entity);
             StartAction(GameActionTypeEnum.EXCHANGE);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void DefendTaxCollector()
         {
             CurrentAction = new GameTaxCollectorDefenderAction(this);
@@ -2070,9 +1692,6 @@ namespace Game.Entity
             return base.CanBeExchanged(exchangeType) && (exchangeType == ExchangeTypeEnum.EXCHANGE_PLAYER || exchangeType == ExchangeTypeEnum.EXCHANGE_PERSONAL_SHOP_EDIT);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void RefreshOnMap()
         {
             var message = WorldMessage.GAME_MAP_INFORMATIONS(OperatorEnum.OPERATOR_REFRESH, this);
@@ -2086,10 +1705,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="actionType"></param>
         public override void StartAction(GameActionTypeEnum actionType)
         {
             base.StartAction(actionType);
@@ -2102,7 +1717,7 @@ namespace Game.Entity
 
                 case GameActionTypeEnum.MAP_TELEPORT:
                     StopEmote();
-                    // GA;2; y GDM ya se envían en StopAction(MAP_TELEPORT), no repetir aquí.
+
                     break;
 
                 case GameActionTypeEnum.MAP:
@@ -2175,11 +1790,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="actionType"></param>
-        /// <param name="args"></param>
         public override void AbortAction(GameActionTypeEnum actionType, params object[] args)
         {
             base.AbortAction(actionType, args);
@@ -2224,11 +1834,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="actionType"></param>
-        /// <param name="args"></param>
         public override void StopAction(GameActionTypeEnum actionType, params object[] args)
         {
             base.StopAction(actionType, args);
@@ -2290,11 +1895,6 @@ namespace Game.Entity
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="operation"></param>
-        /// <param name="message"></param>
         public override void SerializeAs_GameMapInformations(OperatorEnum operation, StringBuilder message)
         {
             switch (operation)
@@ -2314,7 +1914,7 @@ namespace Game.Entity
                         message.Append(CellId).Append(';');
                     }
 
-                    message.Append(Orientation).Append(';'); // Direction
+                    message.Append(Orientation).Append(';');
                     message.Append((int)Type).Append(';');
                     message.Append(Id).Append(';');
                     message.Append(Name).Append(';');
@@ -2323,7 +1923,7 @@ namespace Game.Entity
                     {
                         message.Append(',');
                         message.Append(TitleId).Append('*');
-                        message.Append(TitleParams);//  Goule de %1 = Goule de Tamere ?
+                        message.Append(TitleParams);
                     }
                     message.Append(';');
                     if (HasGameAction(GameActionTypeEnum.FIGHT))
@@ -2361,16 +1961,16 @@ namespace Game.Entity
                     if (HasGameAction(GameActionTypeEnum.MAP))
                     {
                         message.Append(Aura).Append(';');
-                        message.Append(m_lastEmoteId).Append(';'); // DisplayEmotes
-                        message.Append(360000).Append(';'); // EmotesTimer
+                        message.Append(m_lastEmoteId).Append(';');
+                        message.Append(360000).Append(';');
                         if (m_guildDisplayInfos != null && GuildMember.Guild.IsActive)
                         {
                             message.Append(m_guildDisplayInfos).Append(';');
                         }
                         else
                         {
-                            message.Append("").Append(';'); // GuildName
-                            message.Append("").Append(';'); // GuildEmblem
+                            message.Append("").Append(';');
+                            message.Append("").Append(';');
                         }
                         message.Append(Util.EncodeBase36(EntityRestriction)).Append(';');
                     }
@@ -2408,17 +2008,13 @@ namespace Game.Entity
                     }
                     else
                     {
-                        message.Append("").Append(';'); // MountLightInfos
+                        message.Append("").Append(';');
                     }
 
                     break;
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
         public void SerializeAs_PartyMemberInformations(StringBuilder message)
         {
             message.Append(Id).Append(';');
@@ -2433,13 +2029,9 @@ namespace Game.Entity
             message.Append(Level).Append(';');
             message.Append(Initiative).Append(';');
             message.Append(Prospection).Append(';');
-            message.Append(0); // 'Side' Wtf ?
+            message.Append(0);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
         public void SerializeAs_EnnemyInformations(string playerPseudo, StringBuilder message)
         {
             message.Append(';');
@@ -2460,10 +2052,10 @@ namespace Game.Entity
             }
             else
             {
-                message.Append("?;"); // fight state
-                message.Append(Name).Append(';'); // name
-                message.Append("?;"); // level
-                message.Append("-1;"); // align
+                message.Append("?;");
+                message.Append(Name).Append(';');
+                message.Append("?;");
+                message.Append("-1;");
             }
             if (GuildMember != null)
             {
@@ -2478,10 +2070,6 @@ namespace Game.Entity
             message.Append(SkinBase);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
         public void SerializeAs_FriendInformations(string playerPseudo, StringBuilder message)
         {
             message.Append(';');
@@ -2502,10 +2090,10 @@ namespace Game.Entity
             }
             else
             {
-                message.Append("?;"); // fight state
-                message.Append(Name).Append(';'); // name
-                message.Append("?;"); // level
-                message.Append("-1;"); // align
+                message.Append("?;");
+                message.Append(Name).Append(';');
+                message.Append("?;");
+                message.Append("-1;");
             }
             if (GuildMember != null && GuildMember.Guild != null)
             {
@@ -2520,9 +2108,6 @@ namespace Game.Entity
             message.Append(SkinBase);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override void Dispose()
         {
             GuildMember = null;

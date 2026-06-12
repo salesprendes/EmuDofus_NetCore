@@ -57,12 +57,7 @@ namespace Game.Fight.AI.Actions
 
             try
             {
-                m_path = context.Fight.Map?.Pathmaker?.FindPathAsString(
-                    context.Fighter.Cell.Id,
-                    targetCell,
-                    false,
-                    context.Fighter.MP,
-                    context.Fight.Obstacles) ?? string.Empty;
+                m_path = context.Fight.Map?.Pathmaker?.FindPathAsString(context.Fighter.Cell.Id, targetCell, false, context.Fighter.MP, context.Fight.Obstacles) ?? string.Empty;
             }
             catch
             {

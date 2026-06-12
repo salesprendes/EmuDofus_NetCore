@@ -1,4 +1,4 @@
-﻿using Game.Database.Structure;
+using Game.Database.Structure;
 using Game.Quest.Impl;
 using Protocolo.Framework.Generic.Logging;
 using System;

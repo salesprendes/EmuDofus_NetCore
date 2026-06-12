@@ -1,4 +1,4 @@
-﻿using Game.Spell;
+using Game.Spell;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,22 +7,14 @@ using System.Threading.Tasks;
 
 namespace Game.Fight.Effect.Type
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class ArmorEffect : AbstractSpellEffect
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="castInfos"></param>
-        /// <returns></returns>
         public override FightActionResultEnum ApplyEffect(CastInfos castInfos)
         {
             if (castInfos.Target == null)
                 return FightActionResultEnum.RESULT_NOTHING;
 
-            // Les buffs ne fonctionnent que sur les équipiés je crois
+
             switch (castInfos.SpellId)
             {
                 case 1:
@@ -46,12 +38,12 @@ namespace Game.Fight.Effect.Type
                     break;
             }
 
-            // Ajout du buff
+
             castInfos.Target.BuffManager.AddBuff(new ArmorBuff(castInfos, castInfos.Target));
 
             return FightActionResultEnum.RESULT_NOTHING;
         }
-    }    
+    }
 }
 
 

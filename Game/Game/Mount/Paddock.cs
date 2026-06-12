@@ -1,4 +1,4 @@
-﻿using Game.Database.Repository;
+using Game.Database.Repository;
 using Game.Database.Structure;
 using Game.Entity;
 using Game.Guild;
@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Game.Mount
 {
-    public sealed class Paddock 
+    public sealed class Paddock
     {
         public int MapId => m_record.MapId;
 
@@ -47,26 +47,22 @@ namespace Game.Mount
 
         private GuildInstance m_guild;
         private readonly PaddockDAO m_record;
-                  
+
         public Paddock(PaddockDAO record)
         {
             m_record = record;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
         public void SendInformations(AbstractEntity entity)
         {
             var guildName = string.Empty;
             var guildEmblem = string.Empty;
-            if(Guild != null)
+            if (Guild != null)
             {
                 guildName = Guild.Name;
                 guildEmblem = Guild.Emblem;
             }
-            // Map -2 to 0
+
             var guildId = GuildId == -2 ? 0 : GuildId;
             entity.Dispatch(WorldMessage.PADDOCK_INFORMATIONS(guildId, Price, MountPlace, ItemPlace, guildName, guildEmblem));
         }

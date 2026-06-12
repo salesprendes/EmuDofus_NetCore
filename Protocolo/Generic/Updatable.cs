@@ -4,9 +4,6 @@ using System.Collections.Generic;
 
 namespace Protocolo.Framework.Generic
 {
-    /// <summary>
-    ///
-    /// </summary>
     public abstract class Updatable : IDisposable
     {
         protected static ILogger Logger = LogManager.GetLogger(typeof(Updatable));
@@ -70,22 +67,12 @@ namespace Protocolo.Framework.Generic
 
         public void AddLinkedMessages(params System.Action[] messages)
         {
-            AddMessage(() =>
-            {
-                messages[0]();
-                if (messages.Length > 1)
-                    AddLinkedMessages(1, messages);
-            });
+            AddMessage(() => { messages[0](); if (messages.Length > 1) AddLinkedMessages(1, messages); });
         }
 
         public void AddLinkedMessages(int index = 0, params System.Action[] messages)
         {
-            AddMessage(() =>
-            {
-                messages[index]();
-                if (messages.Length > ++index)
-                    AddLinkedMessages(index, messages);
-            });
+            AddMessage(() => { messages[index](); if (messages.Length > ++index) AddLinkedMessages(index, messages); });
         }
 
         public UpdatableTimer AddTimer(int delay, Action callback, bool oneshot = false)
@@ -97,11 +84,7 @@ namespace Protocolo.Framework.Generic
 
         public void AddTimer(UpdatableTimer timer)
         {
-            AddMessage(() =>
-            {
-                timer.LastActivated = UpdateTime;
-                m_timerList.Add(timer);
-            });
+            AddMessage(() => { timer.LastActivated = UpdateTime; m_timerList.Add(timer); });
         }
 
         public void RemoveTimer(UpdatableTimer timer)
@@ -113,7 +96,7 @@ namespace Protocolo.Framework.Generic
         {
             UpdateTime += updateDelta;
 
-            // Plain for-loop avoids LINQ WhereListIterator allocation on every tick
+
             int timerCount = m_timerList.Count;
             for (int i = 0; i < timerCount; i++)
             {

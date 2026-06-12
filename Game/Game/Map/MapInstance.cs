@@ -1,4 +1,4 @@
-﻿using Game.Action;
+using Game.Action;
 using Game.Area;
 using Game.Database.Repository;
 using Game.Database.Structure;
@@ -18,21 +18,15 @@ using System.Threading;
 
 namespace Game.Map
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class MapInstance : MessageDispatcher, IMovementHandler, IDisposable
     {
-        /// <summary>
-        /// 
-        /// </summary>
         private static string HASH_CELL = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_";
 
         private const int DOOR_OPEN_MOVEMENT = 4;
         private const string CELL_MOVEMENT_MASK = "801";
         private const int MAP_SYNC_MOVEMENT_GRACE = 10000;
 
-        // O(1) map-cell char decode — built once, shared across all MapInstance objects
+
         private static readonly int[] s_hashCellIndex = BuildHashCellIndex();
         private static int[] BuildHashCellIndex()
         {
@@ -51,14 +45,8 @@ namespace Game.Map
         }
 
 
-        /// <summary>
-        /// 
-        /// </summary>
         private static long m_NextMonsterId;
 
-        /// <summary>
-        /// 
-        /// </summary>
         private sealed class DoorAnimationDefinition
         {
             public int CellId { get; private set; }
@@ -80,9 +68,6 @@ namespace Game.Map
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private sealed class DoorSwitchDefinition
         {
             public int DoorCellId { get; private set; }
@@ -104,29 +89,23 @@ namespace Game.Map
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private static readonly Dictionary<int, DoorAnimationDefinition[]> s_doorAnimationsByMap = new Dictionary<int, DoorAnimationDefinition[]>
         {
             { 736,   new[] { new DoorAnimationDefinition(224, 4700, 50000, 3700) } },
             { 8538,  new[] { new DoorAnimationDefinition(125, 4700, 25000, 3700) } },
             { 10352, new[] { new DoorAnimationDefinition(98,  3333, 30000, 3700) } },
-            // Pandala conquest gates (outer) — ForceOpen/ForceClose bypass timers; durations are irrelevant for conquest use
-            { 8214,  new[] { new DoorAnimationDefinition(403, 500, -1, 500), new DoorAnimationDefinition(373, 500, -1, 500) } }, // Akwadala gate (confirmed via packet)
-            { 7951,  new[] { new DoorAnimationDefinition(323, 500, -1, 500), new DoorAnimationDefinition(295, 500, -1, 500) } }, // Aerdala gate  (confirmed via packet)
-            { 7896,  new[] { new DoorAnimationDefinition(284, 500, -1, 500), new DoorAnimationDefinition(325, 500, -1, 500) } }, // Feudala gate  (TODO: verify cells)
-            { 8268,  new[] { new DoorAnimationDefinition(307, 500, -1, 500), new DoorAnimationDefinition(353, 500, -1, 500) } }, // Terrdala gate (TODO: verify cells)
-            // Pandala prism building doors (inner) — open when neutral, closed when conquered
-            { 8346,  new[] { new DoorAnimationDefinition(141, 500, -1, 500) } },                                                 // Feudala  inner (cell 141 → trigger at 156)
-            { 8076,  new[] { new DoorAnimationDefinition(106, 500, -1, 500), new DoorAnimationDefinition(108, 500, -1, 500) } }, // Terrdala inner (TODO: verify cells near trigger 122)
-            { 8137,  new[] { new DoorAnimationDefinition(270, 500, -1, 500) } },                                                 // Akwadala inner (cell 270 — confirmed via packet)
-            // { 8153, new[] { ... } },  // Aerdala  inner — door cell unknown, needs packet capture
+
+            { 8214,  new[] { new DoorAnimationDefinition(403, 500, -1, 500), new DoorAnimationDefinition(373, 500, -1, 500) } },
+            { 7951,  new[] { new DoorAnimationDefinition(323, 500, -1, 500), new DoorAnimationDefinition(295, 500, -1, 500) } },
+            { 7896,  new[] { new DoorAnimationDefinition(284, 500, -1, 500), new DoorAnimationDefinition(325, 500, -1, 500) } },
+            { 8268,  new[] { new DoorAnimationDefinition(307, 500, -1, 500), new DoorAnimationDefinition(353, 500, -1, 500) } },
+
+            { 8346,  new[] { new DoorAnimationDefinition(141, 500, -1, 500) } },
+            { 8076,  new[] { new DoorAnimationDefinition(106, 500, -1, 500), new DoorAnimationDefinition(108, 500, -1, 500) } },
+            { 8137,  new[] { new DoorAnimationDefinition(270, 500, -1, 500) } },
+
         };
 
-        /// <summary>
-        /// 
-        /// </summary>
         private static readonly Dictionary<int, DoorSwitchDefinition[]> s_doorSwitchesByMap = new Dictionary<int, DoorSwitchDefinition[]>
         {
             { 736, new[] { new DoorSwitchDefinition(224, new[] { 260 }, 1, 50000) } },
@@ -134,14 +113,8 @@ namespace Game.Map
             { 10352, new[] { new DoorSwitchDefinition(98, new[] { 299, 327, 355 }, 1, 30000) } },
         };
 
-        /// <summary>
-        /// 
-        /// </summary>
         private static long NextMonsterId => Interlocked.Decrement(ref m_NextMonsterId);
 
-        /// <summary>
-        /// 
-        /// </summary>
         public FieldTypeEnum FieldType => FieldTypeEnum.TYPE_MAP;
 
         public Pathmaker Pathmaker
@@ -150,117 +123,78 @@ namespace Game.Map
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public FightManager FightManager
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Id
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int SubAreaId
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int X
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Y
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Width
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Height
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public string Data
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public string DataKey
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public string CreateTime
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public List<int> FightTeam0Cells
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public List<int> FightTeam1Cells
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public SubAreaInstance SubArea
         {
             get
@@ -274,26 +208,14 @@ namespace Game.Map
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public IEnumerable<AbstractEntity> Entities => m_entityById.Values;
 
         public TaxCollectorEntity TaxCollector => m_taxCollector;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public IReadOnlyList<MapCell> Cells => m_cellsArray;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool CanAbortMovement => true;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int RandomTeleportCell
         {
             get
@@ -360,19 +282,10 @@ namespace Game.Map
             entity.CellId = cellId;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int PlayerCount => m_playerCount;
 
-        /// <summary>
-        /// True once InitializeOnFirstPlayerEnter has run (NPCs/monsters already seeded).
-        /// </summary>
         public bool IsInitialized => m_initialized;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public IEnumerable<InteractiveObject> InteractiveObjects => m_interactiveObjects;
 
         public Paddock Paddock => m_paddock;
@@ -387,9 +300,6 @@ namespace Game.Map
             return null;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         private Dictionary<long, AbstractEntity> m_entityById;
         private Dictionary<string, AbstractEntity> m_entityByName;
         private Dictionary<int, AnimatedDoor> m_animatedDoorByCellId;
@@ -413,18 +323,6 @@ namespace Game.Map
         private ConquestPrismEntity m_conquestPrism;
         private HashSet<int> m_occupiedCells;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="subArea"></param>
-        /// <param name="id"></param>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <param name="width"></param>
-        /// <param name="height"></param>
-        /// <param name="data"></param>
-        /// <param name="dataKey"></param>
-        /// <param name="createTime"></param>
         public MapInstance(int subAreaId, int id, int x, int y, int width, int height, string data, string dataKey, string createTime, List<int> f0teamCells, List<int> f1teamCells, bool subInstance = false)
         {
             Id = id;
@@ -458,23 +356,20 @@ namespace Game.Map
 
             if (!m_subInstance)
             {
-                // Main maps: full broadcast + monster spawns
+
                 SubArea.SafeAddHandler(base.Dispatch);
                 SpawnManager.Instance.RegisterMap(this);
             }
-            // Sub-instances are isolated: no cross-map broadcast, spawns registered by MapManager
+
 
             Initialize();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private void Initialize()
         {
             var triggers = MapTriggerRepository.Instance.GetTriggers(Id);
 
-            // Pre-index triggers by CellId for O(1) lookup instead of O(n) Find per cell
+
             Dictionary<int, MapTriggerDAO> triggerByCellId = null;
             if (triggers.Count > 0)
             {
@@ -492,9 +387,9 @@ namespace Game.Map
             m_cellsArray = new MapCell[cellCount];
             var walkableIds = new List<int>();
 
-            // Temp buffer of raw decoded bytes — kept only during Initialize() to pre-encode
-            // door cell strings. Discarded after InitializeDoorAnimations(). The 10 raw bytes
-            // per cell are no longer retained in MapCell itself.
+
+
+
             var rawBytes = new byte[cellCount * 10];
             var cellData = new byte[10];
 
@@ -532,8 +427,8 @@ namespace Game.Map
 
             InitializeDoorAnimations();
 
-            // Pre-encode closed/open strings for every animated door cell.
-            // Only these cells ever need EncodeData; all others no longer store raw bytes.
+
+
             if (m_animatedDoorByCellId.Count > 0)
             {
                 m_doorCellEncodings = new Dictionary<int, (string closed, string open)>(m_animatedDoorByCellId.Count);
@@ -545,7 +440,7 @@ namespace Game.Map
                     }
                 }
             }
-            // rawBytes goes out of scope here and is collected by GC
+
 
             Pathmaker = new Pathmaker(this);
         }
@@ -558,7 +453,7 @@ namespace Game.Map
                 chars[i] = HASH_CELL[raw[offset + i]];
             }
 
-            return new string(chars);
+            return new string (chars);
         }
 
         private static string EncodeCellBytesWithMovement(byte[] raw, int offset, int movement)
@@ -569,12 +464,9 @@ namespace Game.Map
                 chars[i] = HASH_CELL[i == 2 ? (byte)((raw[offset + 2] & ~56) | ((movement & 7) << 3)) : raw[offset + i]];
             }
 
-            return new string(chars);
+            return new string (chars);
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         private void InitializeDoorAnimations()
         {
             DoorAnimationDefinition[] definitions;
@@ -601,10 +493,6 @@ namespace Game.Map
             return new MapInstance(SubAreaId, Id, X, Y, Width, Height, Data, DataKey, CreateTime, FightTeam0Cells, FightTeam1Cells, true);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="spawnQueue"></param>
         public void SetSpawnQueue(SpawnQueue spawnQueue)
         {
             m_spawnQueue = spawnQueue;
@@ -641,9 +529,6 @@ namespace Game.Map
             InitEntitiesMovements();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private void InitNpcsSpawn()
         {
             foreach (var npc in NpcManager.Instance.GetByMapId(Id))
@@ -660,13 +545,11 @@ namespace Game.Map
             }
 
             var area = SubArea.Area;
-            return area != null
-                && ConquestManager.IsVillageArea(area.Id)
-                && !ConquestManager.Instance.IsVillageAreaConquered(area.Id);
+            return area != null && ConquestManager.IsVillageArea(area.Id) && !ConquestManager.Instance.IsVillageAreaConquered(area.Id);
         }
 
-        // Opens animated doors when the city is neutral, closes them when conquered.
-        // Called on first player enter and whenever territory state changes.
+
+
         private void UpdateConquestDoors()
         {
             if (m_animatedDoorByCellId.Count == 0)
@@ -732,19 +615,9 @@ namespace Game.Map
 
         public void ScheduleConquestDoorUpdate()
         {
-            AddMessage(() =>
-            {
-                UpdateConquestDoors();
-                if (m_initialized)
-                {
-                    UpdateConquestPrism();
-                }
-            });
+            AddMessage(() => { UpdateConquestDoors(); if (m_initialized) { UpdateConquestPrism(); } });
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         private void InitMonstersSpawn()
         {
             m_monsters = new List<MonsterSpawnDAO>(MonsterSpawnRepository.Instance.GetById(ZoneTypeEnum.TYPE_MAP, Id).OrderByDescending(spawn => spawn.Probability));
@@ -760,9 +633,6 @@ namespace Game.Map
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private void InitEntitiesMovements()
         {
             AddTimer(5000, ProcessEntitiesMovements);
@@ -955,12 +825,6 @@ namespace Game.Map
             return null;
         }
 
-        /// <summary>
-        /// Schedules a new monster group to appear after a random delay (win-case repop).
-        /// The timer fires on the map's own update loop so it survives fight disposal.
-        /// Spawning is skipped if the map is empty, has no monster data, or already
-        /// reached the group cap — in those cases the normal SpawnQueue will fill the slot.
-        /// </summary>
         public void ScheduleRepop(int excludedCell)
         {
             var delay = Util.Next(WorldConfig.MONSTER_REPOP_DELAY_MIN, WorldConfig.MONSTER_REPOP_DELAY_MAX);
@@ -998,7 +862,7 @@ namespace Game.Map
 
             var maxAggressionRange = spawns.Max(spawn => spawn.Grade.Template.AggressionRange);
 
-            // Pass 0 avoids cells within aggro range of an active fighter; pass 1 accepts any free cell.
+
             for (int pass = 0; pass < 2; pass++)
             {
                 var avoidActiveFightAggro = pass == 0;
@@ -1066,7 +930,7 @@ namespace Game.Map
                     m_entityById.Add(entity.Id, entity);
                     m_occupiedCells.Add(entity.CellId);
 
-                    // Maintain pre-built lists so hot paths skip LINQ
+
                     if (entity.CanBeMoved())
                     {
                         m_moveableEntities.Add(entity);
@@ -1096,7 +960,7 @@ namespace Game.Map
                         m_conquestPrism = cp;
                     }
 
-                    if (m_subInstance) // For npc etc
+                    if (m_subInstance)
                     {
                         entity.SetMap(this);
                     }
@@ -1111,7 +975,7 @@ namespace Game.Map
                         m_playerCount++;
                         m_entityByName.Add(entity.Name.ToLower(), entity);
 
-                        // First player entering a dormant map: stagger entity move times
+
                         if (m_playerCount == 1)
                         {
                             DelayEntityMovements(false);
@@ -1130,17 +994,13 @@ namespace Game.Map
             });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
         public void SendAllInformations(AbstractEntity entity)
         {
             entity.CachedBuffer = true;
 
             DelayEntityMovements(true);
 
-            // Before showing up we span all required base entities
+
             SendMapInformations(entity);
             SendInteractiveData(entity);
             SendPaddockInformations(entity);
@@ -1148,17 +1008,13 @@ namespace Game.Map
             entity.Dispatch(WorldMessage.GAME_DATA_SUCCESS());
             SendAnimatedDoorRuntimeStates(entity);
 
-            // Sub data that arent necessary to be instantly shown
+
             SendFightCount(entity);
             SendFightsInformations(entity);
 
             entity.CachedBuffer = false;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
         public void SendFightsInformations(AbstractEntity entity)
         {
             foreach (var fight in FightManager.Fights)
@@ -1167,33 +1023,17 @@ namespace Game.Map
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
         public void SendFightCount(AbstractEntity entity)
-            => entity.Dispatch(WorldMessage.FIGHT_COUNT(FightManager.FightCount));
+    => entity.Dispatch(WorldMessage.FIGHT_COUNT(FightManager.FightCount));
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
         public void SendMapInformations(AbstractEntity entity)
-            => entity.Dispatch(WorldMessage.GAME_MAP_INFORMATIONS(OperatorEnum.OPERATOR_ADD, Entities.ToArray()));
+    => entity.Dispatch(WorldMessage.GAME_MAP_INFORMATIONS(OperatorEnum.OPERATOR_ADD, Entities.ToArray()));
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
         public void SendInteractiveData(AbstractEntity entity)
         {
             entity.Dispatch(WorldMessage.INTERACTIVE_DATA_FRAME(m_interactiveObjects));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
         private void SendAnimatedDoorRuntimeStates(AbstractEntity entity)
         {
             foreach (var door in m_animatedDoorByCellId.Values)
@@ -1216,10 +1056,6 @@ namespace Game.Map
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
         public void SendPaddockInformations(AbstractEntity entity)
         {
             if (m_paddock != null)
@@ -1241,10 +1077,6 @@ namespace Game.Map
                     house.SendInformationsTo(character);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
         public void DestroyEntity(AbstractEntity entity)
         {
             if (m_entityById.ContainsKey(entity.Id))
@@ -1252,7 +1084,7 @@ namespace Game.Map
                 m_entityById.Remove(entity.Id);
                 m_occupiedCells.Remove(entity.CellId);
 
-                // Keep pre-built lists in sync
+
                 if (entity.CanBeMoved())
                 {
                     m_moveableEntities.Remove(entity);
@@ -1283,7 +1115,7 @@ namespace Game.Map
                     m_entityByName.Remove(entity.Name.ToLower());
                     m_playerCount--;
 
-                    // Multiple instance released
+
                     if (m_playerCount == 0 && m_subInstance)
                     {
                         MapManager.Instance.ReleaseInstance(this);
@@ -1339,8 +1171,8 @@ namespace Game.Map
                 return false;
             }
 
-            var job = character.CharacterJobs.GetJob(skill.Id);
-            if (job == null || job.JobId != (int)JobIdEnum.JOB_PECHEUR)
+            var jobId = character.CharacterJobs.GetJobId(skill.Id);
+            if (jobId != (int)JobIdEnum.JOB_PECHEUR)
             {
                 return false;
             }
@@ -1382,13 +1214,6 @@ namespace Game.Map
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="cellId"></param>
-        /// <param name="path"></param>
-        /// <returns></returns>
         public MovementPath DecodeMovement(AbstractEntity entity, int cellId, string path)
         {
             return Pathfinding.IsValidPath(entity, this, cellId, path);
@@ -1485,8 +1310,8 @@ namespace Game.Map
             for (int i = 0; i < m_monsterGroups.Count; i++)
             {
                 var mg = m_monsterGroups[i];
-                // range=0 monsters are passive: they fight when stepped on (MovementFinish)
-                // but do not block movement from adjacent or same cell via IsValidLine.
+
+
                 if (mg.AggressionRange > 0 && CanBeAggro(character, cellId, mg))
                     return true;
             }
@@ -1524,11 +1349,6 @@ namespace Game.Map
             return false;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="cellId"></param>
-        /// <returns></returns>
         private int OpenDoorForPassage(int cellId)
         {
             AnimatedDoor door;
@@ -1540,12 +1360,6 @@ namespace Game.Map
             return door.OpenTemporarily();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="cell"></param>
-        /// <param name="cellId"></param>
         private void ApplyTriggerActions(CharacterEntity character, MapCell cell, int cellId)
         {
             var delay = OpenDoorForPassage(cellId);
@@ -1555,20 +1369,9 @@ namespace Game.Map
                 return;
             }
 
-            AddTimer(delay, () =>
-            {
-                if (character.MapId == Id && character.CellId == cellId)
-                {
-                    cell.ApplyActions(character);
-                }
-            }, true);
+            AddTimer(delay, () => { if (character.MapId == Id && character.CellId == cellId) { cell.ApplyActions(character); } }, true);
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="cellId"></param>
         private void TryOpenDoorSwitch(CharacterEntity character, int cellId)
         {
             DoorSwitchDefinition[] definitions;
@@ -1592,11 +1395,6 @@ namespace Game.Map
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="cellIds"></param>
-        /// <returns></returns>
         private int CountOccupiedSwitchCells(int[] cellIds)
         {
             var count = 0;
@@ -1610,12 +1408,6 @@ namespace Game.Map
             return count;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="path"></param>
-        /// <param name="cellId"></param>
         public void MovementFinish(AbstractEntity entity, MovementPath path, int cellId)
         {
             if (entity.CellId == cellId)
@@ -1673,7 +1465,7 @@ namespace Game.Map
         {
             Data = null;
         }
-        
+
         public new void Dispose()
         {
             SubArea.RemoveUpdatable(this);

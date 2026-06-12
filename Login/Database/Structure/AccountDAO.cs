@@ -2,9 +2,6 @@ using System;
 using Protocolo.Framework.Database;
 namespace Login.Database.Structure
 {
-    /// <summary>
-    /// 
-    /// </summary>
     [Table("account")]
     public sealed class AccountDAO : DataAccessObject<AccountDAO>
     {
@@ -21,9 +18,6 @@ namespace Login.Database.Structure
         private string _question;
 
 
-        /// <summary>
-        /// 
-        /// </summary>
         [Key]
         public long Id
         {
@@ -31,90 +25,60 @@ namespace Login.Database.Structure
             set => SetProperty(ref _id, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public string Name
         {
             get => _name;
             set => SetProperty(ref _name, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public string Pseudo
         {
             get => _pseudo;
             set => SetProperty(ref _pseudo, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public string Password
         {
             get => _password;
             set => SetProperty(ref _password, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Power
         {
             get => _power;
             set => SetProperty(ref _power, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public DateTime CreationDate
         {
             get => _creationDate;
             set => SetProperty(ref _creationDate, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public DateTime LastConnectionDate
         {
             get => _lastConnectionDate;
             set => SetProperty(ref _lastConnectionDate, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public string LastConnectionIP
         {
             get => _lastConnectionIP;
             set => SetProperty(ref _lastConnectionIP, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public DateTime RemainingSubscription
         {
             get => _remainingSubscription;
             set => SetProperty(ref _remainingSubscription, value);
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public bool Banned
         {
             get => _banned;
             set => SetProperty(ref _banned, value);
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public string Question
         {
             get => _question;

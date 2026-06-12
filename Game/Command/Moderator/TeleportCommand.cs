@@ -6,10 +6,7 @@ namespace Game.Command
 {
     public sealed class TeleportCommand : WorldStaffCommand
     {
-        private readonly string[] _aliases =
-        {
-            "tele", "teleport", "go"
-        };
+        private readonly string[] _aliases = { "tele", "teleport", "go" };
 
         public override string[] Aliases => _aliases;
         public override string Description => "Te teletransporta a un mapa y celda concretos. Uso: %mapId% %cellId%";

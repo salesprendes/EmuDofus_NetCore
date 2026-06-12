@@ -13,10 +13,6 @@ namespace Game.Fight.AI.Core
 
         public AIFighter Fighter { get; private set; }
 
-        /// <summary>
-        /// Acción actualmente en ejecución dentro de la cadena del turno.
-        /// <see cref="OnUpdate"/> avanza al siguiente eslabón cuando <see cref="AIActionBase.IsFinished"/>.
-        /// </summary>
         public AIActionBase CurrentAction { get; protected set; }
 
         protected AIBrain(AIFighter fighter)
@@ -40,7 +36,7 @@ namespace Game.Fight.AI.Core
                     return;
                 }
 
-                // Resetear el historial de uso por tipo del turno anterior
+
                 m_memory.BeginTurn();
 
                 var context = new AIContext(Fighter, m_memory);
@@ -124,21 +120,18 @@ namespace Game.Fight.AI.Core
                 + " Motivo=" + decision.Reason);
         }
 
-        /// <summary>
-        /// Mapea el tipo de decisión a la fase semántica del turno correspondiente.
-        /// </summary>
         private static AITurnPhase DecisionTypeToPhase(AIDecisionType type)
         {
             switch (type)
             {
-                case AIDecisionType.Heal:      return AITurnPhase.Heal;
-                case AIDecisionType.Summon:    return AITurnPhase.Summon;
-                case AIDecisionType.Buff:      return AITurnPhase.Buff;
-                case AIDecisionType.Debuff:    return AITurnPhase.Debuff;
+                case AIDecisionType.Heal: return AITurnPhase.Heal;
+                case AIDecisionType.Summon: return AITurnPhase.Summon;
+                case AIDecisionType.Buff: return AITurnPhase.Buff;
+                case AIDecisionType.Debuff: return AITurnPhase.Debuff;
                 case AIDecisionType.CastSpell: return AITurnPhase.Attack;
-                case AIDecisionType.Move:      return AITurnPhase.Move;
-                case AIDecisionType.EndTurn:   return AITurnPhase.End;
-                default:                       return AITurnPhase.Start;
+                case AIDecisionType.Move: return AITurnPhase.Move;
+                case AIDecisionType.EndTurn: return AITurnPhase.End;
+                default: return AITurnPhase.Start;
             }
         }
 
@@ -182,12 +175,7 @@ namespace Game.Fight.AI.Core
 
         private bool CanThink()
         {
-            return Fighter != null
-                && Fighter.Fight != null
-                && Fighter.Team != null
-                && Fighter.Cell != null
-                && !Fighter.IsFighterDead
-                && Fighter.Fight.CurrentFighter == Fighter;
+            return Fighter != null && Fighter.Fight != null && Fighter.Team != null && Fighter.Cell != null && !Fighter.IsFighterDead && Fighter.Fight.CurrentFighter == Fighter;
         }
     }
 }

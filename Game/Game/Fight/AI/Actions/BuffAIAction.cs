@@ -25,30 +25,24 @@ namespace Game.Fight.AI.Actions
 
             var spell = GetSpell(context);
 
-            // Guarda 1 — estado ya activo (AddState):
-            // El motor lo rechaza silenciosamente en FighterStateManager.AddState si HasState()
-            // devuelve true, así que nos ahorramos el PA sin lanzar el hechizo.
+
+
+
             if (spell != null && WouldRecastActiveState(spell, target))
                 return false;
 
-            // Guarda 2 — buff del mismo hechizo ya activo en el objetivo:
-            // BuffManager.GetAllBuffs() expone todos los buffs activos; comparamos por SpellId.
-            // Evita desperdiciar PA re-buffando cuando la aplicación anterior aún no ha expirado
-            // (p. ej. re-lanzar AddAP cuando el buff de AP actual todavía tiene turnos restantes).
+
+
+
+
             if (Decision.SpellId.HasValue && HasActiveBuffFromSpell(target, Decision.SpellId.Value))
                 return false;
 
             return true;
         }
 
-        // ─── Helpers ───────────────────────────────────────────────────────────────
 
-        /// <summary>
-        /// Devuelve true si algún efecto del hechizo aplica un estado (EffectEnum.AddState = 950)
-        /// que el objetivo ya tiene activo en su StateManager.
-        /// Implementa la misma lógica que <c>BuffEvaluator.WouldRecastActiveState</c> para que
-        /// la acción y el evaluador sean consistentes.
-        /// </summary>
+
         private static bool WouldRecastActiveState(SpellLevel spell, AbstractFighter target)
         {
             if (spell?.Effects == null || target?.StateManager == null)
@@ -67,11 +61,6 @@ namespace Game.Fight.AI.Actions
             return false;
         }
 
-        /// <summary>
-        /// Devuelve true si el objetivo ya tiene algún buff activo originado por el mismo hechizo.
-        /// Se apoya en <see cref="BuffEffectManager.GetAllBuffs"/> y compara
-        /// <c>buff.CastInfos.SpellId</c> para detectar re-lanzamientos redundantes.
-        /// </summary>
         private static bool HasActiveBuffFromSpell(AbstractFighter target, int spellId)
         {
             if (target?.BuffManager == null)

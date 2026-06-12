@@ -2,10 +2,7 @@ namespace Game.Command
 {
     public sealed class AlignmentResetCommand : WorldStaffCommand
     {
-        private readonly string[] _aliases =
-        {
-            "resetalineamiento", "alignmentreset"
-        };
+        private readonly string[] _aliases = { "resetalineamiento", "alignmentreset" };
 
         public override string[] Aliases => _aliases;
 

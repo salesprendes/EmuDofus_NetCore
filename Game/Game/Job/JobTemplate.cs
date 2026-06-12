@@ -1,18 +1,11 @@
-﻿using Game.Database.Structure;
+using Game.Database.Structure;
 using Game.Entity;
-using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.Job
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public enum JobIdEnum
     {
         JOB_NONE = 0,
@@ -57,9 +50,6 @@ namespace Game.Job
         JOB_COUPE = 72,
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public enum SkillIdEnum
     {
         SKILL_ACCEDER = 175,
@@ -216,39 +206,22 @@ namespace Game.Job
         SKILL_USE_PHOENIX = 300,
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class JobTemplate
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public JobIdEnum Id
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public JobIdEnum ParentJobId
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private List<JobSkill> m_skills;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="parent"></param>
         public JobTemplate(JobIdEnum id, JobIdEnum parentId = JobIdEnum.JOB_NONE, params JobSkill[] skills)
         {
             Id = id;
@@ -256,64 +229,24 @@ namespace Game.Job
             m_skills = new List<JobSkill>(skills);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        public bool HasSkill(CharacterEntity character, int id, int level)
-        {
-            return m_skills.Any(skill => (int)skill.Id == id && skill.Usable(character, level));
-        }
+        public bool HasSkill(CharacterEntity character, int id, int level) => m_skills.Any(skill => (int)skill.Id == id && skill.Usable(character, level));
+        public JobSkill GetSkill(CharacterEntity character, int id, int level) => m_skills.Find(skill => (int)skill.Id == id && skill.Usable(character, level));
+        public bool HasSkill(CharacterEntity character, SkillIdEnum id, int level) => HasSkill(character, (int)id, level);
+        public bool HasTool(int templateId) => m_skills.Any(skill => skill.Tools.Contains(templateId));
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="id"></param>
-        /// <param name="level"></param>
-        /// <returns></returns>
-        public JobSkill GetSkill(CharacterEntity character, int id, int level)
-        {
-            return m_skills.Find(skill => (int)skill.Id == id && skill.Usable(character, level));
-        }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        public bool HasSkill(CharacterEntity character, SkillIdEnum id, int level)
-        {
-            return HasSkill(character, (int)id, level);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="templateId"></param>
-        /// <returns></returns>
-        public bool HasTool(int templateId)
-        {
-            return m_skills.Any(skill => skill.Tools.Contains(templateId));
-        }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
-        public void SerializeAs_SkillListMessage(CharacterJobDAO job, StringBuilder message)
+        public void SerializeAs_SkillListMessage(int jobLevel, StringBuilder message)
         {
             message.Append((int)Id).Append(';');
-            foreach(var skill in m_skills)
+            foreach (var skill in m_skills)
             {
-                if(skill.RequiredLevel <= job.Level)
+                if (skill.RequiredLevel <= jobLevel)
                 {
-                    skill.SerializeAs_SkillListMessage(job, message);
+                    skill.SerializeAs_SkillListMessage(jobLevel, message);
                     message.Append(',');
                 }
             }
-            if(m_skills.Count > 0)
+            if (m_skills.Count > 0)
                 message.Remove(message.Length - 1, 1);
             message.Append('|');
         }

@@ -1,4 +1,4 @@
-﻿using Game.Spell;
+using Game.Spell;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,20 +7,12 @@ using System.Threading.Tasks;
 
 namespace Game.Fight.Effect.Type
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class ActivableObjectEffect : AbstractSpellEffect
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="castInfos"></param>
-        /// <returns></returns>
         public override FightActionResultEnum ApplyEffect(CastInfos castInfos)
         {
             AbstractActivableObject obj = null;
-            switch(castInfos.EffectType)
+            switch (castInfos.EffectType)
             {
                 case EffectEnum.UseGlyph:
                     if (castInfos.Caster.Fight.HasObjectOnCell(FightObstacleTypeEnum.TYPE_FIGHTER, castInfos.CellId))
@@ -35,7 +27,7 @@ namespace Game.Fight.Effect.Type
                     break;
             }
 
-            if(obj != null)
+            if (obj != null)
                 castInfos.Caster.Fight.AddActivableObject(castInfos.Caster, obj);
 
             return FightActionResultEnum.RESULT_NOTHING;

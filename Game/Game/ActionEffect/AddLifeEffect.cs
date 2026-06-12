@@ -1,4 +1,4 @@
-﻿using Game.Database.Structure;
+using Game.Database.Structure;
 using Game.Entity;
 using Game.Network;
 using Game.Stats;
@@ -6,22 +6,10 @@ using System.Collections.Generic;
 
 namespace Game.ActionEffect
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class AddLifeEffect : AbstractActionEffect<AddLifeEffect>
     {
         const int EMOTE_EAT_REST = 17;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="item"></param>
-        /// <param name="effect"></param>
-        /// <param name="targetId"></param>
-        /// <param name="targetCell"></param>
-        /// <returns></returns>
         public override bool ProcessItem(CharacterEntity character, ItemDAO item, GenericEffect effect, long targetId, int targetCell)
         {
             if (targetId != -1)
@@ -44,12 +32,6 @@ namespace Game.ActionEffect
             return Process(character, new Dictionary<string, string> { { "life", effect.RandomJet.ToString() } });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="parameters"></param>
-        /// <returns></returns>
         public override bool Process(CharacterEntity character, Dictionary<string, string> parameters)
         {
             if (character.Life == character.MaxLife)

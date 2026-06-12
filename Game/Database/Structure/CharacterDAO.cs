@@ -8,10 +8,7 @@ using Game.Entity;
 using Game.Spell;
 
 namespace Game.Database.Structure
-{ 
-    /// <summary>
-    /// 
-    /// </summary>
+{
     public enum CharacterBreedEnum : byte
     {
         BREED_FECA = 1,
@@ -28,9 +25,6 @@ namespace Game.Database.Structure
         BREED_PANDAWA = 12,
     }
 
-    /// <summary>
-    /// 
-    /// </summary>    
     [Table("characterinstance")]
     public sealed class CharacterDAO : DataAccessObject<CharacterDAO>
     {
@@ -79,12 +73,10 @@ namespace Game.Database.Structure
         private int _alignmentDishonour;
         private bool _alignmentEnabled;
         private string _zaaps;
+        private string _jobs;
         private DateTime _disconnectedAt;
 
 
-        /// <summary>
-        ///
-        /// </summary>
         [Key]
         public long Id
         {
@@ -98,197 +90,131 @@ namespace Game.Database.Structure
             set => SetProperty(ref _serverId, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public string Name
         {
             get => _name;
             set => SetProperty(ref _name, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public byte Breed
         {
             get => _breed;
             set => SetProperty(ref _breed, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Color1
         {
             get => _color1;
             set => SetProperty(ref _color1, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Color2
         {
             get => _color2;
             set => SetProperty(ref _color2, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Color3
         {
             get => _color3;
             set => SetProperty(ref _color3, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Skin
         {
             get => _skin;
             set => SetProperty(ref _skin, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int SkinSize
         {
             get => _skinSize;
             set => SetProperty(ref _skinSize, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Vitality
         {
             get => _vitality;
             set => SetProperty(ref _vitality, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Wisdom
         {
             get => _wisdom;
             set => SetProperty(ref _wisdom, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Strength
         {
             get => _strength;
             set => SetProperty(ref _strength, value);
         }
-        /// <summary>
-        /// 
-        /// </summary>
         public int Intelligence
         {
             get => _intelligence;
             set => SetProperty(ref _intelligence, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Agility
         {
             get => _agility;
             set => SetProperty(ref _agility, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Chance
         {
             get => _chance;
             set => SetProperty(ref _chance, value);
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public int Life
         {
             get => _life;
             set => SetProperty(ref _life, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Energy
         {
             get => _energy;
             set => SetProperty(ref _energy, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int SpellPoint
         {
             get => _spellPoint;
             set => SetProperty(ref _spellPoint, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int CaracPoint
         {
             get => _caracPoint;
             set => SetProperty(ref _caracPoint, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int MapId
         {
             get => _mapId;
             set => SetProperty(ref _mapId, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int CellId
         {
             get => _cellId;
             set => SetProperty(ref _cellId, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Restriction
         {
             get => _restriction;
             set => SetProperty(ref _restriction, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long Experience
         {
             get => _experience;
             set => SetProperty(ref _experience, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long AccountId
         {
             get => _accountId;
@@ -296,9 +222,6 @@ namespace Game.Database.Structure
         }
 
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool Dead
         {
             get => _dead;
@@ -306,9 +229,6 @@ namespace Game.Database.Structure
         }
 
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int MaxLevel
         {
             get => _maxLevel;
@@ -316,108 +236,72 @@ namespace Game.Database.Structure
         }
 
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int DeathCount
         {
             get => _deathCount;
             set => SetProperty(ref _deathCount, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Level
         {
             get => _level;
             set => SetProperty(ref _level, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool Sex
         {
             get => _sex;
             set => SetProperty(ref _sex, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long Kamas
         {
             get => _kamas;
             set => SetProperty(ref _kamas, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int SavedMapId
         {
             get => _savedMapId;
             set => SetProperty(ref _savedMapId, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int SavedCellId
         {
             get => _savedCellId;
             set => SetProperty(ref _savedCellId, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool Merchant
         {
             get => _merchant;
             set => SetProperty(ref _merchant, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int TitleId
         {
             get => _titleId;
             set => SetProperty(ref _titleId, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public string TitleParams
         {
             get => _titleParams;
             set => SetProperty(ref _titleParams, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int EmoteCapacity
         {
             get => _emoteCapacity;
             set => SetProperty(ref _emoteCapacity, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int DeathType
         {
             get => _deathType;
             set => SetProperty(ref _deathType, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int EquippedMount
         {
             get => _equippedMount;
@@ -466,6 +350,12 @@ namespace Game.Database.Structure
             set => SetProperty(ref _zaaps, value);
         }
 
+        public string Jobs
+        {
+            get => _jobs;
+            set => SetProperty(ref _jobs, value);
+        }
+
         public DateTime DisconnectedAt
         {
             get => _disconnectedAt;
@@ -477,8 +367,7 @@ namespace Game.Database.Structure
         private CharacterGuildDAO m_guild;
         private List<CharacterQuestDAO> m_quests = new List<CharacterQuestDAO>();
 
-        [Write(false)]
-        public List<CharacterQuestDAO> Quests => m_quests;
+        [Write(false)] public List<CharacterQuestDAO> Quests => m_quests;
 
         public void AddQuest(CharacterQuestDAO quest)
         {
@@ -518,9 +407,6 @@ namespace Game.Database.Structure
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         [Write(false)]
         public CharacterGuildDAO Guild
         {
@@ -537,19 +423,14 @@ namespace Game.Database.Structure
             if (string.IsNullOrWhiteSpace(Zaaps))
                 return new List<int>();
 
-            return Zaaps
-                .Split(',')
-                .Select(value => int.TryParse(value, out var mapId) ? mapId : -1)
-                .Where(mapId => mapId > 0)
-                .Distinct()
-                .ToList();
+            return Zaaps.Split(',').Select(value => int.TryParse(value, out var mapId) ? mapId : -1).Where(mapId => mapId > 0).Distinct().ToList();
         }
 
         public void SetWaypoints(IEnumerable<int> waypoints)
         {
             Zaaps = string.Join(",", waypoints.Distinct());
         }
-           
+
         private static int GetLivingEffectValue(ItemDAO item, EffectEnum effect, int defaultValue = 0)
         {
             if (item == null || !item.Statistics.HasEffect(effect))
@@ -572,10 +453,6 @@ namespace Game.Database.Structure
             message.Append(item.TemplateId.ToString("x"));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
         public void SerializeAs_ActorLookMessage(StringBuilder message)
         {
             var items = new List<ItemDAO>(InventoryItemRepository.Instance.GetByOwner((int)EntityTypeEnum.TYPE_CHARACTER, Id));

@@ -26,8 +26,7 @@ namespace Game.Database.Structure
             set => SetProperty(ref _description, value);
         }
 
-        [Write(false)]
-        public List<QuestStepDAO> Steps { get; } = new List<QuestStepDAO>();
+        [Write(false)] public List<QuestStepDAO> Steps { get; } = new List<QuestStepDAO>();
     }
 }
 

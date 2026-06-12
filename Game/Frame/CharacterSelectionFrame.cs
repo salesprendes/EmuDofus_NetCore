@@ -1,4 +1,4 @@
-﻿using Game.Database.Repository;
+using Game.Database.Repository;
 using Game.Database.Structure;
 using Game.Entity;
 using Game.Manager;
@@ -30,25 +30,25 @@ namespace Game.Frame
                         case 'L':
                             return HandleCharacterList;
 
-                        case 'A': // create
+                        case 'A':
                             return HandleCharacterCreate;
 
-                        case 'S': // select
+                        case 'S':
                             return HandleCharacterSelect;
 
-                        case 'D': // delete
+                        case 'D':
                             return HandleCharacterDelete;
 
-                        case 'P': // generatename
+                        case 'P':
                             return HandleCharacterNameGenerate;
 
-                        case 'R': // reset ( dead char )
+                        case 'R':
                             return HandleCharacterReset;
 
-                        case 'g': // request pending gifts
+                        case 'g':
                             return HandleGiftList;
 
-                        case 'G': // attribute gift to character
+                        case 'G':
                             return HandleGiftAttribute;
 
                         default:
@@ -183,14 +183,14 @@ namespace Game.Frame
                         Id = CharacterRepository.Instance.NextCharacterId,
                         ServerId = WorldConfig.GAME_ID,
 
-                        // global
+
                         AccountId = client.Account.Id,
                         Name = name,
                         Experience = 0,
                         Level = WorldConfig.CHARACTER_CREATION_LEVEL,
                         MaxLevel = WorldConfig.CHARACTER_CREATION_LEVEL,
 
-                        // stats
+
                         Chance = 0,
                         Intelligence = 0,
                         Agility = 0,
@@ -200,23 +200,23 @@ namespace Game.Frame
                         CaracPoint = 0,
                         SpellPoint = 0,
 
-                        // emotes
+
                         EmoteCapacity = WorldConfig.CHARACTER_CREATION_EMOTE_CAPACITY,
 
-                        // life status
+
                         Life = WorldConfig.CHARACTER_CREATION_LIFE,
                         Dead = false,
                         DeathCount = 0,
                         Energy = 10000,
 
-                        // position
+
                         MapId = WorldConfig.GetStartMap((CharacterBreedEnum)breed),
                         CellId = WorldConfig.GetStartCell((CharacterBreedEnum)breed),
 
-                        // restricts
+
                         Restriction = (int)PlayerRestrictionEnum.RESTRICTION_NEW_CHARACTER,
 
-                        // skin and color, 
+
                         Breed = breed,
                         Color1 = color1,
                         Color2 = color2,
@@ -238,20 +238,13 @@ namespace Game.Frame
                         AlignmentDishonour = 0,
                         AlignmentEnabled = false,
                         Zaaps = "",
+                        Jobs = "",
                     };
 
-                    WorldService.Instance.AddMessage(() =>
-                    {
-                        CharacterCreateExecute(client, character);
-                    });
+                    WorldService.Instance.AddMessage(() => { CharacterCreateExecute(client, character); });
                 });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="client"></param>
-        /// <param name="record"></param>
         private void CharacterCreateExecute(WorldClient client, CharacterDAO record)
         {
             if (CharacterRepository.Instance.GetByName(record.Name) != null)
@@ -266,18 +259,9 @@ namespace Game.Frame
 
             RPCManager.Instance.CharacterCountChanged();
 
-            WorldService.Instance.AddMessage(() =>
-            {
-                client.Send(WorldMessage.CHARACTER_CREATION_SUCCESS());
-                client.Send(WorldMessage.CHARACTER_LIST(client.Characters));
-            });
+            WorldService.Instance.AddMessage(() => { client.Send(WorldMessage.CHARACTER_CREATION_SUCCESS()); client.Send(WorldMessage.CHARACTER_LIST(client.Characters)); });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="client"></param>
-        /// <param name="message"></param>
         private void HandleCharacterDelete(WorldClient client, string message)
         {
             if (client.Characters == null)
@@ -304,17 +288,9 @@ namespace Game.Frame
                 return;
             }
 
-            WorldService.Instance.AddMessage(() =>
-                {
-                    CharacterDeletionExecute(client, character);
-                });
+            WorldService.Instance.AddMessage(() => { CharacterDeletionExecute(client, character); });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="client"></param>
-        /// <param name="character"></param>
         private void CharacterDeletionExecute(WorldClient client, CharacterDAO character)
         {
             if (!CharacterRepository.Instance.Delete(character))
@@ -332,10 +308,6 @@ namespace Game.Frame
             InventoryItemRepository.Instance.EntityRemoved((int)EntityTypeEnum.TYPE_CHARACTER, character.Id);
             InventoryItemRepository.Instance.EntityRemoved((int)EntityTypeEnum.TYPE_MERCHANT, character.Id);
             CharacterGuildRepository.Instance.ImplicitDeletion(character.Guild);
-            foreach (var job in CharacterJobRepository.Instance.GetByCharacterId(character.Id))
-            {
-                CharacterJobRepository.Instance.ImplicitDeletion(job);
-            }
 
             client.Characters.Remove(character);
 
@@ -344,20 +316,10 @@ namespace Game.Frame
             client.Send(WorldMessage.CHARACTER_LIST(client.Characters));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="client"></param>
-        /// <param name="message"></param>
         private void HandleCharacterNameGenerate(WorldClient client, string message)
         {
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="client"></param>
-        /// <param name="message"></param>
         private void HandleCharacterReset(WorldClient client, string message)
         {
             if (client.Characters == null)
@@ -375,14 +337,14 @@ namespace Game.Frame
 
             var character = client.Characters.Find(entry => entry.Id == characterId);
 
-            // unknow id
+
             if (character == null)
             {
                 client.Send(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
 
-            // dead ?
+
             if (!character.Dead)
             {
                 client.Send(WorldMessage.BASIC_NO_OPERATION());
@@ -392,7 +354,7 @@ namespace Game.Frame
             character.Experience = 0;
             character.Level = WorldConfig.CHARACTER_CREATION_LEVEL;
 
-            // stats
+
             character.Chance = 0;
             character.Intelligence = 0;
             character.Agility = 0;
@@ -402,19 +364,19 @@ namespace Game.Frame
             character.CaracPoint = 0;
             character.SpellPoint = 0;
 
-            // emotes
+
             character.EmoteCapacity = WorldConfig.CHARACTER_CREATION_EMOTE_CAPACITY;
 
-            // life status
+
             character.Life = WorldConfig.CHARACTER_CREATION_LIFE;
             character.Dead = false;
             character.Energy = 10000;
 
-            // position
+
             character.MapId = WorldConfig.GetStartMap((CharacterBreedEnum)character.Breed);
             character.CellId = WorldConfig.GetStartCell((CharacterBreedEnum)character.Breed);
 
-            // restricts
+
             character.Restriction = (int)PlayerRestrictionEnum.RESTRICTION_NEW_CHARACTER;
 
             character.Skin = character.Breed * 10 + (character.Sex ? 1 : 0);
@@ -436,11 +398,6 @@ namespace Game.Frame
             });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="client"></param>
-        /// <param name="message"></param>
         private void HandleCharacterSelect(WorldClient client, string message)
         {
             if (client.Characters == null)
@@ -457,31 +414,23 @@ namespace Game.Frame
 
             var character = client.Characters.Find(entry => entry.Id == characterId);
 
-            // unknow id
+
             if (character == null)
             {
                 client.Send(WorldMessage.CHARACTER_SELECTION_ERROR());
                 return;
             }
 
-            // dead ?
+
             if (character.Dead)
             {
                 client.Send(WorldMessage.CHARACTER_SELECTION_ERROR());
                 return;
             }
 
-            WorldService.Instance.AddMessage(() =>
-                {
-                    CharacterSelectExecute(client, character);
-                });
+            WorldService.Instance.AddMessage(() => { CharacterSelectExecute(client, character); });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="client"></param>
-        /// <param name="character"></param>
         public void CharacterSelectExecute(WorldClient client, CharacterDAO character)
         {
             client.FrameManager.RemoveFrame(Instance);
@@ -503,18 +452,11 @@ namespace Game.Frame
             });
         }
 
-        /// <summary>
-        /// Cliente solicita la lista de regalos pendientes (paquete "Ag[lang]").
-        /// </summary>
         private void HandleGiftList(WorldClient client, string message)
         {
             WorldService.Instance.AddMessage(() => SendPendingGifts(client));
         }
 
-        /// <summary>
-        /// Cliente atribuye un regalo a un personaje (paquete "AG[giftId]|[charId]").
-        /// Solo se pueden atribuir regalos de tipo 1 (items estandar).
-        /// </summary>
         private void HandleGiftAttribute(WorldClient client, string message)
         {
             var data = message.AsSpan(2);
@@ -536,8 +478,7 @@ namespace Game.Frame
 
             WorldService.Instance.AddMessage(() =>
             {
-                var gift = AccountGiftRepository.Instance.GetByAccountId(client.Account.Id)
-                    .FirstOrDefault(g => g.Id == giftId);
+                var gift = AccountGiftRepository.Instance.GetByAccountId(client.Account.Id).FirstOrDefault(g => g.Id == giftId);
 
                 if (gift == null || gift.GiftType != 1)
                 {
@@ -619,7 +560,7 @@ namespace Game.Frame
             }
 
             client.CurrentCharacter.Dispatch(WorldMessage.JOB_SKILL(client.CurrentCharacter.CharacterJobs));
-            client.CurrentCharacter.Dispatch(WorldMessage.JOB_XP(client.CurrentCharacter.CharacterJobs.Jobs));
+            client.CurrentCharacter.Dispatch(WorldMessage.JOB_XP(client.CurrentCharacter.CharacterJobs));
             client.CurrentCharacter.Dispatch(WorldMessage.FRIENDS_LIST_ON_CONNECT(client.CurrentCharacter, client.CurrentCharacter.Friends));
             client.CurrentCharacter.Dispatch(WorldMessage.ENNEMIES_LIST_ON_CONNECT(client.CurrentCharacter, client.CurrentCharacter.Ennemies));
             client.CurrentCharacter.SendMountEquipped();
@@ -643,12 +584,7 @@ namespace Game.Frame
                     client.Account.LastConnectionTime.Minute.ToString(),
                     client.Account.LastConnectionIP
                 ));
-            client.CurrentCharacter.Dispatch(WorldMessage.INFORMATION_MESSAGE
-                (
-                    InformationTypeEnum.INFO,
-                    InformationEnum.INFO_BASIC_CURRENT_IP,
-                    client.Ip
-                ));
+            client.CurrentCharacter.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, InformationEnum.INFO_BASIC_CURRENT_IP, client.Ip));
             client.CurrentCharacter.CachedBuffer = false;
         }
     }

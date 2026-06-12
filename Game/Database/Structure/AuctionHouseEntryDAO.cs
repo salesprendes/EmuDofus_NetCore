@@ -3,9 +3,6 @@ using System;
 
 namespace Game.Database.Structure
 {
-    /// <summary>
-    /// 
-    /// </summary>
     [Table("auctionhouseentry")]
     public sealed class AuctionHouseEntryDAO : DataAccessObject<AuctionHouseEntryDAO>
     {
@@ -16,9 +13,6 @@ namespace Game.Database.Structure
         private DateTime _expireDate;
 
 
-        /// <summary>
-        /// 
-        /// </summary>
         [Key]
         public long ItemId
         {
@@ -26,36 +20,24 @@ namespace Game.Database.Structure
             set => SetProperty(ref _itemId, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int AuctionHouseId
         {
             get => _auctionHouseId;
             set => SetProperty(ref _auctionHouseId, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long OwnerId
         {
             get => _ownerId;
             set => SetProperty(ref _ownerId, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long Price
         {
             get => _price;
             set => SetProperty(ref _price, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public DateTime ExpireDate
         {
             get => _expireDate;

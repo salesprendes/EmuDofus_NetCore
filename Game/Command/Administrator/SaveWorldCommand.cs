@@ -4,10 +4,7 @@ namespace Game.Command
 {
     public sealed class SaveWorldCommand : WorldStaffCommand
     {
-        private readonly string[] _aliases =
-        {
-            "guardarmundo", "save"
-        };
+        private readonly string[] _aliases = { "guardarmundo", "save" };
 
         public override string[] Aliases => _aliases;
 

@@ -1,4 +1,4 @@
-﻿using Protocolo.Framework.Generic;
+using Protocolo.Framework.Generic;
 using Game.Entity;
 using System;
 using System.Collections.Generic;
@@ -19,13 +19,13 @@ namespace Game.Spell
                     return new SpellBook((int)entity.Type, entity.Id);
 
                 case EntityTypeEnum.TYPE_MONSTER_FIGHTER:
-                {
-                    var grade = ((MonsterEntity)entity).Grade;
-                    // Encode (MonsterId, GradeNumber) into the long so SpellBook can look up
-                    // monstruos_hechizos by both columns — Grade.Id (PK) is unrelated to them.
-                    long monsterKey = ((long)grade.MonsterId << 32) | (uint)grade.Grade;
-                    return new SpellBook((int)entity.Type, monsterKey);
-                }
+                    {
+                        var grade = ((MonsterEntity)entity).Grade;
+
+
+                        long monsterKey = ((long)grade.MonsterId << 32) | (uint)grade.Grade;
+                        return new SpellBook((int)entity.Type, monsterKey);
+                    }
             }
 
             return null;

@@ -1,4 +1,4 @@
-﻿using Protocolo.Framework.Configuration;
+using Protocolo.Framework.Configuration;
 using Protocolo.Framework.Configuration.Providers;
 using Protocolo.Framework.Network;
 using Protocolo.Framework.Generic.Logging;
@@ -22,44 +22,31 @@ namespace Login
     {
         public AuthService() : base(600) { }
 
-        [Configurable("AuthServiceIP")]
-        public static string AuthServiceIP = "127.0.0.1";
+        [Configurable("AuthServiceIP")] public static string AuthServiceIP = "127.0.0.1";
 
-        [Configurable("AuthServicePort")]
-        public static int AuthServicePort = 443;
+        [Configurable("AuthServicePort")] public static int AuthServicePort = 443;
 
-        [Configurable("AuthMaxClient")]
-        public static int AuthMaxClient = 100;
+        [Configurable("AuthMaxClient")] public static int AuthMaxClient = 100;
 
-        [Configurable("AuthQueueRefreshInterval")]
-        public static int AuthQueueRefreshInterval = 2000;
+        [Configurable("AuthQueueRefreshInterval")] public static int AuthQueueRefreshInterval = 2000;
 
-        [Configurable("AuthLoginTimeoutSeconds")]
-        public static int AuthLoginTimeoutSeconds = 600;
+        [Configurable("AuthLoginTimeoutSeconds")] public static int AuthLoginTimeoutSeconds = 600;
 
-        [Configurable("AuthMaxConnectionsPerIp")]
-        public static int AuthMaxConnectionsPerIp = 5;
+        [Configurable("AuthMaxConnectionsPerIp")] public static int AuthMaxConnectionsPerIp = 5;
 
-        [Configurable("AuthMaxConnectionsPerSecond")]
-        public static int AuthMaxConnectionsPerSecond = 60;
+        [Configurable("AuthMaxConnectionsPerSecond")] public static int AuthMaxConnectionsPerSecond = 60;
 
-        [Configurable("AuthMaxFailedAuthAttempts")]
-        public static int AuthMaxFailedAuthAttempts = 10;
+        [Configurable("AuthMaxFailedAuthAttempts")] public static int AuthMaxFailedAuthAttempts = 10;
 
-        [Configurable("AuthIpBanDurationSeconds")]
-        public static int AuthIpBanDurationSeconds = 300;
+        [Configurable("AuthIpBanDurationSeconds")] public static int AuthIpBanDurationSeconds = 300;
 
-        [Configurable("LogDebugEnabled")]
-        public static bool LogDebugEnabled = true;
+        [Configurable("LogDebugEnabled")] public static bool LogDebugEnabled = true;
 
-        [Configurable("LogLevel")]
-        public static string LogLevel = "Info";
+        [Configurable("LogLevel")] public static string LogLevel = "Info";
 
-        [Configurable("LogConsoleLevel")]
-        public static string LogConsoleLevel = "";
+        [Configurable("LogConsoleLevel")] public static string LogConsoleLevel = "";
 
-        [Configurable("LogFileLevel")]
-        public static string LogFileLevel = "";
+        [Configurable("LogFileLevel")] public static string LogFileLevel = "";
 
         public ConfigurationManager ConfigurationManager
         {
@@ -176,10 +163,6 @@ namespace Login
                     m_bannedIps.TryRemove(kvp.Key, out _);
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="client"></param>
         protected override void OnClientConnected(AuthClient client)
         {
             if (AuthService.LogDebugEnabled)
@@ -194,10 +177,6 @@ namespace Login
             });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="client"></param>
         protected override void OnClientDisconnected(AuthClient client)
         {
             m_connectionCountByIp.AddOrUpdate(client.Ip, 0, (_, c) => Math.Max(0, c - 1));
@@ -210,7 +189,7 @@ namespace Login
                     if (AuthService.LogDebugEnabled)
                         Logger.Debug("Desconectado: " + client.Ip);
 
-                    if(client.AuthKey != null)
+                    if (client.AuthKey != null)
                     {
                         Util.AuthKeyPool.Push(client.AuthKey);
                     }
@@ -222,7 +201,7 @@ namespace Login
 
                     if (wasQueued)
                         RefreshQueuePositions();
-            });
+                });
         }
 
         protected override void OnDataReceived(AuthClient client, byte[] buffer, int offset, int count)
@@ -257,14 +236,8 @@ namespace Login
 
         #region Authentication
 
-        /// <summary>
-        /// 
-        /// </summary>
-        private Dictionary<long, AuthClient>  m_clientByAccount = new Dictionary<long, AuthClient>();
+        private Dictionary<long, AuthClient> m_clientByAccount = new Dictionary<long, AuthClient>();
 
-        /// <summary>
-        /// 
-        /// </summary>
         private sealed class WaitingAuthentification
         {
             public AuthClient Client
@@ -286,16 +259,8 @@ namespace Login
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private List<WaitingAuthentification> m_waitingAuthentifications = new List<WaitingAuthentification>();
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="accountId"></param>
-        /// <returns></returns>
+
         public bool IsConnected(long accountId)
         {
             if (m_clientByAccount.ContainsKey(accountId))
@@ -308,12 +273,6 @@ namespace Login
             return false;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="client"></param>
-        /// <param name="account"></param>
-        /// <returns></returns>
         public bool TryQueueAuthentification(AuthClient client, AccountDAO account)
         {
             if (AuthMaxClient <= 0)
@@ -336,12 +295,7 @@ namespace Login
 
             SetWaitingAuthenticationQueue(client, true);
 
-            var waitingAuthentification = new WaitingAuthentification()
-            {
-                Client = client,
-                Account = account,
-                IsSubscriber = IsSubscriber(account),
-            };
+            var waitingAuthentification = new WaitingAuthentification() { Client = client, Account = account, IsSubscriber = IsSubscriber(account), };
 
             if (waitingAuthentification.IsSubscriber)
             {
@@ -363,11 +317,6 @@ namespace Login
             return true;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="client"></param>
-        /// <param name="account"></param>
         public void AuthentifyClient(AuthClient client, AccountDAO account)
         {
             if (client == null || account == null)
@@ -405,11 +354,7 @@ namespace Login
 
         public void RefreshQueue()
         {
-            AddMessage(() =>
-            {
-                PromoteWaitingAuthentifications();
-                RefreshQueuePositions();
-            });
+            AddMessage(() => { PromoteWaitingAuthentifications(); RefreshQueuePositions(); });
         }
 
         public void ClientAuthentified(AuthClient client)
@@ -420,7 +365,7 @@ namespace Login
         public void ClientDisconnected(AuthClient client)
         {
             if (client.Account != null)
-                m_clientByAccount.Remove(client.Account.Id);            
+                m_clientByAccount.Remove(client.Account.Id);
         }
 
         private int GetActiveAuthClientCount()
@@ -500,9 +445,6 @@ namespace Login
             return false;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private void RefreshQueuePositions()
         {
             var totalAbo = m_waitingSubscriberCount;
@@ -594,12 +536,7 @@ namespace Login
 
         public void RegisterWorld(int worldId, AuthRPCServiceClient client)
         {
-            AddMessage(() =>
-            {
-                m_worldById[worldId] = client;
-                EnsureGameServer(worldId, client);
-                RefreshWorldList();
-            });
+            AddMessage(() => { m_worldById[worldId] = client; EnsureGameServer(worldId, client); RefreshWorldList(); });
         }
 
         public void DeleteWorld(int worldId, AuthRPCServiceClient client = null)
@@ -617,14 +554,7 @@ namespace Login
 
         public void UpdateWorldState(int worldId, GameStateEnum state)
         {
-            AddMessage(() =>
-            {
-                if (worldId < 0)
-                    return;
-
-                SetGameServerState(worldId, state);
-                RefreshWorldList();
-            });
+            AddMessage(() => { if (worldId < 0) return; SetGameServerState(worldId, state); RefreshWorldList(); });
         }
 
         private void EnsureGameServer(int worldId, AuthRPCServiceClient client)

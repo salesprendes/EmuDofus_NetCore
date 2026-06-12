@@ -1,4 +1,4 @@
-﻿using Game.Area;
+using Game.Area;
 using Game.Conquest;
 using Game.Database.Repository;
 using Game.Database.Structure;
@@ -36,13 +36,13 @@ namespace Game.Manager
         {
             new ConquestVillageDefinition(areaId: 13, territorySubAreaId: 63,  prismSubAreaId: 63),
             new ConquestVillageDefinition(areaId: 14, territorySubAreaId: 81,  prismSubAreaId: 81),
-            // Pandala: bontaTemplateId / brakmarTemplateId per city
-            // 538=FuegoBonta 539=TierraBonta 540=AireBonta 541=AkwaBonta
-            // 542=AireBrakmar 543=TierraBrakmar 544=AkwaBrakmar 545=FuegoBrakmar
-            new ConquestVillageDefinition(areaId: 20, territorySubAreaId: 117, prismSubAreaId: 122, prismMapId: 8368, prismCellId: 268, bontaTemplateId: 541, brakmarTemplateId: 544), // Akwadala
-            new ConquestVillageDefinition(areaId: 21, territorySubAreaId: 118, prismSubAreaId: 123, bontaTemplateId: 540, brakmarTemplateId: 542), // Aerdala
-            new ConquestVillageDefinition(areaId: 22, territorySubAreaId: 116, prismSubAreaId: 121, bontaTemplateId: 538, brakmarTemplateId: 545), // Feudala (Fuegodala)
-            new ConquestVillageDefinition(areaId: 23, territorySubAreaId: 115, prismSubAreaId: 120, bontaTemplateId: 539, brakmarTemplateId: 543), // Terrdala (Tierralada)
+
+
+
+            new ConquestVillageDefinition(areaId: 20, territorySubAreaId: 117, prismSubAreaId: 122, prismMapId: 8368, prismCellId: 268, bontaTemplateId: 541, brakmarTemplateId: 544),
+            new ConquestVillageDefinition(areaId: 21, territorySubAreaId: 118, prismSubAreaId: 123, bontaTemplateId: 540, brakmarTemplateId: 542),
+            new ConquestVillageDefinition(areaId: 22, territorySubAreaId: 116, prismSubAreaId: 121, bontaTemplateId: 538, brakmarTemplateId: 545),
+            new ConquestVillageDefinition(areaId: 23, territorySubAreaId: 115, prismSubAreaId: 120, bontaTemplateId: 539, brakmarTemplateId: 543),
         };
 
         private static readonly int[] s_villageAreaIds = s_villages.Select(village => village.AreaId).Distinct().ToArray();
@@ -321,13 +321,12 @@ namespace Game.Manager
                 }
 
                 var mapRef = map;
-                WorldService.Instance.AddMessage(() =>
-                    WorldService.Instance.Dispatcher.Dispatch(WorldMessage.CONQUEST_PRISM_DEAD(mapRef)));
+                WorldService.Instance.AddMessage(() => WorldService.Instance.Dispatcher.Dispatch(WorldMessage.CONQUEST_PRISM_DEAD(mapRef)));
             }
 
             DispatchAlignmentChanged(territory, false);
 
-            // Doors/prism must update on capture (neutral→conquered closes the building entrance)
+
             if (AreaManager.Instance.TryGetSubArea(territory.SubAreaId, out var capturedSubArea))
             {
                 foreach (var areaMap in MapManager.Instance.GetByAreaId(capturedSubArea.Area.Id))
@@ -337,8 +336,8 @@ namespace Game.Manager
             }
         }
 
-        // Returns the existing territory for subAreaId, or creates a temporary unpersisted one
-        // for neutral-city fights. Returns null if the subArea is not conquerable.
+
+
         public ConquestTerritory GetOrCreateNeutralForAttack(int subAreaId)
         {
             subAreaId = ResolveTerritorySubAreaId(subAreaId);
@@ -476,9 +475,7 @@ namespace Game.Manager
 
         public int GetAreaBalance(int areaId, int alignmentId)
         {
-            var zones = AreaManager.Instance.SubAreas
-                .Where(s => s.Area.Id == areaId && IsConquerableSubArea(s))
-                .ToArray();
+            var zones = AreaManager.Instance.SubAreas.Where(s => s.Area.Id == areaId && IsConquerableSubArea(s)).ToArray();
             if (zones.Length == 0)
             {
                 return 0;
@@ -551,8 +548,7 @@ namespace Game.Manager
             }
             else
             {
-                territory = m_bySubArea.Values.FirstOrDefault(candidate =>
-                    candidate.PrismMapId == map.Id && candidate.PrismCellId >= 0);
+                territory = m_bySubArea.Values.FirstOrDefault(candidate => candidate.PrismMapId == map.Id && candidate.PrismCellId >= 0);
                 if (territory != null)
                 {
                     cellId = territory.PrismCellId;
@@ -675,7 +671,7 @@ namespace Game.Manager
             var door = territory != null && (territory.IsUnderAttack || territory.State == ConquestTerritoryStateEnum.STATE_VULNERABLE || territory.State == ConquestTerritoryStateEnum.STATE_DOOR_OPEN) ? 1 : 0;
             var prism = territory != null && (territory.IsUnderAttack || territory.State == ConquestTerritoryStateEnum.STATE_VULNERABLE || territory.State == ConquestTerritoryStateEnum.STATE_PRISM_ROOM_OPEN) ? 1 : 0;
 
-            // First field must be the areaId (20/21/22/23/13/14) — client maps villages by area, not by prism subArea
+
             return village.AreaId + "," + NormalizeWorldAlignment(alignment) + "," + door + "," + prism;
         }
 
@@ -697,7 +693,7 @@ namespace Game.Manager
                 return GetAlignmentForArea(subArea.Area.Id);
             }
 
-            // Conquerable subareas with no active territory are always neutral
+
             if (subArea.CanConquest)
             {
                 return ALIGNMENT_NEUTRAL;
@@ -711,12 +707,6 @@ namespace Game.Manager
             return ALIGNMENT_NEUTRAL;
         }
 
-        /// <summary>
-        /// Returns the alignment value that monster groups on this subarea should use.
-        /// Only city/village areas (Bonta, Brakmar, Pandala cities) and permanently-aligned
-        /// sub-areas have alignment militia. Wild monsters in regular conquered territories
-        /// remain neutral so PvM fights start normally via the ready button.
-        /// </summary>
         public int GetMonsterGroupAlignment(int subAreaId)
         {
             if (!AreaManager.Instance.TryGetSubArea(subAreaId, out var subArea))
@@ -724,21 +714,21 @@ namespace Game.Manager
                 return -1;
             }
 
-            // Inherently aligned sub-areas (inner-city zones, always Bonta/Brakmar).
+
             if (subArea.DefaultAlignment != 0)
             {
                 return subArea.DefaultAlignment;
             }
 
-            // Village/city areas that can be conquered (Bonta, Brakmar, Pandala cities).
-            // Militia in these areas carry the territory's alignment.
+
+
             if (subArea.Area != null && IsVillageArea(subArea.Area.Id))
             {
                 int alignment = GetAlignmentForSubArea(subAreaId);
                 return alignment == ALIGNMENT_NEUTRAL ? -1 : alignment;
             }
 
-            // Regular conquerable territories: wild monsters are always neutral PvM.
+
             return -1;
         }
 
@@ -775,9 +765,7 @@ namespace Game.Manager
 
         private static ConquestPrismType GetPrismTypeForSubArea(int subAreaId)
         {
-            return s_villageByTerritorySubArea.ContainsKey(subAreaId)
-                ? ConquestPrismType.Village
-                : ConquestPrismType.SubArea;
+            return s_villageByTerritorySubArea.ContainsKey(subAreaId) ? ConquestPrismType.Village : ConquestPrismType.SubArea;
         }
 
         private static void ApplyVillageDefaults(ConquestTerritoryDAO record)
@@ -875,11 +863,7 @@ namespace Game.Manager
 
         private void BroadcastConquestWorldData()
         {
-            WorldService.Instance.AddMessage(() =>
-            {
-                //foreach (var character in EntityManager.Instance.OnlineCharacters)
-                //character.SafeDispatch(WorldMessage.CONQUEST_WORLD_DATA(SerializeAs_WorldData(character)));
-            });
+            WorldService.Instance.AddMessage(() => { });
         }
     }
 }

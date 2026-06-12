@@ -1,4 +1,4 @@
-﻿using Game.Database.Repository;
+using Game.Database.Repository;
 using Game.Database.Structure;
 using Game.Action;
 using Game.Entity;
@@ -15,9 +15,6 @@ using System.Threading.Tasks;
 
 namespace Game.Guild
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public enum GuildRightEnum
     {
         BOSS = 1,
@@ -35,30 +32,27 @@ namespace Game.Guild
         MANAGE_OTHERS_MOUNT = 16384,
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public enum GuildRankEnum
     {
         BOSS = 1,
         SECOND_IN_COMMAND = 2,
         TREASURER = 3,
         PROTECTOR = 4,
-        CRAFTSMAN  = 5,
+        CRAFTSMAN = 5,
         RESERVIST = 6,
         DOGSBODY = 7,
         GUARD = 8,
         SCOUT = 9,
         SPY = 10,
-        DIPLOMAT= 11,
-        SECRETARY = 12, 
+        DIPLOMAT = 11,
+        SECRETARY = 12,
         PET_KILLER = 33,
         TRAITOR = 21,
         POACHER = 31,
         TREASURE_HUNTER = 30,
         THIEF = 29,
-        INITIATE = 28, 
-        MURDERER = 27, 
+        INITIATE = 28,
+        MURDERER = 27,
         GOVERNOR = 26,
         MUSE = 25,
         COUNSELLOR = 24,
@@ -72,74 +66,41 @@ namespace Game.Guild
         ON_TRIAL = 0,
         TORTUER = 16,
         DESERTER = 15,
-        NUISANCE= 14,
+        NUISANCE = 14,
         PENITENT = 13,
         MASCOT = 34,
         PERCEPTOR_KILLER = 35,
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class GuildInstance : MessageDispatcher
     {
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool IsActive
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool IsDeleted
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long Id => m_record.Id;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public GuildStatistics Statistics => m_record.Statistics;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public string Name => m_record.Name;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int SymbolId => m_record.SymbolId;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int SymbolColor => m_record.SymbolColor;
 
-        /// <summary>
-        ///
-        /// </summary>
         public int BackgroundId => m_record.BackgroundId;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int BackgroundColor => m_record.BackgroundColor;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long Experience
         {
             get
@@ -152,14 +113,8 @@ namespace Game.Guild
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long ExperienceFloorCurrent => ExperienceManager.Instance.GetFloor(Level, ExperienceTypeEnum.GUILD);
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long ExperienceFloorNext
         {
             get
@@ -171,35 +126,26 @@ namespace Game.Guild
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public string Emblem
         {
             get
             {
-                if(m_emblem == null)
+                if (m_emblem == null)
                     m_emblem = Util.EncodeBase36(BackgroundId) + "|" + Util.EncodeBase36(BackgroundColor) + "|" + Util.EncodeBase36(SymbolId) + "|" + Util.EncodeBase36(SymbolColor);
                 return m_emblem;
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public string DisplayEmblem
         {
             get
             {
-                if(m_displayEmblem == null)
+                if (m_displayEmblem == null)
                     m_displayEmblem = Util.EncodeBase36(BackgroundId) + "," + Util.EncodeBase36(BackgroundColor) + "," + Util.EncodeBase36(SymbolId) + "," + Util.EncodeBase36(SymbolColor);
                 return m_displayEmblem;
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Level
         {
             get
@@ -212,9 +158,6 @@ namespace Game.Guild
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int BoostPoint
         {
             get
@@ -227,14 +170,8 @@ namespace Game.Guild
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int TaxCollectorPrice => 1000 + (Level * 100);
 
-        /// <summary>
-        /// 
-        /// </summary>
         private string m_emblem, m_displayEmblem;
         private readonly List<GuildMember> m_members;
         private readonly List<TaxCollectorEntity> m_taxCollectors;
@@ -242,9 +179,6 @@ namespace Game.Guild
         private readonly MessageDispatcher m_taxCollectorDispatcher;
 
 
-        /// <summary>
-        /// 
-        /// </summary>
         public GuildInstance(GuildDAO record, bool checkIntegrity = true)
         {
             m_record = record;
@@ -253,31 +187,21 @@ namespace Game.Guild
             m_taxCollectorDispatcher = new MessageDispatcher();
             IsDeleted = false;
 
-            foreach (var character in CharacterRepository.Instance.FindAll(ch => ch.Guild.GuildId == m_record.Id))            
-                AddMember(new GuildMember(this, character));            
-            foreach(var taxCollectorDAO in TaxCollectorRepository.Instance.FindAll(taxC => taxC.GuildId == m_record.Id))            
+            foreach (var character in CharacterRepository.Instance.FindAll(ch => ch.Guild.GuildId == m_record.Id))
+                AddMember(new GuildMember(this, character));
+            foreach (var taxCollectorDAO in TaxCollectorRepository.Instance.FindAll(taxC => taxC.GuildId == m_record.Id))
                 AddTaxCollector(EntityManager.Instance.CreateTaxCollector(this, taxCollectorDAO));
 
             if (checkIntegrity)
                 CheckIntegrity();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="record"></param>
-        /// <param name="boss"></param>
         public GuildInstance(GuildDAO record, CharacterEntity boss)
-            : this(record, false)
+    : this(record, false)
         {
             MemberBoss(boss);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="member"></param>
-        /// <param name="taxCollector"></param>
         public void RemoveTaxCollector(GuildMember member, TaxCollectorEntity taxCollector)
         {
             if (taxCollector.Guild != this)
@@ -303,19 +227,10 @@ namespace Game.Guild
                     taxCollector.Map.SubArea.TaxCollector = null;
                     taxCollector.StopAction(GameActionTypeEnum.MAP);
 
-                    AddMessage(() =>
-                        {
-                            RemoveTaxCollector(taxCollector);
-
-                            SafeDispatch(WorldMessage.GUILD_TAXCOLLECTOR_REMOVED(taxCollector, member.Name));
-                        });
+                    AddMessage(() => { RemoveTaxCollector(taxCollector); SafeDispatch(WorldMessage.GUILD_TAXCOLLECTOR_REMOVED(taxCollector, member.Name)); });
                 });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="taxCollector"></param>
         public void RemoveTaxCollector(TaxCollectorEntity taxCollector)
         {
             TaxCollectorRepository.Instance.Removed(taxCollector.DatabaseRecord);
@@ -324,11 +239,6 @@ namespace Game.Guild
             m_taxCollectors.Remove(taxCollector);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="member"></param>
-        /// <param name="taxCollector"></param>
         public void FarmTaxCollector(GuildMember member, TaxCollectorEntity taxCollector)
         {
             taxCollector.Map.SubArea.TaxCollector = null;
@@ -344,10 +254,6 @@ namespace Game.Guild
             });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="experience"></param>
         public void AddExperience(long experience)
         {
             AddMessage(() =>
@@ -359,21 +265,18 @@ namespace Game.Guild
                     while (Experience > ExperienceFloorNext)
                         LevelUp();
 
-                    if (Level != currentLevel)                    
-                        base.Dispatch(WorldMessage.GUILD_GENERAL_INFORMATIONS(IsActive, Level, ExperienceFloorCurrent, ExperienceFloorNext, Experience));                    
+                    if (Level != currentLevel)
+                        base.Dispatch(WorldMessage.GUILD_GENERAL_INFORMATIONS(IsActive, Level, ExperienceFloorCurrent, ExperienceFloorNext, Experience));
                 });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void LevelUp()
         {
             Level++;
             BoostPoint += 5;
             Statistics.BaseStatistics.AddBase(EffectEnum.AddInitiative, 100);
             Statistics.BaseStatistics.AddBase(EffectEnum.AddVitality, 100);
-            Statistics.BaseStatistics.AddBase(EffectEnum.AddWisdom,  4);
+            Statistics.BaseStatistics.AddBase(EffectEnum.AddWisdom, 4);
             Statistics.BaseStatistics.AddBase(EffectEnum.AddStrength, 1);
             Statistics.BaseStatistics.AddBase(EffectEnum.AddIntelligence, 1);
             Statistics.BaseStatistics.AddBase(EffectEnum.AddAgility, 1);
@@ -389,19 +292,11 @@ namespace Game.Guild
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="taxCollector"></param>
         public void AddTaxCollector(TaxCollectorEntity taxCollector)
         {
             m_taxCollectors.Add(taxCollector);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="member"></param>
         public void AddTaxCollectorListener(GuildMember member)
         {
             foreach (var taxCollector in m_taxCollectors)
@@ -424,40 +319,21 @@ namespace Game.Guild
             m_taxCollectorDispatcher.AddHandler(member.Dispatch);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="member"></param>
         public void RemoveTaxCollectorListener(GuildMember member)
         {
             m_taxCollectorDispatcher.RemoveHandler(member.Dispatch);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="taxCollectorId"></param>
-        /// <param name="attacker"></param>
         public void TaxCollectorAttackerJoin(long taxCollectorId, AbstractFighter attacker)
         {
             m_taxCollectorDispatcher.Dispatch(WorldMessage.GUILD_TAXCOLLECTOR_ATTACKER_JOIN(taxCollectorId, attacker));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="taxCollectorId"></param>
-        /// <param name="attacker"></param>
         public void TaxColectorAttackerLeave(long taxCollectorId, AbstractFighter attacker)
         {
             m_taxCollectorDispatcher.Dispatch(WorldMessage.GUILD_TAXCOLLECTOR_ATTACKER_LEAVE(taxCollectorId, attacker.Id));
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="member"></param>
-        /// <param name="taxCollectorId"></param>
+
         public void TaxCollectorJoin(GuildMember member, long taxCollectorId)
         {
             var collector = m_taxCollectors.Find(taxCollector => taxCollector.Id == taxCollectorId);
@@ -470,7 +346,7 @@ namespace Game.Guild
             var character = member.Character;
             if (character == null)
                 return;
-            
+
             character.AddMessage(() =>
             {
                 if (!character.CanGameAction(GameActionTypeEnum.TAXCOLLECTOR_AGGRESSION))
@@ -491,20 +367,12 @@ namespace Game.Guild
 
                         collector.DefenderJoin(member);
 
-                        // switch back to guild context
-                        AddMessage(() =>
-                        {
-                            member.TaxCollectorJoinedId = taxCollectorId;
-                            m_taxCollectorDispatcher.Dispatch(WorldMessage.GUILD_TAXCOLLECTOR_DEFENDER_JOIN(taxCollectorId, member));
-                        });
+
+                        AddMessage(() => { member.TaxCollectorJoinedId = taxCollectorId; m_taxCollectorDispatcher.Dispatch(WorldMessage.GUILD_TAXCOLLECTOR_DEFENDER_JOIN(taxCollectorId, member)); });
                     });
             });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="member"></param>
         public void TaxCollectorLeave(GuildMember member)
         {
             if (member.TaxCollectorJoinedId == -1)
@@ -527,20 +395,16 @@ namespace Game.Guild
             m_taxCollectorDispatcher.Dispatch(WorldMessage.GUILD_TAXCOLLECTOR_DEFENDER_LEAVE(collector.Id, member.Id));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="member"></param>
         public void HireTaxCollector(GuildMember member)
-        {       
+        {
             if (member.Character == null)
                 return;
-            
+
             member.Character.AddMessage(() =>
                 {
                     if (member.Character.Map.SubArea.TaxCollector != null)
                     {
-                        member.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_MAX_TAXCOLLECTOR_BY_SUBAREA_REACHED, 1)); // MAX COLLECTOR BY SUBAREA
+                        member.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_MAX_TAXCOLLECTOR_BY_SUBAREA_REACHED, 1));
                         return;
                     }
 
@@ -549,7 +413,7 @@ namespace Game.Guild
                         member.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_NOT_ENOUGH_KAMAS, TaxCollectorPrice));
                         return;
                     }
-                    
+
                     AddMessage(() =>
                         {
                             if (!member.HasRight(GuildRightEnum.HIRE_TAXCOLLECTOR))
@@ -579,28 +443,20 @@ namespace Game.Guild
                             TaxCollectorRepository.Instance.Created(taxCollectorDAO);
 
                             foreach (var spell in Statistics.Spells.GetSpells())
-                                if(spell.Level > 0)
+                                if (spell.Level > 0)
                                     SpellBookEntryRepository.Instance.Create((int)EntityTypeEnum.TYPE_TAX_COLLECTOR, taxCollectorDAO.Id, spell.SpellId, spell.Level, 25);
 
                             var taxCollector = EntityManager.Instance.CreateTaxCollector(this, taxCollectorDAO);
 
                             AddTaxCollector(taxCollector);
 
-                            member.Character.AddMessage(() =>
-                            {
-                                member.Character.Inventory.SubKamas(TaxCollectorPrice);
-                            });
+                            member.Character.AddMessage(() => { member.Character.Inventory.SubKamas(TaxCollectorPrice); });
 
                             base.Dispatch(WorldMessage.GUILD_TAXCOLLECTOR_HIRED(taxCollector, member.Character.Name));
                         });
                 });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="member"></param>
-        /// <param name="spellId"></param>
         public void BoostSpell(GuildMember member, int spellId)
         {
             if (!member.HasRight(GuildRightEnum.MANAGE_BOOST))
@@ -620,11 +476,6 @@ namespace Game.Guild
             SendBoostInformations(member);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="member"></param>
-        /// <param name="statId"></param>
         public void BoostStats(GuildMember member, char statId)
         {
             if (!member.HasRight(GuildRightEnum.MANAGE_BOOST))
@@ -671,7 +522,7 @@ namespace Game.Guild
 
                     Statistics.MaxTaxcollector++;
                     BoostPoint -= 10;
-                break;
+                    break;
 
                 default:
                     return;
@@ -680,31 +531,20 @@ namespace Game.Guild
             SendBoostInformations(member);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
         public void MemberJoin(CharacterEntity character)
         {
             var member = new GuildMember(this, character.DatabaseRecord);
             member.GuildId = Id;
-            member.Rank = GuildRankEnum.ON_TRIAL; // a l'essai
+            member.Rank = GuildRankEnum.ON_TRIAL;
             member.CharacterConnected(character);
             member.SendGuildStats();
             character.RefreshOnMap();
             AddMember(member);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
         public void MemberBoss(CharacterEntity character)
         {
-            var member = new GuildMember(this, character.DatabaseRecord)
-            {
-                GuildId = Id
-            };
+            var member = new GuildMember(this, character.DatabaseRecord) { GuildId = Id };
             member.SetBoss();
             member.CharacterConnected(character);
             member.SendGuildStats();
@@ -712,14 +552,6 @@ namespace Game.Guild
             AddMember(member);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="member"></param>
-        /// <param name="profilId"></param>
-        /// <param name="rank"></param>
-        /// <param name="percent"></param>
-        /// <param name="power"></param>
         public void MemberProfilUpdate(GuildMember member, long profilId, int rank, int percent, int power)
         {
             var himSelf = member.Id == profilId;
@@ -786,16 +618,11 @@ namespace Game.Guild
 
             targetMember.XPSharePercent = percent;
 
-            // update profil
+
             member.Dispatch(WorldMessage.GUILD_MEMBERS_INFORMATIONS(targetMember));
             targetMember.Dispatch(WorldMessage.GUILD_STATS(this, power));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="member"></param>
-        /// <param name="kickedMemberName"></param>
         public void MemberKick(GuildMember member, string kickedMemberName)
         {
             if (kickedMemberName != member.Name && !member.HasRight(GuildRightEnum.BAN))
@@ -831,12 +658,9 @@ namespace Game.Guild
             CheckIntegrity();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void CheckIntegrity()
         {
-            // guild getting destroyed
+
             if (m_members.Count == 0)
             {
                 foreach (var taxCollector in m_taxCollectors)
@@ -854,7 +678,7 @@ namespace Game.Guild
                 GuildRepository.Instance.Removed(m_record);
                 GuildManager.Instance.Destroy(this);
             }
-            // new boss
+
             else if (m_members.All(m => m.Rank != GuildRankEnum.BOSS))
             {
                 var boss = m_members.OrderBy(m => (int)m.Rank).First();
@@ -865,10 +689,6 @@ namespace Game.Guild
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="member"></param>
         public void AddMember(GuildMember member)
         {
             IsActive = m_members.Count > 0;
@@ -876,10 +696,6 @@ namespace Game.Guild
             AddHandler(member.Dispatch);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="member"></param>
         public void RemoveMember(GuildMember member)
         {
             IsActive = m_members.Count > 0;
@@ -887,49 +703,26 @@ namespace Game.Guild
             RemoveHandler(member.Dispatch);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
         public GuildMember GetMember(long id)
         {
             return m_members.Find(member => member.Id == id);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="memberId"></param>
-        /// <param name="memberName"></param>
-        /// <param name="message"></param>
         public void SafeDispatchChatMessage(long memberId, string memberName, string message)
         {
             SafeDispatch(WorldMessage.CHAT_MESSAGE(ChatChannelEnum.CHANNEL_GUILD, memberId, memberName, message));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="member"></param>
         public void SendMembersInformations(GuildMember member)
         {
             member.Dispatch(WorldMessage.GUILD_MEMBERS_INFORMATIONS(m_members));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="member"></param>
         public void SendBoostInformations(GuildMember member)
         {
             member.Dispatch(WorldMessage.GUILD_BOOST_INFORMATIONS(BoostPoint, TaxCollectorPrice, Statistics));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="member"></param>
         public void SendTaxCollectorsList(GuildMember member)
         {
             if (m_taxCollectors.Count > 0)
@@ -941,14 +734,10 @@ namespace Game.Guild
                 member.Dispatch(WorldMessage.BASIC_NO_OPERATION());
             }
         }
-          
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="member"></param>
+
         public void SendGeneralInformations(GuildMember member)
-        {            
-            member.Dispatch(WorldMessage.GUILD_GENERAL_INFORMATIONS(IsActive, Level, ExperienceFloorCurrent, ExperienceFloorNext, Experience));   
+        {
+            member.Dispatch(WorldMessage.GUILD_GENERAL_INFORMATIONS(IsActive, Level, ExperienceFloorCurrent, ExperienceFloorNext, Experience));
         }
     }
 }

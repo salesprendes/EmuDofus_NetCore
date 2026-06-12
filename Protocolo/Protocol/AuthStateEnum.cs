@@ -1,4 +1,4 @@
-﻿namespace Protocolo.RPC.Protocol
+namespace Protocolo.RPC.Protocol
 {
     public enum AuthStateEnum
     {

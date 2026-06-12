@@ -7,7 +7,7 @@ namespace Game.Command
 {
     public sealed class LevelUpCommand : WorldStaffCommand
     {
-        private readonly string[] _aliases = { "nivel", "level"};
+        private readonly string[] _aliases = { "nivel", "level" };
         public override string[] Aliases => _aliases;
         public override string Description => "Sube un personaje hasta el nivel indicado. Uso: nivel %nivel% [%nombre%]";
         protected override StaffRole RequiredRole => StaffRole.Administrator;

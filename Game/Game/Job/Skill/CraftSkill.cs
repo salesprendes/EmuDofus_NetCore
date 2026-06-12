@@ -1,4 +1,4 @@
-﻿using Game.Database.Repository;
+using Game.Database.Repository;
 using Game.Database.Structure;
 using Game.Entity;
 using System;
@@ -9,58 +9,42 @@ using System.Threading.Tasks;
 
 namespace Game.Job.Skill
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class CraftSkill : JobSkill
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public List<ItemTemplateDAO> Craftables
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="skill"></param>
-        /// <param name="obtainLevel"></param>
-        /// <param name="tools"></param>
         public CraftSkill(SkillIdEnum skill, int obtainLevel, int[] craftables, params int[] tools)
-            : base(skill, obtainLevel, tools)
+    : base(skill, obtainLevel, tools)
         {
             Craftables = new List<ItemTemplateDAO>();
             foreach (var craftableItem in craftables)
             {
                 var template = ItemTemplateRepository.Instance.GetById(craftableItem);
-                if(template != null)
+                if (template != null)
                     Craftables.Add(template);
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
-        public override void SerializeAs_SkillListMessage(CharacterJobDAO job, StringBuilder message)
+        public override void SerializeAs_SkillListMessage(int jobLevel, StringBuilder message)
         {
-            var maxCase = job.CraftMaxCase;            
-            if(maxCase > 2)
+            var maxCase = JobBook.GetCraftMaxCaseForLevel(jobLevel);
+            if (maxCase > 2)
             {
                 message.Append((int)Id).Append('~');
-                message.Append(maxCase - 2).Append('~'); // param1
-                message.Append("").Append('~'); // param2
-                message.Append("").Append('~'); // param3
-                message.Append("100,"); // param4
+                message.Append(maxCase - 2).Append('~');
+                message.Append("").Append('~');
+                message.Append("").Append('~');
+                message.Append("100,");
             }
             message.Append((int)Id).Append('~');
-            message.Append(maxCase).Append('~'); // param1
-            message.Append("").Append('~'); // param2
-            message.Append("").Append('~'); // param3
-            message.Append(job.CraftSuccessPercent(maxCase)); // param4
+            message.Append(maxCase).Append('~');
+            message.Append("").Append('~');
+            message.Append("").Append('~');
+            message.Append(JobBook.GetCraftSuccessPercentForLevel(jobLevel, maxCase));
         }
     }
 }

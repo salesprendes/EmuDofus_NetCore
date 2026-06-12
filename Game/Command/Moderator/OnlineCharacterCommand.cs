@@ -7,10 +7,7 @@ namespace Game.Command
 {
     public sealed class OnlineCharacterCommand : WorldStaffCommand
     {
-        private readonly string[] _aliases =
-        {
-            "conectados", "online"
-        };
+        private readonly string[] _aliases = { "conectados", "online" };
 
         public override string[] Aliases => _aliases;
 
@@ -33,10 +30,7 @@ namespace Game.Command
                     }
                 }
 
-                context.Character.AddMessage(() =>
-                {
-                    context.Character.Dispatch(WorldMessage.BASIC_CONSOLE_MESSAGE(message.ToString()));
-                });
+                context.Character.AddMessage(() => { context.Character.Dispatch(WorldMessage.BASIC_CONSOLE_MESSAGE(message.ToString())); });
             });
         }
     }

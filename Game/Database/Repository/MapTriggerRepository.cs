@@ -8,28 +8,15 @@ using System.Threading.Tasks;
 
 namespace Game.Database.Repository
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class MapTriggerRepository : Repository<MapTriggerRepository, MapTriggerDAO>
     {
-        /// <summary>
-        /// 
-        /// </summary>
         private Dictionary<int, List<MapTriggerDAO>> m_triggersByMap;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public MapTriggerRepository()
         {
             m_triggersByMap = new Dictionary<int, List<MapTriggerDAO>>();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="mapTrigger"></param>
         public override void OnObjectAdded(MapTriggerDAO mapTrigger)
         {
             if (!m_triggersByMap.ContainsKey(mapTrigger.MapId))
@@ -37,20 +24,11 @@ namespace Game.Database.Repository
             m_triggersByMap[mapTrigger.MapId].Add(mapTrigger);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="mapTrigger"></param>
         public override void OnObjectRemoved(MapTriggerDAO mapTrigger)
         {
             m_triggersByMap.Remove(mapTrigger.MapId);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="mapId"></param>
-        /// <returns></returns>
         public List<MapTriggerDAO> GetTriggers(int mapId)
         {
             if (m_triggersByMap.ContainsKey(mapId))

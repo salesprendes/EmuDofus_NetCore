@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Protocolo.Framework.Generic;
 using Game.Database.Repository;
 using Game.Area;
@@ -14,19 +14,10 @@ namespace Game.Manager
 
         public IEnumerable<SuperAreaInstance> SuperAreas => m_superAreaById.Values;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public IEnumerable<AreaInstance> Areas => m_areaById.Values;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public IEnumerable<SubAreaInstance> SubAreas => m_subAreaById.Values;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public AreaManager()
         {
             m_superAreaById = new Dictionary<int, SuperAreaInstance>();
@@ -34,12 +25,9 @@ namespace Game.Manager
             m_subAreaById = new Dictionary<int, SubAreaInstance>();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void Initialize()
         {
-            foreach(var superAreaDAO in SuperAreaRepository.Instance.All)
+            foreach (var superAreaDAO in SuperAreaRepository.Instance.All)
             {
                 var instance = new SuperAreaInstance(superAreaDAO);
                 WorldService.Instance.AddUpdatable(instance);
@@ -48,16 +36,16 @@ namespace Game.Manager
                 m_superAreaById.Add(superAreaDAO.Id, instance);
             }
 
-            foreach(var areaDAO in AreaRepository.Instance.All)
+            foreach (var areaDAO in AreaRepository.Instance.All)
             {
-                var instance =  new AreaInstance(areaDAO);
+                var instance = new AreaInstance(areaDAO);
                 instance.SuperArea.AddUpdatable(instance);
                 instance.SuperArea.AddHandler(instance.SafeDispatch);
 
                 m_areaById.Add(areaDAO.Id, instance);
             }
 
-            foreach(var subAreaDAO in SubAreaRepository.Instance.All)
+            foreach (var subAreaDAO in SubAreaRepository.Instance.All)
             {
                 var instance = new SubAreaInstance(subAreaDAO);
                 instance.Area.AddHandler(instance.SafeDispatch);
@@ -65,53 +53,26 @@ namespace Game.Manager
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
         public SuperAreaInstance GetSuperArea(int id)
         {
             return m_superAreaById[id];
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
         public AreaInstance GetArea(int id)
         {
             return m_areaById[id];
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="area"></param>
-        /// <returns></returns>
         public bool TryGetArea(int id, out AreaInstance area)
         {
             return m_areaById.TryGetValue(id, out area);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
         public SubAreaInstance GetSubArea(int id)
         {
             return m_subAreaById[id];
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="subArea"></param>
-        /// <returns></returns>
         public bool TryGetSubArea(int id, out SubAreaInstance subArea)
         {
             return m_subAreaById.TryGetValue(id, out subArea);

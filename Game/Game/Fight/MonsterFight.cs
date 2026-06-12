@@ -1,4 +1,4 @@
-﻿using Game.Entity;
+using Game.Entity;
 using Game.Fight.Challenge;
 using Game.Fight.Ending;
 using Game.Map;
@@ -10,23 +10,14 @@ using System.Text;
 
 namespace Game.Fight
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class MonsterFight : AbstractFight, IDisposable
-    {        
-        /// <summary>
-        /// 
-        /// </summary>
+    {
         public CharacterEntity Character
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public MonsterGroupEntity MonsterGroup
         {
             get;
@@ -35,43 +26,26 @@ namespace Game.Fight
 
         internal IEnumerable<MonsterEntity> KilledMonsters => Team1.Fighters.OfType<MonsterEntity>().Where(fighter => fighter.Invocator == null && fighter.IsFighterDead);
 
-        /// <summary>
-        /// 
-        /// </summary>
         private string m_serializedFlag;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public MonsterFight(MapInstance map, long id, CharacterEntity character, MonsterGroupEntity monsterGroup) : base(FightTypeEnum.TYPE_PVM, map, id, character.Id, -1, character.CellId, monsterGroup.Id, -1, monsterGroup.CellId, WorldConfig.PVM_START_TIMEOUT, WorldConfig.PVM_TURN_TIME, false, false, new LootMonsterBehavior())
         {
             Character = character;
             MonsterGroup = monsterGroup;
-            
+
             JoinFight(Character, Team0);
-            foreach(var monster in monsterGroup.Monsters)
+            foreach (var monster in monsterGroup.Monsters)
                 JoinFight(monster, Team1);
 
             foreach (var challenge in ChallengeManager.Instance.Generate(1))
                 Team0.AddChallenge(challenge);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <returns></returns>
         public override bool CanJoin(CharacterEntity character)
         {
             return true;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
-        /// <param name="kick"></param>
-        /// <returns></returns>
         public override FightActionResultEnum FightQuit(CharacterEntity character, bool kick = false)
         {
             if (LoopState == FightLoopStateEnum.STATE_WAIT_END || LoopState == FightLoopStateEnum.STATE_ENDED)
@@ -121,38 +95,27 @@ namespace Game.Fight
 
             return FightActionResultEnum.RESULT_NOTHING;
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
+
         protected override void FightEnd()
         {
             MonsterGroupEntity group = MonsterGroup;
             if (WinnerTeam == Team0)
             {
-                // Player won: the defeated group is gone for good and a brand-new random
-                // group will take its place. Remove it now (no ghost / no stale reference)
-                // and let the map schedule the replacement after a randomized delay,
-                // matching retail behavior where groups do not pop back instantly.
+
+
+
+
                 Map.DestroyEntity(group);
                 Map.ScheduleRepop(group.CellId);
             }
             else
             {
-                // Player lost: by design the SAME group stays on the map. Keep it instant.
-                Map.AddMessage(() =>
-                {
-                    Map.DestroyEntity(group);
-                    Map.SpawnEntity(group);
-                });
+
+                Map.AddMessage(() => { Map.DestroyEntity(group); Map.SpawnEntity(group); });
             }
             base.FightEnd();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
         public override void SerializeAs_FightList(StringBuilder message)
         {
             message.Append(Id.ToString()).Append(';');
@@ -166,10 +129,6 @@ namespace Game.Fight
             message.Append('|');
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
         public override void SerializeAs_FightFlag(StringBuilder message)
         {
             if (m_serializedFlag == null)
@@ -191,9 +150,6 @@ namespace Game.Fight
             message.Append(m_serializedFlag);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override void Dispose()
         {
             Character = null;

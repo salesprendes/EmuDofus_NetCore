@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Protocolo.Framework.Network;
 using Protocolo.RPC.Protocol;
 using Login.Network;
@@ -42,23 +42,23 @@ namespace Login.Frames
             {
                 var worldServer = AuthService.Instance.GetGameServerById(worldId);
                 var worldConnection = AuthService.Instance.GetWorldConnectionById(worldId);
-                
+
                 if (worldServer == null || worldServer.State != (int)GameStateEnum.ONLINE || worldConnection == null)
                 {
                     client.Send(AuthMessage.WORLD_SELECTION_FAILED());
                     return;
                 }
-                
+
                 client.FrameManager.RemoveFrame(WorldSelectionFrame.Instance);
                 var ticket = Util.GenerateString(10);
-                
+
                 client.Ticket = ticket;
                 worldConnection.Send(new GameTicketMessage(client.Account.Id, client.Account.Name, client.Account.Pseudo, client.Account.Power, client.Account.RemainingSubscription.ToBinary(), client.Account.LastConnectionDate.ToBinary(), client.Account.LastConnectionIP, ticket));
                 worldConnection.Players.Add(client.Account.Id);
-                
+
                 client.Account.LastConnectionDate = DateTime.Now;
                 client.Account.LastConnectionIP = client.Ip;
-                
+
                 client.Send(AuthMessage.WORLD_SELECTION_SUCCESS(worldServer.Ip, worldServer.Port, client.Ticket));
             });
         }

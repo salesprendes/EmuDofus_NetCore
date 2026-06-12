@@ -7,37 +7,22 @@ using System.Text;
 using System.Text.RegularExpressions;
 namespace Game.Database.Structure
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class RewardEntry
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public class ItemEntry
         {
-            /// <summary>
-            /// 
-            /// </summary>
             public int TemplateId
             {
                 get;
                 private set;
             }
 
-            /// <summary>
-            /// 
-            /// </summary>
             public int Quantity
             {
                 get;
                 private set;
             }
 
-            /// <summary>
-            /// 
-            /// </summary>
             public ItemTemplateDAO Template
             {
                 get
@@ -48,74 +33,48 @@ namespace Game.Database.Structure
                 }
             }
 
-            /// <summary>
-            /// 
-            /// </summary>
             private ItemTemplateDAO m_template;
 
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <param name="stringData"></param>
             public ItemEntry(int templateId, int quantity)
             {
                 TemplateId = templateId;
                 Quantity = quantity;
             }
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
+
         public List<ItemEntry> RequiredItems
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long RequiredKamas
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public List<ItemEntry> RewardedItems
         {
             get;
             private set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public long RewardedKamas
         {
             get;
             set;
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
+
         public RewardEntry()
         {
             RequiredItems = new List<ItemEntry>();
             RewardedItems = new List<ItemEntry>();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dataString"></param>
         public RewardEntry(string dataString)
-            : this()
-        { 
+    : this()
+        {
             var data = dataString.Split(';');
             var requiredData = data[0];
             var rewardedData = data[1];
@@ -127,7 +86,7 @@ namespace Game.Database.Structure
                 var id = int.Parse(subData[1]);
                 var quantity = int.Parse(subData[2]);
 
-                switch(type)
+                switch (type)
                 {
                     case "kamas":
                         RequiredKamas = quantity;
@@ -159,10 +118,6 @@ namespace Game.Database.Structure
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public string Serialize()
         {
             StringBuilder serialized = new StringBuilder();
@@ -170,7 +125,7 @@ namespace Game.Database.Structure
 
             if (RequiredKamas > 0)
                 data.Add("kamas:0:" + RequiredKamas);
-            foreach(var entry in RequiredItems)
+            foreach (var entry in RequiredItems)
                 data.Add("item:" + entry.TemplateId + ":" + entry.Quantity);
 
             serialized.Append(string.Join(",", data)).Append(';');
@@ -186,23 +141,14 @@ namespace Game.Database.Structure
             return serialized.ToString();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="templateIds"></param>
-        /// <param name="quantity"></param>
-        /// <returns></returns>
         public bool Match(Dictionary<int, long> templates, long kamas)
         {
-            return RequiredKamas == kamas 
+            return RequiredKamas == kamas
                 && RequiredItems.All(required => templates.Any(template => required.TemplateId == template.Key && required.Quantity == template.Value))
                 && templates.All(template => RequiredItems.Any(required => required.TemplateId == template.Key && required.Quantity == template.Value));
         }
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     [Table("npctemplate")]
     public sealed class NpcTemplateDAO : DataAccessObject<NpcTemplateDAO>
     {
@@ -302,9 +248,6 @@ namespace Game.Database.Structure
             set => SetProperty(ref _exchange, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private string m_chatName;
         [Write(false)]
         public string ChatName
@@ -317,30 +260,20 @@ namespace Game.Database.Structure
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private List<RewardEntry> m_rewards;
-        /// <summary>
-        /// 
-        /// </summary>
         private List<ItemTemplateDAO> m_templatesToSell;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         [Write(false)]
         public List<RewardEntry> Rewards
         {
             get
             {
-                if(m_rewards == null)
+                if (m_rewards == null)
                 {
                     m_rewards = new List<RewardEntry>();
-                    if(Exchange != "-1")
+                    if (Exchange != "-1")
                     {
-                        foreach(var reward in Exchange.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries))
+                        foreach (var reward in Exchange.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries))
                         {
                             m_rewards.Add(new RewardEntry(reward));
                         }
@@ -349,11 +282,7 @@ namespace Game.Database.Structure
                 return m_rewards;
             }
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
+
         [Write(false)]
         public List<ItemTemplateDAO> ShopList
         {
@@ -376,10 +305,6 @@ namespace Game.Database.Structure
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public override string ToString()
         {
             return Id + " ( " + Name + " ) ";

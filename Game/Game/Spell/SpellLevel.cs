@@ -1,4 +1,4 @@
-﻿using Game.Manager;
+using Game.Manager;
 using ProtoBuf;
 using System;
 using System.Collections.Generic;
@@ -36,9 +36,6 @@ namespace Game.Spell
         [NonSerialized]
         private SpellTemplate m_template;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public SpellTemplate Template
         {
             get

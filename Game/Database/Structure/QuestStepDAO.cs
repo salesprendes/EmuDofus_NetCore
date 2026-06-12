@@ -51,21 +51,15 @@ namespace Game.Database.Structure
             set => SetProperty(ref _actions, value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private ActionList m_actions;
 
-        /// <summary>
-        /// 
-        /// </summary>
         [Write(false)]
         public ActionList ActionsList
         {
             get
             {
-                if (m_actions == null)                
-                    m_actions = ActionList.Deserialize(Actions);                
+                if (m_actions == null)
+                    m_actions = ActionList.Deserialize(Actions);
                 return m_actions;
             }
         }

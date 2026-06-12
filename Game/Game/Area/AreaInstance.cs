@@ -1,4 +1,4 @@
-﻿using Protocolo.Framework.Generic;
+using Protocolo.Framework.Generic;
 using Game.Database.Structure;
 using System;
 using System.Collections.Generic;
@@ -26,7 +26,7 @@ namespace Game.Area
                 return m_superArea;
             }
         }
-        
+
         public IEnumerable<MonsterSpawnDAO> Spawns
         {
             get

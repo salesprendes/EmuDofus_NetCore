@@ -8,9 +8,6 @@ using System.Threading.Tasks;
 
 namespace Game.Database.Repository
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class QuestRepository : Repository<QuestRepository, QuestDAO>
     {
         private Dictionary<int, QuestDAO> m_questById;
@@ -40,9 +37,6 @@ namespace Game.Database.Repository
         {
         }
     }
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class QuestStepRepository : Repository<QuestStepRepository, QuestStepDAO>
     {
         private Dictionary<int, QuestStepDAO> m_stepById;
@@ -60,11 +54,7 @@ namespace Game.Database.Repository
         public override void OnObjectAdded(QuestStepDAO obj)
         {
             m_stepById.Add(obj.Id, obj);
-            QuestRepository
-                .Instance
-                .GetById(obj.QuestId)
-                .Steps
-                .Add(obj);
+            QuestRepository.Instance.GetById(obj.QuestId).Steps.Add(obj);
         }
 
         public override void UpdateAll(MySqlConnector.MySqlConnection connection, MySqlConnector.MySqlTransaction transaction)
@@ -77,18 +67,11 @@ namespace Game.Database.Repository
         {
         }
     }
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class QuestObjectiveRepository : Repository<QuestObjectiveRepository, QuestObjectiveDAO>
     {
         public override void OnObjectAdded(QuestObjectiveDAO obj)
         {
-            QuestStepRepository
-                .Instance
-                .GetById(obj.StepId)
-                .Objectives
-                .Add(obj);
+            QuestStepRepository.Instance.GetById(obj.StepId).Objectives.Add(obj);
         }
 
         public override void UpdateAll(MySqlConnector.MySqlConnection connection, MySqlConnector.MySqlTransaction transaction)

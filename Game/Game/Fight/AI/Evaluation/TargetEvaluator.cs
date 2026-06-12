@@ -54,8 +54,8 @@ namespace Game.Fight.AI.Evaluation
 
         public static AbstractFighter GetNearestEnemy(AIContext context)
         {
-            // EnemyTargets ya está ordenada por distancia ascendente desde la
-            // construcción del contexto — no hay que volver a calcular.
+
+
             if (context?.EnemyTargets == null || context.EnemyTargets.Count == 0)
                 return null;
 
@@ -67,13 +67,8 @@ namespace Game.Fight.AI.Evaluation
             if (context?.EnemyTargets == null)
                 return null;
 
-            // EnemyTargets filtra muertos en la construcción; solo quedan vivos.
-            return context.EnemyTargets
-                .Select(t => t.Target)
-                .Where(e => e != null)
-                .OrderBy(e => e.MaxLife > 0 ? (double)e.Life / e.MaxLife : 1.0)
-                .ThenBy(e => e.Life)
-                .FirstOrDefault();
+
+            return context.EnemyTargets.Select(t => t.Target).Where(e => e != null).OrderBy(e => e.MaxLife > 0 ? (double)e.Life / e.MaxLife : 1.0).ThenBy(e => e.Life).FirstOrDefault();
         }
 
         public static AbstractFighter GetMostDangerousEnemy(AIContext context)
@@ -81,11 +76,7 @@ namespace Game.Fight.AI.Evaluation
             if (context?.EnemyTargets == null)
                 return null;
 
-            return context.EnemyTargets
-                .Select(t => t.Target)
-                .Where(e => e != null)
-                .OrderByDescending(ScorePriorityTarget)
-                .FirstOrDefault();
+            return context.EnemyTargets.Select(t => t.Target).Where(e => e != null).OrderByDescending(ScorePriorityTarget).FirstOrDefault();
         }
 
         public static AbstractFighter GetBestAllyToHeal(AIContext context)
@@ -93,10 +84,7 @@ namespace Game.Fight.AI.Evaluation
             if (context?.Allies == null)
                 return null;
 
-            return context.Allies
-                .Where(a => a != null && !a.IsFighterDead && a.MaxLife > 0 && a.Life < a.MaxLife)
-                .OrderBy(a => (double)a.Life / a.MaxLife)
-                .FirstOrDefault();
+            return context.Allies.Where(a => a != null && !a.IsFighterDead && a.MaxLife > 0 && a.Life < a.MaxLife).OrderBy(a => (double)a.Life / a.MaxLife).FirstOrDefault();
         }
     }
 }

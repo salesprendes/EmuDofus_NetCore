@@ -1,4 +1,4 @@
-﻿using Protocolo.RPC.Service;
+using Protocolo.RPC.Service;
 
 namespace Protocolo.RPC.Protocol
 {

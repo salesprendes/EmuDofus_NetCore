@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,24 +6,14 @@ using System.Threading.Tasks;
 
 namespace Game.Fight
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class FightTurnProcessor : IDisposable
     {
         private List<AbstractFighter> m_fighterTurns = new List<AbstractFighter>();
         private AbstractFighter m_currentFighter;
         private int m_currentIndex;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public List<AbstractFighter> FighterOrder => m_fighterTurns;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
         public void SummonFighter(AbstractFighter fighter)
         {
             var index = m_fighterTurns.IndexOf(fighter.Invocator);
@@ -40,24 +30,16 @@ namespace Game.Fight
             m_fighterTurns.Insert(insertIndex, fighter);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighter"></param>
         public void RemoveFighter(AbstractFighter fighter)
         {
             var index = m_fighterTurns.IndexOf(fighter);
             if (index == -1)
                 return;
             m_fighterTurns.Remove(fighter);
-            if(index <= m_currentIndex)
+            if (index <= m_currentIndex)
                 m_currentIndex--;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fighters"></param>
         public void InitTurns(IEnumerable<AbstractFighter> fighters)
         {
             var team1 = fighters.Where(fighter => fighter.Team.Id == 0).ToList();
@@ -97,10 +79,6 @@ namespace Game.Fight
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public AbstractFighter NextFighter
         {
             get
@@ -127,9 +105,6 @@ namespace Game.Fight
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void Dispose()
         {
             m_fighterTurns.Clear();

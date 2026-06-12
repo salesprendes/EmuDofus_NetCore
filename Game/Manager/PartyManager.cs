@@ -1,4 +1,4 @@
-﻿using Protocolo.Framework.Generic;
+using Protocolo.Framework.Generic;
 using Game;
 using Game.Entity;
 using Game.Party;
@@ -11,53 +11,27 @@ using System.Threading.Tasks;
 
 namespace Game.Manager
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public sealed class PartyManager : Singleton<PartyManager>
     {
-        /// <summary>
-        /// 
-        /// </summary>
         private long m_nextPartyId;
         private readonly Dictionary<long, PartyInstance> m_partyById;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public PartyManager()
         {
             m_partyById = new Dictionary<long, PartyInstance>();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="partyId"></param>
-        /// <param name="message"></param>
         public void PartyMessage(long partyId, string message)
         {
-            WorldService.Instance.AddMessage(() =>
-                {
-                    var party = GetParty(partyId);
-                    if(party != null)                    
-                        party.Dispatch(message);                    
-                });
+            WorldService.Instance.AddMessage(() => { var party = GetParty(partyId); if (party != null) party.Dispatch(message); });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="character"></param>
         public void PartyLeave(CharacterEntity character)
         {
             if (m_partyById.ContainsKey(character.PartyId))
                 m_partyById[character.PartyId].RemoveMember(character);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void CreateParty(CharacterEntity master, CharacterEntity member)
         {
             var party = new PartyInstance(m_nextPartyId++, master, member);
@@ -67,10 +41,6 @@ namespace Game.Manager
             WorldService.Instance.AddUpdatable(party);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="instance"></param>
         public void RemoveParty(PartyInstance instance)
         {
             m_partyById.Remove(instance.Id);
@@ -78,11 +48,6 @@ namespace Game.Manager
             WorldService.Instance.RemoveUpdatable(instance);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="partyId"></param>
-        /// <returns></returns>
         public PartyInstance GetParty(long partyId)
         {
             if (m_partyById.ContainsKey(partyId))

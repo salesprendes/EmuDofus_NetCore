@@ -17,17 +17,17 @@ namespace Game.Map
 
         public MapCell(MapInstance map, int id, byte[] data, MapTriggerDAO trigger = null)
         {
-            Id      = id;
+            Id = id;
             Trigger = trigger;
 
-            bool active   = (data[0] & 32) != 0;
-            int  movement = (data[2] & 56) >> 3;
+            bool active = (data[0] & 32) != 0;
+            int movement = (data[2] & 56) >> 3;
 
-            LineOfSight       = (data[0] & 1) != 0;
-            GroundLevel       = data[1] & 15;
+            LineOfSight = (data[0] & 1) != 0;
+            GroundLevel = data[1] & 15;
             IsDestinationOnly = active && movement == 1;
 
-            bool baseWalkable          = active && movement > 0;
+            bool baseWalkable = active && movement > 0;
             bool layerObject2Interactive = (data[7] & 2) != 0;
 
             if (!layerObject2Interactive)

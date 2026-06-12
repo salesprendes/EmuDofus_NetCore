@@ -22,15 +22,9 @@ namespace Game.Fight.AI.Evaluation
 
         public static bool CanCastFromCell(AIContext context, SpellLevel spell, int fromCell, int castCell)
         {
-            return CanCastSpellThisTurn(context, spell)
-                && CanReachCell(context, spell, fromCell, castCell);
+            return CanCastSpellThisTurn(context, spell) && CanReachCell(context, spell, fromCell, castCell);
         }
 
-        /// <summary>
-        /// Invariant per (fighter, spell): AP, level, states and summon cap. Does NOT depend on
-        /// the cast geometry, so callers scanning many cells/targets can evaluate it once per spell
-        /// and skip the spell entirely when it returns false (avoids recomputing it per cell/enemy).
-        /// </summary>
         public static bool CanCastSpellThisTurn(AIContext context, SpellLevel spell)
         {
             if (context?.Fighter == null || context.Fight == null || spell == null)
@@ -62,11 +56,6 @@ namespace Game.Fight.AI.Evaluation
             return true;
         }
 
-        /// <summary>
-        /// Per-geometry check (range, in-line, empty-cell, LOS, target validity) for casting
-        /// <paramref name="spell"/> from <paramref name="fromCell"/> at <paramref name="castCell"/>.
-        /// Assumes <see cref="CanCastSpellThisTurn"/> already passed for this spell.
-        /// </summary>
         public static bool CanReachCell(AIContext context, SpellLevel spell, int fromCell, int castCell)
         {
             if (context?.Fighter == null || context.Fight == null || spell == null)
@@ -81,9 +70,7 @@ namespace Game.Fight.AI.Evaluation
                 return false;
 
             var distance = context.TurnCache.Cells.GetDistance(fromCell, castCell);
-            var maxPo = spell.AllowPOBoost && spell.MaxPO != 0
-                ? spell.MaxPO + fighter.Statistics.GetTotal(EffectEnum.AddPO)
-                : spell.MaxPO;
+            var maxPo = spell.AllowPOBoost && spell.MaxPO != 0 ? spell.MaxPO + fighter.Statistics.GetTotal(EffectEnum.AddPO) : spell.MaxPO;
 
             if (maxPo < spell.MinPO)
                 maxPo = spell.MinPO;
@@ -120,9 +107,7 @@ namespace Game.Fight.AI.Evaluation
             if (spell?.Effects == null)
                 return 0;
 
-            return spell.Effects
-                .Where(e => CastInfos.IsDamageEffect(e.TypeEnum))
-                .Sum(EstimateEffectValue);
+            return spell.Effects.Where(e => CastInfos.IsDamageEffect(e.TypeEnum)).Sum(EstimateEffectValue);
         }
 
         public static int EstimateHeal(SpellLevel spell)
@@ -130,9 +115,7 @@ namespace Game.Fight.AI.Evaluation
             if (spell?.Effects == null)
                 return 0;
 
-            return spell.Effects
-                .Where(e => e.TypeEnum == EffectEnum.Heal)
-                .Sum(EstimateEffectValue);
+            return spell.Effects.Where(e => e.TypeEnum == EffectEnum.Heal).Sum(EstimateEffectValue);
         }
 
         public static int EstimateBuffValue(SpellLevel spell)
@@ -140,9 +123,7 @@ namespace Game.Fight.AI.Evaluation
             if (spell?.Effects == null)
                 return 0;
 
-            return spell.Effects
-                .Where(e => CastInfos.IsBonusEffect(e.TypeEnum) && e.TypeEnum != EffectEnum.Heal)
-                .Sum(EstimateEffectValue);
+            return spell.Effects.Where(e => CastInfos.IsBonusEffect(e.TypeEnum) && e.TypeEnum != EffectEnum.Heal).Sum(EstimateEffectValue);
         }
 
         public static int EstimateDebuffValue(SpellLevel spell)
