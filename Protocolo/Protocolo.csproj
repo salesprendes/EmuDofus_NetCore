@@ -6,7 +6,6 @@
     <RootNamespace>Protocolo</RootNamespace>
     <Nullable>disable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <!-- Disable auto-generated AssemblyInfo: project already has Properties\AssemblyInfo.cs -->
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
@@ -27,7 +26,6 @@
 
     <!-- Runtime dependencies -->
     <PackageReference Include="MySqlConnector" Version="2.5.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.8" />
   </ItemGroup>
 
 </Project>

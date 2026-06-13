@@ -77,7 +77,7 @@ namespace Protocolo.Framework.Command
         private void ValidateAliases(Command<C> command)
         {
             if (command.Aliases == null || command.Aliases.Length == 0)
-                throw new Exception(string.Format("El comando `{0}` debe tener al menos un alias.", command.GetType().FullName));
+                throw new Exception($"El comando {command.GetType().FullName} debe tener al menos un alias.");
 
             foreach (var alias in command.Aliases)
             {

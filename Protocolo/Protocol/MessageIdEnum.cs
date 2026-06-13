@@ -1,8 +1,5 @@
-using System;
-
 namespace Protocolo.RPC.Protocol
 {
-    [Flags]
     public enum MessageIdEnum : int
     {
         WORLD_TO_AUTH_CREDENTIAL,

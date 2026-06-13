@@ -29,33 +29,8 @@ namespace Protocolo.RPC.Service
         {
             m_messageData.WriteBytes(buffer, offset, length);
 
-            while (true)
-            {
-                if (m_messageLength == -1)
-                {
-                    if (m_messageData.Count < sizeof(int))
-                        yield break;
-
-                    m_messageLength = m_messageData.ReadInt();
-                    ValidateMessageLength(m_messageLength);
-                }
-
-                if (m_messageId == -1)
-                {
-                    if (m_messageData.Count < sizeof(int))
-                        yield break;
-
-                    m_messageId = m_messageData.ReadInt();
-                }
-
-                if (m_messageData.Count < m_messageLength)
-                    yield break;
-
-                yield return MessageBuilder.BuildMessage(m_messageId, m_messageData, m_messageLength);
-
-                m_messageId = -1;
-                m_messageLength = -1;
-            }
+            while (RpcFraming.TryReadMessage(m_messageData, MessageBuilder, MaxMessageLength, ref m_messageLength, ref m_messageId, out var message))
+                yield return message;
         }
 
         public void Send(AbstractRcpMessage message)
@@ -65,7 +40,5 @@ namespace Protocolo.RPC.Service
             base.Send(message.Data);
         }
 
-        private void ValidateMessageLength(int length) =>
-            RpcFraming.ValidateMessageLength(length, MaxMessageLength);
     }
 }

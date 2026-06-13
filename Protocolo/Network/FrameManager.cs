@@ -36,22 +36,27 @@ namespace Protocolo.Framework.Network
             m_processing = true;
             var processed = false;
 
-            foreach (var frame in m_frames)
-                if (frame.Process(m_client, message))
-                    processed = true;
+            try
+            {
+                foreach (var frame in m_frames)
+                    if (frame.Process(m_client, message))
+                        processed = true;
+            }
+            finally
+            {
+                foreach (var frame in m_framesToAdd)
+                    if (!m_frames.Contains(frame))
+                        m_frames.Add(frame);
 
-            foreach (var frame in m_framesToAdd)
-                if (!m_frames.Contains(frame))
-                    m_frames.Add(frame);
+                foreach (var frame in m_framesToRemove)
+                    if (m_frames.Contains(frame))
+                        m_frames.Remove(frame);
 
-            foreach (var frame in m_framesToRemove)
-                if (m_frames.Contains(frame))
-                    m_frames.Remove(frame);
+                m_processing = false;
 
-            m_processing = false;
-
-            m_framesToAdd.Clear();
-            m_framesToRemove.Clear();
+                m_framesToAdd.Clear();
+                m_framesToRemove.Clear();
+            }
 
             return processed;
         }

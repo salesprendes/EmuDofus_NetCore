@@ -1,10 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Globalization;
 using System.Reflection;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Protocolo.Framework.Configuration
 {
@@ -25,9 +22,12 @@ namespace Protocolo.Framework.Configuration
         {
             if (key == null) throw new ArgumentNullException("key");
 
-            foreach (var provider in m_providers.Reverse())
+            for (var i = m_providers.Count - 1; i >= 0; i--)
+            {
+                var provider = m_providers[i];
                 if (provider.TryGet(key, out value))
                     return true;
+            }
 
             value = null;
             return false;
@@ -55,20 +55,19 @@ namespace Protocolo.Framework.Configuration
 
             foreach (var type in assembly.GetTypes())
             {
-                foreach (var field in type.GetFields())
+                foreach (var field in type.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
                 {
                     var attr = field.GetCustomAttribute<ConfigurableAttribute>();
 
                     if (attr == null)
                         continue;
 
-                    if (attr.Name == string.Empty)
-                        attr.Name = field.Name;
+                    var name = string.IsNullOrEmpty(attr.Name) ? field.Name : attr.Name;
 
-                    if (m_configurables.ContainsKey(attr.Name))
-                        throw new Exception(string.Format("Configurable name's `{0}` is already used.", attr.Name));
+                    if (m_configurables.ContainsKey(name))
+                        throw new Exception(string.Format("Configurable name's `{0}` is already used.", name));
 
-                    m_configurables.Add(attr.Name, field);
+                    m_configurables.Add(name, field);
                 }
             }
         }
@@ -80,14 +79,14 @@ namespace Protocolo.Framework.Configuration
                 object value;
                 if (TryGet(configurable.Key, out value))
                 {
-                    configurable.Value.SetValue(null, value);
+                    configurable.Value.SetValue(null, ConvertValue(value, configurable.Value.FieldType, configurable.Key));
                 }
             }
         }
 
         public void Commit()
         {
-            var final = m_commitableProviders.LastOrDefault();
+            var final = m_commitableProviders.Count == 0 ? null : m_commitableProviders[m_commitableProviders.Count - 1];
 
             if (final == null)
                 throw new InvalidOperationException("no commitable provider available");
@@ -108,10 +107,45 @@ namespace Protocolo.Framework.Configuration
             configurationProvider.Load();
             m_providers.Add(configurationProvider);
 
-            if (configurationProvider is ICommitableProvider)
+            if (configurationProvider is ICommitableProvider commitableProvider)
             {
-                m_commitableProviders.Add(configurationProvider as ICommitableProvider);
+                m_commitableProviders.Add(commitableProvider);
             }
+        }
+
+        private static object ConvertValue(object value, Type targetType, string key)
+        {
+            if (targetType == null)
+                throw new ArgumentNullException(nameof(targetType));
+
+            var nullableType = Nullable.GetUnderlyingType(targetType);
+            if (value == null)
+            {
+                if (!targetType.IsValueType || nullableType != null)
+                    return null;
+
+                throw new InvalidOperationException(string.Format("Configuration value `{0}` cannot be null for type `{1}`.", key, targetType.FullName));
+            }
+
+            var valueType = value.GetType();
+            if (targetType.IsAssignableFrom(valueType))
+                return value;
+
+            var conversionType = nullableType ?? targetType;
+
+            if (conversionType.IsEnum)
+            {
+                if (value is string enumName)
+                    return Enum.Parse(conversionType, enumName, ignoreCase: true);
+
+                var enumValue = Convert.ChangeType(value, Enum.GetUnderlyingType(conversionType), CultureInfo.InvariantCulture);
+                return Enum.ToObject(conversionType, enumValue);
+            }
+
+            if (conversionType == typeof(string))
+                return Convert.ToString(value, CultureInfo.InvariantCulture);
+
+            return Convert.ChangeType(value, conversionType, CultureInfo.InvariantCulture);
         }
     }
 }

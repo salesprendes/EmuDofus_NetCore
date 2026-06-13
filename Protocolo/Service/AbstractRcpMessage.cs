@@ -14,12 +14,12 @@ namespace Protocolo.RPC.Service
             {
                 if (m_cache == null)
                 {
-                    var data = ToArray();
+                    var dataLength = Count;
 
-                    m_cache = new byte[8 + data.Length];
-                    BinaryPrimitives.WriteInt32LittleEndian(m_cache.AsSpan(0, 4), data.Length);
+                    m_cache = new byte[8 + dataLength];
+                    BinaryPrimitives.WriteInt32LittleEndian(m_cache.AsSpan(0, 4), dataLength);
                     BinaryPrimitives.WriteInt32LittleEndian(m_cache.AsSpan(4, 4), Id);
-                    Buffer.BlockCopy(data, 0, m_cache, 8, data.Length);
+                    CopyTo(m_cache, 8, dataLength);
                 }
 
                 return m_cache;

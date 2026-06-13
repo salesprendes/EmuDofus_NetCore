@@ -181,10 +181,8 @@ namespace Game.Exchange
                     return false;
                 }
 
-                var forgeItem = new AdaptadorObjetoForjable(target);
-
                 return rune != null
-                    ? ApplyRuneAttempt(target, rune, signature, forgeItem)
+                    ? ApplyRuneAttempt(target, rune, signature)
                     : ApplyPotionAttempt(target, potion, signature);
             }
             finally
@@ -194,7 +192,7 @@ namespace Game.Exchange
         }
 
         /// <summary>Intento con runa: SC/SN/EC vía el motor.</summary>
-        private bool ApplyRuneAttempt(ItemDAO target, ItemDAO rune, ItemDAO signature, AdaptadorObjetoForjable forgeItem)
+        private bool ApplyRuneAttempt(ItemDAO target, ItemDAO rune, ItemDAO signature)
         {
             var forgeRune = GestorRunasForjamagia.Instance.Resolver(rune);
             if (!forgeRune.EsValida)
@@ -204,16 +202,22 @@ namespace Game.Exchange
                 return false;
             }
 
-            if (!m_forge.PuedeAplicarse(forgeItem, forgeRune, out var refuseReason))
+            // Validar sobre el objeto tal cual (solo lectura; una unidad del stack tiene las
+            // mismas stats que el conjunto).
+            if (!m_forge.PuedeAplicarse(new AdaptadorObjetoForjable(target), forgeRune, out var refuseReason))
             {
                 Logger.Debug("Forgemagie[" + Character.Name + "] runa " + rune.TemplateId + " rechazada: " + refuseReason);
                 InterruptAttempt();
                 return false;
             }
 
+            // Si el objeto está en un stack, maguear UNA unidad sin tocar las demás.
+            target = EnsureSingle(target);
+
             ConsumeOne(rune.Id, out var runeRemaining);
 
             var jobLevel = Character.CharacterJobs.GetJobLevel(JobId);
+            var forgeItem = new AdaptadorObjetoForjable(target);
             var result = m_forge.AplicarRuna(forgeItem, forgeRune, jobLevel);
 
             var displayItem = FinalizeObject(target, signature, result.ObjetoModificado);
@@ -251,6 +255,9 @@ namespace Game.Exchange
                 return false;
             }
 
+            // Si el objeto está en un stack, maguear UNA unidad sin tocar las demás.
+            target = EnsureSingle(target);
+
             ConsumeOne(potion.Id, out var potionRemaining);
 
             var changed = GestorPocionesForjamagia.Instance.Aplicar(target, element.Value);
@@ -265,6 +272,25 @@ namespace Game.Exchange
             RepopulateGrid(displayItem, potion.Id, potionRemaining);
 
             return false;
+        }
+
+        /// <summary>
+        /// Si el objeto está en un stack (cantidad &gt; 1), separa UNA unidad: reduce el stack
+        /// (OQ al cliente) y añade una instancia individual al inventario, para maguearla sin
+        /// afectar a las demás. Devuelve la unidad individual (o el mismo objeto si ya era único).
+        /// </summary>
+        private ItemDAO EnsureSingle(ItemDAO target)
+        {
+            if (target.Quantity <= 1)
+                return target;
+
+            var single = Character.Inventory.RemoveItem(target.Id, 1);
+            Character.Inventory.AddItem(single, merge: false);
+
+            if (m_caseItems.Remove(target.Id))
+                m_caseItems[single.Id] = 1;
+
+            return single;
         }
 
         /// <summary>
@@ -286,11 +312,12 @@ namespace Game.Exchange
 
             target.SaveStats();
 
-            // Clonar ANTES de quitar el original (RemoveItem marca OwnerId = -1).
+            // Clonar ANTES de quitar el original (RemoveItem marca OwnerId = -1). target ya es
+            // una unidad individual (EnsureSingle), así que se quita 1.
             var forged = target.Clone(1);
             forged.ForgemagiePuits = target.ForgemagiePuits;
 
-            Character.Inventory.RemoveItem(target.Id, target.Quantity);
+            Character.Inventory.RemoveItem(target.Id, 1);
             Character.Inventory.AddItem(forged, merge: false);
 
             m_caseItems.Remove(target.Id);

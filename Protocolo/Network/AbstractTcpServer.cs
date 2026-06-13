@@ -1,9 +1,7 @@
 using Protocolo.Framework.Generic;
 using System;
-using System.Buffers.Binary;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 
@@ -67,7 +65,7 @@ namespace Protocolo.Framework.Network
             BackLog = backLog;
 
             m_socket.ExclusiveAddressUse = false;
-            m_socket.Bind(new IPEndPoint(ResolveHost(host), port));
+            m_socket.Bind(new IPEndPoint(SocketExtensions.ResolveIPv4Address(host), port));
             m_socket.Listen(backLog);
 
 
@@ -249,10 +247,11 @@ namespace Protocolo.Framework.Network
         private void ProcessAccepted(SocketAsyncEventArgs saea)
         {
             var socket = saea.AcceptSocket;
+            var socketError = saea.SocketError;
 
             StartAccept(saea);
 
-            if (saea.SocketError != SocketError.Success || socket == null)
+            if (socketError != SocketError.Success || socket == null)
             {
                 try
                 {
@@ -476,35 +475,7 @@ namespace Protocolo.Framework.Network
             socket.ConfigureBase();
             socket.ReceiveBufferSize = 8192;
             socket.SendBufferSize = 32768;
-            SetAggressiveKeepAlive(socket);
-        }
-
-        private static void SetAggressiveKeepAlive(Socket socket)
-        {
-            if (!OperatingSystem.IsWindows())
-                return;
-
-            try
-            {
-                var inValue = new byte[12];
-                BinaryPrimitives.WriteUInt32LittleEndian(inValue.AsSpan(0, 4), 1u);
-                BinaryPrimitives.WriteUInt32LittleEndian(inValue.AsSpan(4, 4), 60000u);
-                BinaryPrimitives.WriteUInt32LittleEndian(inValue.AsSpan(8, 4), 10000u);
-                socket.IOControl(IOControlCode.KeepAliveValues, inValue, null);
-            }
-            catch { }
-        }
-
-        private static IPAddress ResolveHost(string host)
-        {
-            if (IPAddress.TryParse(host, out var address))
-                return address;
-
-            var resolved = Dns.GetHostAddresses(host).FirstOrDefault(entry => entry.AddressFamily == AddressFamily.InterNetwork);
-            if (resolved == null)
-                throw new SocketException((int)SocketError.HostNotFound);
-
-            return resolved;
+            socket.SetAggressiveKeepAlive();
         }
 
         protected virtual bool AllowConnection(string ip) => true;

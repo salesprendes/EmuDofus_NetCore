@@ -1,10 +1,13 @@
 using Protocolo.RPC.Service;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Protocolo.RPC.Protocol
 {
     public sealed class AccountConnectedList : AbstractRcpMessage
     {
+        private const int MaxConnectedAccounts = 100000;
+
         public override int Id
         {
             get
@@ -32,7 +35,16 @@ namespace Protocolo.RPC.Protocol
         public override void Deserialize()
         {
             long length = base.ReadLong();
-            for (long i = 0; i < length; i++)
+
+            if (length < 0 || length > MaxConnectedAccounts)
+                throw new InvalidDataException("AccountConnectedList: longitud invalida: " + length);
+
+            ConnectedAccounts.Clear();
+            var count = (int)length;
+            if (ConnectedAccounts.Capacity < count)
+                ConnectedAccounts.Capacity = count;
+
+            for (var i = 0; i < count; i++)
                 ConnectedAccounts.Add(base.ReadLong());
         }
 

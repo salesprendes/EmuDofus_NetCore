@@ -56,15 +56,27 @@ namespace Protocolo.Framework.Configuration.Providers
 
         public void Commit()
         {
+            var tempPath = Path + ".tmp";
+
             try
             {
-                using (var file = new FileStream(Path, FileMode.Create))
+                var fullPath = System.IO.Path.GetFullPath(Path);
+                var directory = System.IO.Path.GetDirectoryName(fullPath);
+                if (!string.IsNullOrEmpty(directory))
+                    Directory.CreateDirectory(directory);
+
+                using (var file = new FileStream(tempPath, FileMode.Create, FileAccess.Write, FileShare.None))
+                {
                     GenerateFile(file);
+                    file.Flush(true);
+                }
+
+                File.Move(tempPath, Path, true);
             }
             catch
             {
-                if (File.Exists(Path))
-                    File.Delete(Path);
+                if (File.Exists(tempPath))
+                    File.Delete(tempPath);
                 throw;
             }
         }

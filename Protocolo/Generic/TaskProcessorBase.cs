@@ -1,8 +1,9 @@
 using Protocolo.Framework.Generic.Logging;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace Protocolo.Framework.Generic
 {
@@ -36,19 +37,20 @@ namespace Protocolo.Framework.Generic
             }
         }
 
-        private Stopwatch m_queueTimer;
-        private LockFreeQueue<Action> m_messageQueue;
-        private List<Updatable> m_updatableObjects;
-        private List<UpdatableTimer> m_timerList;
+        private readonly Stopwatch m_queueTimer;
+        private readonly BlockingCollection<Action> m_messageQueue;
+        private readonly List<Updatable> m_updatableObjects;
+        private readonly List<UpdatableTimer> m_timerList;
         private volatile bool m_running;
+        private CancellationTokenSource m_cts;
+        private Thread m_updateThread;
 
         public TaskProcessorBase(string name, int updateInterval = 10)
         {
             UpdateInterval = updateInterval;
             Name = name;
 
-            m_running = false;
-            m_messageQueue = new LockFreeQueue<Action>();
+            m_messageQueue = new BlockingCollection<Action>(new ConcurrentQueue<Action>());
             m_updatableObjects = new List<Updatable>();
             m_timerList = new List<UpdatableTimer>();
             m_queueTimer = new Stopwatch();
@@ -57,18 +59,26 @@ namespace Protocolo.Framework.Generic
         }
         public void Start()
         {
+            if (m_running) return;
+
+            m_cts = new CancellationTokenSource();
             m_running = true;
             m_queueTimer.Start();
-
-            Task.Delay(UpdateInterval).ContinueWith(_ => InternalUpdate(), TaskScheduler.Default);
+            m_updateThread = new Thread(InternalStart) { IsBackground = true, Name = $"TaskProcessorBase-{Name}" };
+            m_updateThread.Start();
         }
         public void Stop()
         {
+            m_cts?.Cancel();
             AddMessage(() => { m_running = false; m_queueTimer.Reset(); LastUpdate = 0; });
         }
         public void AddMessage(Action message)
         {
-            m_messageQueue.Enqueue(message);
+            if (message == null)
+                throw new ArgumentNullException(nameof(message));
+
+            if (m_running)
+                m_messageQueue.Add(message);
         }
         public void AddLinkedMessages(params System.Action[] messages)
         {
@@ -102,6 +112,12 @@ namespace Protocolo.Framework.Generic
         public void RemoveTimer(UpdatableTimer timer)
         {
             AddMessage(() => { m_timerList.Remove(timer); });
+        }
+
+        private void InternalStart()
+        {
+            while (m_running)
+                InternalUpdate();
         }
 
         private void InternalUpdate()
@@ -142,8 +158,8 @@ namespace Protocolo.Framework.Generic
                 }
             }
 
-            Action msg = null;
-            while (m_messageQueue.TryDequeue(out msg))
+            Action msg;
+            while (m_messageQueue.TryTake(out msg))
             {
                 try
                 {
@@ -155,10 +171,26 @@ namespace Protocolo.Framework.Generic
                 }
             }
 
-            var nextDelay = Math.Max(0, (int)((timeStart + UpdateInterval) - m_queueTimer.ElapsedMilliseconds));
+            if (!m_running)
+                return;
 
-            if (m_running)
-                Task.Delay(nextDelay).ContinueWith(_ => InternalUpdate(), TaskScheduler.Default);
+            var elapsed = m_queueTimer.ElapsedMilliseconds - timeStart;
+            var waitMs = Math.Max(1, (int)(UpdateInterval - elapsed));
+            try
+            {
+                if (m_messageQueue.TryTake(out msg, waitMs, m_cts.Token))
+                {
+                    try
+                    {
+                        msg();
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error($"TaskQueue[{Name}] fallo al procesar un mensaje: {ex}");
+                    }
+                }
+            }
+            catch (OperationCanceledException) { }
         }
     }
 }

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Concurrent;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -60,7 +59,7 @@ namespace Protocolo.Framework.Network
             ConfigureSocket(socket);
             m_socket = socket;
 
-            m_connectSaea = new SocketAsyncEventArgs { RemoteEndPoint = new IPEndPoint(ResolveHost(host), port) };
+            m_connectSaea = new SocketAsyncEventArgs { RemoteEndPoint = new IPEndPoint(SocketExtensions.ResolveIPv4Address(host), port) };
             m_connectSaea.Completed += IOCompleted;
 
             try
@@ -314,18 +313,6 @@ namespace Protocolo.Framework.Network
         }
 
         private static void ConfigureSocket(Socket socket) => socket.ConfigureBase();
-
-        private static IPAddress ResolveHost(string host)
-        {
-            if (IPAddress.TryParse(host, out var address))
-                return address;
-
-            var resolved = Dns.GetHostAddresses(host).FirstOrDefault(entry => entry.AddressFamily == AddressFamily.InterNetwork);
-            if (resolved == null)
-                throw new SocketException((int)SocketError.HostNotFound);
-
-            return resolved;
-        }
 
         protected abstract void OnBytesRead(byte[] buffer, int offset, int length);
         protected abstract void OnDisconnected();

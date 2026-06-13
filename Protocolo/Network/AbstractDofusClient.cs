@@ -97,19 +97,24 @@ namespace Protocolo.Framework.Network
         public virtual void Send(string message)
         {
             if (message == null)
-            {
                 return;
-            }
 
             if (DebugEnabled)
-            {
-                Logger.Debug("Servidor: " + message);
-            }
+                Logger.Debug($"Servidor: {message}");
+
+            base.Send(EncodePacket(message));
+        }
+
+        public static byte[] EncodePacket(string message)
+        {
+            if (message == null)
+                return Array.Empty<byte>();
 
             var byteCount = Encoding.UTF8.GetByteCount(message);
             var data = new byte[byteCount + 1];
             Encoding.UTF8.GetBytes(message, 0, message.Length, data, 0);
-            base.Send(data);
+            data[byteCount] = 0x00;
+            return data;
         }
 
         private bool RegisterPacketActivity()
@@ -119,7 +124,7 @@ namespace Protocolo.Framework.Network
                 CumulatedPacketInOneSecond++;
                 if (CumulatedPacketInOneSecond > 25)
                 {
-                    Logger.Warn("Cliente expulsado por spam de paquetes: " + Ip);
+                    Logger.Warn($"Cliente expulsado por spam de paquetes: {Ip}");
                     Disconnect();
                     return false;
                 }

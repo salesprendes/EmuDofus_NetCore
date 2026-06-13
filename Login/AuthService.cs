@@ -13,7 +13,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 
 namespace Login
@@ -220,16 +219,7 @@ namespace Login
             if (message == null)
                 return;
 
-            base.SendToAll(EncodePacket(message));
-        }
-
-        private static byte[] EncodePacket(string message)
-        {
-            var byteCount = Encoding.UTF8.GetByteCount(message);
-            var data = new byte[byteCount + 1];
-            Encoding.UTF8.GetBytes(message, 0, message.Length, data, 0);
-            data[byteCount] = 0x00;
-            return data;
+            base.SendToAll(AuthClient.EncodePacket(message));
         }
 
         #endregion

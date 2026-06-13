@@ -41,6 +41,20 @@ namespace Protocolo.Framework.IO
             return data;
         }
 
+        internal void CopyTo(byte[] destination, int destinationOffset, int count)
+        {
+            if (destination == null)
+                throw new ArgumentNullException(nameof(destination));
+            if (destinationOffset < 0 || count < 0 || destinationOffset + count > destination.Length)
+                throw new ArgumentOutOfRangeException(nameof(destinationOffset));
+
+            EnsureReadable(count);
+            if (count == 0)
+                return;
+
+            Buffer.BlockCopy(m_buffer, m_readOffset, destination, destinationOffset, count);
+        }
+
         public int ReadInt()
         {
             EnsureReadable(sizeof(int));
@@ -105,9 +119,15 @@ namespace Protocolo.Framework.IO
         public void WriteString(string value)
         {
             var safeValue = value ?? string.Empty;
-            var bytes = StringEncoding.GetBytes(safeValue);
-            WriteInt(bytes.Length);
-            WriteBytes(bytes);
+            var byteCount = StringEncoding.GetByteCount(safeValue);
+
+            WriteInt(byteCount);
+            if (byteCount == 0)
+                return;
+
+            EnsureWritable(byteCount);
+            StringEncoding.GetBytes(safeValue, 0, safeValue.Length, m_buffer, m_writeOffset);
+            m_writeOffset += byteCount;
         }
 
         public void WriteBytes(byte[] data)

@@ -1,11 +1,7 @@
 using Game.Database.Repository;
 using Game.Database.Structure;
-using Game.Entity;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.Job.Skill
 {
