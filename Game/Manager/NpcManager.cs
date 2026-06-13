@@ -26,7 +26,7 @@ namespace Game.Manager
                 m_npcByMap[npcInstance.MapId].Add(npcInstance);
                 npcCount++;
             }
-            Logger.Info("NpcManager: " + npcCount + " NPC cargados.");
+            Logger.Info($"NpcManager: {npcCount} NPC cargados.");
         }
 
         public List<NpcInstanceDAO> GetByMapId(int mapId)

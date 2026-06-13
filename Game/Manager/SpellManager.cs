@@ -39,7 +39,7 @@ namespace Game.Manager
                 m_templateById[template.Id] = template;
             }
 
-            Logger.Info("SpellManager: " + m_templateById.Count + " hechizos cargados.");
+            Logger.Info($"SpellManager: {m_templateById.Count} hechizos cargados.");
         }
 
         public SpellLevel GetSpellLevel(int spellId, int spellLevel)

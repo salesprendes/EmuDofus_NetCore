@@ -306,9 +306,6 @@ namespace Game.Map
         public static double[] RUN_SPEEDS = { 1.700000E-001, 1.500000E-001, 1.500000E-001, 1.500000E-001, 1.700000E-001, 1.500000E-001, 1.500000E-001, 1.500000E-001 };
         public static double[] WALK_SPEEDS = { 7.000000E-002, 6.000000E-002, 6.000000E-002, 6.000000E-002, 7.000000E-002, 6.000000E-002, 6.000000E-002, 6.000000E-002 };
         public static double[] MOUNT_SPEEDS = { 2.300000E-001, 2.000000E-001, 2.000000E-001, 2.000000E-001, 2.300000E-001, 2.000000E-001, 2.000000E-001, 2.000000E-001 };
-
-
-
         internal static readonly double[] CELL_PIXEL_DIST = { 53.0, 29.740, 27.0, 29.740, 53.0, 29.740, 27.0, 29.740 };
 
         private static FastRandom PATHFIND_RANDOM = new FastRandom();

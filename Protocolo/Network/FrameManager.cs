@@ -38,19 +38,24 @@ namespace Protocolo.Framework.Network
 
             try
             {
-                foreach (var frame in m_frames)
+                for (var i = 0; i < m_frames.Count; i++)
+                {
+                    var frame = m_frames[i];
                     if (frame.Process(m_client, message))
                         processed = true;
+                }
             }
             finally
             {
-                foreach (var frame in m_framesToAdd)
+                for (var i = 0; i < m_framesToAdd.Count; i++)
+                {
+                    var frame = m_framesToAdd[i];
                     if (!m_frames.Contains(frame))
                         m_frames.Add(frame);
+                }
 
-                foreach (var frame in m_framesToRemove)
-                    if (m_frames.Contains(frame))
-                        m_frames.Remove(frame);
+                for (var i = 0; i < m_framesToRemove.Count; i++)
+                    m_frames.Remove(m_framesToRemove[i]);
 
                 m_processing = false;
 
@@ -64,19 +69,24 @@ namespace Protocolo.Framework.Network
         public void AddFrame(IFrame<TClient, TMessage> frame)
         {
             if (m_processing)
+            {
                 m_framesToAdd.Add(frame);
-            else
-                if (!m_frames.Contains(frame))
-                    m_frames.Add(frame);
+                return;
+            }
+
+            if (!m_frames.Contains(frame))
+                m_frames.Add(frame);
         }
 
         public void RemoveFrame(IFrame<TClient, TMessage> frame)
         {
             if (m_processing)
+            {
                 m_framesToRemove.Add(frame);
-            else
-                if (m_frames.Contains(frame))
-                    m_frames.Remove(frame);
+                return;
+            }
+
+            m_frames.Remove(frame);
         }
 
         public void Dispose()

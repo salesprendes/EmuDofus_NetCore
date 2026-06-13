@@ -14,13 +14,13 @@ namespace Protocolo.Framework.Generic
             {
                 case TaskStatus.RanToCompletion:
                     resultSetter.SetResult(task is Task<TResult> ? ((Task<TResult>)task).Result : default(TResult));
-                    break;
+                    return;
                 case TaskStatus.Faulted:
                     resultSetter.SetException(task.Exception.InnerExceptions);
-                    break;
+                    return;
                 case TaskStatus.Canceled:
                     resultSetter.SetCanceled();
-                    break;
+                    return;
                 default:
                     throw new InvalidOperationException("The task was not completed.");
             }

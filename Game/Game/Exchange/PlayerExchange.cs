@@ -11,10 +11,7 @@ namespace Game.Exchange
 {
     public sealed class PlayerExchange : AbstractEntityExchange
     {
-        public PlayerExchange(CharacterEntity local, CharacterEntity distant)
-    : base(ExchangeTypeEnum.EXCHANGE_PLAYER, local, distant)
-        {
-        }
+        public PlayerExchange(CharacterEntity local, CharacterEntity distant) : base(ExchangeTypeEnum.EXCHANGE_PLAYER, local, distant) {}
     }
 }
 

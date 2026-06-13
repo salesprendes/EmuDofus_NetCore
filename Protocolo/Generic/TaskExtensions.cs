@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -92,14 +91,13 @@ namespace Protocolo.Framework.Generic
                 throw new ArgumentNullException("tasks");
             }
 
-            if (tasks.Any(t => t == null))
+            for (var i = 0; i < tasks.Length; i++)
             {
-                throw new ArgumentException("tasks");
-            }
+                if (tasks[i] == null)
+                    throw new ArgumentException("tasks");
 
-            if (tasks.Any(t => !t.IsCompleted))
-            {
-                throw new InvalidOperationException("A task has not completed.");
+                if (!tasks[i].IsCompleted)
+                    throw new InvalidOperationException("A task has not completed.");
             }
 
             Task.WaitAll(tasks);
@@ -199,15 +197,15 @@ namespace Protocolo.Framework.Generic
                         case TaskStatus.RanToCompletion:
                             observer.OnNext(Task.Result);
                             observer.OnCompleted();
-                            break;
+                            return;
 
                         case TaskStatus.Faulted:
                             observer.OnError(Task.Exception);
-                            break;
+                            return;
 
                         case TaskStatus.Canceled:
                             observer.OnError(new TaskCanceledException(t));
-                            break;
+                            return;
                     }
                 }, cts.Token);
 

@@ -73,7 +73,7 @@ namespace Protocolo.Framework.Network
             for (var i = 0; i < acceptWorkers; i++)
                 StartAccept(null);
 
-            Logger.Info(GetType().Name + " escuchando en " + host + ":" + port);
+            Logger.Info($"{GetType().Name} escuchando en {host}:{port}");
         }
 
         public void Send(TClient client, byte[] data)
@@ -149,24 +149,14 @@ namespace Protocolo.Framework.Network
 
         private void IOCompleted(object sender, SocketAsyncEventArgs saea)
         {
-            switch (saea.LastOperation)
-            {
-                case SocketAsyncOperation.Accept:
-                    ProcessAccepted(saea);
-                    break;
-
-                case SocketAsyncOperation.Receive:
-                    ProcessReceived(saea);
-                    break;
-
-                case SocketAsyncOperation.Send:
-                    ProcessSent(saea);
-                    break;
-
-                case SocketAsyncOperation.Disconnect:
-                    ProcessDisconnected(saea);
-                    break;
-            }
+            if (saea.LastOperation == SocketAsyncOperation.Accept)
+                ProcessAccepted(saea);
+            else if (saea.LastOperation == SocketAsyncOperation.Receive)
+                ProcessReceived(saea);
+            else if (saea.LastOperation == SocketAsyncOperation.Send)
+                ProcessSent(saea);
+            else if (saea.LastOperation == SocketAsyncOperation.Disconnect)
+                ProcessDisconnected(saea);
         }
 
         private void ProcessDisconnected(SocketAsyncEventArgs saea)
@@ -224,7 +214,7 @@ namespace Protocolo.Framework.Network
             }
             catch (Exception ex)
             {
-                Logger.Warn("Error en StartReceive para " + client.Ip + " : " + ex.Message);
+                Logger.Warn($"Error en StartReceive para {client.Ip} : {ex.Message}");
                 Disconnect(saea);
             }
         }
@@ -314,7 +304,7 @@ namespace Protocolo.Framework.Network
             }
             catch (Exception ex)
             {
-                Logger.Warn("Fallo en el manejador de recepcion del socket para " + client.Ip + " : " + ex.Message);
+                Logger.Warn($"Fallo en el manejador de recepcion del socket para {client.Ip} : {ex.Message}");
                 Disconnect(saea);
                 return;
             }

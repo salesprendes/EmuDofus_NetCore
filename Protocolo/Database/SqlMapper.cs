@@ -28,22 +28,16 @@ namespace Protocolo.Framework.Database
         public interface ITypeMap
         {
             ConstructorInfo FindConstructor(string[] names, Type[] types);
-
             IMemberMap GetConstructorParameter(ConstructorInfo constructor, string columnName);
-
             IMemberMap GetMember(string columnName);
         }
 
         public interface IMemberMap
         {
             string ColumnName { get; }
-
             Type MemberType { get; }
-
             PropertyInfo Property { get; }
-
             FieldInfo Field { get; }
-
             ParameterInfo Parameter { get; }
         }
 
@@ -117,6 +111,7 @@ namespace Protocolo.Framework.Database
                 } while (tryAgain);
                 return true;
             }
+
             private Link(TKey key, TValue value, Link<TKey, TValue> tail)
             {
                 Key = key;
@@ -127,6 +122,7 @@ namespace Protocolo.Framework.Database
             public TValue Value { get; private set; }
             public Link<TKey, TValue> Tail { get; private set; }
         }
+
         partial class CacheInfo
         {
             public DeserializerState Deserializer { get; set; }
@@ -138,6 +134,7 @@ namespace Protocolo.Framework.Database
             public int ResetHitCount() { return Interlocked.Exchange(ref hitCount, 0); }
             public void RecordHit() { Interlocked.Increment(ref hitCount); }
         }
+
         static int GetColumnHash(IDataReader reader)
         {
             unchecked
@@ -151,6 +148,7 @@ namespace Protocolo.Framework.Database
                 return hash;
             }
         }
+
         struct DeserializerState
         {
             public readonly int Hash;
@@ -355,7 +353,7 @@ namespace Protocolo.Framework.Database
             }
 
 
-            throw new NotSupportedException(string.Format("The member {0} of type {1} cannot be used as a parameter value", name, type));
+            throw new NotSupportedException($"The member {name} of type {type} cannot be used as a parameter value");
         }
 
 
@@ -375,9 +373,8 @@ namespace Protocolo.Framework.Database
                 return new Identity(sql, commandType, connectionString, this.type, type, null, -1);
             }
 
-            internal Identity(string sql, CommandType? commandType, IDbConnection connection, Type type, Type parametersType, Type[] otherTypes)
-                : this(sql, commandType, connection.ConnectionString, type, parametersType, otherTypes, 0)
-            { }
+            internal Identity(string sql, CommandType? commandType, IDbConnection connection, Type type, Type parametersType, Type[] otherTypes) : this(sql, commandType, connection.ConnectionString, type, parametersType, otherTypes, 0) { }
+
             private Identity(string sql, CommandType? commandType, string connectionString, Type type, Type parametersType, Type[] otherTypes, int gridIndex)
             {
                 this.sql = sql;
@@ -393,6 +390,7 @@ namespace Protocolo.Framework.Database
                     hashCode = hashCode * 23 + gridIndex.GetHashCode();
                     hashCode = hashCode * 23 + (sql == null ? 0 : sql.GetHashCode());
                     hashCode = hashCode * 23 + (type == null ? 0 : type.GetHashCode());
+
                     if (otherTypes != null)
                     {
                         foreach (var t in otherTypes)
@@ -400,6 +398,7 @@ namespace Protocolo.Framework.Database
                             hashCode = hashCode * 23 + (t == null ? 0 : t.GetHashCode());
                         }
                     }
+
                     hashCode = hashCode * 23 + (connectionString == null ? 0 : SqlMapper.connectionStringComparer.GetHashCode(connectionString));
                     hashCode = hashCode * 23 + (parametersType == null ? 0 : parametersType.GetHashCode());
                 }
@@ -989,7 +988,7 @@ namespace Protocolo.Framework.Database
 
                 if (fieldNameLookup.ContainsKey(name))
                 {
-                    throw new InvalidOperationException("Field already exists: " + name);
+                    throw new InvalidOperationException($"Field already exists: {name}");
                 }
 
                 int oldLen = fieldNames.Length;
@@ -1501,7 +1500,7 @@ namespace Protocolo.Framework.Database
         {
             Type type = identity.parametersType;
             bool filterParams = identity.commandType.GetValueOrDefault(CommandType.Text) == CommandType.Text;
-            var dm = new DynamicMethod(string.Format("ParamInfo{0}", Guid.NewGuid()), null, new[] { typeof(IDbCommand), typeof(object) }, type, true);
+            var dm = new DynamicMethod($"ParamInfo{Guid.NewGuid()}", null, new[] { typeof(IDbCommand), typeof(object) }, type, true);
 
             var il = dm.GetILGenerator();
 
@@ -1567,7 +1566,6 @@ namespace Protocolo.Framework.Database
                 {
 
                     il.EmitCall(OpCodes.Callvirt, typeof(IDbCommand).GetMethod("CreateParameter"), null);
-
                     il.Emit(OpCodes.Dup);
                     il.Emit(OpCodes.Ldstr, prop.Name);
                     il.EmitCall(OpCodes.Callvirt, typeof(IDataParameter).GetProperty("ParameterName").GetSetMethod(), null);
@@ -1606,7 +1604,7 @@ namespace Protocolo.Framework.Database
 
                     il.Emit(OpCodes.Dup);
                     Label notNull = il.DefineLabel();
-                    Label? allDone = dbType == DbType.String ? il.DefineLabel() : (Label? )null;
+                    Label? allDone = dbType == DbType.String ? il.DefineLabel() : (Label?)null;
                     il.Emit(OpCodes.Brtrue_S, notNull);
 
                     il.Emit(OpCodes.Pop);
@@ -1883,11 +1881,9 @@ namespace Protocolo.Framework.Database
             PurgeQueryCacheByType(type);
         }
 
-        public static Func<IDataReader, object> GetTypeDeserializer(
-    Type type, IDataReader reader, int startBound = 0, int length = -1, bool returnNullIfFirstMissing = false)
+        public static Func<IDataReader, object> GetTypeDeserializer(Type type, IDataReader reader, int startBound = 0, int length = -1, bool returnNullIfFirstMissing = false)
         {
-
-            var dm = new DynamicMethod(string.Format("Deserialize{0}", Guid.NewGuid()), typeof(object), new[] { typeof(IDataReader) }, true);
+            var dm = new DynamicMethod($"Deserialize{Guid.NewGuid()}", typeof(object), new[] { typeof(IDataReader) }, true);
             var il = dm.GetILGenerator();
             il.DeclareLocal(typeof(int));
             il.DeclareLocal(type);
@@ -1936,7 +1932,7 @@ namespace Protocolo.Framework.Database
                     if (ctor == null)
                     {
                         string proposedTypes = "(" + String.Join(", ", types.Select((t, i) => t.FullName + " " + names[i]).ToArray()) + ")";
-                        throw new InvalidOperationException(String.Format("A parameterless default constructor or one matching signature {0} is required for {1} materialization", proposedTypes, type.FullName));
+                        throw new InvalidOperationException($"A parameterless default constructor or one matching signature {proposedTypes} is required for {type.FullName} materialization");
                     }
 
                     if (ctor.GetParameters().Length == 0)
@@ -2282,7 +2278,7 @@ namespace Protocolo.Framework.Database
                         value = Convert.ToString(val) + " - " + Type.GetTypeCode(val.GetType());
                     }
                 }
-                toThrow = new DataException(string.Format("Error parsing column {0} ({1}={2})", index, name, value), ex);
+                toThrow = new DataException($"Error parsing column {index} ({name}={value})", ex);
             }
             catch
             {

@@ -46,7 +46,7 @@ namespace Game.Manager
 
         public void AddTicket(long accountId, string name, string pseudo, int power, long remainingSub, long lastConnection, string lastIp, string ticket)
         {
-            Logger.Info("TicketJuego: cuenta=" + name + " ticket=" + ticket);
+            Logger.Info($"TicketJuego: cuenta={name} ticket={ticket}");
             WorldService.Instance.AddMessage(() => m_accountByTicket.Add(ticket, new AccountTicket()
             {
                 Id = accountId,
@@ -103,7 +103,7 @@ namespace Game.Manager
                     var value = m_accountByTicket.ElementAt(i).Value;
                     var elapsed = WorldService.Instance.LastUpdate - value.Time;
                     if (elapsed < WorldConfig.RPC_ACCOUNT_TICKET_TIMEOUT) continue;
-                    Logger.Debug("Ticket caducado: " + value.Ticket);
+                    Logger.Debug($"Ticket caducado: {value.Ticket}");
                     m_accountByTicket.Remove(value.Ticket);
                     RPCManager.Instance.AccountDisconnected(value.Id);
                 }

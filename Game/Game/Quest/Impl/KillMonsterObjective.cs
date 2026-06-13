@@ -17,7 +17,7 @@ namespace Game.Quest.Impl
             }
             catch (Exception e)
             {
-                Logger.Warn("Quest::KillMonsterObjective tipo de parametro incorrecto, parametro=" + record.Parameters, e);
+                Logger.Warn($"Quest::KillMonsterObjective tipo de parametro incorrecto, parametro={record.Parameters}", e);
             }
         }
 

@@ -182,13 +182,7 @@ namespace Game.Fight.AI.Dopeuls
             if (!WorldConfig.LOG_DEBUG || decision == null)
                 return;
 
-            Logger.Debug("[IA][Dopeul] Luchador=" + (Fighter?.Id ?? 0)
-                + " Clase=" + GetType().Name
-                + " Rol=" + Role
-                + " Decision=" + decision.Type
-                + " Prioridad=" + decision.Priority
-                + " Puntuacion=" + decision.Score
-                + " Motivo=" + decision.Reason);
+            Logger.Debug($"[IA][Dopeul] Luchador={(Fighter?.Id ?? 0)} Clase={GetType().Name} Rol={Role} Decision={decision.Type} Prioridad={decision.Priority} Puntuacion={decision.Score} Motivo={decision.Reason}");
         }
     }
 }

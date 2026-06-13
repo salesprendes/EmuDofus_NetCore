@@ -40,13 +40,13 @@ namespace Login.RPC
             if (client.GameId != -1)
                 AuthService.Instance.DeleteWorld(client.GameId, client);
 
-            Logger.Warn(string.Format("AuthServiceRPC [{0}][{1}] Desconectado", client.Ip, client.GameId));
+            Logger.Warn($"AuthServiceRPC [{client.Ip}][{client.GameId}] Desconectado");
         }
 
         protected override void OnMessageReceived(AuthRPCServiceClient client, AbstractRcpMessage message)
         {
             if (AuthService.LogDebugEnabled)
-                Logger.Debug("AuthServiceRPC " + (MessageIdEnum)message.Id);
+                Logger.Debug($"AuthServiceRPC {(MessageIdEnum)message.Id}");
         }
 
         private void HandleAuthentification(AuthRPCServiceClient client, AbstractRcpMessage message)
@@ -64,7 +64,7 @@ namespace Login.RPC
 
                 client.RemoteIp = authMessage.RemoteIp;
 
-                Logger.Info(string.Format("AuthServiceRPC [{0}] Autenticado correctamente", client.Ip));
+                Logger.Info($"AuthServiceRPC [{client.Ip}] Autenticado correctamente");
             }
 
             client.Send(new AuthentificationResult(result));
@@ -80,7 +80,7 @@ namespace Login.RPC
             client.GameId = gameIdUpdateMessage.GameId;
             AuthService.Instance.RegisterWorld(gameIdUpdateMessage.GameId, client);
 
-            Logger.Info(string.Format("AuthServiceRPC [{0}] idJuego actualizado a [{1}]", client.Ip, gameIdUpdateMessage.GameId));
+            Logger.Info($"AuthServiceRPC [{client.Ip}] idJuego actualizado a [{gameIdUpdateMessage.GameId}]");
         }
 
         private void HandleGameStateUpdate(AuthRPCServiceClient client, AbstractRcpMessage message)
@@ -90,7 +90,7 @@ namespace Login.RPC
 
             var state = ((StateUpdateMessage)message).State;
 
-            Logger.Info(string.Format("AuthServiceRPC [{0}][{1}] estadoJuego actualizado a {2}", client.Ip, client.GameId, state));
+            Logger.Info($"AuthServiceRPC [{client.Ip}][{client.GameId}] estadoJuego actualizado a {state}");
 
             client.GameState = state;
 
@@ -104,7 +104,7 @@ namespace Login.RPC
 
             var accountId = ((AccountDisconnected)message).AccountId;
 
-            Logger.Info(string.Format("AuthServiceRPC [{0}][{1}] Cuenta del juego desconectada cuentaId={2}", client.Ip, client.GameId, accountId));
+            Logger.Info($"AuthServiceRPC [{client.Ip}][{client.GameId}] Cuenta del juego desconectada cuentaId={accountId}");
 
             AuthService.Instance.AddMessage(() => client.Players.Remove(accountId));
         }
@@ -124,7 +124,7 @@ namespace Login.RPC
 
             var connectedList = (AccountConnectedList)message;
 
-            Logger.Info(string.Format("AuthServiceRPC [{0}][{1}] Lista de cuentas conectadas recibida, jugadores={2}", client.Ip, client.GameId, connectedList.ConnectedAccounts.Count));
+            Logger.Info($"AuthServiceRPC [{client.Ip}][{client.GameId}] Lista de cuentas conectadas recibida, jugadores={connectedList.ConnectedAccounts.Count}");
 
             AuthService.Instance.AddMessage(() => client.Players.UnionWith(connectedList.ConnectedAccounts));
         }

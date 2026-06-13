@@ -47,7 +47,7 @@ namespace Game.Entity.Inventory
         public void AddKamas(long value)
         {
             if (value < 0)
-                throw new ArgumentException("InventoryBag::AddKamas el valor debe ser mayor que 0: " + value);
+                throw new ArgumentException($"InventoryBag::AddKamas el valor debe ser mayor que 0: {value}");
             Kamas += value;
             OnKamasAdded(value);
         }
@@ -55,7 +55,7 @@ namespace Game.Entity.Inventory
         public void SubKamas(long value)
         {
             if (value < 0)
-                throw new ArgumentException("InventoryBag::SubKamas el valor debe ser mayor que 0: " + value);
+                throw new ArgumentException($"InventoryBag::SubKamas el valor debe ser mayor que 0: {value}");
             Kamas -= value;
             OnKamasSubstracted(value);
         }

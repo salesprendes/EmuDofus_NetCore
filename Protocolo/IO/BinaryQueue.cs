@@ -45,7 +45,7 @@ namespace Protocolo.Framework.IO
         {
             if (destination == null)
                 throw new ArgumentNullException(nameof(destination));
-            if (destinationOffset < 0 || count < 0 || destinationOffset + count > destination.Length)
+            if (destinationOffset < 0 || count < 0 || destinationOffset > destination.Length - count)
                 throw new ArgumentOutOfRangeException(nameof(destinationOffset));
 
             EnsureReadable(count);
@@ -142,7 +142,7 @@ namespace Protocolo.Framework.IO
         {
             if (data == null)
                 throw new ArgumentNullException(nameof(data));
-            if (offset < 0 || count < 0 || offset + count > data.Length)
+            if (offset < 0 || count < 0 || offset > data.Length - count)
                 throw new ArgumentOutOfRangeException(nameof(offset));
             if (count == 0)
                 return;
@@ -233,8 +233,11 @@ namespace Protocolo.Framework.IO
 
             var newSize = m_buffer.Length;
             var required = Count + count;
+            if (required < 0 || required > Array.MaxLength)
+                throw new OutOfMemoryException("BinaryQueue capacity limit exceeded.");
+
             while (newSize < required)
-                newSize *= 2;
+                newSize = newSize > Array.MaxLength / 2 ? required : newSize * 2;
 
             var newBuffer = new byte[newSize];
             Buffer.BlockCopy(m_buffer, m_readOffset, newBuffer, 0, Count);

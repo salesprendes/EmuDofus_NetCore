@@ -1,18 +1,19 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 
 namespace Protocolo.Framework.Command
 {
     public sealed class CommandManager<C> where C : CommandContext
     {
-        private readonly List<Command<C>> m_commands = new List<Command<C>>();
-        private readonly IDictionary<string, Command<C>> m_commandsByAlias = new Dictionary<string, Command<C>>(StringComparer.OrdinalIgnoreCase);
+        private readonly List<Command<C>> m_commands;
+        private readonly IDictionary<string, Command<C>> m_commandsByAlias;
         public IReadOnlyList<Command<C>> Commands => m_commands;
 
         public CommandManager()
         {
+            m_commands = new List<Command<C>>();
+            m_commandsByAlias = new Dictionary<string, Command<C>>(StringComparer.OrdinalIgnoreCase);
         }
 
         public bool Execute(C context)
@@ -49,7 +50,6 @@ namespace Protocolo.Framework.Command
                 throw new ArgumentNullException(nameof(command));
 
             ValidateAliases(command);
-            command.RegisterNestedSubCommands();
 
             foreach (var alias in command.Aliases)
                 m_commandsByAlias.Add(alias, command);
@@ -71,7 +71,7 @@ namespace Protocolo.Framework.Command
 
         private static bool CanRegister(Type type)
         {
-            return type != null && !type.IsAbstract && type.IsSubclassOf(typeof(Command<C>)) && !typeof(SubCommand<C>).IsAssignableFrom(type);
+            return type != null && !type.IsAbstract && type.IsSubclassOf(typeof(Command<C>));
         }
 
         private void ValidateAliases(Command<C> command)
@@ -79,19 +79,18 @@ namespace Protocolo.Framework.Command
             if (command.Aliases == null || command.Aliases.Length == 0)
                 throw new Exception($"El comando {command.GetType().FullName} debe tener al menos un alias.");
 
+            var aliases = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (var alias in command.Aliases)
             {
                 if (string.IsNullOrWhiteSpace(alias))
-                    throw new Exception(string.Format("El comando `{0}` tiene un alias vacio.", command.GetType().FullName));
+                    throw new Exception($"El comando {command.GetType().FullName} tiene un alias vacio.");
+
+                if (!aliases.Add(alias))
+                    throw new Exception($"El comando {command.GetType().FullName} tiene repetido el alias {alias}.");
 
                 if (m_commandsByAlias.ContainsKey(alias))
-                    throw new Exception(string.Format("Ya existe un comando registrado con el alias `{0}`.", alias));
+                    throw new Exception($"Ya existe un comando registrado con el alias {alias}.");
             }
-
-            var duplicateAlias = command.Aliases.GroupBy(alias => alias, StringComparer.OrdinalIgnoreCase).FirstOrDefault(group => group.Count() > 1);
-
-            if (duplicateAlias != null)
-                throw new Exception(string.Format("El comando `{0}` tiene repetido el alias `{1}`.", command.GetType().FullName, duplicateAlias.Key));
         }
     }
 }

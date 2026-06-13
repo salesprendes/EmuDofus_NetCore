@@ -13,7 +13,7 @@ namespace Protocolo.RPC.Protocol
         {
             var type = base.ReadByte();
             if (type != 1)
-                throw new InvalidOperationException("CharacterCountChangedMessage: tipo de mensaje inválido: " + type);
+                throw new InvalidOperationException($"CharacterCountChangedMessage: tipo de mensaje inválido: {type}");
         }
     }
 }

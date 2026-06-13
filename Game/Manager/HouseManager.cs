@@ -34,7 +34,7 @@ namespace Game.Manager
                 list.Add(house);
                 count++;
             }
-            Logger.Info("HouseManager: " + count + " casas cargadas.");
+            Logger.Info($"HouseManager: {count} casas cargadas.");
         }
 
         public HouseInstance GetById(int id)

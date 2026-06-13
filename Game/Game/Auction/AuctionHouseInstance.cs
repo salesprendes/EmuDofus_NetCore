@@ -85,7 +85,7 @@ namespace Game.Auction
 
         public void TryBuy(CharacterEntity character, int categoryId, int floorId, long price)
         {
-            Logger.Debug("AuctionHouse::TryBuy categoriaId=" + categoryId + " plantaId=" + floorId + " precio=" + price);
+            Logger.Debug($"AuctionHouse::TryBuy categoriaId={categoryId} plantaId={floorId} precio={price}");
 
             if (price < 1)
             {
@@ -215,7 +215,7 @@ namespace Game.Auction
 
         public void TryRemove(CharacterEntity character, long itemId)
         {
-            Logger.Debug("AuctionHouse::TryRemove objetoId=" + itemId);
+            Logger.Debug($"AuctionHouse::TryRemove objetoId={itemId}");
 
             if (!m_auctionsByAccount.ContainsKey(character.AccountId))
             {
@@ -254,7 +254,7 @@ namespace Game.Auction
 
         public AuctionAddResultEnum TryAdd(CharacterEntity character, long itemId, int quantity, long price)
         {
-            Logger.Debug("AuctionHouse::TryAdd objetoId=" + itemId + " cantidad=" + quantity + " precio=" + price);
+            Logger.Debug($"AuctionHouse::TryAdd objetoId={itemId} cantidad={quantity} precio={price}");
 
             var item = character.Inventory.GetItem(itemId);
             if (item == null)

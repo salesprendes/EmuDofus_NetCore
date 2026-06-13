@@ -5,8 +5,8 @@ using Game.Job;
 using Game.Job.Forjamagia;
 using Game.Job.Skill;
 using Game.Network;
+using Game.Spell;
 using Protocolo.Framework.Generic;
-using System;
 using System.Collections.Generic;
 
 namespace Game.Exchange
@@ -16,6 +16,7 @@ namespace Game.Exchange
         private const int BUCLE_OK = 1;
         private const int BUCLE_INTERRUMPIDO = 2;
         private const int BUCLE_ERROR = 3;
+        private const int PLANTILLA_FIRMA = 7508;
 
         public CharacterEntity Personaje
         {
@@ -123,10 +124,12 @@ namespace Game.Exchange
             return quantity;
         }
 
+        /// <summary>
+        /// Un intento de forja: aplica UN agente (runa o poción) sobre el objeto colocado.
+        /// </summary>
         public bool Validate(AbstractEntity entity)
         {
-            ItemDAO objetivo = null;
-            ItemDAO runa = null;
+            ItemDAO objetivo = null, runa = null, pocion = null, firma = null;
 
             foreach (var entry in m_itemsCasillas)
             {
@@ -134,8 +137,12 @@ namespace Game.Exchange
                 if (item == null)
                     continue;
 
-                if (runa == null && GestorRunasForjamagia.Instance.EsRuna(item))
+                if (firma == null && item.TemplateId == PLANTILLA_FIRMA)
+                    firma = item;
+                else if (runa == null && GestorRunasForjamagia.Instance.EsRuna(item))
                     runa = item;
+                else if (pocion == null && GestorPocionesForjamagia.Instance.EsPocion(item))
+                    pocion = item;
                 else if (objetivo == null && Habilidad.CanEnhance(item.Template))
                     objetivo = item;
             }
@@ -145,101 +152,165 @@ namespace Game.Exchange
             {
                 if (objetivo == null || !objetivo.Template.Forgemageable)
                 {
-                    Logger.Debug("Forjamagia[" + Personaje.Name + "] sin objeto forjable en las casillas (objetivo=" + (objetivo == null ? "null" : objetivo.TemplateId + " forjable=" + objetivo.Template.Forgemageable) + ")");
+                    Logger.Debug($"Forjamagia[{Personaje.Name}] sin objeto forjable en las casillas (objetivo={(objetivo == null ? "null" : $"{objetivo.TemplateId} forjable={objetivo.Template.Forgemageable}")})");
                     AbortarIntento();
                     return false;
                 }
 
-                if (runa == null)
+                if (runa == null && pocion == null)
                 {
-                    Logger.Debug("Forjamagia[" + Personaje.Name + "] sin runas en las casillas");
+                    Logger.Debug($"Forjamagia[{Personaje.Name}] sin runa ni poción en las casillas");
                     InterrumpirIntento();
                     return false;
                 }
 
-                var runaForjamagia = GestorRunasForjamagia.Instance.Resolver(runa);
-                var objetoForjable = new AdaptadorObjetoForjable(objetivo);
-                if (!runaForjamagia.EsValida)
-                {
-                    Logger.Debug("Forjamagia[" + Personaje.Name + "] runa sin resolver: template " + runa.TemplateId + " (añadirla a GestorRunasForjamagia o exponer su efecto en plantilla)");
-                    InterrumpirIntento();
-                    return false;
-                }
-
-                if (!m_servicioForjamagia.PuedeAplicarse(objetoForjable, runaForjamagia, out var motivoRechazo))
-                {
-                    Logger.Debug("Forjamagia[" + Personaje.Name + "] runa " + runa.TemplateId + " rechazada: " + motivoRechazo);
-                    InterrumpirIntento();
-                    return false;
-                }
-
-                var idRuna = runa.Id;
-                var cantidadRestanteEnCasilla = m_itemsCasillas[idRuna] - 1;
-                Personaje.Inventory.RemoveItem(idRuna, 1);
-
-                if (cantidadRestanteEnCasilla > 0)
-                    m_itemsCasillas[idRuna] = cantidadRestanteEnCasilla;
-                else
-                    m_itemsCasillas.Remove(idRuna);
-
-                var nivelOficio = Personaje.CharacterJobs.GetJobLevel(IdOficio);
-                var resultado = m_servicioForjamagia.AplicarRuna(objetoForjable, runaForjamagia, nivelOficio);
-
-                var objetoMostrado = objetivo;
-                if (resultado.ObjetoModificado)
-                {
-                    objetivo.SaveStats();
-                    var objetoForjado = objetivo.Clone(1);
-                    objetoForjado.ForgemagiePuits = objetivo.ForgemagiePuits;
-
-                    Personaje.Inventory.RemoveItem(objetivo.Id, objetivo.Quantity);
-                    Personaje.Inventory.AddItem(objetoForjado, merge: false);
-
-                    m_itemsCasillas.Remove(objetivo.Id);
-                    m_itemsCasillas[objetoForjado.Id] = 1;
-
-                    objetoMostrado = objetoForjado;
-
-                    Personaje.Dispatch(WorldMessage.EXCHANGE_DISTANT_MOVEMENT(
-                        ExchangeMoveEnum.MOVE_OBJECT,
-                        OperatorEnum.OPERATOR_ADD,
-                        objetoForjado.Id + "|1|" + objetoForjado.TemplateId + "|" + objetoForjado.StringEffects));
-                }
-
-                switch (resultado.Resultado)
-                {
-                    case ResultadoForjamagia.ExitoCritico:
-                        Personaje.Dispatch(WorldMessage.CRAFT_TEMPLATE_CREATED(objetoMostrado.TemplateId));
-                        Personaje.Map.Dispatch(WorldMessage.CRAFT_INTERACTIVE_SUCCESS(Personaje.Id, objetoMostrado.TemplateId));
-                        break;
-
-                    case ResultadoForjamagia.ExitoNeutro:
-                        Personaje.Dispatch(WorldMessage.CRAFT_TEMPLATE_FAILED(objetoMostrado.TemplateId));
-                        Personaje.Dispatch(WorldMessage.IM_INFO_MESSAGE(InformationEnum.INFO_MAGIC_NOT_PERFECT));
-                        Personaje.Map.Dispatch(WorldMessage.CRAFT_INTERACTIVE_FAILED(Personaje.Id, objetoMostrado.TemplateId));
-                        break;
-
-                    case ResultadoForjamagia.FalloCritico:
-                        Personaje.Dispatch(WorldMessage.CRAFT_TEMPLATE_FAILED(objetoMostrado.TemplateId));
-                        Personaje.Dispatch(WorldMessage.IM_INFO_MESSAGE(InformationEnum.INFO_MAGIC_FAILED));
-                        Personaje.Map.Dispatch(WorldMessage.CRAFT_INTERACTIVE_FAILED(Personaje.Id, objetoMostrado.TemplateId));
-                        break;
-                }
-
-                Personaje.Dispatch(WorldMessage.EXCHANGE_LOCAL_MOVEMENT(ExchangeMoveEnum.MOVE_OBJECT, OperatorEnum.OPERATOR_ADD, objetoMostrado.Id + "|1"));
-                if (cantidadRestanteEnCasilla > 0)
-                    Personaje.Dispatch(WorldMessage.EXCHANGE_LOCAL_MOVEMENT(ExchangeMoveEnum.MOVE_OBJECT, OperatorEnum.OPERATOR_ADD, idRuna + "|" + cantidadRestanteEnCasilla));
-
-                var experiencia = m_servicioForjamagia.ObtenerExperiencia(objetoForjable, runaForjamagia, nivelOficio, resultado.Resultado);
-                if (experiencia > 0)
-                    Personaje.CharacterJobs.AddExperience(IdOficio, experiencia);
-
-                return false;
+                return runa != null ? IntentarConRuna(objetivo, runa, firma) : IntentarConPocion(objetivo, pocion, firma);
             }
             finally
             {
                 Personaje.CachedBuffer = false;
             }
+        }
+
+        private bool IntentarConRuna(ItemDAO objetivo, ItemDAO runa, ItemDAO firma)
+        {
+            var runaForjamagia = GestorRunasForjamagia.Instance.Resolver(runa);
+            if (!runaForjamagia.EsValida)
+            {
+                Logger.Debug($"Forjamagia[{Personaje.Name}] runa sin resolver: template {runa.TemplateId} (añadirla a GestorRunasForjamagia o exponer su efecto en plantilla)");
+                InterrumpirIntento();
+                return false;
+            }
+
+            if (!m_servicioForjamagia.PuedeAplicarse(new AdaptadorObjetoForjable(objetivo), runaForjamagia, out var motivoRechazo))
+            {
+                Logger.Debug($"Forjamagia[{Personaje.Name}] runa {runa.TemplateId} rechazada: {motivoRechazo}");
+                InterrumpirIntento();
+                return false;
+            }
+
+            ConsumirUno(runa.Id, out var runaRestante);
+
+            var forjado = objetivo.Clone(1);
+            forjado.ForgemagiePuits = objetivo.ForgemagiePuits;
+
+            var nivelOficio = Personaje.CharacterJobs.GetJobLevel(IdOficio);
+            var objetoForjable = new AdaptadorObjetoForjable(forjado);
+            var resultado = m_servicioForjamagia.AplicarRuna(objetoForjable, runaForjamagia, nivelOficio);
+
+            var objetoMostrado = FinalizarObjeto(objetivo, forjado, firma, resultado.ObjetoModificado);
+
+            switch (resultado.Resultado)
+            {
+                case ResultadoForjamagia.ExitoCritico:
+                    EmitirExito(objetoMostrado);
+                break;
+
+                case ResultadoForjamagia.ExitoNeutro:
+                    EmitirFallo(objetoMostrado, InformationEnum.INFO_MAGIC_NOT_PERFECT);
+                break;
+
+                case ResultadoForjamagia.FalloCritico:
+                    EmitirFallo(objetoMostrado, InformationEnum.INFO_MAGIC_FAILED);
+                break;
+            }
+
+            RepoblarCasillas(objetoMostrado, runa.Id, runaRestante);
+
+            var experiencia = m_servicioForjamagia.ObtenerExperiencia(objetoForjable, runaForjamagia, nivelOficio, resultado.Resultado);
+            if (experiencia > 0)
+                Personaje.CharacterJobs.AddExperience(IdOficio, experiencia);
+
+            return false;
+        }
+
+        private bool IntentarConPocion(ItemDAO objetivo, ItemDAO pocion, ItemDAO firma)
+        {
+            var elemento = GestorPocionesForjamagia.Instance.Resolver(pocion);
+            if (elemento == null)
+            {
+                Logger.Debug($"Forjamagia[{Personaje.Name}] poción sin resolver: template {pocion.TemplateId}");
+                InterrumpirIntento();
+                return false;
+            }
+
+            ConsumirUno(pocion.Id, out var pocionRestante);
+
+            var forjado = objetivo.Clone(1);
+            forjado.ForgemagiePuits = objetivo.ForgemagiePuits;
+
+            var cambiado = GestorPocionesForjamagia.Instance.Aplicar(forjado, elemento.Value);
+
+            var objetoMostrado = FinalizarObjeto(objetivo, forjado, firma, cambiado);
+
+            if (cambiado)
+                EmitirExito(objetoMostrado);
+            else
+                EmitirFallo(objetoMostrado, InformationEnum.INFO_MAGIC_FAILED);
+
+            RepoblarCasillas(objetoMostrado, pocion.Id, pocionRestante);
+
+            return false;
+        }
+
+        private ItemDAO FinalizarObjeto(ItemDAO objetivo, ItemDAO forjado, ItemDAO firma, bool objetoModificado)
+        {
+            if (!objetoModificado)
+            {
+                forjado.OwnerId = -1;
+                return objetivo;
+            }
+
+            if (firma != null)
+            {
+                forjado.Statistics.RemoveEffect(EffectEnum.ModifiedBy);
+                forjado.Statistics.AddEffect(EffectEnum.ModifiedBy, 0, 0, 0, Personaje.Name);
+                ConsumirUno(firma.Id, out _);
+            }
+
+            forjado.SaveStats();
+
+            var cantidadAntes = objetivo.Quantity;
+            Personaje.Inventory.RemoveItem(objetivo.Id, 1);
+            var stackTras = Personaje.Inventory.GetItem(objetivo.Id);
+            Personaje.Inventory.AddItem(forjado, merge: false);
+
+            m_itemsCasillas.Remove(objetivo.Id);
+            m_itemsCasillas[forjado.Id] = 1;
+
+            Personaje.Dispatch(WorldMessage.EXCHANGE_DISTANT_MOVEMENT(ExchangeMoveEnum.MOVE_OBJECT, OperatorEnum.OPERATOR_ADD, forjado.Id + "|1|" + forjado.TemplateId + "|" + forjado.StringEffects));
+            return forjado;
+        }
+
+        private void EmitirExito(ItemDAO objetoMostrado)
+        {
+            Personaje.Dispatch(WorldMessage.CRAFT_TEMPLATE_CREATED(objetoMostrado.TemplateId));
+            Personaje.Map.Dispatch(WorldMessage.CRAFT_INTERACTIVE_SUCCESS(Personaje.Id, objetoMostrado.TemplateId));
+        }
+
+        private void EmitirFallo(ItemDAO objetoMostrado, InformationEnum info)
+        {
+            Personaje.Dispatch(WorldMessage.CRAFT_TEMPLATE_FAILED(objetoMostrado.TemplateId));
+            Personaje.Dispatch(WorldMessage.IM_INFO_MESSAGE(info));
+            Personaje.Map.Dispatch(WorldMessage.CRAFT_INTERACTIVE_FAILED(Personaje.Id, objetoMostrado.TemplateId));
+        }
+
+        private void RepoblarCasillas(ItemDAO objetoMostrado, long guidAgente, int agenteRestante)
+        {
+            Personaje.Dispatch(WorldMessage.EXCHANGE_LOCAL_MOVEMENT(ExchangeMoveEnum.MOVE_OBJECT, OperatorEnum.OPERATOR_ADD, objetoMostrado.Id + "|1"));
+            if (agenteRestante > 0)
+                Personaje.Dispatch(WorldMessage.EXCHANGE_LOCAL_MOVEMENT(ExchangeMoveEnum.MOVE_OBJECT, OperatorEnum.OPERATOR_ADD, guidAgente + "|" + agenteRestante));
+        }
+
+        private void ConsumirUno(long guid, out int restanteEnCasilla)
+        {
+            restanteEnCasilla = (m_itemsCasillas.TryGetValue(guid, out var current) ? current : 0) - 1;
+            Personaje.Inventory.RemoveItem(guid, 1);
+
+            if (restanteEnCasilla > 0)
+                m_itemsCasillas[guid] = restanteEnCasilla;
+            else
+                m_itemsCasillas.Remove(guid);
         }
 
         public void Retry(int count)
@@ -290,7 +361,7 @@ namespace Game.Exchange
             else
                 Personaje.Dispatch(WorldMessage.CRAFT_LOOP_END(BUCLE_ERROR));
         }
-
+        
         private void AbortarIntento()
         {
             if (m_temporizadorRepeticion != null)

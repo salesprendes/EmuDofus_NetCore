@@ -4,50 +4,41 @@ namespace Protocolo.Framework.Utils
 {
     public sealed class FastRandom
     {
-        const double REAL_UNIT_INT = 1.0 / ((double)int.MaxValue + 1.0);
-        const double REAL_UNIT_UINT = 1.0 / ((double)uint.MaxValue + 1.0);
-        const uint Y = 842502087, Z = 3579807591, W = 273326509;
+        private const double RealUnitInt = 1.0 / (int.MaxValue + 1.0);
+        private const double RealUnitUInt = 1.0 / (uint.MaxValue + 1.0);
+        private const uint SeedY = 842502087;
+        private const uint SeedZ = 3579807591;
+        private const uint SeedW = 273326509;
+        private const uint IntMask = 0x7FFFFFFF;
 
-        uint x, y, z, w;
+        private uint x;
+        private uint y;
+        private uint z;
+        private uint w;
+        private uint bitBuffer;
+        private uint bitMask = 1;
 
-        #region Constructors
+        public FastRandom() : this(Environment.TickCount) {}
 
-        public FastRandom()
-        {
-            Reinitialise((int)Environment.TickCount);
-        }
-
-        public FastRandom(int seed)
-        {
-            Reinitialise(seed);
-        }
-
-        #endregion
-
-        #region Public Methods [Reinitialisation]
+        public FastRandom(int seed) => Reinitialise(seed);
 
         public void Reinitialise(int seed)
         {
             x = (uint)seed;
-            y = Y;
-            z = Z;
-            w = W;
+            y = SeedY;
+            z = SeedZ;
+            w = SeedW;
+            bitBuffer = 0;
+            bitMask = 1;
         }
-
-        #endregion
-
-        #region Public Methods [System.Random functionally equivalent methods]
 
         public int Next()
         {
-            uint t = (x ^ (x << 11));
-            x = y; y = z; z = w;
-            w = (w ^ (w >> 19)) ^ (t ^ (t >> 8));
+            var value = NextInt31();
+            while (value == int.MaxValue)
+                value = NextInt31();
 
-            uint rtn = w & 0x7FFFFFFF;
-            if (rtn == 0x7FFFFFFF)
-                return Next();
-            return (int)rtn;
+            return value;
         }
 
         public int Next(int upperBound)
@@ -55,10 +46,7 @@ namespace Protocolo.Framework.Utils
             if (upperBound < 0)
                 throw new ArgumentOutOfRangeException("upperBound", upperBound, "upperBound must be >=0");
 
-            uint t = (x ^ (x << 11));
-            x = y; y = z; z = w;
-
-            return (int)((REAL_UNIT_INT * (int)(0x7FFFFFFF & (w = (w ^ (w >> 19)) ^ (t ^ (t >> 8))))) * upperBound);
+            return upperBound <= 1 ? 0 : (int)(Sample() * upperBound);
         }
 
         public int Next(int lowerBound, int upperBound)
@@ -66,111 +54,88 @@ namespace Protocolo.Framework.Utils
             if (lowerBound > upperBound)
                 throw new ArgumentOutOfRangeException("upperBound", upperBound, "upperBound must be >=lowerBound");
 
-            uint t = (x ^ (x << 11));
-            x = y; y = z; z = w;
-
-
+            if (lowerBound == upperBound)
+                return lowerBound;
 
             int range = upperBound - lowerBound;
             if (range < 0)
-            {
+                return lowerBound + (int)(SampleLarge() * ((long)upperBound - lowerBound));
 
-                return lowerBound + (int)((REAL_UNIT_UINT * (double)(w = (w ^ (w >> 19)) ^ (t ^ (t >> 8)))) * (double)((long)upperBound - (long)lowerBound));
-            }
-            return lowerBound + (int)((REAL_UNIT_INT * (double)(int)(0x7FFFFFFF & (w = (w ^ (w >> 19)) ^ (t ^ (t >> 8))))) * (double)range);
+            return lowerBound + (int)(Sample() * range);
         }
 
-        public double NextDouble()
-        {
-            uint t = (x ^ (x << 11));
-            x = y; y = z; z = w;
-
-            return (REAL_UNIT_INT * (int)(0x7FFFFFFF & (w = (w ^ (w >> 19)) ^ (t ^ (t >> 8)))));
-        }
-
+        public double NextDouble() => Sample();
 
         public void NextBytes(byte[] buffer)
         {
+            if (buffer == null)
+                throw new ArgumentNullException(nameof(buffer));
 
-            uint x = this.x, y = this.y, z = this.z, w = this.w;
+            uint x = this.x;
+            uint y = this.y;
+            uint z = this.z;
+            uint w = this.w;
             int i = 0;
-            uint t;
-            for (int bound = buffer.Length - 3; i < bound;)
+            int bound = buffer.Length - 4;
+
+            while (i <= bound)
             {
-                t = (x ^ (x << 11));
-                x = y; y = z; z = w;
-                w = (w ^ (w >> 19)) ^ (t ^ (t >> 8));
-
-                buffer[i++] = (byte)w;
-                buffer[i++] = (byte)(w >> 8);
-                buffer[i++] = (byte)(w >> 16);
-                buffer[i++] = (byte)(w >> 24);
+                var value = AdvanceState(ref x, ref y, ref z, ref w);
+                buffer[i++] = (byte)value;
+                buffer[i++] = (byte)(value >> 8);
+                buffer[i++] = (byte)(value >> 16);
+                buffer[i++] = (byte)(value >> 24);
             }
-
 
             if (i < buffer.Length)
             {
-
-                t = (x ^ (x << 11));
-                x = y; y = z; z = w;
-                w = (w ^ (w >> 19)) ^ (t ^ (t >> 8));
-
-                buffer[i++] = (byte)w;
-                if (i < buffer.Length)
+                var value = AdvanceState(ref x, ref y, ref z, ref w);
+                while (i < buffer.Length)
                 {
-                    buffer[i++] = (byte)(w >> 8);
-                    if (i < buffer.Length)
-                    {
-                        buffer[i++] = (byte)(w >> 16);
-                        if (i < buffer.Length)
-                        {
-                            buffer[i] = (byte)(w >> 24);
-                        }
-                    }
+                    buffer[i++] = (byte)value;
+                    value >>= 8;
                 }
             }
-            this.x = x; this.y = y; this.z = z; this.w = w;
+
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.w = w;
         }
 
-        #endregion
+        public uint NextUInt() => Advance();
 
-        #region Public Methods [Methods not present on System.Random]
-
-        public uint NextUInt()
-        {
-            uint t = (x ^ (x << 11));
-            x = y; y = z; z = w;
-            return (w = (w ^ (w >> 19)) ^ (t ^ (t >> 8)));
-        }
-
-        public int NextInt()
-        {
-            uint t = (x ^ (x << 11));
-            x = y; y = z; z = w;
-            return (int)(0x7FFFFFFF & (w = (w ^ (w >> 19)) ^ (t ^ (t >> 8))));
-        }
-
-        uint bitBuffer;
-        uint bitMask = 1;
+        public int NextInt() => NextInt31();
 
         public bool NextBool()
         {
             if (bitMask == 1)
             {
-
-                uint t = (x ^ (x << 11));
-                x = y; y = z; z = w;
-                bitBuffer = w = (w ^ (w >> 19)) ^ (t ^ (t >> 8));
-
-
+                bitBuffer = Advance();
                 bitMask = 0x80000000;
-                return (bitBuffer & bitMask) == 0;
             }
 
             return (bitBuffer & (bitMask >>= 1)) == 0;
         }
 
-        #endregion
-    }
+        private int NextInt31() => (int)(Advance() & IntMask);
 
+        private double Sample() => NextInt31() * RealUnitInt;
+
+        private double SampleLarge() => Advance() * RealUnitUInt;
+
+        private uint Advance() => AdvanceState(ref x, ref y, ref z, ref w);
+
+        private static uint AdvanceState(ref uint x, ref uint y, ref uint z, ref uint w)
+        {
+            uint shifted = x ^ (x << 11);
+            uint next = (w ^ (w >> 19)) ^ (shifted ^ (shifted >> 8));
+
+            x = y;
+            y = z;
+            z = w;
+            w = next;
+            return next;
+        }
+    }
 }

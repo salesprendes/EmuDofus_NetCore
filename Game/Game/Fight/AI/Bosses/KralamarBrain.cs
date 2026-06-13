@@ -42,10 +42,7 @@ namespace Game.Fight.AI.Bosses
 
             if (WorldConfig.LOG_DEBUG)
             {
-                Logger.Debug("[IA][Kralamar] Luchador=" + (Fighter?.Id ?? 0)
-                    + " Vida=" + context.Fighter.Life + "/" + context.Fighter.MaxLife
-                    + " Tentaculos=" + livingTentacles
-                    + " Fase=" + (enragePhase ? "FURIA" : "PROTECCION"));
+                Logger.Debug($"[IA][Kralamar] Luchador={(Fighter?.Id ?? 0)} Vida={context.Fighter.Life}/{context.Fighter.MaxLife} Tentaculos={livingTentacles} Fase={(enragePhase ? "FURIA" : "PROTECCION")}");
             }
 
             foreach (var decision in m_mechanic.Evaluate(context))
@@ -90,11 +87,7 @@ namespace Game.Fight.AI.Bosses
             if (!WorldConfig.LOG_DEBUG || decision == null)
                 return;
 
-            Logger.Debug("[IA][Kralamar] Luchador=" + (Fighter?.Id ?? 0)
-                + " Decision=" + decision.Type
-                + " Prioridad=" + decision.Priority
-                + " Puntuacion=" + decision.Score
-                + " Motivo=" + decision.Reason);
+            Logger.Debug($"[IA][Kralamar] Luchador={(Fighter?.Id ?? 0)} Decision={decision.Type} Prioridad={decision.Priority} Puntuacion={decision.Score} Motivo={decision.Reason}");
         }
     }
 }

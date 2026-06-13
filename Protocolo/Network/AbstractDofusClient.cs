@@ -66,7 +66,7 @@ namespace Protocolo.Framework.Network
                     {
                         if (m_messageQueue.Count > MaxMessageSize)
                         {
-                            Logger.Warn("Cliente expulsado por enviar un paquete demasiado grande: " + Ip);
+                            Logger.Warn($"Cliente expulsado por enviar un paquete demasiado grande: {Ip}");
                             Disconnect();
                             stopReceiving = true;
                         }
@@ -89,7 +89,7 @@ namespace Protocolo.Framework.Network
 
             if (!stopReceiving && m_messageQueue.Count > MaxMessageSize)
             {
-                Logger.Warn("El cliente fue expulsado debido a un paquete de tamaño excesivo: " + Ip);
+                Logger.Warn($"El cliente fue expulsado debido a un paquete de tamaño excesivo: {Ip}");
                 Disconnect();
             }
         }

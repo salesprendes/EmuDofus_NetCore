@@ -37,15 +37,19 @@ namespace Protocolo.RPC.Protocol
             long length = base.ReadLong();
 
             if (length < 0 || length > MaxConnectedAccounts)
-                throw new InvalidDataException("AccountConnectedList: longitud invalida: " + length);
+                throw new InvalidDataException($"AccountConnectedList: longitud invalida: {length}");
 
-            ConnectedAccounts.Clear();
             var count = (int)length;
-            if (ConnectedAccounts.Capacity < count)
-                ConnectedAccounts.Capacity = count;
+            if (count > base.Count / sizeof(long))
+                throw new InvalidDataException($"AccountConnectedList: datos insuficientes para la longitud declarada: {length}");
+
+            var accounts = ConnectedAccounts;
+            accounts.Clear();
+            if (accounts.Capacity < count)
+                accounts.Capacity = count;
 
             for (var i = 0; i < count; i++)
-                ConnectedAccounts.Add(base.ReadLong());
+                accounts.Add(base.ReadLong());
         }
 
         public override void Serialize()

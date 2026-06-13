@@ -1,6 +1,5 @@
 using System.Buffers.Binary;
 using System;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 
@@ -27,11 +26,12 @@ namespace Protocolo.Framework.Network
             if (IPAddress.TryParse(host, out var address))
                 return address;
 
-            var resolved = Dns.GetHostAddresses(host).FirstOrDefault(entry => entry.AddressFamily == AddressFamily.InterNetwork);
-            if (resolved == null)
-                throw new SocketException((int)SocketError.HostNotFound);
+            var addresses = Dns.GetHostAddresses(host);
+            for (var i = 0; i < addresses.Length; i++)
+                if (addresses[i].AddressFamily == AddressFamily.InterNetwork)
+                    return addresses[i];
 
-            return resolved;
+            throw new SocketException((int)SocketError.HostNotFound);
         }
 
         internal static void SetAggressiveKeepAlive(this Socket socket)

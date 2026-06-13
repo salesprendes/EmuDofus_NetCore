@@ -144,7 +144,7 @@ namespace Login
             {
                 m_bannedIps[ip] = DateTime.UtcNow.AddSeconds(AuthIpBanDurationSeconds).Ticks;
                 m_failedAuthByIp.TryRemove(ip, out _);
-                Logger.Info("IP bloqueada por exceso de intentos fallidos de autenticacion: " + ip);
+                Logger.Info($"IP bloqueada por exceso de intentos fallidos de autenticacion: {ip}");
             }
         }
 
@@ -165,7 +165,7 @@ namespace Login
         protected override void OnClientConnected(AuthClient client)
         {
             if (AuthService.LogDebugEnabled)
-                Logger.Debug("Conectado: " + client.Ip);
+                Logger.Debug($"Conectado: {client.Ip}");
 
             AddMessage(() =>
             {
@@ -186,7 +186,7 @@ namespace Login
                         m_activeAuthClientCount--;
 
                     if (AuthService.LogDebugEnabled)
-                        Logger.Debug("Desconectado: " + client.Ip);
+                        Logger.Debug($"Desconectado: {client.Ip}");
 
                     if (client.AuthKey != null)
                     {
@@ -208,7 +208,7 @@ namespace Login
             foreach (var message in client.Receive(buffer, offset, count))
             {
                 if (AuthService.LogDebugEnabled)
-                    Logger.Debug("Cliente: " + message);
+                    Logger.Debug($"Cliente: {message}");
 
                 client.FrameManager.ProcessMessage(message);
             }

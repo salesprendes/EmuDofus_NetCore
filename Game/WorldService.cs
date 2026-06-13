@@ -107,7 +107,7 @@ namespace Game
             {
                 if (WorldConfig.LOG_DEBUG)
                 {
-                    Logger.Debug("Cliente: " + message);
+                    Logger.Debug($"Cliente: {message}");
                 }
 
                 var character = client.CurrentCharacter;
@@ -150,7 +150,7 @@ namespace Game
                     }
                     catch (Exception ex)
                     {
-                        Logger.Error("WorldService::SaveWorld error al guardar el mundo: " + ex.Message);
+                        Logger.Error($"WorldService::SaveWorld error al guardar el mundo: {ex.Message}");
                     }
                     finally
                     {

@@ -131,13 +131,21 @@ namespace Protocolo.Framework.Generic
         private int SiftUp(int index)
         {
             var item = _heap[index];
-            while (index > 0)
+            var shouldMove = index > 0;
+
+            while (shouldMove)
             {
                 int parent = (index - 1) >> 1;
-                if (_comparer.Compare(item, _heap[parent]) >= 0) break;
-                _heap[index] = _heap[parent];
-                index = parent;
+                shouldMove = _comparer.Compare(item, _heap[parent]) < 0;
+
+                if (shouldMove)
+                {
+                    _heap[index] = _heap[parent];
+                    index = parent;
+                    shouldMove = index > 0;
+                }
             }
+
             _heap[index] = item;
             return index;
         }
@@ -147,15 +155,23 @@ namespace Protocolo.Framework.Generic
         {
             var item = _heap[index];
             int lastParent = (_count - 1) >> 1;
-            while (index <= lastParent)
+            var shouldMove = index <= lastParent;
+
+            while (shouldMove)
             {
                 int child = (index << 1) + 1;
                 if (child < _count - 1 && _comparer.Compare(_heap[child + 1], _heap[child]) < 0)
                     child++;
-                if (_comparer.Compare(item, _heap[child]) <= 0) break;
-                _heap[index] = _heap[child];
-                index = child;
+
+                shouldMove = _comparer.Compare(item, _heap[child]) > 0;
+                if (shouldMove)
+                {
+                    _heap[index] = _heap[child];
+                    index = child;
+                    shouldMove = index <= lastParent;
+                }
             }
+
             _heap[index] = item;
         }
 

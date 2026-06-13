@@ -751,12 +751,12 @@ namespace Game.Entity
                 }
                 else
                 {
-                    Logger.Info("CharacterEntity::() montura equipada sin pertenecer al personaje: " + Name);
+                    Logger.Info($"CharacterEntity::() montura equipada sin pertenecer al personaje: {Name}");
                 }
             }
             else
             {
-                Logger.Info("CharacterEntity::() montura equipada desconocida: " + Name);
+                Logger.Info($"CharacterEntity::() montura equipada desconocida: {Name}");
                 EquippedMount = -1;
             }
         }

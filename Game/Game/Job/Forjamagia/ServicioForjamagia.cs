@@ -66,7 +66,7 @@ namespace Game.Job.Forjamagia
         public ResultadoAplicacionForjamagia AplicarRuna(IObjetoForjable objeto, RunaForjamagia runa, int nivelMago)
         {
             if (!PuedeAplicarse(objeto, runa, out var motivo))
-                throw new InvalidOperationException("No se puede aplicar la runa: " + motivo);
+                throw new InvalidOperationException($"No se puede aplicar la runa: {motivo}");
 
             var contexto = CrearContexto(objeto, runa, nivelMago);
             var probabilidades = m_estimarProbabilidades(contexto);
@@ -117,7 +117,7 @@ namespace Game.Job.Forjamagia
         public ProbabilidadesForjamagia EstimarProbabilidades(IObjetoForjable objeto, RunaForjamagia runa, int nivelMago)
         {
             if (!PuedeAplicarse(objeto, runa, out var motivo))
-                throw new InvalidOperationException("No se puede estimar la runa: " + motivo);
+                throw new InvalidOperationException($"No se puede estimar la runa: {motivo}");
 
             return m_estimarProbabilidades(CrearContexto(objeto, runa, nivelMago));
         }

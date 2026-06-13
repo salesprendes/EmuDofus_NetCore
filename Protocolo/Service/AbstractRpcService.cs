@@ -13,7 +13,7 @@ namespace Protocolo.RPC.Service
             private set;
         }
 
-        private Dictionary<int, Action<TClient, AbstractRcpMessage>> m_handlers;
+        private readonly Dictionary<int, Action<TClient, AbstractRcpMessage>> m_handlers;
 
         protected AbstractRpcService()
         {
@@ -23,17 +23,15 @@ namespace Protocolo.RPC.Service
 
         public void RegisterHandler(int messageId, Action<TClient, AbstractRcpMessage> handler)
         {
-            if (m_handlers.ContainsKey(messageId))
-                throw new InvalidOperationException(string.Format("RPCService::RegisterHandler ya tiene un manejador registrado para mensajeId={0}", messageId));
-            else
-                m_handlers.Add(messageId, handler);
+            if (!m_handlers.TryAdd(messageId, handler))
+                throw new InvalidOperationException($"RPCService::RegisterHandler ya tiene un manejador registrado para mensajeId={messageId}");
         }
 
         private void HandleMessage(TClient client, AbstractRcpMessage message)
         {
             if (!m_handlers.TryGetValue(message.Id, out var handler))
             {
-                Logger.Debug(string.Format("RPCService::HandleMessage manejador no registrado para mensajeId={0}", message.Id));
+                Logger.Debug($"RPCService::HandleMessage manejador no registrado para mensajeId={message.Id}");
             }
             else
                 AddMessage(() => handler(client, message));
@@ -59,7 +57,7 @@ namespace Protocolo.RPC.Service
             }
             catch (Exception ex)
             {
-                Logger.Warn(string.Format("RPCService::OnDataReceived carga invalida desde {0}: {1}", client.Ip, ex.Message));
+                Logger.Warn($"RPCService::OnDataReceived carga invalida desde {client.Ip}: {ex.Message}");
                 Disconnect(client);
             }
         }

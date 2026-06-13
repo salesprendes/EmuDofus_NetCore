@@ -61,14 +61,7 @@ namespace Game.Fight.AI.TaxCollectors
             if (!WorldConfig.LOG_DEBUG || decision == null)
                 return;
 
-            Logger.Debug("[IA][Recaudador] Luchador=" + (Fighter?.Id ?? 0)
-                + " Modo=" + m_lastMode
-                + " Decision=" + decision.Type
-                + " Prioridad=" + decision.Priority
-                + " Puntuacion=" + decision.Score
-                + " Hechizo=" + (decision.SpellId?.ToString() ?? "-")
-                + " Objetivo=" + (decision.TargetId?.ToString() ?? "-")
-                + " Motivo=" + decision.Reason);
+            Logger.Debug($"[IA][Recaudador] Luchador={(Fighter?.Id ?? 0)} Modo={m_lastMode} Decision={decision.Type} Prioridad={decision.Priority} Puntuacion={decision.Score} Hechizo={(decision.SpellId?.ToString() ?? "-")} Objetivo={(decision.TargetId?.ToString() ?? "-")} Motivo={decision.Reason}");
         }
 
         private static TaxCollectorDefenseMode CalculateDefenseMode(AIContext context)

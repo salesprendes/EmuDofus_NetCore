@@ -187,7 +187,7 @@ namespace Game.Fight.Effect
         {
             if (!m_effects.ContainsKey(castInfos.EffectType))
             {
-                Logger.Debug("EffectManager::TryApplyEffect efecto desconocido: " + castInfos.EffectType);
+                Logger.Debug($"EffectManager::TryApplyEffect efecto desconocido: {castInfos.EffectType}");
                 return FightActionResultEnum.RESULT_NOTHING;
             }
             return m_effects[castInfos.EffectType].ApplyEffect(castInfos);

@@ -1,6 +1,6 @@
+using Protocolo.Framework.IO;
 using System;
 using System.Buffers.Binary;
-using Protocolo.Framework.IO;
 
 namespace Protocolo.RPC.Service
 {

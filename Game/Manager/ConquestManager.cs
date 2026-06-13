@@ -98,7 +98,7 @@ namespace Game.Manager
 
             WorldService.Instance.AddTimer(600000, GainPrismHonor);
 
-            Logger.Info("ConquestManager: " + m_bySubArea.Count + " territorios cargados.");
+            Logger.Info($"ConquestManager: {m_bySubArea.Count} territorios cargados.");
         }
 
         private void GainPrismHonor()

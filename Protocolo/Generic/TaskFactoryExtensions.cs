@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -47,38 +45,41 @@ namespace Protocolo.Framework.Generic
             return tcs.Task;
         }
 
-        private static IEnumerable<Task> TrackedSequenceInternal(
-    IEnumerable<Func<Task>> functions, TaskCompletionSource<IList<Task>> tcs)
+        private static IEnumerable<Task> TrackedSequenceInternal(IEnumerable<Func<Task>> functions, TaskCompletionSource<IList<Task>> tcs)
         {
-
-
             var tasks = new List<Task>();
+            var keepGoing = true;
 
-
-            foreach (var func in functions)
+            using (var enumerator = functions.GetEnumerator())
             {
-
-
-                Task nextTask = null;
-                try
+                while (keepGoing && enumerator.MoveNext())
                 {
-                    nextTask = func();
+                    Task nextTask = null;
+                    try
+                    {
+                        nextTask = enumerator.Current();
+                    }
+                    catch (Exception exc)
+                    {
+                        keepGoing = false;
+                        tcs.TrySetException(exc);
+                    }
+
+                    if (nextTask == null)
+                    {
+                        keepGoing = false;
+                    }
+                    else
+                    {
+                        tasks.Add(nextTask);
+                        yield return nextTask;
+                        keepGoing = !nextTask.IsFaulted;
+                    }
                 }
-                catch (Exception exc)
-                {
-                    tcs.TrySetException(exc);
-                }
-                if (nextTask == null) yield break;
-
-
-
-                tasks.Add(nextTask);
-                yield return nextTask;
-                if (nextTask.IsFaulted) break;
             }
 
-
-            tcs.TrySetResult(tasks);
+            if (!tcs.Task.IsCompleted)
+                tcs.TrySetResult(tasks);
         }
 
         public static Task Iterate(

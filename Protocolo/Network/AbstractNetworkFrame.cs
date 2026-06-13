@@ -23,7 +23,7 @@ namespace Protocolo.Framework.Network
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error("Error en el manejador del frame: " + ex.ToString());
+                    Logger.Error($"Error en el manejador del frame: {ex}");
                 }
                 return true;
             }

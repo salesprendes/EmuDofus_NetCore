@@ -84,7 +84,7 @@ namespace Game.Fight.AI.Core
             catch (Exception ex)
             {
                 if (WorldConfig.LOG_DEBUG)
-                    Logger.Debug("[IA] Luchador=" + (Fighter?.Id ?? 0) + " fallo al evaluar: " + ex);
+                    Logger.Debug($"[IA] Luchador={(Fighter?.Id ?? 0)} fallo al evaluar: {ex}");
 
                 tail.LinkWith(new DecisionAIAction(Fighter, null, AIDecision.EndTurn("Fallo al evaluar IA")));
             }
@@ -112,12 +112,7 @@ namespace Game.Fight.AI.Core
             if (!WorldConfig.LOG_DEBUG || decision == null)
                 return;
 
-            Logger.Debug("[IA] Luchador=" + (Fighter?.Id ?? 0)
-                + " Fase=" + (context?.CurrentPhase.ToString() ?? "?")
-                + " Decision=" + decision.Type
-                + " Prioridad=" + decision.Priority
-                + " Puntuacion=" + decision.Score
-                + " Motivo=" + decision.Reason);
+            Logger.Debug($"[IA] Luchador={(Fighter?.Id ?? 0)} Fase={(context?.CurrentPhase.ToString() ?? "?")} Decision={decision.Type} Prioridad={decision.Priority} Puntuacion={decision.Score} Motivo={decision.Reason}");
         }
 
         private static AITurnPhase DecisionTypeToPhase(AIDecisionType type)

@@ -20,7 +20,7 @@ namespace Protocolo.RPC.Service
         public AbstractRcpMessage BuildMessage(int messageId, BinaryQueue data, int length)
         {
             if (!m_messageById.TryGetValue(messageId, out var factory))
-                throw new NotImplementedException(string.Format("RPCMessageBuilder::BuildMessage mensaje desconocido mensajeId={0}", messageId));
+                throw new NotImplementedException($"RPCMessageBuilder::BuildMessage mensaje desconocido mensajeId={messageId}");
 
             var message = factory();
             message.SetData(data, length);

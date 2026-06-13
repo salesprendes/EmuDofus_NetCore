@@ -65,7 +65,7 @@ namespace Game.Manager
 
             if (!item.Template.Usable && !item.Template.Buff && !item.Template.Targetable && targetId != -1 && targetCell != -1)
             {
-                Logger.Info("ActionEffectManager::Apply objeto no usable, sin bonificacion ni objetivo objeto=" + item.Template.Name + " personaje=" + character.Name);
+                Logger.Info($"ActionEffectManager::Apply objeto no usable, sin bonificacion ni objetivo objeto={item.Template.Name} personaje={character.Name}");
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }

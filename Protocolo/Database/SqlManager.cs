@@ -59,7 +59,7 @@ namespace Protocolo.Framework.Database
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error("Error fatal al insertar en la base de datos: " + ex.Message);
+                    Logger.Error($"Error fatal al insertar en la base de datos: {ex.Message}");
                     return false;
                 }
             }
@@ -76,7 +76,7 @@ namespace Protocolo.Framework.Database
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error("Error fatal al insertar en la base de datos: " + ex.Message);
+                    Logger.Error($"Error fatal al insertar en la base de datos: {ex.Message}");
                     return false;
                 }
             }
@@ -97,7 +97,7 @@ namespace Protocolo.Framework.Database
                     catch (Exception ex)
                     {
                         transaction.Rollback();
-                        Logger.Error("Error fatal al insertar en la base de datos: " + ex.Message);
+                        Logger.Error($"Error fatal al insertar en la base de datos: {ex.Message}");
                         return false;
                     }
                 }
@@ -119,7 +119,7 @@ namespace Protocolo.Framework.Database
                     catch (Exception ex)
                     {
                         transaction.Rollback();
-                        Logger.Error("Error fatal al insertar en la base de datos: " + ex.Message);
+                        Logger.Error($"Error fatal al insertar en la base de datos: {ex.Message}");
                         return false;
                     }
                 }

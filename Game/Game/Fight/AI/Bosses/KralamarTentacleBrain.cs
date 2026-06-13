@@ -216,12 +216,7 @@ namespace Game.Fight.AI.Bosses
             if (!WorldConfig.LOG_DEBUG || decision == null)
                 return;
 
-            Logger.Debug("[IA][TentaculoKralamar] Luchador=" + (Fighter?.Id ?? 0)
-                + " Plantilla=" + ((Fighter as MonsterEntity)?.Grade?.MonsterId ?? 0)
-                + " Decision=" + decision.Type
-                + " Prioridad=" + decision.Priority
-                + " Puntuacion=" + decision.Score
-                + " Motivo=" + decision.Reason);
+            Logger.Debug($"[IA][TentaculoKralamar] Luchador={(Fighter?.Id ?? 0)} Plantilla={((Fighter as MonsterEntity)?.Grade?.MonsterId ?? 0)} Decision={decision.Type} Prioridad={decision.Priority} Puntuacion={decision.Score} Motivo={decision.Reason}");
         }
     }
 }

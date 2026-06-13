@@ -25,12 +25,12 @@ namespace Protocolo.Framework.Database
                 foreach (var repository in m_repositories)
                 {
                     repository.Initialize(m_sqlMgr);
-                    Logger.Info(repository.GetType().Name + " : " + repository.ObjectCount + " datos cargados.");
+                    Logger.Info($"{repository.GetType().Name} : {repository.ObjectCount} datos cargados.");
                 }
             }
             catch (MySqlException ex)
             {
-                Logger.Error("Error fatal al cargar la base de datos: cadenaConexion=" + connectionString + " mensaje=" + ex.ToString());
+                Logger.Error($"Error fatal al cargar la base de datos: cadenaConexion={connectionString} mensaje={ex}");
             }
         }
 
@@ -56,7 +56,7 @@ namespace Protocolo.Framework.Database
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error("DbManager::UpdateAll no se pudieron actualizar los repositorios: " + ex.Message);
+                    Logger.Error($"DbManager::UpdateAll no se pudieron actualizar los repositorios: {ex.Message}");
                     try { transaction.Rollback(); } catch { }
                 }
             }

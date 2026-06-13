@@ -66,17 +66,17 @@ namespace Game.Fight.AI.Bosses.Mechanics
         {
             if (!IsKralamar(kralamar) || castInfos == null || damageBeforeResistance <= 0)
             {
-                Logger.Warn("[Kralamar] OnDamageReceived ignorado: esKralamar=" + IsKralamar(kralamar) + " infoLanzamiento=" + (castInfos != null) + " danio=" + damageBeforeResistance + " tipoEfecto=" + castInfos?.EffectType);
+                Logger.Warn($"[Kralamar] OnDamageReceived ignorado: esKralamar={IsKralamar(kralamar)} infoLanzamiento={(castInfos != null)} danio={damageBeforeResistance} tipoEfecto={castInfos?.EffectType}");
                 return;
             }
 
             if (!TryGetElement(castInfos.EffectType, out KralamarElement element))
             {
-                Logger.Warn("[Kralamar] Efecto " + castInfos.EffectType + " (id=" + (int)castInfos.EffectType + ") no reconocido como elemental.");
+                Logger.Warn($"[Kralamar] Efecto {castInfos.EffectType} (id={(int)castInfos.EffectType}) no reconocido como elemental.");
                 return;
             }
 
-            Logger.Warn("[Kralamar] Golpe elemental recibido: " + element + " paso=" + m_expectedStep + " hechizoId=" + castInfos.SpellId + " danio=" + damageBeforeResistance);
+            Logger.Warn($"[Kralamar] Golpe elemental recibido: {element} paso={m_expectedStep} hechizoId={castInfos.SpellId} danio={damageBeforeResistance}");
 
             lock (m_sync)
             {
@@ -90,7 +90,7 @@ namespace Game.Fight.AI.Bosses.Mechanics
                     if (element == m_pendingTentacle.Element)
                         return;
 
-                    Logger.Warn("[Kralamar] Secuencia rota: tentaculo pendiente=" + m_pendingTentacle.Name + " elemento nuevo=" + element);
+                    Logger.Warn($"[Kralamar] Secuencia rota: tentaculo pendiente={m_pendingTentacle.Name} elemento nuevo={element}");
                     BreakSequence(kralamar, element);
                     return;
                 }
@@ -98,7 +98,7 @@ namespace Game.Fight.AI.Bosses.Mechanics
                 var expected = SummonOrder[m_expectedStep];
                 if (element != expected.Element)
                 {
-                    Logger.Warn("[Kralamar] Elemento incorrecto: esperado=" + expected.Element + " recibido=" + element);
+                    Logger.Warn($"[Kralamar] Elemento incorrecto: esperado={expected.Element} recibido={element}");
                     BreakSequence(kralamar, element);
                     return;
                 }
@@ -108,7 +108,7 @@ namespace Game.Fight.AI.Bosses.Mechanics
                 m_punishmentPending = false;
                 m_expectedStep = (m_expectedStep + 1) % SummonOrder.Length;
                 kralamar.StateManager?.ForceAddState(expected.DesireState);
-                Logger.Warn("[Kralamar] Tentaculo pendiente activado: " + expected.Name + " (hechizo=" + expected.SpellId + " estado=" + (int)expected.DesireState + ")");
+                Logger.Warn($"[Kralamar] Tentaculo pendiente activado: {expected.Name} (hechizo={expected.SpellId} estado={(int)expected.DesireState})");
             }
         }
 
@@ -171,7 +171,7 @@ namespace Game.Fight.AI.Bosses.Mechanics
         {
             if (HasLivingTentacle(context.Fighter, pendingTentacle.TemplateId))
             {
-                Logger.Warn("[Kralamar] Tentaculo " + pendingTentacle.Name + " (id=" + pendingTentacle.TemplateId + ") ya esta vivo en el equipo. El grupo del monstruo incluye los tentaculos desde el inicio?");
+                Logger.Warn($"[Kralamar] Tentaculo {pendingTentacle.Name} (id={pendingTentacle.TemplateId}) ya esta vivo en el equipo. El grupo del monstruo incluye los tentaculos desde el inicio?");
                 ClearPendingTentacle(context.Fighter);
                 yield break;
             }
@@ -179,20 +179,20 @@ namespace Game.Fight.AI.Bosses.Mechanics
             var spell = FindSpell(context, pendingTentacle.SpellId);
             if (spell == null)
             {
-                Logger.Warn("[Kralamar] Hechizo de invocacion " + pendingTentacle.SpellId + " (" + pendingTentacle.Name + ") no encontrado en el grimorio del Kralamar.");
+                Logger.Warn($"[Kralamar] Hechizo de invocacion {pendingTentacle.SpellId} ({pendingTentacle.Name}) no encontrado en el grimorio del Kralamar.");
                 yield break;
             }
 
             if (spell.APCost > context.CurrentAP)
             {
-                Logger.Warn("[Kralamar] Sin PA para invocar " + pendingTentacle.Name + ": necesita " + spell.APCost + " tiene " + context.CurrentAP);
+                Logger.Warn($"[Kralamar] Sin PA para invocar {pendingTentacle.Name}: necesita {spell.APCost} tiene {context.CurrentAP}");
                 yield break;
             }
 
             var cell = new MovementEvaluator().GetBestSummonCell(context, spell);
             if (!cell.HasValue)
             {
-                Logger.Warn("[Kralamar] GetBestSummonCell no encontro celda valida para " + pendingTentacle.Name + " (hechizoId=" + pendingTentacle.SpellId + " poMin=" + spell.MinPO + " poMax=" + spell.MaxPO + " enLinea=" + spell.InLine + " lineaVision=" + spell.LOS + " celdaVacia=" + spell.EmptyCell + ")");
+                Logger.Warn($"[Kralamar] GetBestSummonCell no encontro celda valida para {pendingTentacle.Name} (hechizoId={pendingTentacle.SpellId} poMin={spell.MinPO} poMax={spell.MaxPO} enLinea={spell.InLine} lineaVision={spell.LOS} celdaVacia={spell.EmptyCell})");
                 yield break;
             }
 
@@ -350,7 +350,7 @@ namespace Game.Fight.AI.Bosses.Mechanics
                 m_pendingTentacle = step;
                 m_expectedStep = (stepIdx + 1) % SummonOrder.Length;
                 kralamar?.StateManager?.ForceAddState(step.DesireState);
-                Logger.Warn("[Kralamar] Secuencia rota: tentaculo asignado=" + step.Name + " (elemento=" + triggerElement + ")");
+                Logger.Warn($"[Kralamar] Secuencia rota: tentaculo asignado={step.Name} (elemento={triggerElement})");
             }
             else
             {

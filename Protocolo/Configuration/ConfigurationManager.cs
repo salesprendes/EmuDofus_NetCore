@@ -65,7 +65,7 @@ namespace Protocolo.Framework.Configuration
                     var name = string.IsNullOrEmpty(attr.Name) ? field.Name : attr.Name;
 
                     if (m_configurables.ContainsKey(name))
-                        throw new Exception(string.Format("Configurable name's `{0}` is already used.", name));
+                        throw new Exception($"Configurable name's `{name}` is already used.");
 
                     m_configurables.Add(name, field);
                 }
@@ -124,7 +124,7 @@ namespace Protocolo.Framework.Configuration
                 if (!targetType.IsValueType || nullableType != null)
                     return null;
 
-                throw new InvalidOperationException(string.Format("Configuration value `{0}` cannot be null for type `{1}`.", key, targetType.FullName));
+                throw new InvalidOperationException($"Configuration value `{key}` cannot be null for type `{targetType.FullName}`.");
             }
 
             var valueType = value.GetType();

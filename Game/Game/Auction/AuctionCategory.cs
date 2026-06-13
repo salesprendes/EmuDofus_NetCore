@@ -145,7 +145,7 @@ namespace Game.Auction
             var floor = GetFloorByQuantity(auction.Item.Quantity);
             if (floor == AuctionCategoryFloorEnum.INVALID)
             {
-                throw new InvalidOperationException("AuctionCategory::Add invalid floor for quantity=" + auction.Item.Quantity);
+                throw new InvalidOperationException($"AuctionCategory::Add invalid floor for quantity={auction.Item.Quantity}");
             }
 
             m_auctionsByFloor[floor].Add(auction);

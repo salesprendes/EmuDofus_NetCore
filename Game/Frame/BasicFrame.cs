@@ -227,7 +227,7 @@ namespace Game.Frame
         {
             if (!WorldCommandPermissions.CanUseStaffConsole(character))
             {
-                Logger.Warn("BasicFrame::BasicCommand jugador sin permisos ha intentado usar la consola: " + character.Name + " -> " + message);
+                Logger.Warn($"BasicFrame::BasicCommand jugador sin permisos ha intentado usar la consola: {character.Name} -> {message}");
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }
@@ -960,7 +960,7 @@ namespace Game.Frame
         {
             if (!WorldCommandPermissions.HasRole(character, StaffRole.GameMaster))
             {
-                Logger.Warn("BasicFrame::BasicAdminMapTeleport jugador sin permisos ha intentado usar teletransporte de mapa: " + character.Name + " -> " + message);
+                Logger.Warn($"BasicFrame::BasicAdminMapTeleport jugador sin permisos ha intentado usar teletransporte de mapa: {character.Name} -> {message}");
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;
             }

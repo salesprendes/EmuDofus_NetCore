@@ -39,7 +39,7 @@ namespace Game.Exchange
         {
             if (quantity < 1)
             {
-                Logger.Debug("ShopExchange: no se puede comprar con una cantidad menor que 1: " + entity.Name);
+                Logger.Debug($"ShopExchange: no se puede comprar con una cantidad menor que 1: {entity.Name}");
                 Character.Dispatch(WorldMessage.EXCHANGE_BUY_ERROR());
                 return;
             }
@@ -47,7 +47,7 @@ namespace Game.Exchange
             var template = Npc.ShopItems.Find(x => x.Id == templateId);
             if (template == null)
             {
-                Logger.Debug("ShopExchange: no se puede comprar porque la plantilla del objeto no existe: " + entity.Name);
+                Logger.Debug($"ShopExchange: no se puede comprar porque la plantilla del objeto no existe: {entity.Name}");
                 Character.Dispatch(WorldMessage.EXCHANGE_BUY_ERROR());
                 return;
             }
@@ -56,7 +56,7 @@ namespace Game.Exchange
 
             if (Character.Inventory.Kamas < price)
             {
-                Logger.Debug("ShopExchange: no hay kamas suficientes para comprar el objeto: " + entity.Name);
+                Logger.Debug($"ShopExchange: no hay kamas suficientes para comprar el objeto: {entity.Name}");
                 Character.Dispatch(WorldMessage.EXCHANGE_BUY_ERROR());
                 return;
             }
@@ -64,7 +64,7 @@ namespace Game.Exchange
             var instance = template.Create(Character.Id, (int)Character.Type, quantity);
             if (instance == null)
             {
-                Logger.Debug("ShopExchange: error al crear el objeto de compra: " + entity.Name);
+                Logger.Debug($"ShopExchange: error al crear el objeto de compra: {entity.Name}");
                 Character.Dispatch(WorldMessage.EXCHANGE_BUY_ERROR());
                 return;
             }
@@ -79,7 +79,7 @@ namespace Game.Exchange
         {
             if (quantity < 1)
             {
-                Logger.Debug("ShopExchange: no se puede vender una cantidad menor que 1: " + entity.Name);
+                Logger.Debug($"ShopExchange: no se puede vender una cantidad menor que 1: {entity.Name}");
                 entity.Dispatch(WorldMessage.EXCHANGE_SELL_ERROR());
                 return;
             }
@@ -88,7 +88,7 @@ namespace Game.Exchange
 
             if (item == null)
             {
-                Logger.Debug("ShopExchange: no se puede vender un objeto que no existe: " + entity.Name);
+                Logger.Debug($"ShopExchange: no se puede vender un objeto que no existe: {entity.Name}");
                 entity.Dispatch(WorldMessage.EXCHANGE_SELL_ERROR());
                 return;
             }

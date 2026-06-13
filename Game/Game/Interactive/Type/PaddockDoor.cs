@@ -22,7 +22,7 @@ namespace Game.Interactive.Type
         {
             m_paddock = map.Paddock;
             if (m_paddock == null)
-                Logger.Info("No hay cercado asociado al mapa " + map.Id);
+                Logger.Info($"No hay cercado asociado al mapa {map.Id}");
         }
 
         public override void UseWithSkill(CharacterEntity character, JobSkill skill)
@@ -73,7 +73,7 @@ namespace Game.Interactive.Type
             {
 
                 character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
-                Logger.Info("PaddockDoor::Buy() se ha intentado comprar un cercado publico o ya comprado: " + character.Name);
+                Logger.Info($"PaddockDoor::Buy() se ha intentado comprar un cercado publico o ya comprado: {character.Name}");
             }
         }
     }

@@ -64,9 +64,9 @@ namespace Protocolo.Framework.Database
         {
             get
             {
-                m_updateBuffer.Clear();
                 lock (m_syncLock)
                 {
+                    m_updateBuffer.Clear();
                     foreach (var obj in m_dataObjects)
                     {
                         if (obj.IsDirty && !obj.IsNew && !obj.IsDeleted)
@@ -85,9 +85,9 @@ namespace Protocolo.Framework.Database
         {
             get
             {
-                m_insertBuffer.Clear();
                 lock (m_syncLock)
                 {
+                    m_insertBuffer.Clear();
                     foreach (var obj in m_dataObjects)
                     {
                         if (obj.IsNew && !obj.IsDeleted)
@@ -107,9 +107,9 @@ namespace Protocolo.Framework.Database
         {
             get
             {
-                m_deleteBuffer.Clear();
                 lock (m_syncLock)
                 {
+                    m_deleteBuffer.Clear();
                     foreach (var obj in m_dataObjects)
                     {
                         if (obj.IsDeleted && !obj.IsNew)
@@ -259,13 +259,7 @@ namespace Protocolo.Framework.Database
 
             lock (m_syncLock)
                 foreach (TDataObject obj in objects)
-                {
-                    Unsubscribe(obj);
-                    if (obj.IsNew)
-                        m_dataObjects.Remove(obj);
-                    OnObjectRemoved(obj);
-                    obj.IsDeleted = true;
-                }
+                    RemovedLocked(obj);
         }
 
         public virtual void Removed(TDataObject obj)
@@ -274,13 +268,18 @@ namespace Protocolo.Framework.Database
                 return;
 
             lock (m_syncLock)
-            {
-                Unsubscribe(obj);
-                if (obj.IsNew)
-                    m_dataObjects.Remove(obj);
-                OnObjectRemoved(obj);
-                obj.IsDeleted = true;
-            }
+                RemovedLocked(obj);
+        }
+
+        private void RemovedLocked(TDataObject obj)
+        {
+            Unsubscribe(obj);
+            
+            if (obj.IsNew)
+                m_dataObjects.Remove(obj);
+
+            OnObjectRemoved(obj);
+            obj.IsDeleted = true;
         }
 
         public virtual void Created(TDataObject obj)

@@ -42,7 +42,7 @@ namespace Protocolo.Framework.Generic
             }
             catch (Exception ex)
             {
-                Logger.Error("Error al procesar la llamada del temporizador: " + ex.ToString());
+                Logger.Error($"Error al procesar la llamada del temporizador: {ex}");
             }
             finally
             {

@@ -26,7 +26,7 @@ namespace Game
                 CharacterBreedEnum.BREED_SADIDAS => 255,
                 CharacterBreedEnum.BREED_SRAM => 219,
                 CharacterBreedEnum.BREED_XELOR => 286,
-                _ => throw new Exception("BreedId desconocido: " + breed),
+                _ => throw new Exception($"BreedId desconocido: {breed}"),
             };
         }
 
@@ -46,7 +46,7 @@ namespace Game
                 CharacterBreedEnum.BREED_SADIDAS => 10279,
                 CharacterBreedEnum.BREED_SRAM => 10285,
                 CharacterBreedEnum.BREED_XELOR => 10298,
-                _ => throw new Exception("BreedId desconocido: " + breed),
+                _ => throw new Exception($"BreedId desconocido: {breed}"),
             };
         }
 

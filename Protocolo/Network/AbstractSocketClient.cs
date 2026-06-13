@@ -109,24 +109,14 @@ namespace Protocolo.Framework.Network
 
         private void IOCompleted(object sender, SocketAsyncEventArgs saea)
         {
-            switch (saea.LastOperation)
-            {
-                case SocketAsyncOperation.Connect:
-                    ProcessConnected(saea);
-                    break;
-
-                case SocketAsyncOperation.Receive:
-                    ProcessReceived(saea);
-                    break;
-
-                case SocketAsyncOperation.Send:
-                    ProcessSent(saea);
-                    break;
-
-                case SocketAsyncOperation.Disconnect:
-                    BeginDisconnect();
-                    break;
-            }
+            if (saea.LastOperation == SocketAsyncOperation.Connect)
+                ProcessConnected(saea);
+            else if (saea.LastOperation == SocketAsyncOperation.Receive)
+                ProcessReceived(saea);
+            else if (saea.LastOperation == SocketAsyncOperation.Send)
+                ProcessSent(saea);
+            else if (saea.LastOperation == SocketAsyncOperation.Disconnect)
+                BeginDisconnect();
         }
 
         private void ProcessConnected(SocketAsyncEventArgs saea)
