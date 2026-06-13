@@ -75,6 +75,9 @@ namespace Game.Frame
                                 return null;
 
                             return message[2] switch { 'G' => ExchangeMoveGold, 'O' => ExchangeMoveObject, 'R' => ExchangeRetry, 'r' => ExchangeCancelRetry, _ => null, };
+
+                        case 'P': // craft seguro: movimiento de pago (kamas/objetos)
+                            return ExchangePayMovement;
                     }
                     break;
             }
@@ -112,7 +115,7 @@ namespace Game.Frame
 
                     character.Inventory.SubKamas(character.MerchantTaxe);
                     character.Merchant = true;
-                    character.ServerKick("Merchant mode");
+                    character.ServerKick("Modo Mercante");
                 });
         }
 
@@ -297,6 +300,11 @@ namespace Game.Frame
                 return;
             }
 
+            // Craft seguro (ER12|clienteId|skill): tercer campo = id de la habilidad de craft.
+            var craftSecureSkillId = -1;
+            if (exchangePartCount > 2)
+                int.TryParse(exchangeData[exchangeParts[2]], out craftSecureSkillId);
+
             if (!Enum.IsDefined(typeof(ExchangeTypeEnum), exchangeTypeId))
             {
                 Logger.Debug("ExchangeFrame::Request tipo de intercambio desconocido: " + exchangeTypeId + " " + character.Name);
@@ -360,9 +368,32 @@ namespace Game.Frame
 
                     case EntityTypeEnum.TYPE_CHARACTER:
                         if (exchangeType == ExchangeTypeEnum.EXCHANGE_PERSONAL_SHOP_EDIT && character.Id == distantEntity.Id)
+                        {
                             character.ExchangePersonalShop();
+                        }
+                        else if (exchangeType == ExchangeTypeEnum.EXCHANGE_CRAFT_SECURE_ARTISAN || exchangeType == ExchangeTypeEnum.EXCHANGE_CRAFT_SECURE_CLIENT)
+                        {
+                            // 12 = el iniciador (character) invita siendo ARTESANO.
+                            // 13 = el iniciador (character) pide siendo CLIENTE; el invitado es el artesano.
+                            // En ambos casos la habilidad pertenece al ARTESANO.
+                            var invited = (CharacterEntity)distantEntity;
+                            var artisan = exchangeType == ExchangeTypeEnum.EXCHANGE_CRAFT_SECURE_ARTISAN ? character : invited;
+                            var client = exchangeType == ExchangeTypeEnum.EXCHANGE_CRAFT_SECURE_ARTISAN ? invited : character;
+
+                            var skill = artisan.CharacterJobs.GetSkill(craftSecureSkillId);
+                            if (!(skill is Game.Job.Skill.CraftSkill || skill is Game.Job.Skill.MagicSkill))
+                            {
+                                Logger.Debug("ExchangeFrame::Request craft seguro sin habilidad válida: " + craftSecureSkillId + " artesano=" + artisan.Name);
+                                character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                                return;
+                            }
+
+                            character.RequestCraftSecure(invited, artisan, client, skill, exchangeTypeId);
+                        }
                         else
+                        {
                             character.ExchangePlayer((CharacterEntity)distantEntity);
+                        }
                         break;
 
                     case EntityTypeEnum.TYPE_NPC:
@@ -401,23 +432,100 @@ namespace Game.Frame
                     return;
                 }
 
-                var action = character.CurrentAction;
-                if (!(action is GamePlayerExchangeAction))
+                // Intercambio entre jugadores o craft seguro: ambos derivan de
+                // AbstractGameExchangeAction y exponen DistantEntity (el invitado).
+                var action = character.CurrentAction as AbstractGameExchangeAction;
+                if (action == null || action.DistantEntity == null || !(action is GamePlayerExchangeAction || action is GameCraftSecureExchangeAction))
                 {
                     Logger.Debug("ExchangeFrame::Accept la entidad no esta en un intercambio entre jugadores: " + character.Name);
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
 
-                var playerExchangeAction = (GamePlayerExchangeAction)action;
-                if (character.Id != playerExchangeAction.DistantEntity.Id)
+                if (character.Id != action.DistantEntity.Id)
                 {
                     Logger.Debug("ExchangeFrame::Accept el jugador no puede aceptar un intercambio que el mismo solicito: " + character.Name);
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
 
-                playerExchangeAction.Accept();
+                action.Accept();
+            });
+        }
+
+        /// <summary>
+        /// Craft seguro: pago del cliente. EP&lt;zona&gt;&lt;G|O&gt;&lt;...&gt; (zona 1=siempre, 2=si éxito).
+        /// </summary>
+        private void ExchangePayMovement(CharacterEntity character, string message)
+        {
+            if (message.Length < 5 || (message[3] != 'G' && message[3] != 'O'))
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
+            var zone = message[2] - '0';
+            var isKamas = message[3] == 'G';
+            var payload = message.AsSpan(4);
+
+            long kamas = 0;
+            bool add = false;
+            long guid = -1;
+            int quantity = 1;
+
+            if (isKamas)
+            {
+                if (!long.TryParse(payload, out kamas) || kamas < 0)
+                {
+                    character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                    return;
+                }
+            }
+            else
+            {
+                if (payload.IsEmpty)
+                {
+                    character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                    return;
+                }
+
+                add = payload[0] == '+';
+                var itemData = payload.Slice(1);
+                Span<Range> parts = stackalloc Range[3];
+                var partCount = itemData.Split(parts, '|');
+                if (partCount < 1 || !long.TryParse(itemData[parts[0]], out guid))
+                {
+                    character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                    return;
+                }
+                if (partCount > 1 && !int.TryParse(itemData[parts[1]], out quantity))
+                {
+                    character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                    return;
+                }
+            }
+
+            character.AddMessage(() =>
+            {
+                if (!(character.CurrentAction is AbstractGameExchangeAction action) || !(action.Exchange is ExchangeCraftSecure craft))
+                {
+                    character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                    return;
+                }
+
+                // Solo el cliente (no el artesano) aporta el pago.
+                if (character.Id != craft.Client.Id)
+                {
+                    character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                    return;
+                }
+
+                if (isKamas)
+                    craft.MovePayKamas(zone, kamas);
+                else if (add)
+                    craft.AddPayItem(zone, guid, quantity);
+                else
+                    craft.RemovePayItem(zone, guid, quantity);
             });
         }
 
@@ -655,8 +763,8 @@ namespace Game.Frame
                 }
 
                 var action = character.CurrentAction as AbstractGameExchangeAction;
-                var exchange = action.Exchange as IRetryableExchange;
-                if (exchange == null)
+
+                if (action.Exchange is not IRetryableExchange exchange)
                 {
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;

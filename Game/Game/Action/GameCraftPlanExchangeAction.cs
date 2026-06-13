@@ -12,8 +12,7 @@ namespace Game.Action
 {
     public sealed class GameCraftPlanExchangeAction : AbstractGameExchangeAction
     {
-        public GameCraftPlanExchangeAction(CharacterEntity character, CraftPlan plan, JobSkill skill)
-    : base(new CraftPlanExchange(character, plan, skill), character)
+        public GameCraftPlanExchangeAction(CharacterEntity character, CraftPlan plan, JobSkill skill) : base(new CraftPlanExchange(character, plan, skill), character)
         {
         }
 

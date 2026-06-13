@@ -17,8 +17,7 @@ namespace Game.Job.Skill
             private set;
         }
 
-        public CraftSkill(SkillIdEnum skill, int obtainLevel, int[] craftables, params int[] tools)
-    : base(skill, obtainLevel, tools)
+        public CraftSkill(SkillIdEnum skill, int obtainLevel, int[] craftables, params int[] tools) : base(skill, obtainLevel, tools)
         {
             Craftables = new List<ItemTemplateDAO>();
             foreach (var craftableItem in craftables)

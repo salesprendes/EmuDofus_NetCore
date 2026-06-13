@@ -237,7 +237,8 @@ namespace Game.Spell
         LivingXp = 974,
 
         CanBeExchange = 983,
-        MadeBy = 988,
+        ModifiedBy = 985, // "Modificado por <nombre>" (firma de forjamagia)
+        MadeBy = 988,     // "Fabricado por <nombre>" (firma de craft)
         Owner = 987,
         MountOwner = 996,
         Name = 997,

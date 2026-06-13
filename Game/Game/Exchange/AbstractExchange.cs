@@ -20,6 +20,8 @@ namespace Game.Exchange
         EXCHANGE_PERSONAL_SHOP_EDIT = 6,
         EXCHANGE_AUCTION_HOUSE_SELL = 10,
         EXCHANGE_AUCTION_HOUSE_BUY = 11,
+        EXCHANGE_CRAFT_SECURE_ARTISAN = 12, // craft seguro: el que aporta el oficio
+        EXCHANGE_CRAFT_SECURE_CLIENT = 13,  // craft seguro: el que recibe el objeto
         EXCHANGE_MOUNT_STORAGE = 16,
         EXCHANGE_MOUNT = 15
     }

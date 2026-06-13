@@ -4,8 +4,10 @@ using Game.Interactive.Type;
 using Game.Job;
 using Game.Job.Skill;
 using Game.Network;
+using Game.Spell;
 using Protocolo.Framework.Generic;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Game.Exchange
 {
@@ -15,6 +17,9 @@ namespace Game.Exchange
         private const int LOOP_INTERUPT = 2;
         private const int LOOP_ERROR = 3;
         private const int LOOP_INVALID = 4;
+
+        // Runa de firma "firmado por": no cuenta como ingrediente; firma el objeto creado.
+        private const int SIGNING_ITEM_TEMPLATE = 7508;
 
         public CharacterEntity Character
         {
@@ -149,12 +154,22 @@ namespace Game.Exchange
 
         private void CheckCraftable()
         {
-            m_craftItem = (m_caseItems.Count > 0) ? Skill.Craftables.Find(entry => entry.MatchCraft(m_templateQuantity)) : null;
+            // La firma (7508) no es un ingrediente de la receta: se excluye del emparejado.
+            var recipe = m_templateQuantity.ContainsKey(SIGNING_ITEM_TEMPLATE)
+                ? m_templateQuantity.Where(kv => kv.Key != SIGNING_ITEM_TEMPLATE).ToDictionary(kv => kv.Key, kv => kv.Value)
+                : m_templateQuantity;
+
+            m_craftItem = (recipe.Count > 0) ? Skill.Craftables.Find(entry => entry.MatchCraft(recipe)) : null;
         }
 
         public bool Validate(AbstractEntity entity)
         {
             Character.CachedBuffer = true;
+
+            // La firma se consume con los ingredientes pero no cuenta como tal.
+            var signed = m_templateQuantity.ContainsKey(SIGNING_ITEM_TEMPLATE);
+            var recipeCaseCount = m_caseItems.Keys.Count(guid =>
+                Character.Inventory.GetItem(guid)?.TemplateId != SIGNING_ITEM_TEMPLATE);
 
             foreach (var item in m_caseItems)
             {
@@ -164,14 +179,25 @@ namespace Game.Exchange
 
             if (m_craftItem != null)
             {
-                var chance = Character.CharacterJobs.GetCraftSuccessPercent(JobId, m_caseItems.Count);
+                var chance = Character.CharacterJobs.GetCraftSuccessPercent(JobId, recipeCaseCount);
                 var success = Util.Next(0, 100) < chance;
 
                 if (success)
                 {
                     ItemDAO item = m_craftItem.Create(Character.Id, (int)Character.Type);
-                    Character.Inventory.AddItem(item);
-                    item = Character.Inventory.Items.Find(entry => entry.TemplateId == m_craftItem.Id);
+
+                    // Firma de artesano: "Fabricado por <nombre>".
+                    if (signed)
+                    {
+                        item.Statistics.AddEffect(EffectEnum.MadeBy, 0, 0, 0, Character.Name);
+                        item.SaveStats();
+                        Character.Inventory.AddItem(item, merge: false);
+                    }
+                    else
+                    {
+                        Character.Inventory.AddItem(item);
+                        item = Character.Inventory.Items.Find(entry => entry.TemplateId == m_craftItem.Id);
+                    }
 
                     Character.Dispatch(WorldMessage.EXCHANGE_DISTANT_MOVEMENT(ExchangeMoveEnum.MOVE_OBJECT, OperatorEnum.OPERATOR_ADD, item.Id + "|1|" + m_craftItem.Id + "|" + item.StringEffects));
                     Character.Dispatch(WorldMessage.CRAFT_TEMPLATE_CREATED(item.TemplateId));

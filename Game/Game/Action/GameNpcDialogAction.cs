@@ -25,8 +25,7 @@ namespace Game.Action
             private set;
         }
 
-        public GameNpcDialogAction(CharacterEntity character, NonPlayerCharacterEntity npc)
-    : base(GameActionTypeEnum.NPC_DIALOG, character)
+        public GameNpcDialogAction(CharacterEntity character, NonPlayerCharacterEntity npc) : base(GameActionTypeEnum.NPC_DIALOG, character)
         {
             Npc = npc;
             Dialog = new NpcDialog(character, npc);

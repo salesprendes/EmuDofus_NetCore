@@ -1053,61 +1053,97 @@ namespace Game.Entity
                 return;
             }
 
-            if (m_lastEmoteId == 1)
-            {
-                StopRegeneration();
-            }
-            else if (emoteId == 1)
-            {
-                StartRegeneration(300);
-            }
-
             timeout = emoteId == m_lastEmoteId ? 0 : timeout;
             m_lastEmoteId = emoteId == m_lastEmoteId ? 0 : emoteId;
+
+            // Sentarse (emote 1) acelera la regeneración; cualquier otro estado vuelve al
+            // ritmo de pie. StartRegeneration liquida el progreso del ritmo anterior.
+            if (m_lastEmoteId == 1)
+            {
+                StartRegeneration(SITTING_REGEN_RATE);
+            }
+            else
+            {
+                StartStandingRegeneration();
+            }
 
             base.EmoteUse(m_lastEmoteId, timeout);
         }
 
         public void StopEmote()
         {
-            if (m_lastEmoteId == 1)
+            var wasSitting = m_lastEmoteId == 1;
+            m_lastEmoteId = 0;
+
+            // Al levantarse, liquidar lo regenerado sentado y volver al ritmo de pie.
+            if (wasSitting)
             {
-                StopRegeneration();
+                StartStandingRegeneration();
+            }
+        }
+
+        // Ritmo de regeneración natural de vida, en milisegundos por punto de vida.
+        // De pie es lento; sentado (emote 1) es mucho más rápido. Ajustables.
+        public const double STANDING_REGEN_RATE = 2000.0;
+        public const double SITTING_REGEN_RATE = 300.0;
+
+        /// <summary>
+        /// Inicia la regeneración natural de pie (si el personaje está vivo, en mapa y fuera
+        /// de combate). Es el ritmo lento; sentarse lo acelera.
+        /// </summary>
+        public void StartStandingRegeneration()
+        {
+            if (IsGhost || IsTombestone || HasGameAction(GameActionTypeEnum.FIGHT) || !HasGameAction(GameActionTypeEnum.MAP))
+            {
+                return;
             }
 
-            m_lastEmoteId = 0;
+            StartRegeneration(STANDING_REGEN_RATE);
         }
 
         public void StartRegeneration(double timer)
         {
+            // Liquidar primero lo regenerado por el ciclo anterior (de pie ↔ sentado, cambio
+            // de mapa, etc.) para no perder progreso al cambiar de ritmo.
+            StopRegeneration();
+
             if (Life >= MaxLife)
             {
                 return;
             }
 
             m_regenTimer = timer;
-            m_lastRegenTime = UpdateTime;
+            m_lastRegenTime = Environment.TickCount64; // reloj real, no depende del tick del juego
             Dispatch(WorldMessage.LIFE_RESTORE_TIME_START(timer));
         }
 
         public void StopRegeneration()
         {
-            if (Life >= MaxLife || m_lastRegenTime == -1)
+            if (m_lastRegenTime == -1)
             {
                 return;
             }
 
-            var lifeRestored = (int)Math.Floor((UpdateTime - m_lastRegenTime) / m_regenTimer);
-            if (Life + lifeRestored > MaxLife)
+            var elapsedMs = Environment.TickCount64 - m_lastRegenTime;
+            m_lastRegenTime = -1;
+
+            var lifeRestored = m_regenTimer > 0 ? (int)Math.Floor(elapsedMs / m_regenTimer) : 0;
+            if (lifeRestored > 0 && Life + lifeRestored > MaxLife)
             {
                 lifeRestored = MaxLife - Life;
             }
-
-            Life += lifeRestored;
-            m_lastRegenTime = -1;
+            if (lifeRestored < 0)
+            {
+                lifeRestored = 0;
+            }
 
             CachedBuffer = true;
-            Dispatch(WorldMessage.ACCOUNT_STATS(this));
+            if (lifeRestored > 0)
+            {
+                Life += lifeRestored;
+                Dispatch(WorldMessage.ACCOUNT_STATS(this));
+            }
+            // Siempre avisar al cliente (ILF) para detener su animación de regeneración.
             Dispatch(WorldMessage.LIFE_RESTORE_TIME_FINISH(lifeRestored));
             CachedBuffer = false;
         }
@@ -1608,6 +1644,17 @@ namespace Game.Entity
             player.CurrentAction = CurrentAction;
         }
 
+        /// <summary>
+        /// Inicia un craft seguro. <c>this</c> es el iniciador (envía la petición); <paramref
+        /// name="invited"/> es quien debe aceptar. Los roles artesano/cliente son independientes
+        /// de quién inició (un cliente puede pedir a un artesano y viceversa).
+        /// </summary>
+        public void RequestCraftSecure(CharacterEntity invited, CharacterEntity artisan, CharacterEntity client, Game.Job.JobSkill skill, int requestType)
+        {
+            CurrentAction = new GameCraftSecureExchangeAction(this, invited, artisan, client, skill, requestType);
+            invited.CurrentAction = CurrentAction;
+        }
+
         public void ChallengePlayer(CharacterEntity player)
         {
             CurrentAction = new GameChallengeRequestAction(this, player);
@@ -1689,7 +1736,10 @@ namespace Game.Entity
 
         public override bool CanBeExchanged(ExchangeTypeEnum exchangeType)
         {
-            return base.CanBeExchanged(exchangeType) && (exchangeType == ExchangeTypeEnum.EXCHANGE_PLAYER || exchangeType == ExchangeTypeEnum.EXCHANGE_PERSONAL_SHOP_EDIT);
+            return base.CanBeExchanged(exchangeType) && (exchangeType == ExchangeTypeEnum.EXCHANGE_PLAYER
+                || exchangeType == ExchangeTypeEnum.EXCHANGE_PERSONAL_SHOP_EDIT
+                || exchangeType == ExchangeTypeEnum.EXCHANGE_CRAFT_SECURE_ARTISAN
+                || exchangeType == ExchangeTypeEnum.EXCHANGE_CRAFT_SECURE_CLIENT);
         }
 
         public void RefreshOnMap()
@@ -1737,6 +1787,9 @@ namespace Game.Entity
                     FrameManager.AddFrame(HouseFrame.Instance);
                     FrameManager.AddFrame(GameActionFrame.Instance);
                     FrameManager.AddFrame(Frame.ConquestFrame.Instance);
+                    // Al pisar el mapa (login, cambio de mapa, fin de combate) arranca la
+                    // regeneración natural de pie.
+                    StartStandingRegeneration();
                     break;
 
                 case GameActionTypeEnum.WAYPOINT:
@@ -1770,7 +1823,9 @@ namespace Game.Entity
                     break;
 
                 case GameActionTypeEnum.FIGHT:
-                    StopEmote();
+                    // Sin regeneración en combate: liquidar lo regenerado y detenerla.
+                    m_lastEmoteId = 0;
+                    StopRegeneration();
                     FrameManager.RemoveFrame(MapFrame.Instance);
                     if (IsSpectating)
                     {

@@ -684,6 +684,51 @@ namespace Game.Network
             return "ERK" + characterId + '|' + targetId + "|1";
         }
 
+        /// <summary>
+        /// Petición de craft seguro: ERK&lt;iniciadorId&gt;|&lt;invitadoId&gt;|&lt;tipo&gt;. El tipo es el
+        /// que mandó el iniciador (12 = artesano invita a un cliente, 13 = cliente pide a un
+        /// artesano); el cliente muestra "esperando..." al iniciador y la invitación al invitado.
+        /// </summary>
+        public static string EXCHANGE_CRAFT_SECURE_REQUEST(long initiatorId, long invitedId, int requestType)
+        {
+            return "ERK" + initiatorId + '|' + invitedId + "|" + requestType;
+        }
+
+        /// <summary>
+        /// Movimiento de objeto de pago en el craft seguro: Ep&lt;zona&gt;;O&lt;op&gt;&lt;args&gt;
+        /// (zona 1 = pago siempre, zona 2 = pago si éxito).
+        /// </summary>
+        public static string EXCHANGE_PAY_ITEM(int zone, OperatorEnum operation, string args)
+        {
+            return "Ep" + zone + ";O" + (char)operation + args;
+        }
+
+        /// <summary>
+        /// Movimiento de kamas de pago en el craft seguro: Ep&lt;zona&gt;;G&lt;kamas&gt;.
+        /// </summary>
+        public static string EXCHANGE_PAY_KAMAS(int zone, long kamas)
+        {
+            return "Ep" + zone + ";G" + kamas;
+        }
+
+        /// <summary>
+        /// Movimiento en la zona cooperativa del craft seguro (resultado fabricado):
+        /// Er&lt;K&gt;&lt;move&gt;&lt;op&gt;&lt;args&gt;.
+        /// </summary>
+        public static string EXCHANGE_COOP_MOVEMENT(ExchangeMoveEnum move, OperatorEnum operation, string args)
+        {
+            return "ErK" + (char)move + (char)operation + args;
+        }
+
+        /// <summary>
+        /// Resultado de un craft seguro: EcK;&lt;tpl&gt;;&lt;rol&gt;&lt;nombre&gt;;&lt;stats&gt;
+        /// (rol 'T' = "fabricado para", 'B' = "fabricado por").
+        /// </summary>
+        public static string CRAFT_SECURE_RESULT(int templateId, char role, string name, string stringEffects)
+        {
+            return "EcK;" + templateId + ";" + role + name + ";" + stringEffects;
+        }
+
         public static string FIGHT_FLAG_DISPLAY(AbstractFight fight)
         {
             var message = new StringBuilder("Gc+");

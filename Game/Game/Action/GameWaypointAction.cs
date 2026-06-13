@@ -25,8 +25,7 @@ namespace Game.Action
             private set;
         }
 
-        public GameWaypointAction(CharacterEntity character, Waypoint waypoint)
-    : base(GameActionTypeEnum.WAYPOINT, character)
+        public GameWaypointAction(CharacterEntity character, Waypoint waypoint) : base(GameActionTypeEnum.WAYPOINT, character)
         {
             Character = character;
             Waypoint = waypoint;

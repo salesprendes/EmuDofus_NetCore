@@ -11,10 +11,7 @@ namespace Game.Action
 {
     public sealed class GameAuctionHouseSellAction : AbstractGameAuctionHouseAction
     {
-        public GameAuctionHouseSellAction(CharacterEntity character, NonPlayerCharacterEntity npc)
-    : base(new AuctionHouseSellExchange(character, npc), character, npc)
-        {
-        }
+        public GameAuctionHouseSellAction(CharacterEntity character, NonPlayerCharacterEntity npc) : base(new AuctionHouseSellExchange(character, npc), character, npc) {}
     }
 }
 
