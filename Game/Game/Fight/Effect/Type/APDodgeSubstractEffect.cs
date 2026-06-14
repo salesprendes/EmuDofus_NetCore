@@ -18,7 +18,7 @@ namespace Game.Fight.Effect.Type
 
             if (CastInfos.Duration > 1)
             {
-                var subInfos = new CastInfos(EffectEnum.SubAPDodgeable, CastInfos.SpellId, 0, CastInfos.Value1, 0, 0, 0, CastInfos.Duration, CastInfos.Caster, null);
+                var subInfos = new CastInfos(EffectEnum.STAT_MENOS_PA_ESQUIVABLE, CastInfos.SpellId, 0, CastInfos.Value1, 0, 0, 0, CastInfos.Duration, CastInfos.Caster, null);
                 var buff = new APDodgeSubstractBuff(subInfos, CastInfos.Target);
 
                 buff.ApplyEffect(ref damageValue);
@@ -26,7 +26,7 @@ namespace Game.Fight.Effect.Type
             }
             else
             {
-                var subInfos = new CastInfos(EffectEnum.SubAPDodgeable, CastInfos.SpellId, 0, CastInfos.Value1, 0, 0, 0, 0, CastInfos.Caster, null);
+                var subInfos = new CastInfos(EffectEnum.STAT_MENOS_PA_ESQUIVABLE, CastInfos.SpellId, 0, CastInfos.Value1, 0, 0, 0, 0, CastInfos.Caster, null);
                 var buff = new APDodgeSubstractBuff(subInfos, CastInfos.Target);
 
                 buff.ApplyEffect(ref damageValue);

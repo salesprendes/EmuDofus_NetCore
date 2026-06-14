@@ -129,20 +129,20 @@ namespace Game.Entity
             var resistance = 9 * level;
             var stats = new GenericStats();
 
-            stats.AddEffect(EffectEnum.AddStrength, mainStat);
-            stats.AddEffect(EffectEnum.AddIntelligence, mainStat);
-            stats.AddEffect(EffectEnum.AddAgility, mainStat);
-            stats.AddEffect(EffectEnum.AddWisdom, mainStat);
-            stats.AddEffect(EffectEnum.AddChance, mainStat);
-            stats.AddEffect(EffectEnum.AddReduceDamagePercentNeutral, resistance);
-            stats.AddEffect(EffectEnum.AddReduceDamagePercentFire, resistance);
-            stats.AddEffect(EffectEnum.AddReduceDamagePercentWater, resistance);
-            stats.AddEffect(EffectEnum.AddReduceDamagePercentAir, resistance);
-            stats.AddEffect(EffectEnum.AddReduceDamagePercentEarth, resistance);
-            stats.AddEffect(EffectEnum.AddAPDodge, resistance);
-            stats.AddEffect(EffectEnum.AddMPDodge, resistance);
-            stats.AddEffect(EffectEnum.AddAP, 6);
-            stats.AddEffect(EffectEnum.AddMP, 0);
+            stats.AddEffect(EffectEnum.STAT_MAS_FUERZA, mainStat);
+            stats.AddEffect(EffectEnum.STAT_MAS_INTELIGENCIA, mainStat);
+            stats.AddEffect(EffectEnum.STAT_MAS_AGILIDAD, mainStat);
+            stats.AddEffect(EffectEnum.STAT_MAS_SABIDURIA, mainStat);
+            stats.AddEffect(EffectEnum.STAT_MAS_SUERTE, mainStat);
+            stats.AddEffect(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_NEUTRAL, resistance);
+            stats.AddEffect(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_FUEGO, resistance);
+            stats.AddEffect(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_AGUA, resistance);
+            stats.AddEffect(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_AIRE, resistance);
+            stats.AddEffect(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_TIERRA, resistance);
+            stats.AddEffect(EffectEnum.STAT_MAS_ESQUIVA_PA, resistance);
+            stats.AddEffect(EffectEnum.STAT_MAS_ESQUIVA_PM, resistance);
+            stats.AddEffect(EffectEnum.STAT_MAS_PA, 6);
+            stats.AddEffect(EffectEnum.STAT_MAS_PM, 0);
 
             return stats;
         }
@@ -228,13 +228,13 @@ namespace Game.Entity
             message.Append(Life).Append(';');
             message.Append(AP).Append(';');
             message.Append(MP).Append(';');
-            message.Append(Statistics.GetTotal(EffectEnum.AddReduceDamagePercentNeutral)).Append(';');
-            message.Append(Statistics.GetTotal(EffectEnum.AddReduceDamagePercentEarth)).Append(';');
-            message.Append(Statistics.GetTotal(EffectEnum.AddReduceDamagePercentFire)).Append(';');
-            message.Append(Statistics.GetTotal(EffectEnum.AddReduceDamagePercentWater)).Append(';');
-            message.Append(Statistics.GetTotal(EffectEnum.AddReduceDamagePercentAir)).Append(';');
-            message.Append(Statistics.GetTotal(EffectEnum.AddAPDodge)).Append(';');
-            message.Append(Statistics.GetTotal(EffectEnum.AddMPDodge)).Append(';');
+            message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_NEUTRAL)).Append(';');
+            message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_TIERRA)).Append(';');
+            message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_FUEGO)).Append(';');
+            message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_AGUA)).Append(';');
+            message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_AIRE)).Append(';');
+            message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_ESQUIVA_PA)).Append(';');
+            message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_ESQUIVA_PM)).Append(';');
             message.Append(Team?.Id ?? 1);
         }
 

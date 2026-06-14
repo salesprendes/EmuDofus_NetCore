@@ -264,8 +264,8 @@ namespace Game.Exchange
 
             if (firma != null)
             {
-                forjado.Statistics.RemoveEffect(EffectEnum.ModifiedBy);
-                forjado.Statistics.AddEffect(EffectEnum.ModifiedBy, 0, 0, 0, Personaje.Name);
+                forjado.Statistics.RemoveEffect(EffectEnum.OBJETO_MODIFICADO_POR);
+                forjado.Statistics.AddEffect(EffectEnum.OBJETO_MODIFICADO_POR, 0, 0, 0, Personaje.Name);
                 ConsumirUno(firma.Id, out _);
             }
 

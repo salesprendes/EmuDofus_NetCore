@@ -395,27 +395,27 @@ namespace Game.Fight.AI.Bosses.Mechanics
         {
             switch (effectType)
             {
-                case EffectEnum.DamageWater:
-                case EffectEnum.StealWater:
-                case EffectEnum.DamageLifeWater:
+                case EffectEnum.DANO_AGUA:
+                case EffectEnum.ROBO_VIDA_AGUA:
+                case EffectEnum.DANO_VIDA_AGUA:
                     element = KralamarElement.Water;
                     return true;
 
-                case EffectEnum.DamageFire:
-                case EffectEnum.StealFire:
-                case EffectEnum.DamageLifeFire:
+                case EffectEnum.DANO_FUEGO:
+                case EffectEnum.ROBO_VIDA_FUEGO:
+                case EffectEnum.DANO_VIDA_FUEGO:
                     element = KralamarElement.Fire;
                     return true;
 
-                case EffectEnum.DamageEarth:
-                case EffectEnum.StealEarth:
-                case EffectEnum.DamageLifeEarth:
+                case EffectEnum.DANO_TIERRA:
+                case EffectEnum.ROBO_VIDA_TIERRA:
+                case EffectEnum.DANO_VIDA_TIERRA:
                     element = KralamarElement.Earth;
                     return true;
 
-                case EffectEnum.DamageAir:
-                case EffectEnum.StealAir:
-                case EffectEnum.DamageLifeAir:
+                case EffectEnum.DANO_AIRE:
+                case EffectEnum.ROBO_VIDA_AIRE:
+                case EffectEnum.DANO_VIDA_AIRE:
                     element = KralamarElement.Air;
                     return true;
 

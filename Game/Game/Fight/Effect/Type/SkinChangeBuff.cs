@@ -20,7 +20,7 @@ namespace Game.Fight.Effect.Type
             var newSkin = CastInfos.Value3 == -1 ? Target.Skin : CastInfos.Value3;
             Target.Skin = newSkin;
 
-            Target.Fight.Dispatch(WorldMessage.GAME_ACTION(EffectEnum.ChangeSkin, CastInfos.Caster.Id, Target.Id + "," + m_originalSkin + "," + newSkin + "," + (CastInfos.Duration + 1)));
+            Target.Fight.Dispatch(WorldMessage.GAME_ACTION(EffectEnum.APARIENCIA_CAMBIAR, CastInfos.Caster.Id, Target.Id + "," + m_originalSkin + "," + newSkin + "," + (CastInfos.Duration + 1)));
 
             return base.ApplyEffect(ref DamageValue, DamageInfos);
         }
@@ -38,7 +38,7 @@ namespace Game.Fight.Effect.Type
             if (Target.Fight != null)
             {
                 Target.Fight.Dispatch("GIe" + Target.Id);
-                Target.Fight.Dispatch(WorldMessage.GAME_ACTION(EffectEnum.ChangeSkin, CastInfos.Caster.Id, Target.Id + "," + m_originalSkin + "," + m_originalSkin + "," + 1));
+                Target.Fight.Dispatch(WorldMessage.GAME_ACTION(EffectEnum.APARIENCIA_CAMBIAR, CastInfos.Caster.Id, Target.Id + "," + m_originalSkin + "," + m_originalSkin + "," + 1));
             }
 
             return base.RemoveEffect();

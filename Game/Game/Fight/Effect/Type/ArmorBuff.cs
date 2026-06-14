@@ -20,23 +20,23 @@ namespace Game.Fight.Effect.Type
             switch (CastInfos.SpellId)
             {
                 case 1:
-                    Target.Statistics.GetEffect(EffectEnum.AddArmorFire).Dons -= CastInfos.Value1;
+                    Target.Statistics.GetEffect(EffectEnum.STAT_MAS_ARMADURA_FUEGO).Dons -= CastInfos.Value1;
                     break;
 
                 case 6:
-                    Target.Statistics.GetEffect(EffectEnum.AddArmorEarth).Dons -= CastInfos.Value1;
+                    Target.Statistics.GetEffect(EffectEnum.STAT_MAS_ARMADURA_TIERRA).Dons -= CastInfos.Value1;
                     break;
 
                 case 14:
-                    Target.Statistics.GetEffect(EffectEnum.AddArmorAir).Dons -= CastInfos.Value1;
+                    Target.Statistics.GetEffect(EffectEnum.STAT_MAS_ARMADURA_AIRE).Dons -= CastInfos.Value1;
                     break;
 
                 case 18:
-                    Target.Statistics.GetEffect(EffectEnum.AddArmorWater).Dons -= CastInfos.Value1;
+                    Target.Statistics.GetEffect(EffectEnum.STAT_MAS_ARMADURA_AGUA).Dons -= CastInfos.Value1;
                     break;
 
                 default:
-                    Target.Statistics.GetEffect(EffectEnum.AddArmor).Dons -= CastInfos.Value1;
+                    Target.Statistics.GetEffect(EffectEnum.STAT_MAS_ARMADURA).Dons -= CastInfos.Value1;
                     break;
             }
 

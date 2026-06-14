@@ -447,15 +447,15 @@ namespace Game.Network
             message.Append(character.Initiative).Append('|');
             message.Append(character.Prospection).Append('|');
 
-            ReadOnlySpan<EffectEnum> s_stats = [EffectEnum.AddAP, EffectEnum.AddMP, EffectEnum.AddStrength, EffectEnum.AddVitality, EffectEnum.AddWisdom,
-                EffectEnum.AddChance, EffectEnum.AddAgility, EffectEnum.AddIntelligence, EffectEnum.AddPO, EffectEnum.AddInvocationMax, EffectEnum.AddDamage,
-                EffectEnum.AddDamagePhysic, EffectEnum.Mastery, EffectEnum.AddDamagePercent, EffectEnum.AddHealCare, EffectEnum.AddDamagePiege, EffectEnum.AddDamagePiege,
-                EffectEnum.AddReflectDamageItem, EffectEnum.AddDamageCritic, EffectEnum.AddEchecCritic, EffectEnum.AddAPDodge, EffectEnum.AddMPDodge,
-                EffectEnum.AddReduceDamageNeutral, EffectEnum.AddReduceDamagePercentNeutral, EffectEnum.AddReduceDamagePvPNeutral, EffectEnum.AddReduceDamagePercentPvPNeutral,
-                EffectEnum.AddReduceDamageEarth, EffectEnum.AddReduceDamagePercentEarth, EffectEnum.AddReduceDamagePvPEarth, EffectEnum.AddReduceDamagePercentPvPEarth,
-                EffectEnum.AddReduceDamageWater, EffectEnum.AddReduceDamagePercentWater, EffectEnum.AddReduceDamagePvPWater, EffectEnum.AddReduceDamagePercentPvPWater,
-                EffectEnum.AddReduceDamageAir, EffectEnum.AddReduceDamagePercentAir, EffectEnum.AddReduceDamagePvPAir, EffectEnum.AddReduceDamagePercentPvPAir,
-                EffectEnum.AddReduceDamageFire, EffectEnum.AddReduceDamagePercentFire, EffectEnum.AddReduceDamagePvPFire, EffectEnum.AddReduceDamagePercentPvPFire];
+            ReadOnlySpan<EffectEnum> s_stats = [EffectEnum.STAT_MAS_PA, EffectEnum.STAT_MAS_PM, EffectEnum.STAT_MAS_FUERZA, EffectEnum.STAT_MAS_VITALIDAD, EffectEnum.STAT_MAS_SABIDURIA,
+                EffectEnum.STAT_MAS_SUERTE, EffectEnum.STAT_MAS_AGILIDAD, EffectEnum.STAT_MAS_INTELIGENCIA, EffectEnum.STAT_MAS_ALCANCE, EffectEnum.STAT_MAS_INVOCACIONES_MAX, EffectEnum.STAT_MAS_DANO,
+                EffectEnum.STAT_MAS_DANO_FISICO, EffectEnum.STAT_MAESTRIA, EffectEnum.STAT_MAS_DANO_PORCENTAJE, EffectEnum.STAT_MAS_CURAS, EffectEnum.STAT_MAS_DANO_TRAMPA, EffectEnum.STAT_MAS_DANO_TRAMPA,
+                EffectEnum.STAT_MAS_DANO_DEVUELTO_OBJETO, EffectEnum.STAT_MAS_DANO_CRITICO, EffectEnum.STAT_MAS_FALLO_CRITICO, EffectEnum.STAT_MAS_ESQUIVA_PA, EffectEnum.STAT_MAS_ESQUIVA_PM,
+                EffectEnum.STAT_MAS_RESISTENCIA_NEUTRAL, EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_NEUTRAL, EffectEnum.STAT_MAS_RESISTENCIA_PVP_NEUTRAL, EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_PVP_NEUTRAL,
+                EffectEnum.STAT_MAS_RESISTENCIA_TIERRA, EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_TIERRA, EffectEnum.STAT_MAS_RESISTENCIA_PVP_TIERRA, EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_PVP_TIERRA,
+                EffectEnum.STAT_MAS_RESISTENCIA_AGUA, EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_AGUA, EffectEnum.STAT_MAS_RESISTENCIA_PVP_AGUA, EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_PVP_AGUA,
+                EffectEnum.STAT_MAS_RESISTENCIA_AIRE, EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_AIRE, EffectEnum.STAT_MAS_RESISTENCIA_PVP_AIRE, EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_PVP_AIRE,
+                EffectEnum.STAT_MAS_RESISTENCIA_FUEGO, EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_FUEGO, EffectEnum.STAT_MAS_RESISTENCIA_PVP_FUEGO, EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_PVP_FUEGO];
 
             foreach (var stat in s_stats)
             {
@@ -1122,11 +1122,11 @@ namespace Game.Network
             var message = new StringBuilder("gIB", 50);
             message.Append(stats.MaxTaxcollector).Append('|');
             message.Append(0).Append('|');
-            message.Append(stats.BaseStatistics.GetTotal(EffectEnum.AddVitality)).Append('|');
-            message.Append(stats.BaseStatistics.GetTotal(EffectEnum.AddDamage)).Append('|');
-            message.Append(stats.BaseStatistics.GetTotal(EffectEnum.AddPods)).Append('|');
-            message.Append(stats.BaseStatistics.GetTotal(EffectEnum.AddProspection)).Append('|');
-            message.Append(stats.BaseStatistics.GetTotal(EffectEnum.AddWisdom)).Append('|');
+            message.Append(stats.BaseStatistics.GetTotal(EffectEnum.STAT_MAS_VITALIDAD)).Append('|');
+            message.Append(stats.BaseStatistics.GetTotal(EffectEnum.STAT_MAS_DANO)).Append('|');
+            message.Append(stats.BaseStatistics.GetTotal(EffectEnum.STAT_MAS_PODS)).Append('|');
+            message.Append(stats.BaseStatistics.GetTotal(EffectEnum.STAT_MAS_PROSPECCION)).Append('|');
+            message.Append(stats.BaseStatistics.GetTotal(EffectEnum.STAT_MAS_SABIDURIA)).Append('|');
             message.Append(stats.MaxTaxcollector).Append('|');
             message.Append(boostPoint).Append('|');
             message.Append(taxCollectorPrice).Append('|');

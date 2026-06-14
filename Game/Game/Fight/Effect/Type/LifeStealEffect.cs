@@ -18,7 +18,7 @@ namespace Game.Fight.Effect.Type
             if (DamageEffect.ApplyDamages(castInfos, castInfos.Target, ref damageJet) == FightActionResultEnum.RESULT_END)
                 return FightActionResultEnum.RESULT_END;
 
-            castInfos.EffectType = Spell.EffectEnum.DamageBrut;
+            castInfos.EffectType = Spell.EffectEnum.DANO_BRUTO;
 
 
             var healJet = damageJet / 2;

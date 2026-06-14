@@ -12,7 +12,7 @@ namespace Game.Fight.AI.Evaluation
             if (context?.Fighter == null || context.SpellBook?.SummonSpells == null)
                 yield break;
 
-            var maxInvocations = context.Fighter.Statistics.GetTotal(EffectEnum.AddInvocationMax);
+            var maxInvocations = context.Fighter.Statistics.GetTotal(EffectEnum.STAT_MAS_INVOCACIONES_MAX);
             var currentInvocations = context.Allies?.Count(f => f.Invocator == context.Fighter && !f.StaticInvocation) ?? 0;
             if (currentInvocations >= maxInvocations)
                 yield break;

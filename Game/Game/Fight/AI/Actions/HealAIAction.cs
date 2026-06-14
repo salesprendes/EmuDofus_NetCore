@@ -23,7 +23,7 @@ namespace Game.Fight.AI.Actions
                 return false;
 
             var spell = GetSpell(context);
-            return spell?.Effects != null && spell.Effects.Any(e => e.TypeEnum == EffectEnum.Heal);
+            return spell?.Effects != null && spell.Effects.Any(e => e.TypeEnum == EffectEnum.CURACION);
         }
     }
 }

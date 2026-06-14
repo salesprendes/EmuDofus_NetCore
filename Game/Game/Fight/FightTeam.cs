@@ -1,12 +1,12 @@
 using Game.Action;
-using System.Collections.Generic;
-using System.Linq;
-using Game.Network;
+using Game.Database.Structure;
 using Game.Entity;
 using Game.Fight.Challenge;
-using Game.Database.Structure;
 using Game.Fight.Effect;
 using Game.Manager;
+using Game.Network;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Game.Fight
 {
@@ -298,9 +298,6 @@ namespace Game.Fight
 
         public void CheckDeath(AbstractFighter fighter)
         {
-
-
-
             if (!HasSomeoneAlive)
                 return;
 
@@ -326,50 +323,50 @@ namespace Game.Fight
         public void OptionLock(FightOptionTypeEnum type)
         {
             AddMessage(() =>
+            {
+                if (type == FightOptionTypeEnum.TYPE_NEW_PLAYER)
+                    type = FightOptionTypeEnum.TYPE_NEW_PLAYER_BIS;
+
+                m_blockedOption[type] = m_blockedOption[type] == false;
+
+                var value = m_blockedOption[type];
+
+                var infoType = InformationEnum.INFO_FIGHT_TOGGLE_PARTY;
+
+                if (Fight.State == FightStateEnum.STATE_PLACEMENT)
                 {
-                    if (type == FightOptionTypeEnum.TYPE_NEW_PLAYER)
-                        type = FightOptionTypeEnum.TYPE_NEW_PLAYER_BIS;
+                    Fight.Map.Dispatch(WorldMessage.FIGHT_OPTION(type, value, LeaderId));
+                }
 
-                    m_blockedOption[type] = m_blockedOption[type] == false;
+                switch (type)
+                {
+                    case FightOptionTypeEnum.TYPE_HELP:
+                        infoType = value ? InformationEnum.INFO_FIGHT_TOGGLE_HELP : InformationEnum.INFO_FIGHT_UNTOGGLE_HELP;
+                        break;
 
-                    var value = m_blockedOption[type];
+                    case FightOptionTypeEnum.TYPE_NEW_PLAYER_BIS:
+                        infoType = value ? InformationEnum.INFO_FIGHT_TOGGLE_PLAYER : InformationEnum.INFO_FIGHT_UNTOGGLE_PLAYER;
+                        break;
 
-                    var infoType = InformationEnum.INFO_FIGHT_TOGGLE_PARTY;
+                    case FightOptionTypeEnum.TYPE_PARTY:
+                        infoType = value ? InformationEnum.INFO_FIGHT_TOGGLE_PARTY : InformationEnum.INFO_FIGHT_UNTOGGLE_PARTY;
+                    break;
 
-                    if (Fight.State == FightStateEnum.STATE_PLACEMENT)
-                    {
-                        Fight.Map.Dispatch(WorldMessage.FIGHT_OPTION(type, value, LeaderId));
-                    }
+                    case FightOptionTypeEnum.TYPE_SPECTATOR:
+                        if (value)
+                        {
+                            Fight.KickSpectators();
+                            Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, InformationEnum.INFO_FIGHT_TOGGLE_SPECTATOR));
+                        }
+                        else
+                        {
+                            Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, InformationEnum.INFO_FIGHT_UNTOGGLE_SPECTATOR));
+                        }
+                    return;
+                }
 
-                    switch (type)
-                    {
-                        case FightOptionTypeEnum.TYPE_HELP:
-                            infoType = value ? InformationEnum.INFO_FIGHT_TOGGLE_HELP : InformationEnum.INFO_FIGHT_UNTOGGLE_HELP;
-                            break;
-
-                        case FightOptionTypeEnum.TYPE_NEW_PLAYER_BIS:
-                            infoType = value ? InformationEnum.INFO_FIGHT_TOGGLE_PLAYER : InformationEnum.INFO_FIGHT_UNTOGGLE_PLAYER;
-                            break;
-
-                        case FightOptionTypeEnum.TYPE_PARTY:
-                            infoType = value ? InformationEnum.INFO_FIGHT_TOGGLE_PARTY : InformationEnum.INFO_FIGHT_UNTOGGLE_PARTY;
-                            break;
-
-                        case FightOptionTypeEnum.TYPE_SPECTATOR:
-                            if (value)
-                            {
-                                Fight.KickSpectators();
-                                Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, InformationEnum.INFO_FIGHT_TOGGLE_SPECTATOR));
-                            }
-                            else
-                            {
-                                Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, InformationEnum.INFO_FIGHT_UNTOGGLE_SPECTATOR));
-                            }
-                            return;
-                    }
-
-                    Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, infoType));
-                });
+                Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, infoType));
+            });
         }
 
         public void SendMapFightInfos(AbstractEntity entity)

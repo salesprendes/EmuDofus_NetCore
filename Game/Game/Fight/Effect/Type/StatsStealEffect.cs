@@ -11,28 +11,28 @@ namespace Game.Fight.Effect.Type
     {
         private static Dictionary<EffectEnum, EffectEnum> _targetMalus = new Dictionary<EffectEnum, EffectEnum>()
         {
-            { EffectEnum.StrengthSteal          , EffectEnum.SubStrength         },
-            { EffectEnum.StealFire              , EffectEnum.SubIntelligence  },
-            { EffectEnum.AgilitySteal           , EffectEnum.SubAgility       },
-            { EffectEnum.WisdomSteal            , EffectEnum.SubWisdom       },
-            { EffectEnum.ChanceSteal            , EffectEnum.SubChance        },
-            { EffectEnum.VitalitySteal          , EffectEnum.SubVitality      },
-            { EffectEnum.APSteal                , EffectEnum.SubAP            },
-            { EffectEnum.MPSteal                , EffectEnum.SubMP            },
-            { EffectEnum.POSteal                , EffectEnum.SubPO            },
+            { EffectEnum.STAT_ROBO_FUERZA          , EffectEnum.STAT_MENOS_FUERZA         },
+            { EffectEnum.ROBO_VIDA_FUEGO              , EffectEnum.STAT_MENOS_INTELIGENCIA  },
+            { EffectEnum.STAT_ROBO_AGILIDAD           , EffectEnum.STAT_MENOS_AGILIDAD       },
+            { EffectEnum.STAT_ROBO_SABIDURIA            , EffectEnum.STAT_MENOS_SABIDURIA       },
+            { EffectEnum.STAT_ROBO_SUERTE            , EffectEnum.STAT_MENOS_SUERTE        },
+            { EffectEnum.STAT_ROBO_VITALIDAD          , EffectEnum.STAT_MENOS_VITALIDAD      },
+            { EffectEnum.STAT_ROBO_PA                , EffectEnum.STAT_MENOS_PA            },
+            { EffectEnum.STAT_ROBO_PM                , EffectEnum.STAT_MENOS_PM            },
+            { EffectEnum.STAT_ROBO_ALCANCE                , EffectEnum.STAT_MENOS_ALCANCE            },
         };
 
         private static Dictionary<EffectEnum, EffectEnum> _casterBonus = new Dictionary<EffectEnum, EffectEnum>()
         {
-            { EffectEnum.StrengthSteal          , EffectEnum.AddStrength         },
-            { EffectEnum.StealFire              , EffectEnum.AddIntelligence  },
-            { EffectEnum.AgilitySteal           , EffectEnum.AddAgility       },
-            { EffectEnum.WisdomSteal            , EffectEnum.AddWisdom       },
-            { EffectEnum.ChanceSteal            , EffectEnum.AddChance        },
-            { EffectEnum.VitalitySteal          , EffectEnum.AddVitality      },
-            { EffectEnum.APSteal                , EffectEnum.AddAP            },
-            { EffectEnum.MPSteal                , EffectEnum.AddMP            },
-            { EffectEnum.POSteal                , EffectEnum.AddPO            },
+            { EffectEnum.STAT_ROBO_FUERZA          , EffectEnum.STAT_MAS_FUERZA         },
+            { EffectEnum.ROBO_VIDA_FUEGO              , EffectEnum.STAT_MAS_INTELIGENCIA  },
+            { EffectEnum.STAT_ROBO_AGILIDAD           , EffectEnum.STAT_MAS_AGILIDAD       },
+            { EffectEnum.STAT_ROBO_SABIDURIA            , EffectEnum.STAT_MAS_SABIDURIA       },
+            { EffectEnum.STAT_ROBO_SUERTE            , EffectEnum.STAT_MAS_SUERTE        },
+            { EffectEnum.STAT_ROBO_VITALIDAD          , EffectEnum.STAT_MAS_VITALIDAD      },
+            { EffectEnum.STAT_ROBO_PA                , EffectEnum.STAT_MAS_PA            },
+            { EffectEnum.STAT_ROBO_PM                , EffectEnum.STAT_MAS_PM            },
+            { EffectEnum.STAT_ROBO_ALCANCE                , EffectEnum.STAT_MAS_ALCANCE            },
         };
 
         public override FightActionResultEnum ApplyEffect(CastInfos CastInfos)

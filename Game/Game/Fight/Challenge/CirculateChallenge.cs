@@ -21,8 +21,8 @@ namespace Game.Fight.Challenge
 
         public override void CheckSpell(AbstractFighter fighter, Effect.CastInfos castInfos)
         {
-            if ((castInfos.EffectType == Spell.EffectEnum.SubMP ||
-                castInfos.EffectType == Spell.EffectEnum.MPSteal) &&
+            if ((castInfos.EffectType == Spell.EffectEnum.STAT_MENOS_PM ||
+                castInfos.EffectType == Spell.EffectEnum.STAT_ROBO_PM) &&
                 castInfos.Target != null &&
                 castInfos.Target.Team != fighter.Team)
                 base.OnFailed(fighter.Name);

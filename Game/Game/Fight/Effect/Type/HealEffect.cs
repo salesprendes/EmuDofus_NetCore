@@ -34,7 +34,7 @@ namespace Game.Fight.Effect.Type
         {
             var caster = castInfos.Caster;
 
-            if (castInfos.EffectType != EffectEnum.DamageBrut)
+            if (castInfos.EffectType != EffectEnum.DANO_BRUTO)
                 caster.CalculHeal(ref heal);
 
             if (target.Life + heal > target.MaxLife)

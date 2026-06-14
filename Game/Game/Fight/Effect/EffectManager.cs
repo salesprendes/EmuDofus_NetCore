@@ -7,190 +7,203 @@ namespace Game.Fight.Effect
 {
     public sealed class EffectManager : Singleton<EffectManager>
     {
-        private Dictionary<EffectEnum, AbstractSpellEffect> m_effects;
+        private readonly Dictionary<EffectEnum, AbstractSpellEffect> m_effects;
 
         public EffectManager()
         {
             m_effects = new Dictionary<EffectEnum, AbstractSpellEffect>
             {
-                { EffectEnum.SelfDamage, new SelfDamageEffect() },
-                { EffectEnum.DamageEarth, new DamageEffect() },
-                { EffectEnum.DamageNeutral, new DamageEffect() },
-                { EffectEnum.DamageFire, new DamageEffect() },
-                { EffectEnum.DamageWater, new DamageEffect() },
-                { EffectEnum.DamageAir, new DamageEffect() },
-                { EffectEnum.DamageLifeNeutral, new DamageLifePercentEffect(EffectEnum.DamageBrut) },
-                { EffectEnum.DamageLifeAir, new DamageLifePercentEffect(EffectEnum.DamageAir) },
-                { EffectEnum.DamageLifeEarth, new DamageLifePercentEffect(EffectEnum.DamageEarth) },
-                { EffectEnum.DamageLifeFire, new DamageLifePercentEffect(EffectEnum.DamageFire) },
-                { EffectEnum.DamageLifeWater, new DamageLifePercentEffect(EffectEnum.DamageWater) },
-                { EffectEnum.DamageDropLife, new DropLifeEffect() },
-                { EffectEnum.Punition, new PunishmentDamageEffect() },
-                { EffectEnum.ReflectSpell, new ReflectSpellEffect() },
-                { EffectEnum.LifeSteal, new PureLifeStealEffect() },
-                { EffectEnum.DamagePerAP, new DamagePerAPEffect() },
+                { EffectEnum.DANO_PROPIO, new SelfDamageEffect() },
+                { EffectEnum.DANO_TIERRA, new DamageEffect() },
+                { EffectEnum.DANO_NEUTRAL, new DamageEffect() },
+                { EffectEnum.DANO_FUEGO, new DamageEffect() },
+                { EffectEnum.DANO_AGUA, new DamageEffect() },
+                { EffectEnum.DANO_AIRE, new DamageEffect() },
+                { EffectEnum.DANO_VIDA_NEUTRAL, new DamageLifePercentEffect(EffectEnum.DANO_BRUTO) },
+                { EffectEnum.DANO_VIDA_AIRE, new DamageLifePercentEffect(EffectEnum.DANO_AIRE) },
+                { EffectEnum.DANO_VIDA_TIERRA, new DamageLifePercentEffect(EffectEnum.DANO_TIERRA) },
+                { EffectEnum.DANO_VIDA_FUEGO, new DamageLifePercentEffect(EffectEnum.DANO_FUEGO) },
+                { EffectEnum.DANO_VIDA_AGUA, new DamageLifePercentEffect(EffectEnum.DANO_AGUA) },
+                { EffectEnum.DANO_ENTREGA_VIDA, new DropLifeEffect() },
+                { EffectEnum.DANO_PUNICION, new PunishmentDamageEffect() },
+                { EffectEnum.DEFENSA_DEVOLVER_HECHIZO, new ReflectSpellEffect() },
+                { EffectEnum.ROBO_VIDA_FIJO, new PureLifeStealEffect() },
+                { EffectEnum.DANO_POR_PA, new DamagePerAPEffect() },
 
 
-                { EffectEnum.StealNeutral, new LifeStealEffect() },
-                { EffectEnum.StealEarth, new LifeStealEffect() },
-                { EffectEnum.StealFire, new LifeStealEffect() },
-                { EffectEnum.StealWater, new LifeStealEffect() },
-                { EffectEnum.StealAir, new LifeStealEffect() },
+                { EffectEnum.ROBO_VIDA_NEUTRAL, new LifeStealEffect() },
+                { EffectEnum.ROBO_VIDA_TIERRA, new LifeStealEffect() },
+                { EffectEnum.ROBO_VIDA_FUEGO, new LifeStealEffect() },
+                { EffectEnum.ROBO_VIDA_AGUA, new LifeStealEffect() },
+                { EffectEnum.ROBO_VIDA_AIRE, new LifeStealEffect() },
 
 
-                { EffectEnum.Heal, new HealEffect() },
+                { EffectEnum.CURACION, new HealEffect() },
 
 
-                { EffectEnum.Teleport, new TeleportEffect() },
+                { EffectEnum.MOVIMIENTO_TELETRANSPORTAR, new TeleportEffect() },
 
 
-                { EffectEnum.AddArmor, new ArmorEffect() },
-                { EffectEnum.AddArmorBis, new ArmorEffect() },
+                { EffectEnum.STAT_MAS_ARMADURA, new ArmorEffect() },
+                { EffectEnum.STAT_MAS_ARMADURA_BIS, new ArmorEffect() },
 
 
-                { EffectEnum.AddAP, new StatsEffect() },
-                { EffectEnum.AddAPBis, new StatsEffect() },
-                { EffectEnum.AddMP, new StatsEffect() },
-                { EffectEnum.MPBonus, new StatsEffect() },
-                { EffectEnum.SubAP, new StatsEffect() },
-                { EffectEnum.SubMP, new StatsEffect() },
-                { EffectEnum.SubAPDodgeable, new APDodgeSubstractEffect() },
-                { EffectEnum.SubMPDodgeable, new MPDodgeSubstractEffect() },
-                { EffectEnum.AddAPDodge, new StatsEffect() },
-                { EffectEnum.AddMPDodge, new StatsEffect() },
-                { EffectEnum.SubAPDodge, new StatsEffect() },
-                { EffectEnum.SubMPDodge, new StatsEffect() },
+                { EffectEnum.STAT_MAS_PA, new StatsEffect() },
+                { EffectEnum.STAT_MAS_PA_BIS, new StatsEffect() },
+                { EffectEnum.STAT_MAS_PM, new StatsEffect() },
+                { EffectEnum.STAT_MAS_PM_BONUS, new StatsEffect() },
+                { EffectEnum.STAT_MENOS_PA, new StatsEffect() },
+                { EffectEnum.STAT_MENOS_PM, new StatsEffect() },
+                { EffectEnum.STAT_MENOS_PA_ESQUIVABLE, new APDodgeSubstractEffect() },
+                { EffectEnum.STAT_MENOS_PM_ESQUIVABLE, new MPDodgeSubstractEffect() },
+                { EffectEnum.STAT_MAS_ESQUIVA_PA, new StatsEffect() },
+                { EffectEnum.STAT_MAS_ESQUIVA_PM, new StatsEffect() },
+                { EffectEnum.STAT_MENOS_ESQUIVA_PA, new StatsEffect() },
+                { EffectEnum.STAT_MENOS_ESQUIVA_PM, new StatsEffect() },
 
 
-                { EffectEnum.AddReduceDamagePhysic, new StatsEffect() },
-                { EffectEnum.AddReduceDamageMagic, new StatsEffect() },
-                { EffectEnum.AddPO, new StatsEffect() },
-                { EffectEnum.SubPO, new StatsEffect() },
-                { EffectEnum.AddStrength, new StatsEffect() },
-                { EffectEnum.AddIntelligence, new StatsEffect() },
-                { EffectEnum.AddAgility, new StatsEffect() },
-                { EffectEnum.AddChance, new StatsEffect() },
-                { EffectEnum.AddWisdom, new StatsEffect() },
-                { EffectEnum.AddLife, new StatsEffect() },
-                { EffectEnum.AddVitality, new StatsEffect() },
-                { EffectEnum.SubStrength, new StatsEffect() },
-                { EffectEnum.SubIntelligence, new StatsEffect() },
-                { EffectEnum.SubAgility, new StatsEffect() },
-                { EffectEnum.SubChance, new StatsEffect() },
-                { EffectEnum.SubWisdom, new StatsEffect() },
-                { EffectEnum.SubVitality, new StatsEffect() },
-                { EffectEnum.AddInvocationMax, new StatsEffect() },
-                { EffectEnum.AddProspection, new StatsEffect() },
+                { EffectEnum.STAT_MAS_REDUCCION_DANO_FISICO, new StatsEffect() },
+                { EffectEnum.STAT_MAS_REDUCCION_DANO_MAGICO, new StatsEffect() },
+                { EffectEnum.STAT_MAS_ALCANCE, new StatsEffect() },
+                { EffectEnum.STAT_MENOS_ALCANCE, new StatsEffect() },
+                { EffectEnum.STAT_MAS_FUERZA, new StatsEffect() },
+                { EffectEnum.STAT_MAS_INTELIGENCIA, new StatsEffect() },
+                { EffectEnum.STAT_MAS_AGILIDAD, new StatsEffect() },
+                { EffectEnum.STAT_MAS_SUERTE, new StatsEffect() },
+                { EffectEnum.STAT_MAS_SABIDURIA, new StatsEffect() },
+                { EffectEnum.STAT_MAS_VIDA, new StatsEffect() },
+                { EffectEnum.STAT_MAS_VITALIDAD, new StatsEffect() },
+                { EffectEnum.STAT_MENOS_FUERZA, new StatsEffect() },
+                { EffectEnum.STAT_MENOS_INTELIGENCIA, new StatsEffect() },
+                { EffectEnum.STAT_MENOS_AGILIDAD, new StatsEffect() },
+                { EffectEnum.STAT_MENOS_SUERTE, new StatsEffect() },
+                { EffectEnum.STAT_MENOS_SABIDURIA, new StatsEffect() },
+                { EffectEnum.STAT_MENOS_VITALIDAD, new StatsEffect() },
+                { EffectEnum.STAT_MAS_INVOCACIONES_MAX, new StatsEffect() },
+                { EffectEnum.STAT_MAS_PROSPECCION, new StatsEffect() },
 
 
-                { EffectEnum.AddHealCare, new StatsEffect() },
-                { EffectEnum.SubHealCare, new StatsEffect() },
+                { EffectEnum.STAT_MAS_CURAS, new StatsEffect() },
+                { EffectEnum.STAT_MENOS_CURAS, new StatsEffect() },
 
 
-                { EffectEnum.AddReduceDamageAir, new StatsEffect() },
-                { EffectEnum.AddReduceDamageWater, new StatsEffect() },
-                { EffectEnum.AddReduceDamageFire, new StatsEffect() },
-                { EffectEnum.AddReduceDamageNeutral, new StatsEffect() },
-                { EffectEnum.AddReduceDamageEarth, new StatsEffect() },
-                { EffectEnum.SubReduceDamageAir, new StatsEffect() },
-                { EffectEnum.SubReduceDamageWater, new StatsEffect() },
-                { EffectEnum.SubReduceDamageFire, new StatsEffect() },
-                { EffectEnum.SubReduceDamageNeutral, new StatsEffect() },
-                { EffectEnum.SubReduceDamageEarth, new StatsEffect() },
-                { EffectEnum.AddReduceDamagePercentAir, new StatsEffect() },
-                { EffectEnum.AddReduceDamagePercentWater, new StatsEffect() },
-                { EffectEnum.AddReduceDamagePercentFire, new StatsEffect() },
-                { EffectEnum.AddReduceDamagePercentNeutral, new StatsEffect() },
-                { EffectEnum.AddReduceDamagePercentEarth, new StatsEffect() },
-                { EffectEnum.SubReduceDamagePercentAir, new StatsEffect() },
-                { EffectEnum.SubReduceDamagePercentWater, new StatsEffect() },
-                { EffectEnum.SubReduceDamagePercentFire, new StatsEffect() },
-                { EffectEnum.SubReduceDamagePercentNeutral, new StatsEffect() },
-                { EffectEnum.SubReduceDamagePercentEarth, new StatsEffect() },
+                { EffectEnum.STAT_MAS_RESISTENCIA_AIRE, new StatsEffect() },
+                { EffectEnum.STAT_MAS_RESISTENCIA_AGUA, new StatsEffect() },
+                { EffectEnum.STAT_MAS_RESISTENCIA_FUEGO, new StatsEffect() },
+                { EffectEnum.STAT_MAS_RESISTENCIA_NEUTRAL, new StatsEffect() },
+                { EffectEnum.STAT_MAS_RESISTENCIA_TIERRA, new StatsEffect() },
+                { EffectEnum.STAT_MENOS_RESISTENCIA_AIRE, new StatsEffect() },
+                { EffectEnum.STAT_MENOS_RESISTENCIA_AGUA, new StatsEffect() },
+                { EffectEnum.STAT_MENOS_RESISTENCIA_FUEGO, new StatsEffect() },
+                { EffectEnum.STAT_MENOS_RESISTENCIA_NEUTRAL, new StatsEffect() },
+                { EffectEnum.STAT_MENOS_RESISTENCIA_TIERRA, new StatsEffect() },
+                { EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_AIRE, new StatsEffect() },
+                { EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_AGUA, new StatsEffect() },
+                { EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_FUEGO, new StatsEffect() },
+                { EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_NEUTRAL, new StatsEffect() },
+                { EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_TIERRA, new StatsEffect() },
+                { EffectEnum.STAT_MENOS_RESISTENCIA_PORCENTAJE_AIRE, new StatsEffect() },
+                { EffectEnum.STAT_MENOS_RESISTENCIA_PORCENTAJE_AGUA, new StatsEffect() },
+                { EffectEnum.STAT_MENOS_RESISTENCIA_PORCENTAJE_FUEGO, new StatsEffect() },
+                { EffectEnum.STAT_MENOS_RESISTENCIA_PORCENTAJE_NEUTRAL, new StatsEffect() },
+                { EffectEnum.STAT_MENOS_RESISTENCIA_PORCENTAJE_TIERRA, new StatsEffect() },
 
 
-                { EffectEnum.AddDamage, new StatsEffect() },
-                { EffectEnum.AddDamagePhysic, new StatsEffect() },
-                { EffectEnum.AddDamageMagic, new StatsEffect() },
-                { EffectEnum.AddEchecCritic, new StatsEffect() },
-                { EffectEnum.AddDamageCritic, new StatsEffect() },
-                { EffectEnum.AddDamagePercent, new StatsEffect() },
-                { EffectEnum.SubDamagePercent, new StatsEffect() },
-                { EffectEnum.SubDamage, new StatsEffect() },
-                { EffectEnum.SubDamageCritic, new StatsEffect() },
-                { EffectEnum.SubDamageMagic, new StatsEffect() },
-                { EffectEnum.SubDamagePhysic, new StatsEffect() },
-                { EffectEnum.AddReflectDamage, new StatsEffect() },
-                { EffectEnum.AddReflectDamageItem, new StatsEffect() },
+                { EffectEnum.STAT_MAS_DANO, new StatsEffect() },
+                { EffectEnum.STAT_MAS_DANO_FISICO, new StatsEffect() },
+                { EffectEnum.STAT_MAS_DANO_MAGICO, new StatsEffect() },
+                { EffectEnum.STAT_MAS_FALLO_CRITICO, new StatsEffect() },
+                { EffectEnum.STAT_MAS_DANO_CRITICO, new StatsEffect() },
+                { EffectEnum.STAT_MAS_DANO_PORCENTAJE, new StatsEffect() },
+                { EffectEnum.STAT_MENOS_DANO_PORCENTAJE, new StatsEffect() },
+                { EffectEnum.STAT_MENOS_DANO, new StatsEffect() },
+                { EffectEnum.STAT_MENOS_DANO_CRITICO, new StatsEffect() },
+                { EffectEnum.STAT_MENOS_DANO_MAGICO, new StatsEffect() },
+                { EffectEnum.STAT_MENOS_DANO_FISICO, new StatsEffect() },
+                { EffectEnum.STAT_MAS_DANO_DEVUELTO, new StatsEffect() },
+                { EffectEnum.STAT_MAS_DANO_DEVUELTO_OBJETO, new StatsEffect() },
 
 
-                { EffectEnum.AddChatiment, new PunishmentEffect() },
+                { EffectEnum.CASTIGO_MAS, new PunishmentEffect() },
 
 
-                { EffectEnum.PushBack, new PushEffect() },
-                { EffectEnum.PushFront, new PushEffect() },
-                { EffectEnum.PushFear, new PushFearEffect() },
+                { EffectEnum.MOVIMIENTO_EMPUJAR, new PushEffect() },
+                { EffectEnum.MOVIMIENTO_ATRAER, new PushEffect() },
+                { EffectEnum.MOVIMIENTO_EMPUJAR_MIEDO, new PushFearEffect() },
 
 
-                { EffectEnum.ChangeSkin, new SkinChangeEffect() },
-                { EffectEnum.AddState, new StateAddEffect() },
-                { EffectEnum.RemoveState, new StateRemoveEffect() },
-                { EffectEnum.Stealth, new StateAddEffect() },
+                { EffectEnum.APARIENCIA_CAMBIAR, new SkinChangeEffect() },
+                { EffectEnum.ESTADO_MAS, new StateAddEffect() },
+                { EffectEnum.ESTADO_QUITAR, new StateRemoveEffect() },
+                { EffectEnum.ESTADO_INVISIBILIDAD, new StateAddEffect() },
 
 
-                { EffectEnum.StrengthSteal, new StatsStealEffect() },
-                { EffectEnum.WisdomSteal, new StatsStealEffect() },
-                { EffectEnum.IntelligenceSteal, new StatsStealEffect() },
-                { EffectEnum.AgilitySteal, new StatsStealEffect() },
-                { EffectEnum.ChanceSteal, new StatsStealEffect() },
-                { EffectEnum.VitalitySteal, new StatsStealEffect() },
-                { EffectEnum.APSteal, new StatsStealEffect() },
-                { EffectEnum.MPSteal, new StatsStealEffect() },
-                { EffectEnum.POSteal, new StatsStealEffect() },
+                { EffectEnum.STAT_ROBO_FUERZA, new StatsStealEffect() },
+                { EffectEnum.STAT_ROBO_SABIDURIA, new StatsStealEffect() },
+                { EffectEnum.STAT_ROBO_INTELIGENCIA, new StatsStealEffect() },
+                { EffectEnum.STAT_ROBO_AGILIDAD, new StatsStealEffect() },
+                { EffectEnum.STAT_ROBO_SUERTE, new StatsStealEffect() },
+                { EffectEnum.STAT_ROBO_VITALIDAD, new StatsStealEffect() },
+                { EffectEnum.STAT_ROBO_PA, new StatsStealEffect() },
+                { EffectEnum.STAT_ROBO_PM, new StatsStealEffect() },
+                { EffectEnum.STAT_ROBO_ALCANCE, new StatsStealEffect() },
 
 
-                { EffectEnum.EcaflipChance, new EcaflipChanceEffect() },
-                { EffectEnum.Perception, new PerceptionEffect() },
-                { EffectEnum.TurnPass, new TurnPassEffect() },
-                { EffectEnum.MultiplyDamage, new MultiplyDamageEffect() },
-                { EffectEnum.Mastery, new MasteryEffect() },
+                { EffectEnum.COMBATE_SUERTE_ECAFLIP, new EcaflipChanceEffect() },
+                { EffectEnum.COMBATE_PERCEPCION, new PerceptionEffect() },
+                { EffectEnum.COMBATE_PASAR_TURNO, new TurnPassEffect() },
+                { EffectEnum.STAT_MULTIPLICAR_DANO, new MultiplyDamageEffect() },
+                { EffectEnum.STAT_MAESTRIA, new MasteryEffect() },
 
 
-                { EffectEnum.Sacrifice, new SacrificeEffect() },
-                { EffectEnum.Transpose, new TransposeEffect() },
+                { EffectEnum.COMBATE_SACRIFICIO, new SacrificeEffect() },
+                { EffectEnum.MOVIMIENTO_INTERCAMBIAR_POSICION, new TransposeEffect() },
 
 
-                { EffectEnum.Evasion, new DamageDodgeEffect() },
+                { EffectEnum.DEFENSA_EVASION, new DamageDodgeEffect() },
 
 
-                { EffectEnum.IncreaseSpellDamage, new IncreaseSpellJetEffect() },
+                { EffectEnum.HECHIZO_MAS_DANO, new IncreaseSpellJetEffect() },
 
 
-                { EffectEnum.Invocation, new SummoningEffect() },
-                { EffectEnum.InvocDouble, new SummoningEffect() },
-                { EffectEnum.InvocationStatic, new SummoningEffect(true) },
+                { EffectEnum.INVOCACION_CRIATURA, new SummoningEffect() },
+                { EffectEnum.INVOCACION_DOBLE, new SummoningEffect() },
+                { EffectEnum.INVOCACION_ESTATICA, new SummoningEffect(true) },
 
 
-                { EffectEnum.DeleteAllBonus, new BuffRemoveEffect() },
+                { EffectEnum.BUFF_QUITAR_TODOS, new BuffRemoveEffect() },
 
 
-                { EffectEnum.PandaCarrier, new PandaCarrierEffect() },
-                { EffectEnum.PandaLaunch, new PandaLaunchEffect() },
+                { EffectEnum.PANDA_CARGAR, new PandaCarrierEffect() },
+                { EffectEnum.PANDA_LANZAR, new PandaLaunchEffect() },
 
 
-                { EffectEnum.UseGlyph, new ActivableObjectEffect() },
-                { EffectEnum.UseTrap, new ActivableObjectEffect() }
+                { EffectEnum.COMBATE_COLOCAR_GLIFO, new ActivableObjectEffect() },
+                { EffectEnum.COMBATE_COLOCAR_TRAMPA, new ActivableObjectEffect() },
+                { EffectEnum.COMBATE_COLOCAR_GLIFO_BIS, new ActivableObjectEffect() },
+
+
+                // Efectos de pelea añadidos para paridad con StarLoco (2026-06-14).
+                { EffectEnum.COMBATE_MATAR_OBJETIVO, new KillEffect() },
+                { EffectEnum.CURACION_VIDA_DEVUELTA, new HealEffect() },
+                { EffectEnum.DANO_VIDA_NEUTRAL_BIS, new DamageLifePercentEffect(EffectEnum.DANO_BRUTO) },
+                { EffectEnum.STAT_MENOS_PROSPECCION, new StatsEffect() },
+                { EffectEnum.KAMAS_ROBO, new KamasStealEffect() },
+                { EffectEnum.STAT_MAS_DANO_BIS, new StatsEffect() },
+                { EffectEnum.DANO_SIN_BOOST, new StatsEffect() },
+                { EffectEnum.STAT_MENOS_DANO_FIJO, new StatsEffect() },
+                { EffectEnum.CURACION_AL_ATACAR, new VampirismEffect() }
             };
         }
 
         public FightActionResultEnum TryApplyEffect(CastInfos castInfos)
         {
-            if (!m_effects.ContainsKey(castInfos.EffectType))
+            if (!m_effects.TryGetValue(castInfos.EffectType, out AbstractSpellEffect value))
             {
                 Logger.Debug($"EffectManager::TryApplyEffect efecto desconocido: {castInfos.EffectType}");
                 return FightActionResultEnum.RESULT_NOTHING;
             }
-            return m_effects[castInfos.EffectType].ApplyEffect(castInfos);
+            return value.ApplyEffect(castInfos);
         }
     }
 }

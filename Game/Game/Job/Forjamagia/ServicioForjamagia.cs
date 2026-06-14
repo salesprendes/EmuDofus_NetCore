@@ -347,19 +347,13 @@ namespace Game.Job.Forjamagia
 
         private bool TieneExoIncompatible(IObjetoForjable objeto, EffectEnum estadistica)
         {
-            foreach (var grupo in m_configuracion.GruposExoIncompatibles)
+            if (!m_configuracion.EsExoExcluyente(estadistica))
+                return false;
+
+            foreach (var efecto in m_configuracion.PesosUnitarios.Keys)
             {
-                if (!grupo.Contains(estadistica))
-                    continue;
-
-                foreach (var efecto in grupo)
-                {
-                    if (efecto == estadistica || objeto.ObtenerRangoPlantilla(efecto) != null)
-                        continue;
-
-                    if (objeto.ObtenerValor(efecto) > 0)
-                        return true;
-                }
+                if (efecto != estadistica && m_configuracion.EsExoExcluyente(efecto) && objeto.ObtenerRangoPlantilla(efecto) == null && objeto.ObtenerValor(efecto) > 0)
+                    return true;
             }
 
             return false;
@@ -383,13 +377,15 @@ namespace Game.Job.Forjamagia
             {
                 case ResultadoForjamagia.ExitoCritico:
                     builder.Append("SC: +").Append(cantidadGanada).Append(' ').Append(runa.Estadistica);
-                    break;
+                break;
+
                 case ResultadoForjamagia.ExitoNeutro:
                     builder.Append("SN: +").Append(cantidadGanada).Append(' ').Append(runa.Estadistica);
-                    break;
+                break;
+
                 case ResultadoForjamagia.FalloCritico:
                     builder.Append("EC: runa perdida (").Append(runa.Estadistica).Append(')');
-                    break;
+                break;
             }
 
             foreach (var perdida in perdidas)

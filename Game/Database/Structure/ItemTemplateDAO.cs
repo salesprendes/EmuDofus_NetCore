@@ -212,17 +212,17 @@ namespace Game.Database.Structure
         {
             switch (type)
             {
-                case EffectEnum.StealEarth:
-                case EffectEnum.StealFire:
-                case EffectEnum.StealWater:
-                case EffectEnum.StealAir:
-                case EffectEnum.StealNeutral:
-                case EffectEnum.DamageEarth:
-                case EffectEnum.DamageNeutral:
-                case EffectEnum.DamageFire:
-                case EffectEnum.DamageWater:
-                case EffectEnum.DamageAir:
-                case EffectEnum.SubAPDodgeable:
+                case EffectEnum.ROBO_VIDA_TIERRA:
+                case EffectEnum.ROBO_VIDA_FUEGO:
+                case EffectEnum.ROBO_VIDA_AGUA:
+                case EffectEnum.ROBO_VIDA_AIRE:
+                case EffectEnum.ROBO_VIDA_NEUTRAL:
+                case EffectEnum.DANO_TIERRA:
+                case EffectEnum.DANO_NEUTRAL:
+                case EffectEnum.DANO_FUEGO:
+                case EffectEnum.DANO_AGUA:
+                case EffectEnum.DANO_AIRE:
+                case EffectEnum.STAT_MENOS_PA_ESQUIVABLE:
                     return true;
                 default:
                     return false;
@@ -492,14 +492,14 @@ namespace Game.Database.Structure
             var generatedStats = new GenericStats();
             foreach (var effect in RandomEffects)
             {
-                if (Ethereal && effect.Type == EffectEnum.EtherealResist)
+                if (Ethereal && effect.Type == EffectEnum.OBJETO_RESISTENCIA_ETEREA)
                 {
                     var durability = GetGeneratedEffectValue(effect, max);
                     generatedStats.AddEffect(effect.Type, durability, durability, durability);
                 }
                 else if (Usable || IsWeaponEffect(effect.Type))
                     generatedStats.AddEffect(effect.Type, effect.Minimum, effect.Maximum);
-                else if (effect.Type == EffectEnum.AddBoost)
+                else if (effect.Type == EffectEnum.BOOST_MAS)
                     generatedStats.AddEffect(effect.Type, 0, 0, GetGeneratedEffectValue(effect, max));
                 else if (effect.Value3 != 0)
 

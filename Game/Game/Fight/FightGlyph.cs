@@ -1,19 +1,11 @@
 using Game.Fight.Effect;
 using Game.Network;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.Fight
 {
     public sealed class FightGlyph : AbstractActivableObject
     {
-        public FightGlyph(AbstractFight fight, AbstractFighter caster, CastInfos effect, int cell, int duration)
-    : base(FightObstacleTypeEnum.TYPE_GLYPH, ActiveType.ACTIVE_BEGINTURN, fight, caster, effect, cell, duration, 307, true, true)
-        {
-        }
+        public FightGlyph(AbstractFight fight, AbstractFighter caster, CastInfos effect, int cell, int duration) : base(FightObstacleTypeEnum.TYPE_GLYPH, ActiveType.ACTIVE_BEGINTURN, fight, caster, effect, cell, duration, 307, true, true) { }
 
         public override void AppearForAll()
         {

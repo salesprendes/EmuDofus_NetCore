@@ -22,8 +22,8 @@ namespace Game.Fight.Effect.Type
                 return FightActionResultEnum.RESULT_NOTHING;
             }
 
-            var targetTeleport = new CastInfos(EffectEnum.Teleport, CastInfos.SpellId, CastInfos.Caster.Cell.Id, 0, 0, 0, 0, 0, Target, null);
-            var casterTeleport = new CastInfos(EffectEnum.Teleport, CastInfos.SpellId, Target.Cell.Id, 0, 0, 0, 0, 0, CastInfos.Caster, null);
+            var targetTeleport = new CastInfos(EffectEnum.MOVIMIENTO_TELETRANSPORTAR, CastInfos.SpellId, CastInfos.Caster.Cell.Id, 0, 0, 0, 0, 0, Target, null);
+            var casterTeleport = new CastInfos(EffectEnum.MOVIMIENTO_TELETRANSPORTAR, CastInfos.SpellId, Target.Cell.Id, 0, 0, 0, 0, 0, CastInfos.Caster, null);
 
             Caster.SetCell(null);
             Target.SetCell(null);

@@ -162,7 +162,7 @@ namespace Game.Fight.AI.Bosses
                 if (effect == null)
                     continue;
 
-                if (effect.TypeEnum != EffectEnum.AddAP && effect.TypeEnum != EffectEnum.AddAPBis)
+                if (effect.TypeEnum != EffectEnum.STAT_MAS_PA && effect.TypeEnum != EffectEnum.STAT_MAS_PA_BIS)
                     continue;
 
                 if (effect.Value1 > 0)

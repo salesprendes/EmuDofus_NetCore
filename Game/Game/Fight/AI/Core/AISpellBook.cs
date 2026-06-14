@@ -90,12 +90,12 @@ namespace Game.Fight.AI.Core
 
         public static bool HasHealEffect(SpellLevel spell)
         {
-            return HasEffect(spell, e => e.TypeEnum == EffectEnum.Heal);
+            return HasEffect(spell, e => e.TypeEnum == EffectEnum.CURACION);
         }
 
         public static bool HasBuffEffect(SpellLevel spell)
         {
-            return HasEffect(spell, e => CastInfos.IsBonusEffect(e.TypeEnum) && e.TypeEnum != EffectEnum.Heal) && !HasDamageEffect(spell);
+            return HasEffect(spell, e => CastInfos.IsBonusEffect(e.TypeEnum) && e.TypeEnum != EffectEnum.CURACION) && !HasDamageEffect(spell);
         }
 
         public static bool HasDebuffEffect(SpellLevel spell)
@@ -105,45 +105,45 @@ namespace Game.Fight.AI.Core
 
         public static bool HasSummonEffect(SpellLevel spell)
         {
-            return HasEffect(spell, e => e.TypeEnum == EffectEnum.Invocation || e.TypeEnum == EffectEnum.InvocDouble || e.TypeEnum == EffectEnum.InvocationStatic);
+            return HasEffect(spell, e => e.TypeEnum == EffectEnum.INVOCACION_CRIATURA || e.TypeEnum == EffectEnum.INVOCACION_DOBLE || e.TypeEnum == EffectEnum.INVOCACION_ESTATICA);
         }
 
         public static bool HasMovementEffect(SpellLevel spell)
         {
-            return HasEffect(spell, e => e.TypeEnum == EffectEnum.Teleport
-                || e.TypeEnum == EffectEnum.Transpose
-                || e.TypeEnum == EffectEnum.PandaCarrier
-                || e.TypeEnum == EffectEnum.PandaLaunch);
+            return HasEffect(spell, e => e.TypeEnum == EffectEnum.MOVIMIENTO_TELETRANSPORTAR
+                || e.TypeEnum == EffectEnum.MOVIMIENTO_INTERCAMBIAR_POSICION
+                || e.TypeEnum == EffectEnum.PANDA_CARGAR
+                || e.TypeEnum == EffectEnum.PANDA_LANZAR);
         }
 
         public static bool HasTrapEffect(SpellLevel spell)
         {
-            return HasEffect(spell, e => e.TypeEnum == EffectEnum.UseTrap);
+            return HasEffect(spell, e => e.TypeEnum == EffectEnum.COMBATE_COLOCAR_TRAMPA);
         }
 
         public static bool HasGlyphEffect(SpellLevel spell)
         {
-            return HasEffect(spell, e => e.TypeEnum == EffectEnum.UseGlyph);
+            return HasEffect(spell, e => e.TypeEnum == EffectEnum.COMBATE_COLOCAR_GLIFO);
         }
 
         public static bool HasRemoveAPEffect(SpellLevel spell)
         {
-            return HasEffect(spell, e => e.TypeEnum == EffectEnum.SubAP || e.TypeEnum == EffectEnum.SubAPDodgeable || e.TypeEnum == EffectEnum.APSteal);
+            return HasEffect(spell, e => e.TypeEnum == EffectEnum.STAT_MENOS_PA || e.TypeEnum == EffectEnum.STAT_MENOS_PA_ESQUIVABLE || e.TypeEnum == EffectEnum.STAT_ROBO_PA);
         }
 
         public static bool HasRemoveMPEffect(SpellLevel spell)
         {
-            return HasEffect(spell, e => e.TypeEnum == EffectEnum.SubMP || e.TypeEnum == EffectEnum.SubMPDodgeable || e.TypeEnum == EffectEnum.MPSteal);
+            return HasEffect(spell, e => e.TypeEnum == EffectEnum.STAT_MENOS_PM || e.TypeEnum == EffectEnum.STAT_MENOS_PM_ESQUIVABLE || e.TypeEnum == EffectEnum.STAT_ROBO_PM);
         }
 
         public static bool HasPushPullEffect(SpellLevel spell)
         {
-            return HasEffect(spell, e => e.TypeEnum == EffectEnum.PushBack || e.TypeEnum == EffectEnum.PushFront || e.TypeEnum == EffectEnum.PushFear || e.TypeEnum == EffectEnum.PandaLaunch);
+            return HasEffect(spell, e => e.TypeEnum == EffectEnum.MOVIMIENTO_EMPUJAR || e.TypeEnum == EffectEnum.MOVIMIENTO_ATRAER || e.TypeEnum == EffectEnum.MOVIMIENTO_EMPUJAR_MIEDO || e.TypeEnum == EffectEnum.PANDA_LANZAR);
         }
 
         public static bool HasRemoveRangeEffect(SpellLevel spell)
         {
-            return HasEffect(spell, e => e.TypeEnum == EffectEnum.SubPO || e.TypeEnum == EffectEnum.POSteal);
+            return HasEffect(spell, e => e.TypeEnum == EffectEnum.STAT_MENOS_ALCANCE || e.TypeEnum == EffectEnum.STAT_ROBO_ALCANCE);
         }
 
         public static bool HasDefensiveEffect(SpellLevel spell)
@@ -153,7 +153,7 @@ namespace Game.Fight.AI.Core
 
         public static bool HasUnbewitchEffect(SpellLevel spell)
         {
-            return HasEffect(spell, e => e.TypeEnum == EffectEnum.DeleteAllBonus || e.TypeEnum == EffectEnum.RemoveState);
+            return HasEffect(spell, e => e.TypeEnum == EffectEnum.BUFF_QUITAR_TODOS || e.TypeEnum == EffectEnum.ESTADO_QUITAR);
         }
 
         public static bool HasVulnerabilityEffect(SpellLevel spell)
@@ -173,21 +173,21 @@ namespace Game.Fight.AI.Core
         {
             switch (effect)
             {
-                case EffectEnum.SubAP:
-                case EffectEnum.SubAPDodgeable:
-                case EffectEnum.SubMP:
-                case EffectEnum.SubMPDodgeable:
-                case EffectEnum.POSteal:
-                case EffectEnum.SubPO:
-                case EffectEnum.SubStrength:
-                case EffectEnum.SubIntelligence:
-                case EffectEnum.SubAgility:
-                case EffectEnum.SubChance:
-                case EffectEnum.SubWisdom:
-                case EffectEnum.SubDamage:
-                case EffectEnum.SubDamagePercent:
-                case EffectEnum.DeleteAllBonus:
-                case EffectEnum.RemoveState:
+                case EffectEnum.STAT_MENOS_PA:
+                case EffectEnum.STAT_MENOS_PA_ESQUIVABLE:
+                case EffectEnum.STAT_MENOS_PM:
+                case EffectEnum.STAT_MENOS_PM_ESQUIVABLE:
+                case EffectEnum.STAT_ROBO_ALCANCE:
+                case EffectEnum.STAT_MENOS_ALCANCE:
+                case EffectEnum.STAT_MENOS_FUERZA:
+                case EffectEnum.STAT_MENOS_INTELIGENCIA:
+                case EffectEnum.STAT_MENOS_AGILIDAD:
+                case EffectEnum.STAT_MENOS_SUERTE:
+                case EffectEnum.STAT_MENOS_SABIDURIA:
+                case EffectEnum.STAT_MENOS_DANO:
+                case EffectEnum.STAT_MENOS_DANO_PORCENTAJE:
+                case EffectEnum.BUFF_QUITAR_TODOS:
+                case EffectEnum.ESTADO_QUITAR:
                     return true;
             }
 
@@ -198,33 +198,33 @@ namespace Game.Fight.AI.Core
         {
             switch (effect)
             {
-                case EffectEnum.AddArmor:
-                case EffectEnum.AddArmorAir:
-                case EffectEnum.AddArmorBis:
-                case EffectEnum.AddArmorEarth:
-                case EffectEnum.AddArmorFire:
-                case EffectEnum.AddArmorNeutral:
-                case EffectEnum.AddArmorWater:
-                case EffectEnum.AddLife:
-                case EffectEnum.AddVitality:
-                case EffectEnum.AddAPDodge:
-                case EffectEnum.AddMPDodge:
-                case EffectEnum.AddReduceDamageAir:
-                case EffectEnum.AddReduceDamageEarth:
-                case EffectEnum.AddReduceDamageFire:
-                case EffectEnum.AddReduceDamageMagic:
-                case EffectEnum.AddReduceDamageNeutral:
-                case EffectEnum.AddReduceDamagePercentAir:
-                case EffectEnum.AddReduceDamagePercentEarth:
-                case EffectEnum.AddReduceDamagePercentFire:
-                case EffectEnum.AddReduceDamagePercentNeutral:
-                case EffectEnum.AddReduceDamagePercentWater:
-                case EffectEnum.AddReduceDamagePhysic:
-                case EffectEnum.AddReduceDamageWater:
-                case EffectEnum.AddReflectDamage:
-                case EffectEnum.ReflectSpell:
-                case EffectEnum.Evasion:
-                case EffectEnum.Sacrifice:
+                case EffectEnum.STAT_MAS_ARMADURA:
+                case EffectEnum.STAT_MAS_ARMADURA_AIRE:
+                case EffectEnum.STAT_MAS_ARMADURA_BIS:
+                case EffectEnum.STAT_MAS_ARMADURA_TIERRA:
+                case EffectEnum.STAT_MAS_ARMADURA_FUEGO:
+                case EffectEnum.STAT_MAS_ARMADURA_NEUTRAL:
+                case EffectEnum.STAT_MAS_ARMADURA_AGUA:
+                case EffectEnum.STAT_MAS_VIDA:
+                case EffectEnum.STAT_MAS_VITALIDAD:
+                case EffectEnum.STAT_MAS_ESQUIVA_PA:
+                case EffectEnum.STAT_MAS_ESQUIVA_PM:
+                case EffectEnum.STAT_MAS_RESISTENCIA_AIRE:
+                case EffectEnum.STAT_MAS_RESISTENCIA_TIERRA:
+                case EffectEnum.STAT_MAS_RESISTENCIA_FUEGO:
+                case EffectEnum.STAT_MAS_REDUCCION_DANO_MAGICO:
+                case EffectEnum.STAT_MAS_RESISTENCIA_NEUTRAL:
+                case EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_AIRE:
+                case EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_TIERRA:
+                case EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_FUEGO:
+                case EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_NEUTRAL:
+                case EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_AGUA:
+                case EffectEnum.STAT_MAS_REDUCCION_DANO_FISICO:
+                case EffectEnum.STAT_MAS_RESISTENCIA_AGUA:
+                case EffectEnum.STAT_MAS_DANO_DEVUELTO:
+                case EffectEnum.DEFENSA_DEVOLVER_HECHIZO:
+                case EffectEnum.DEFENSA_EVASION:
+                case EffectEnum.COMBATE_SACRIFICIO:
                     return true;
             }
 
@@ -235,16 +235,16 @@ namespace Game.Fight.AI.Core
         {
             switch (effect)
             {
-                case EffectEnum.SubReduceDamageAir:
-                case EffectEnum.SubReduceDamageEarth:
-                case EffectEnum.SubReduceDamageFire:
-                case EffectEnum.SubReduceDamageWater:
-                case EffectEnum.SubReduceDamageNeutral:
-                case EffectEnum.SubReduceDamagePercentAir:
-                case EffectEnum.SubReduceDamagePercentEarth:
-                case EffectEnum.SubReduceDamagePercentFire:
-                case EffectEnum.SubReduceDamagePercentWater:
-                case EffectEnum.SubReduceDamagePercentNeutral:
+                case EffectEnum.STAT_MENOS_RESISTENCIA_AIRE:
+                case EffectEnum.STAT_MENOS_RESISTENCIA_TIERRA:
+                case EffectEnum.STAT_MENOS_RESISTENCIA_FUEGO:
+                case EffectEnum.STAT_MENOS_RESISTENCIA_AGUA:
+                case EffectEnum.STAT_MENOS_RESISTENCIA_NEUTRAL:
+                case EffectEnum.STAT_MENOS_RESISTENCIA_PORCENTAJE_AIRE:
+                case EffectEnum.STAT_MENOS_RESISTENCIA_PORCENTAJE_TIERRA:
+                case EffectEnum.STAT_MENOS_RESISTENCIA_PORCENTAJE_FUEGO:
+                case EffectEnum.STAT_MENOS_RESISTENCIA_PORCENTAJE_AGUA:
+                case EffectEnum.STAT_MENOS_RESISTENCIA_PORCENTAJE_NEUTRAL:
                     return true;
             }
             return false;

@@ -145,27 +145,27 @@ namespace Game.Entity
         {
             get
             {
-                return RealLife + Statistics.GetTotal(EffectEnum.AddVitality) + Statistics.GetTotal(EffectEnum.AddLife);
+                return RealLife + Statistics.GetTotal(EffectEnum.STAT_MAS_VITALIDAD) + Statistics.GetTotal(EffectEnum.STAT_MAS_VIDA);
             }
             set
             {
-                RealLife = value - ((Statistics.GetTotal(EffectEnum.AddVitality) + Statistics.GetTotal(EffectEnum.AddLife)));
+                RealLife = value - ((Statistics.GetTotal(EffectEnum.STAT_MAS_VITALIDAD) + Statistics.GetTotal(EffectEnum.STAT_MAS_VIDA)));
             }
         }
 
-        public int ReflectDamage => ((1 + (Statistics.GetTotal(EffectEnum.AddWisdom) / 100)) * Statistics.GetTotal(EffectEnum.AddReflectDamage)) + Statistics.GetTotal(EffectEnum.AddReflectDamageItem);
-        public int MaxLife => BaseLife + Statistics.GetTotal(EffectEnum.AddVitality) + Statistics.GetTotal(EffectEnum.AddLife);
+        public int ReflectDamage => ((1 + (Statistics.GetTotal(EffectEnum.STAT_MAS_SABIDURIA) / 100)) * Statistics.GetTotal(EffectEnum.STAT_MAS_DANO_DEVUELTO)) + Statistics.GetTotal(EffectEnum.STAT_MAS_DANO_DEVUELTO_OBJETO);
+        public int MaxLife => BaseLife + Statistics.GetTotal(EffectEnum.STAT_MAS_VITALIDAD) + Statistics.GetTotal(EffectEnum.STAT_MAS_VIDA);
 
         public int Initiative => 1 + (int)Math.Floor((
-    Statistics.GetTotal(EffectEnum.AddStrength) +
-    Statistics.GetTotal(EffectEnum.AddChance) +
-    Statistics.GetTotal(EffectEnum.AddIntelligence) +
-    Statistics.GetTotal(EffectEnum.AddAgility) +
-    Statistics.GetTotal(EffectEnum.AddInitiative)) *
+    Statistics.GetTotal(EffectEnum.STAT_MAS_FUERZA) +
+    Statistics.GetTotal(EffectEnum.STAT_MAS_SUERTE) +
+    Statistics.GetTotal(EffectEnum.STAT_MAS_INTELIGENCIA) +
+    Statistics.GetTotal(EffectEnum.STAT_MAS_AGILIDAD) +
+    Statistics.GetTotal(EffectEnum.STAT_MAS_INICIATIVA)) *
                                              ((double)Life / MaxLife)
     );
 
-        public int Prospection => 1 + (int)Math.Floor((double)(Statistics.GetTotal(EffectEnum.AddChance) / 10)) + Statistics.GetTotal(EffectEnum.AddProspection);
+        public int Prospection => 1 + (int)Math.Floor((double)(Statistics.GetTotal(EffectEnum.STAT_MAS_SUERTE) / 10)) + Statistics.GetTotal(EffectEnum.STAT_MAS_PROSPECCION);
 
         public abstract int Restriction
         {

@@ -660,8 +660,8 @@ namespace Game.Map
             if (!enemies.Any() || enemies.All(e => e.StateManager.HasState(FighterStateEnum.STATE_ROOTED)))
                 return -1;
 
-            int fighterAgility = fighter.Statistics.GetTotal(EffectEnum.AddAgility);
-            int enemiesAgility = enemies.Where(e => !e.StateManager.HasState(FighterStateEnum.STATE_ROOTED)).Sum(e => e.Statistics.GetTotal(EffectEnum.AddAgility));
+            int fighterAgility = fighter.Statistics.GetTotal(EffectEnum.STAT_MAS_AGILIDAD);
+            int enemiesAgility = enemies.Where(e => !e.StateManager.HasState(FighterStateEnum.STATE_ROOTED)).Sum(e => e.Statistics.GetTotal(EffectEnum.STAT_MAS_AGILIDAD));
             int A = fighterAgility + 25;
             int B = Math.Max(1, fighterAgility + enemiesAgility + 50);
             int chance = (int)((long)(300 * A / B) - 100);

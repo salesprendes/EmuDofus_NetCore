@@ -27,7 +27,7 @@ namespace Game.Fight.Effect.Type
                         var sleepTime = 1 + (WorldConfig.FIGHT_PANDA_LAUNCH_CELL_TIME * Pathfinding.GoalDistance(target.Fight.Map, target.Cell.Id, CastInfos.CellId));
                         var caster = CastInfos.Caster;
 
-                        target.Fight.Dispatch(WorldMessage.GAME_ACTION(EffectEnum.PandaLaunch, CastInfos.Caster.Id, CastInfos.CellId.ToString()));
+                        target.Fight.Dispatch(WorldMessage.GAME_ACTION(EffectEnum.PANDA_LANZAR, CastInfos.Caster.Id, CastInfos.CellId.ToString()));
 
                         target.Fight.SetSubAction(() =>
                         {

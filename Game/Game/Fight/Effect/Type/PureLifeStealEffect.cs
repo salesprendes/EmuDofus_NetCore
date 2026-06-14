@@ -15,7 +15,7 @@ namespace Game.Fight.Effect.Type
                 return FightActionResultEnum.RESULT_NOTHING;
 
             var damageJet = castInfos.RandomJet;
-            castInfos.EffectType = EffectEnum.DamageBrut;
+            castInfos.EffectType = EffectEnum.DANO_BRUTO;
 
 
             if (castInfos.Caster.Team == castInfos.Target.Team && damageJet > castInfos.Target.Life)

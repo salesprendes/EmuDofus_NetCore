@@ -55,6 +55,22 @@ namespace Game.Entity
             private set;
         }
 
+        private long m_robbableKamas = -1;
+
+        public long StealKamas(long requested)
+        {
+            if (m_robbableKamas < 0)
+                m_robbableKamas = Util.Next(Grade.Template.MinKamas, Grade.Template.MaxKamas);
+
+            if (requested > m_robbableKamas)
+                requested = m_robbableKamas;
+            if (requested < 0)
+                requested = 0;
+
+            m_robbableKamas -= requested;
+            return requested;
+        }
+
         public override int AlignmentId
         {
             get
@@ -108,13 +124,13 @@ namespace Game.Entity
             message.Append(Life).Append(';');
             message.Append(AP).Append(';');
             message.Append(MP).Append(';');
-            message.Append(Statistics.GetTotal(EffectEnum.AddReduceDamagePercentNeutral)).Append(';');
-            message.Append(Statistics.GetTotal(EffectEnum.AddReduceDamagePercentEarth)).Append(';');
-            message.Append(Statistics.GetTotal(EffectEnum.AddReduceDamagePercentFire)).Append(';');
-            message.Append(Statistics.GetTotal(EffectEnum.AddReduceDamagePercentWater)).Append(';');
-            message.Append(Statistics.GetTotal(EffectEnum.AddReduceDamagePercentAir)).Append(';');
-            message.Append(Statistics.GetTotal(EffectEnum.AddAPDodge)).Append(';');
-            message.Append(Statistics.GetTotal(EffectEnum.AddMPDodge)).Append(';');
+            message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_NEUTRAL)).Append(';');
+            message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_TIERRA)).Append(';');
+            message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_FUEGO)).Append(';');
+            message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_AGUA)).Append(';');
+            message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_AIRE)).Append(';');
+            message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_ESQUIVA_PA)).Append(';');
+            message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_ESQUIVA_PM)).Append(';');
             message.Append(Team.Id);
         }
     }

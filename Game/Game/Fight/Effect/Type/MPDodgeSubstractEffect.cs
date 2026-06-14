@@ -16,7 +16,7 @@ namespace Game.Fight.Effect.Type
 
             if (castInfos.Duration > 1)
             {
-                var subInfos = new CastInfos(EffectEnum.SubMPDodgeable, castInfos.SpellId, 0, castInfos.Value1, 0, 0, 0, castInfos.Duration, castInfos.Caster, null);
+                var subInfos = new CastInfos(EffectEnum.STAT_MENOS_PM_ESQUIVABLE, castInfos.SpellId, 0, castInfos.Value1, 0, 0, 0, castInfos.Duration, castInfos.Caster, null);
                 var buff = new MPDodgeSubstractBuff(subInfos, castInfos.Target);
 
                 castInfos.Target.BuffManager.AddBuff(buff);
@@ -24,7 +24,7 @@ namespace Game.Fight.Effect.Type
             else
             {
                 var damageValue = 0;
-                var subInfos = new CastInfos(EffectEnum.SubMPDodgeable, castInfos.SpellId, 0, castInfos.Value1, 0, 0, 0, 0, castInfos.Caster, null);
+                var subInfos = new CastInfos(EffectEnum.STAT_MENOS_PM_ESQUIVABLE, castInfos.SpellId, 0, castInfos.Value1, 0, 0, 0, 0, castInfos.Caster, null);
                 var buff = new MPDodgeSubstractBuff(subInfos, castInfos.Target);
 
                 buff.ApplyEffect(ref damageValue);

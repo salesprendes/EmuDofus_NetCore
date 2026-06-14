@@ -25,7 +25,7 @@ namespace Game.Fight.Effect.Type
 
             switch (castInfos.EffectType)
             {
-                case EffectEnum.PushBack:
+                case EffectEnum.MOVIMIENTO_EMPUJAR:
                     if (Pathfinding.InLine(castInfos.Map, castInfos.CellId, castInfos.Target.Cell.Id) && castInfos.CellId != castInfos.Target.Cell.Id)
                         direction = Pathfinding.GetDirection(castInfos.Map, castInfos.CellId, castInfos.Target.Cell.Id);
                     else if (Pathfinding.InLine(castInfos.Map, castInfos.Caster.Cell.Id, castInfos.Target.Cell.Id))
@@ -34,7 +34,7 @@ namespace Game.Fight.Effect.Type
                         return FightActionResultEnum.RESULT_NOTHING;
                     break;
 
-                case EffectEnum.PushFront:
+                case EffectEnum.MOVIMIENTO_ATRAER:
                     direction = Pathfinding.GetDirection(castInfos.Map, castInfos.Target.Cell.Id, castInfos.Caster.Cell.Id);
                     break;
             }
@@ -73,7 +73,7 @@ namespace Game.Fight.Effect.Type
 
                     target.Fight.SetSubAction(() =>
                     {
-                        if (castInfos.EffectType == EffectEnum.PushBack)
+                        if (castInfos.EffectType == EffectEnum.MOVIMIENTO_EMPUJAR)
                         {
                             var pushResult = PushEffect.ApplyPushBackDamages(castInfos, target, length, i);
                             if (pushResult != FightActionResultEnum.RESULT_NOTHING)
@@ -103,7 +103,7 @@ namespace Game.Fight.Effect.Type
             if (levelCoef < 0.1)
                 levelCoef = 0.1;
             int damageValue = (int)Math.Floor(damageCoef * levelCoef) * (length - currentLength);
-            var subInfos = new CastInfos(EffectEnum.DamageBrut, castInfos.SpellId, castInfos.CellId, 0, 0, 0, 0, 0, castInfos.Caster, null);
+            var subInfos = new CastInfos(EffectEnum.DANO_BRUTO, castInfos.SpellId, castInfos.CellId, 0, 0, 0, 0, 0, castInfos.Caster, null);
 
             return DamageEffect.ApplyDamages(subInfos, target, ref damageValue);
         }

@@ -6,22 +6,6 @@ namespace Game.Fight.AI.Core
 {
     public static class AIProfileResolver
     {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         public static AIProfile Resolve(AIFighter fighter)
         {
             if (fighter == null)
@@ -74,10 +58,6 @@ namespace Game.Fight.AI.Core
                 case 1091:
                 case 1092:
                     return AIProfile.KralamarTentacle;
-
-
-
-
 
                 default:
                     return null;

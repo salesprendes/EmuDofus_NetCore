@@ -1560,7 +1560,7 @@ namespace Game.Fight
             }
 
             var distance = Pathfinding.GoalDistance(Map, cellId, castCell);
-            var maxPo = spellLevel.AllowPOBoost && spellLevel.MaxPO != 0 ? spellLevel.MaxPO + fighter.Statistics.GetTotal(EffectEnum.AddPO) : spellLevel.MaxPO;
+            var maxPo = spellLevel.AllowPOBoost && spellLevel.MaxPO != 0 ? spellLevel.MaxPO + fighter.Statistics.GetTotal(EffectEnum.STAT_MAS_ALCANCE) : spellLevel.MaxPO;
 
             if (maxPo < spellLevel.MinPO)
             {
@@ -1594,12 +1594,12 @@ namespace Game.Fight
 
             if (spellLevel.Effects != null)
             {
-                if (spellLevel.Effects.Any(effect => effect.TypeEnum == EffectEnum.Invocation || effect.TypeEnum == EffectEnum.InvocDouble))
+                if (spellLevel.Effects.Any(effect => effect.TypeEnum == EffectEnum.INVOCACION_CRIATURA || effect.TypeEnum == EffectEnum.INVOCACION_DOBLE))
                 {
                     var invocationCount = fighter.Team?.AliveFighters?.Count(f => f.Invocator == fighter && !f.StaticInvocation) ?? 0;
-                    if (invocationCount >= fighter.Statistics.GetTotal(EffectEnum.AddInvocationMax))
+                    if (invocationCount >= fighter.Statistics.GetTotal(EffectEnum.STAT_MAS_INVOCACIONES_MAX))
                     {
-                        fighter.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_MAX_INVOCATION_REACHED, fighter.Statistics.GetTotal(EffectEnum.AddInvocationMax)));
+                        fighter.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_MAX_INVOCATION_REACHED, fighter.Statistics.GetTotal(EffectEnum.STAT_MAS_INVOCACIONES_MAX)));
                         return FightSpellLaunchResultEnum.RESULT_ERROR;
                     }
                 }
@@ -1662,7 +1662,7 @@ namespace Game.Fight
             }
 
             var distance = Pathfinding.GoalDistance(Map, fighter.Cell.Id, cellId);
-            var poMax = template.POMax + fighter.Statistics.GetTotal(EffectEnum.AddPO);
+            var poMax = template.POMax + fighter.Statistics.GetTotal(EffectEnum.STAT_MAS_ALCANCE);
 
             if (poMax - template.POMin < 1)
             {
@@ -1730,7 +1730,7 @@ namespace Game.Fight
                     var failure = false;
                     if (weaponTemplate.CFRate != 0)
                     {
-                        var criticalFailureRate = weaponTemplate.CFRate - fighter.Statistics.GetTotal(EffectEnum.AddEchecCritic);
+                        var criticalFailureRate = weaponTemplate.CFRate - fighter.Statistics.GetTotal(EffectEnum.STAT_MAS_FALLO_CRITICO);
 
                         if (criticalFailureRate < 2)
                         {
@@ -1758,7 +1758,7 @@ namespace Game.Fight
                     var criticalHit = false;
                     if (weaponTemplate.CSRate != 0)
                     {
-                        var criticalHitRate = weaponTemplate.CSRate - fighter.Statistics.GetTotal(EffectEnum.AddDamageCritic);
+                        var criticalHitRate = weaponTemplate.CSRate - fighter.Statistics.GetTotal(EffectEnum.STAT_MAS_DANO_CRITICO);
 
                         fighter.CalculCriticalHitRate(ref criticalHitRate);
 
@@ -1816,16 +1816,19 @@ namespace Game.Fight
                         foreach (var targetsByEffect in targetLists)
                         {
                             targetsByEffect.Item2.RemoveAll(affectedTarget => affectedTarget.IsFighterDead);
+                            var effectType = targetsByEffect.Item1.EffectType;
+                            var value1 = criticalHit && CastInfos.IsDamageEffect(effectType) ? targetsByEffect.Item1.Value1 + weaponTemplate.CSBonus : targetsByEffect.Item1.Value1;
+                            var value2 = criticalHit && CastInfos.IsDamageEffect(effectType) ? targetsByEffect.Item1.Value2 + weaponTemplate.CSBonus : targetsByEffect.Item1.Value2;
 
                             if (targetsByEffect.Item2.Count == 0)
                             {
                                 AddProcessingTarget(
                                         new CastInfos(
-                                                        targetsByEffect.Item1.EffectType,
+                                                        effectType,
                                                         -1,
                                                         cellId,
-                                                        criticalHit && CastInfos.IsDamageEffect(targetsByEffect.Item1.EffectType) ? targetsByEffect.Item1.Value1 + weaponTemplate.CSBonus : targetsByEffect.Item1.Value1,
-                                                        criticalHit && CastInfos.IsDamageEffect(targetsByEffect.Item1.EffectType) ? targetsByEffect.Item1.Value2 + weaponTemplate.CSBonus : targetsByEffect.Item1.Value2,
+                                                        value1,
+                                                        value2,
                                                         -1,
                                                         -1,
                                                         0,
@@ -1842,11 +1845,11 @@ namespace Game.Fight
                                 foreach (var target in targetsByEffect.Item2)
                                 {
                                     AddProcessingTarget(new CastInfos(
-                                                        targetsByEffect.Item1.EffectType,
+                                                        effectType,
                                                         -1,
                                                         cellId,
-                                                        criticalHit && CastInfos.IsDamageEffect(targetsByEffect.Item1.EffectType) ? targetsByEffect.Item1.Value1 + weaponTemplate.CSBonus : targetsByEffect.Item1.Value1,
-                                                        criticalHit && CastInfos.IsDamageEffect(targetsByEffect.Item1.EffectType) ? targetsByEffect.Item1.Value2 + weaponTemplate.CSBonus : targetsByEffect.Item1.Value2,
+                                                        value1,
+                                                        value2,
                                                         -1,
                                                         -1,
                                                         0,
@@ -1959,7 +1962,7 @@ namespace Game.Fight
                 var isEchec = false;
                 if (spellLevel.ECSRate != 0)
                 {
-                    var echecRate = spellLevel.ECSRate - fighter.Statistics.GetTotal(EffectEnum.AddEchecCritic);
+                    var echecRate = spellLevel.ECSRate - fighter.Statistics.GetTotal(EffectEnum.STAT_MAS_FALLO_CRITICO);
 
                     if (echecRate < 2)
                     {
@@ -1993,7 +1996,7 @@ namespace Game.Fight
                 var isCritic = false;
                 if (spellLevel.CSRate != 0 && spellLevel.CriticalEffects.Count > 0)
                 {
-                    var criticalHitRate = spellLevel.CSRate - fighter.Statistics.GetTotal(EffectEnum.AddDamageCritic);
+                    var criticalHitRate = spellLevel.CSRate - fighter.Statistics.GetTotal(EffectEnum.STAT_MAS_DANO_CRITICO);
 
                     fighter.CalculCriticalHitRate(ref criticalHitRate);
 
@@ -2023,7 +2026,7 @@ namespace Game.Fight
 
                     var targetType = spellLevel.Template.Targets != null ? spellLevel.Template.Targets.Count > effectIndex ? spellLevel.Template.Targets[effectIndex] : -1 : -1;
 
-                    if (effect.TypeEnum != EffectEnum.UseGlyph && effect.TypeEnum != EffectEnum.UseTrap)
+                    if (effect.TypeEnum != EffectEnum.COMBATE_COLOCAR_GLIFO && effect.TypeEnum != EffectEnum.COMBATE_COLOCAR_TRAMPA)
                     {
                         foreach (var currentCellId in CellZone.GetCells(Map, castCellId, fighter.Cell.Id, spellLevel.RangeType))
                         {

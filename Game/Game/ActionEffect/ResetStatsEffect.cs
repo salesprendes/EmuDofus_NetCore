@@ -18,12 +18,12 @@ namespace Game.ActionEffect
         {
             character.CachedBuffer = true;
             character.CaractPoint = (character.Level - 1) * 5;
-            character.Statistics.AddBase(EffectEnum.AddVitality, -character.DatabaseRecord.Vitality);
-            character.Statistics.AddBase(EffectEnum.AddWisdom, -character.DatabaseRecord.Wisdom);
-            character.Statistics.AddBase(EffectEnum.AddIntelligence, -character.DatabaseRecord.Intelligence);
-            character.Statistics.AddBase(EffectEnum.AddStrength, -character.DatabaseRecord.Strength);
-            character.Statistics.AddBase(EffectEnum.AddAgility, -character.DatabaseRecord.Agility);
-            character.Statistics.AddBase(EffectEnum.AddChance, -character.DatabaseRecord.Chance);
+            character.Statistics.AddBase(EffectEnum.STAT_MAS_VITALIDAD, -character.DatabaseRecord.Vitality);
+            character.Statistics.AddBase(EffectEnum.STAT_MAS_SABIDURIA, -character.DatabaseRecord.Wisdom);
+            character.Statistics.AddBase(EffectEnum.STAT_MAS_INTELIGENCIA, -character.DatabaseRecord.Intelligence);
+            character.Statistics.AddBase(EffectEnum.STAT_MAS_FUERZA, -character.DatabaseRecord.Strength);
+            character.Statistics.AddBase(EffectEnum.STAT_MAS_AGILIDAD, -character.DatabaseRecord.Agility);
+            character.Statistics.AddBase(EffectEnum.STAT_MAS_SUERTE, -character.DatabaseRecord.Chance);
             character.DatabaseRecord.Vitality = 0;
             character.DatabaseRecord.Wisdom = 0;
             character.DatabaseRecord.Intelligence = 0;

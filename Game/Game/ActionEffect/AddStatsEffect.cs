@@ -20,45 +20,45 @@ namespace Game.ActionEffect
 
         public override bool Process(CharacterEntity character, Dictionary<string, string> parameters)
         {
-            var addEffect = EffectEnum.None;
+            var addEffect = EffectEnum.NINGUNO;
             var effectType = (EffectEnum)int.Parse(parameters["statsId"]);
             var value = int.Parse(parameters["value"]);
 
             switch (effectType)
             {
-                case EffectEnum.AddVitality:
-                case EffectEnum.AddCaractVitality:
-                    addEffect = EffectEnum.AddVitality;
+                case EffectEnum.STAT_MAS_VITALIDAD:
+                case EffectEnum.CARACTERISTICA_MAS_VITALIDAD:
+                    addEffect = EffectEnum.STAT_MAS_VITALIDAD;
                     character.DatabaseRecord.Vitality += value;
                     break;
 
-                case EffectEnum.AddWisdom:
-                case EffectEnum.AddCaractWisdom:
-                    addEffect = EffectEnum.AddWisdom;
+                case EffectEnum.STAT_MAS_SABIDURIA:
+                case EffectEnum.CARACTERISTICA_MAS_SABIDURIA:
+                    addEffect = EffectEnum.STAT_MAS_SABIDURIA;
                     character.DatabaseRecord.Wisdom += value;
                     break;
 
-                case EffectEnum.AddIntelligence:
-                case EffectEnum.AddCaractIntelligence:
-                    addEffect = EffectEnum.AddIntelligence;
+                case EffectEnum.STAT_MAS_INTELIGENCIA:
+                case EffectEnum.CARACTERISTICA_MAS_INTELIGENCIA:
+                    addEffect = EffectEnum.STAT_MAS_INTELIGENCIA;
                     character.DatabaseRecord.Intelligence += value;
                     break;
 
-                case EffectEnum.AddStrength:
-                case EffectEnum.AddCaractStrength:
-                    addEffect = EffectEnum.AddStrength;
+                case EffectEnum.STAT_MAS_FUERZA:
+                case EffectEnum.CARACTERISTICA_MAS_FUERZA:
+                    addEffect = EffectEnum.STAT_MAS_FUERZA;
                     character.DatabaseRecord.Strength += value;
                     break;
 
-                case EffectEnum.AddAgility:
-                case EffectEnum.AddCaractAgility:
-                    addEffect = EffectEnum.AddAgility;
+                case EffectEnum.STAT_MAS_AGILIDAD:
+                case EffectEnum.CARACTERISTICA_MAS_AGILIDAD:
+                    addEffect = EffectEnum.STAT_MAS_AGILIDAD;
                     character.DatabaseRecord.Agility += value;
                     break;
 
-                case EffectEnum.AddChance:
-                case EffectEnum.AddCaractChance:
-                    addEffect = EffectEnum.AddChance;
+                case EffectEnum.STAT_MAS_SUERTE:
+                case EffectEnum.CARACTERISTICA_MAS_SUERTE:
+                    addEffect = EffectEnum.STAT_MAS_SUERTE;
                     character.DatabaseRecord.Chance += value;
                     break;
             }

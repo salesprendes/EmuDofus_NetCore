@@ -70,7 +70,7 @@ namespace Game.Fight.AI.Evaluation
             if (spell == null)
                 return 0;
 
-            var maxPo = spell.AllowPOBoost && spell.MaxPO != 0 && context?.Fighter?.Statistics != null ? spell.MaxPO + context.Fighter.Statistics.GetTotal(EffectEnum.AddPO) : spell.MaxPO;
+            var maxPo = spell.AllowPOBoost && spell.MaxPO != 0 && context?.Fighter?.Statistics != null ? spell.MaxPO + context.Fighter.Statistics.GetTotal(EffectEnum.STAT_MAS_ALCANCE) : spell.MaxPO;
 
             return System.Math.Max(spell.MinPO, maxPo);
         }

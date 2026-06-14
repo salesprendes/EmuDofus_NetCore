@@ -52,7 +52,7 @@ namespace Game.Fight.Effect.Type
 
                 switch (statsType)
                 {
-                    case EffectEnum.Heal:
+                    case EffectEnum.CURACION:
                         HealEffect.ApplyHeal(new CastInfos(statsType, CastInfos.SpellId, CastInfos.SpellId, buffValue, 0, 0, 0, duration, CastInfos.Caster, null), Target, ref buffValue);
                         break;
 

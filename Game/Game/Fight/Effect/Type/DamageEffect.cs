@@ -101,14 +101,14 @@ namespace Game.Fight.Effect.Type
             if (damageJet > 0)
             {
 
-                if (!castInfos.IsPoison && !castInfos.IsReflect && castInfos.EffectType != EffectEnum.DamageBrut)
+                if (!castInfos.IsPoison && !castInfos.IsReflect && castInfos.EffectType != EffectEnum.DANO_BRUTO)
                 {
                     var reflectDamage = target.ReflectDamage;
 
 
                     if (reflectDamage > 0)
                     {
-                        target.Fight.Dispatch(WorldMessage.GAME_ACTION(EffectEnum.AddReflectDamage, target.Id, target.Id + "," + reflectDamage));
+                        target.Fight.Dispatch(WorldMessage.GAME_ACTION(EffectEnum.STAT_MAS_DANO_DEVUELTO, target.Id, target.Id + "," + reflectDamage));
 
 
                         if (reflectDamage > damageJet)

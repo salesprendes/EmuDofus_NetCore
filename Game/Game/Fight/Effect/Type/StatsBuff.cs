@@ -14,10 +14,10 @@ namespace Game.Fight.Effect.Type
 
             switch (CastInfos.EffectType)
             {
-                case EffectEnum.SubAP:
-                case EffectEnum.SubMP:
-                case EffectEnum.SubAPDodgeable:
-                case EffectEnum.SubMPDodgeable:
+                case EffectEnum.STAT_MENOS_PA:
+                case EffectEnum.STAT_MENOS_PM:
+                case EffectEnum.STAT_MENOS_PA_ESQUIVABLE:
+                case EffectEnum.STAT_MENOS_PM_ESQUIVABLE:
                     showValue = -CastInfos.Value1;
                     break;
 
@@ -26,7 +26,7 @@ namespace Game.Fight.Effect.Type
                     break;
             }
 
-            if (CastInfos.EffectType != EffectEnum.ReflectSpell)
+            if (CastInfos.EffectType != EffectEnum.DEFENSA_DEVOLVER_HECHIZO)
                 Target.Fight.Dispatch(WorldMessage.GAME_ACTION(CastInfos.EffectType, Target.Id, Target.Id + "," + showValue + "," + Duration));
 
             Target.Statistics.AddBoosts(CastInfos.EffectType, CastInfos.Value1);
@@ -50,17 +50,17 @@ namespace Game.Fight.Effect.Type
             {
                 switch (CastInfos.EffectType)
                 {
-                    case EffectEnum.SubAP:
-                    case EffectEnum.SubAPDodgeable:
-                    case EffectEnum.SubMP:
-                    case EffectEnum.SubMPDodgeable:
+                    case EffectEnum.STAT_MENOS_PA:
+                    case EffectEnum.STAT_MENOS_PA_ESQUIVABLE:
+                    case EffectEnum.STAT_MENOS_PM:
+                    case EffectEnum.STAT_MENOS_PM_ESQUIVABLE:
                         Target.Fight.Dispatch(WorldMessage.GAME_ACTION(CastInfos.EffectType, Target.Id, Target.Id + "," + CastInfos.Value1 + "," + 1));
                         break;
 
-                    case EffectEnum.AddAP:
-                    case EffectEnum.AddAPBis:
-                    case EffectEnum.AddMP:
-                    case EffectEnum.MPBonus:
+                    case EffectEnum.STAT_MAS_PA:
+                    case EffectEnum.STAT_MAS_PA_BIS:
+                    case EffectEnum.STAT_MAS_PM:
+                    case EffectEnum.STAT_MAS_PM_BONUS:
                         Target.Fight.Dispatch(WorldMessage.GAME_ACTION(CastInfos.EffectType, Target.Id, Target.Id + "," + (-CastInfos.Value1) + "," + 1));
                         break;
                 }

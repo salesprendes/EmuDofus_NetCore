@@ -17,13 +17,13 @@ namespace Game.Fight.Effect.Type
 
             if (castInfos.Target == castInfos.Caster)
             {
-                var damageInfos = new CastInfos(EffectEnum.DamageBrut, castInfos.SpellId, castInfos.CellId, castInfos.Value1, castInfos.Value2, castInfos.Value3, castInfos.Chance, 0, castInfos.Caster, castInfos.Target);
+                var damageInfos = new CastInfos(EffectEnum.DANO_BRUTO, castInfos.SpellId, castInfos.CellId, castInfos.Value1, castInfos.Value2, castInfos.Value3, castInfos.Chance, 0, castInfos.Caster, castInfos.Target);
                 var damageValue = (int)(((double)castInfos.Caster.Life / 100) * castInfos.RandomJet);
 
                 return DamageEffect.ApplyDamages(damageInfos, castInfos.Caster, ref damageValue);
             }
 
-            var healInfos = new CastInfos(EffectEnum.DamageBrut, -1, -1, -1, -1, -1, -1, -1, castInfos.Caster, castInfos.Target);
+            var healInfos = new CastInfos(EffectEnum.DANO_BRUTO, -1, -1, -1, -1, -1, -1, -1, castInfos.Caster, castInfos.Target);
             var healValue = (int)(((double)castInfos.Caster.Life / 100) * castInfos.RandomJet);
 
             return HealEffect.ApplyHeal(healInfos, castInfos.Target, ref healValue);

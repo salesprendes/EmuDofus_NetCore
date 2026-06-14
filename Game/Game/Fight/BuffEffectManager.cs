@@ -46,7 +46,7 @@ namespace Game.Fight
         {
             foreach (var buffList in ActiveBuffs.Values)
             {
-                var stateBuff = buffList.Find(buff => buff.CastInfos.SubEffect == EffectEnum.AddState && buff.CastInfos.Value3 == state);
+                var stateBuff = buffList.Find(buff => buff.CastInfos.SubEffect == EffectEnum.ESTADO_MAS && buff.CastInfos.Value3 == state);
                 if (stateBuff != null)
                 {
                     stateBuff.RemoveEffect();
@@ -62,7 +62,7 @@ namespace Game.Fight
         {
             foreach (var buffList in ActiveBuffs.Values)
             {
-                var stealthBuff = buffList.Find(buff => buff.CastInfos.EffectType == EffectEnum.Stealth);
+                var stealthBuff = buffList.Find(buff => buff.CastInfos.EffectType == EffectEnum.ESTADO_INVISIBILIDAD);
                 if (stealthBuff != null)
                 {
                     stealthBuff.RemoveEffect();
@@ -78,7 +78,7 @@ namespace Game.Fight
         {
             foreach (var buffList in ActiveBuffs.Values)
             {
-                var skinBuff = buffList.Find(buff => buff.CastInfos.EffectType == EffectEnum.ChangeSkin);
+                var skinBuff = buffList.Find(buff => buff.CastInfos.EffectType == EffectEnum.APARIENCIA_CAMBIAR);
                 if (skinBuff != null)
                 {
                     skinBuff.RemoveEffect();

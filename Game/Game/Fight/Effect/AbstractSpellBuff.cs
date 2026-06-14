@@ -1,10 +1,6 @@
-using Game.Spell;
 using Game.Network;
+using Game.Spell;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.Fight.Effect
 {
@@ -72,9 +68,9 @@ namespace Game.Fight.Effect
             {
                 switch (CastInfos.SubEffect)
                 {
-                    case EffectEnum.AddState:
-                    case EffectEnum.ChangeSkin:
-                    case EffectEnum.AddChatiment:
+                    case EffectEnum.ESTADO_MAS:
+                    case EffectEnum.APARIENCIA_CAMBIAR:
+                    case EffectEnum.CASTIGO_MAS:
                         return false;
                 }
 
@@ -94,41 +90,20 @@ namespace Game.Fight.Effect
 
             switch (castInfos.EffectType)
             {
-                case EffectEnum.ReflectSpell:
-                    Target.Fight.Dispatch(WorldMessage.FIGHT_EFFECT_INFORMATION(CastInfos.EffectType,
-                                                                               Target.Id,
-                                                                               CastInfos.Value2.ToString(),
-                                                                               CastInfos.Value2.ToString(),
-                                                                               "10",
-                                                                               CastInfos.Value2.ToString(),
-                                                                               CastInfos.Duration.ToString(),
-                                                                               CastInfos.SpellId.ToString()));
+                case EffectEnum.DEFENSA_DEVOLVER_HECHIZO:
+                    Target.Fight.Dispatch(WorldMessage.FIGHT_EFFECT_INFORMATION(CastInfos.EffectType, Target.Id, CastInfos.Value2.ToString(), CastInfos.Value2.ToString(), "10", CastInfos.Value2.ToString(), CastInfos.Duration.ToString(), CastInfos.SpellId.ToString()));
                     break;
 
-                case EffectEnum.EcaflipChance:
-                case EffectEnum.AddChatiment:
-                    Target.Fight.Dispatch(WorldMessage.FIGHT_EFFECT_INFORMATION(CastInfos.EffectType,
-                                                                           Target.Id,
-                                                                           CastInfos.Value1.ToString(),
-                                                                           CastInfos.Value2.ToString(),
-                                                                           CastInfos.Value3.ToString(),
-                                                                           "",
-                                                                           CastInfos.Duration.ToString(),
-                                                                           CastInfos.SpellId.ToString()));
+                case EffectEnum.COMBATE_SUERTE_ECAFLIP:
+                case EffectEnum.CASTIGO_MAS:
+                    Target.Fight.Dispatch(WorldMessage.FIGHT_EFFECT_INFORMATION(CastInfos.EffectType, Target.Id, CastInfos.Value1.ToString(), CastInfos.Value2.ToString(), CastInfos.Value3.ToString(), "", CastInfos.Duration.ToString(), CastInfos.SpellId.ToString()));
                     break;
 
-                case EffectEnum.PandaCarrier:
+                case EffectEnum.PANDA_CARGAR:
                     break;
 
                 default:
-                    Target.Fight.Dispatch(WorldMessage.FIGHT_EFFECT_INFORMATION(CastInfos.EffectType,
-                                                                               Target.Id,
-                                                                               CastInfos.Value1.ToString(),
-                                                                               "",
-                                                                               "",
-                                                                               "",
-                                                                               CastInfos.Duration.ToString(),
-                                                                               CastInfos.SpellId.ToString()));
+                    Target.Fight.Dispatch(WorldMessage.FIGHT_EFFECT_INFORMATION(CastInfos.EffectType, Target.Id, CastInfos.Value1.ToString(), "", "", "", CastInfos.Duration.ToString(), CastInfos.SpellId.ToString()));
                     break;
             }
         }
@@ -137,30 +112,16 @@ namespace Game.Fight.Effect
         {
             switch (CastInfos.EffectType)
             {
-                case EffectEnum.ReflectSpell:
-                    dispatch(WorldMessage.FIGHT_EFFECT_INFORMATION(CastInfos.EffectType,
-                                                                   Target.Id,
-                                                                   CastInfos.Value2.ToString(),
-                                                                   CastInfos.Value2.ToString(),
-                                                                   "10",
-                                                                   CastInfos.Value2.ToString(),
-                                                                   Duration.ToString(),
-                                                                   CastInfos.SpellId.ToString()));
+                case EffectEnum.DEFENSA_DEVOLVER_HECHIZO:
+                    dispatch(WorldMessage.FIGHT_EFFECT_INFORMATION(CastInfos.EffectType, Target.Id, CastInfos.Value2.ToString(), CastInfos.Value2.ToString(), "10", CastInfos.Value2.ToString(), Duration.ToString(), CastInfos.SpellId.ToString()));
                     break;
 
-                case EffectEnum.EcaflipChance:
-                case EffectEnum.AddChatiment:
-                    dispatch(WorldMessage.FIGHT_EFFECT_INFORMATION(CastInfos.EffectType,
-                                                               Target.Id,
-                                                               CastInfos.Value1.ToString(),
-                                                               CastInfos.Value2.ToString(),
-                                                               CastInfos.Value3.ToString(),
-                                                               "",
-                                                               Duration.ToString(),
-                                                               CastInfos.SpellId.ToString()));
-                    break;
+                case EffectEnum.COMBATE_SUERTE_ECAFLIP:
+                case EffectEnum.CASTIGO_MAS:
+                    dispatch(WorldMessage.FIGHT_EFFECT_INFORMATION(CastInfos.EffectType, Target.Id, CastInfos.Value1.ToString(), CastInfos.Value2.ToString(), CastInfos.Value3.ToString(), "", Duration.ToString(), CastInfos.SpellId.ToString()));
+                break;
 
-                case EffectEnum.PandaCarrier:
+                case EffectEnum.PANDA_CARGAR:
                     break;
 
                 default:
@@ -182,7 +143,6 @@ namespace Game.Fight.Effect
         public int DecrementDuration()
         {
             Duration--;
-
             CastInfos.FakeValue = 0;
 
             return Duration;

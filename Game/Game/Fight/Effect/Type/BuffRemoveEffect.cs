@@ -18,7 +18,7 @@ namespace Game.Fight.Effect.Type
             if (CastInfos.Target.BuffManager.Debuff() == FightActionResultEnum.RESULT_END)
                 return FightActionResultEnum.RESULT_END;
 
-            CastInfos.Target.Fight.Dispatch(WorldMessage.GAME_ACTION(EffectEnum.DeleteAllBonus, CastInfos.Target.Id, CastInfos.Target.Id.ToString()));
+            CastInfos.Target.Fight.Dispatch(WorldMessage.GAME_ACTION(EffectEnum.BUFF_QUITAR_TODOS, CastInfos.Target.Id, CastInfos.Target.Id.ToString()));
 
             return FightActionResultEnum.RESULT_NOTHING;
         }

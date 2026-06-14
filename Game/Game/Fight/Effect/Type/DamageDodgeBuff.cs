@@ -26,7 +26,7 @@ namespace Game.Fight.Effect.Type
             if (Target.Cell.Id != damageInfos.TargetKnownCellId)
                 return FightActionResultEnum.RESULT_NOTHING;
 
-            var subInfos = new CastInfos(EffectEnum.PushBack, 0, 0, 0, 0, 0, 0, 0, damageInfos.Caster, null);
+            var subInfos = new CastInfos(EffectEnum.MOVIMIENTO_EMPUJAR, 0, 0, 0, 0, 0, 0, 0, damageInfos.Caster, null);
             var direction = Pathfinding.GetDirection(Target.Fight.Map, damageInfos.Caster.Cell.Id, Target.Cell.Id);
 
 

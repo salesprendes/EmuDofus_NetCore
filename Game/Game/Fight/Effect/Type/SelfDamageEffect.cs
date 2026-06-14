@@ -11,7 +11,7 @@ namespace Game.Fight.Effect.Type
         public override FightActionResultEnum ApplyEffect(CastInfos castInfos)
         {
             var damageJet = castInfos.RandomJet;
-            castInfos.EffectType = Spell.EffectEnum.DamageNeutral;
+            castInfos.EffectType = Spell.EffectEnum.DANO_NEUTRAL;
 
             return DamageEffect.ApplyDamages(castInfos, castInfos.Caster, ref damageJet);
         }

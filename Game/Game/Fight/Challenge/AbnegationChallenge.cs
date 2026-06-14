@@ -1,4 +1,4 @@
-﻿using Game.Fight.Effect;
+using Game.Fight.Effect;
 using Game.Spell;
 
 namespace Game.Fight.Challenge
@@ -17,7 +17,7 @@ namespace Game.Fight.Challenge
 
         public override void CheckSpell(AbstractFighter fighter, CastInfos castInfos)
         {
-            if (castInfos.EffectType == EffectEnum.AddLife && castInfos.Target != null && castInfos.Target.Team == fighter.Team)
+            if (castInfos.EffectType == EffectEnum.STAT_MAS_VIDA && castInfos.Target != null && castInfos.Target.Team == fighter.Team)
             {
                 base.OnFailed(fighter.Name);
             }

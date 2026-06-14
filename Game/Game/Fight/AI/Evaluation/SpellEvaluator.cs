@@ -46,10 +46,10 @@ namespace Game.Fight.AI.Evaluation
                 return false;
 
             if (spell.Effects != null
-                && spell.Effects.Any(effect => effect.TypeEnum == EffectEnum.Invocation || effect.TypeEnum == EffectEnum.InvocDouble))
+                && spell.Effects.Any(effect => effect.TypeEnum == EffectEnum.INVOCACION_CRIATURA || effect.TypeEnum == EffectEnum.INVOCACION_DOBLE))
             {
                 var invocationCount = fighter.Team?.AliveFighters?.Count(f => f.Invocator == fighter && !f.StaticInvocation) ?? 0;
-                if (invocationCount >= fighter.Statistics.GetTotal(EffectEnum.AddInvocationMax))
+                if (invocationCount >= fighter.Statistics.GetTotal(EffectEnum.STAT_MAS_INVOCACIONES_MAX))
                     return false;
             }
 
@@ -70,7 +70,7 @@ namespace Game.Fight.AI.Evaluation
                 return false;
 
             var distance = context.TurnCache.Cells.GetDistance(fromCell, castCell);
-            var maxPo = spell.AllowPOBoost && spell.MaxPO != 0 ? spell.MaxPO + fighter.Statistics.GetTotal(EffectEnum.AddPO) : spell.MaxPO;
+            var maxPo = spell.AllowPOBoost && spell.MaxPO != 0 ? spell.MaxPO + fighter.Statistics.GetTotal(EffectEnum.STAT_MAS_ALCANCE) : spell.MaxPO;
 
             if (maxPo < spell.MinPO)
                 maxPo = spell.MinPO;
@@ -115,7 +115,7 @@ namespace Game.Fight.AI.Evaluation
             if (spell?.Effects == null)
                 return 0;
 
-            return spell.Effects.Where(e => e.TypeEnum == EffectEnum.Heal).Sum(EstimateEffectValue);
+            return spell.Effects.Where(e => e.TypeEnum == EffectEnum.CURACION).Sum(EstimateEffectValue);
         }
 
         public static int EstimateBuffValue(SpellLevel spell)
@@ -123,7 +123,7 @@ namespace Game.Fight.AI.Evaluation
             if (spell?.Effects == null)
                 return 0;
 
-            return spell.Effects.Where(e => CastInfos.IsBonusEffect(e.TypeEnum) && e.TypeEnum != EffectEnum.Heal).Sum(EstimateEffectValue);
+            return spell.Effects.Where(e => CastInfos.IsBonusEffect(e.TypeEnum) && e.TypeEnum != EffectEnum.CURACION).Sum(EstimateEffectValue);
         }
 
         public static int EstimateDebuffValue(SpellLevel spell)
@@ -136,19 +136,19 @@ namespace Game.Fight.AI.Evaluation
             {
                 switch (effect.TypeEnum)
                 {
-                    case EffectEnum.SubAP:
-                    case EffectEnum.SubAPDodgeable:
-                    case EffectEnum.APSteal:
+                    case EffectEnum.STAT_MENOS_PA:
+                    case EffectEnum.STAT_MENOS_PA_ESQUIVABLE:
+                    case EffectEnum.STAT_ROBO_PA:
                         score += 220 + EstimateEffectValue(effect) * 60;
                         break;
 
-                    case EffectEnum.SubMP:
-                    case EffectEnum.SubMPDodgeable:
-                    case EffectEnum.MPSteal:
+                    case EffectEnum.STAT_MENOS_PM:
+                    case EffectEnum.STAT_MENOS_PM_ESQUIVABLE:
+                    case EffectEnum.STAT_ROBO_PM:
                         score += 180 + EstimateEffectValue(effect) * 45;
                         break;
 
-                    case EffectEnum.SubPO:
+                    case EffectEnum.STAT_MENOS_ALCANCE:
                         score += 100 + EstimateEffectValue(effect) * 30;
                         break;
 

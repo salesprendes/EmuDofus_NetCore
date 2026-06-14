@@ -12,7 +12,7 @@ namespace Game.Fight.Effect.Type
 
         public override FightActionResultEnum ApplyEffect(ref int damageValue, CastInfos damageInfos = null)
         {
-            Target.Fight.Dispatch(WorldMessage.GAME_ACTION(EffectEnum.TurnPass, Caster.Id, Target.Id.ToString()));
+            Target.Fight.Dispatch(WorldMessage.GAME_ACTION(EffectEnum.COMBATE_PASAR_TURNO, Caster.Id, Target.Id.ToString()));
             Target.TurnPass = true;
 
             return base.ApplyEffect(ref damageValue, damageInfos);

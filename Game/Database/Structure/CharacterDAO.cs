@@ -442,11 +442,11 @@ namespace Game.Database.Structure
 
         private static void AppendLivingAccessory(StringBuilder message, ItemDAO item)
         {
-            var livingTemplateId = GetLivingEffectValue(item, EffectEnum.LivingGfxId);
+            var livingTemplateId = GetLivingEffectValue(item, EffectEnum.OBJETO_VIVO_ID_GRAFICO);
 
             if (livingTemplateId > 0)
             {
-                message.Append(livingTemplateId.ToString("x")).Append('~').Append(item.Template.Type).Append('~').Append(GetLivingEffectValue(item, EffectEnum.LivingSkin, 1));
+                message.Append(livingTemplateId.ToString("x")).Append('~').Append(item.Template.Type).Append('~').Append(GetLivingEffectValue(item, EffectEnum.OBJETO_VIVO_APARIENCIA, 1));
                 return;
             }
 

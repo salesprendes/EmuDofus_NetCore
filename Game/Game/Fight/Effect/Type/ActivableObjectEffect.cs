@@ -1,9 +1,4 @@
 using Game.Spell;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.Fight.Effect.Type
 {
@@ -14,17 +9,17 @@ namespace Game.Fight.Effect.Type
             AbstractActivableObject obj = null;
             switch (castInfos.EffectType)
             {
-                case EffectEnum.UseGlyph:
+                case EffectEnum.COMBATE_COLOCAR_GLIFO:
                     if (castInfos.Caster.Fight.HasObjectOnCell(FightObstacleTypeEnum.TYPE_FIGHTER, castInfos.CellId))
                         return FightActionResultEnum.RESULT_NOTHING;
                     obj = new FightGlyph(castInfos.Caster.Fight, castInfos.Caster, castInfos, castInfos.CellId, castInfos.Duration);
-                    break;
+                break;
 
-                case EffectEnum.UseTrap:
+                case EffectEnum.COMBATE_COLOCAR_TRAMPA:
                     if (!castInfos.Caster.Fight.CanPutObject(castInfos.CellId))
                         return FightActionResultEnum.RESULT_NOTHING;
                     obj = new FightTrap(castInfos.Caster.Fight, castInfos.Caster, castInfos, castInfos.CellId);
-                    break;
+                break;
             }
 
             if (obj != null)

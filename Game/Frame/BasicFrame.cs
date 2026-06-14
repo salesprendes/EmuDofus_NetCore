@@ -18,12 +18,12 @@ namespace Game.Frame
     {
         private readonly Dictionary<int, EffectEnum> m_statById = new Dictionary<int, EffectEnum>()
         {
-            {10, EffectEnum.AddStrength},
-            {11, EffectEnum.AddVitality},
-            {12, EffectEnum.AddWisdom},
-            {13, EffectEnum.AddChance},
-            {14, EffectEnum.AddAgility},
-            {15, EffectEnum.AddIntelligence},
+            {10, EffectEnum.STAT_MAS_FUERZA},
+            {11, EffectEnum.STAT_MAS_VITALIDAD},
+            {12, EffectEnum.STAT_MAS_SABIDURIA},
+            {13, EffectEnum.STAT_MAS_SUERTE},
+            {14, EffectEnum.STAT_MAS_AGILIDAD},
+            {15, EffectEnum.STAT_MAS_INTELIGENCIA},
         };
 
         public override Action<CharacterEntity, string> GetHandler(string message)
@@ -849,27 +849,27 @@ namespace Game.Frame
 
                 switch (effect)
                 {
-                    case EffectEnum.AddStrength:
+                    case EffectEnum.STAT_MAS_FUERZA:
                         character.DatabaseRecord.Strength += boostValue;
                         break;
 
-                    case EffectEnum.AddVitality:
+                    case EffectEnum.STAT_MAS_VITALIDAD:
                         character.DatabaseRecord.Vitality += boostValue;
                         break;
 
-                    case EffectEnum.AddWisdom:
+                    case EffectEnum.STAT_MAS_SABIDURIA:
                         character.DatabaseRecord.Wisdom += boostValue;
                         break;
 
-                    case EffectEnum.AddIntelligence:
+                    case EffectEnum.STAT_MAS_INTELIGENCIA:
                         character.DatabaseRecord.Intelligence += boostValue;
                         break;
 
-                    case EffectEnum.AddAgility:
+                    case EffectEnum.STAT_MAS_AGILIDAD:
                         character.DatabaseRecord.Agility += boostValue;
                         break;
 
-                    case EffectEnum.AddChance:
+                    case EffectEnum.STAT_MAS_SUERTE:
                         character.DatabaseRecord.Chance += boostValue;
                         break;
                 }

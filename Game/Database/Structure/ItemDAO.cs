@@ -123,9 +123,9 @@ namespace Game.Database.Structure
         {
             get
             {
-                if (!Statistics.HasEffect(EffectEnum.EtherealResist))
+                if (!Statistics.HasEffect(EffectEnum.OBJETO_RESISTENCIA_ETEREA))
                     return -1;
-                return Statistics.GetEffect(EffectEnum.EtherealResist).Value2;
+                return Statistics.GetEffect(EffectEnum.OBJETO_RESISTENCIA_ETEREA).Value2;
             }
         }
 
@@ -135,17 +135,17 @@ namespace Game.Database.Structure
         {
             get
             {
-                if (!Statistics.HasEffect(EffectEnum.EtherealResist))
+                if (!Statistics.HasEffect(EffectEnum.OBJETO_RESISTENCIA_ETEREA))
                     return -1;
-                return Statistics.GetEffect(EffectEnum.EtherealResist).Value3;
+                return Statistics.GetEffect(EffectEnum.OBJETO_RESISTENCIA_ETEREA).Value3;
             }
         }
 
         public void DecreaseDurability()
         {
-            if (!Statistics.HasEffect(EffectEnum.EtherealResist))
+            if (!Statistics.HasEffect(EffectEnum.OBJETO_RESISTENCIA_ETEREA))
                 return;
-            var effect = Statistics.GetEffect(EffectEnum.EtherealResist);
+            var effect = Statistics.GetEffect(EffectEnum.OBJETO_RESISTENCIA_ETEREA);
 
             if (effect.Value3 <= 0 || effect.Value2 <= 0)
                 return;
@@ -174,21 +174,21 @@ namespace Game.Database.Structure
         public static bool EnsureLivingReceptionStats(GenericStats stats, DateTime receivedAt)
         {
             var changed = false;
-            var hadReceivedDate = stats.HasEffect(EffectEnum.Received);
+            var hadReceivedDate = stats.HasEffect(EffectEnum.OBJETO_RECIBIDO);
 
             if (!hadReceivedDate)
             {
-                SetDateEffect(stats, EffectEnum.Received, receivedAt);
+                SetDateEffect(stats, EffectEnum.OBJETO_RECIBIDO, receivedAt);
                 changed = true;
 
 
-                if (stats.HasEffect(EffectEnum.LivingMood))
-                    stats.GetEffect(EffectEnum.LivingMood).Value3 = 0;
+                if (stats.HasEffect(EffectEnum.OBJETO_VIVO_HUMOR))
+                    stats.GetEffect(EffectEnum.OBJETO_VIVO_HUMOR).Value3 = 0;
             }
 
-            if (!hadReceivedDate && !stats.HasEffect(EffectEnum.CanBeExchange))
+            if (!hadReceivedDate && !stats.HasEffect(EffectEnum.OBJETO_PUEDE_INTERCAMBIARSE))
             {
-                SetDateEffect(stats, EffectEnum.CanBeExchange, receivedAt.AddMonths(LivingExchangeLockMonths));
+                SetDateEffect(stats, EffectEnum.OBJETO_PUEDE_INTERCAMBIARSE, receivedAt.AddMonths(LivingExchangeLockMonths));
                 changed = true;
             }
 
@@ -221,11 +221,11 @@ namespace Game.Database.Structure
 
         public bool RefreshTemporaryExchangeLock(DateTime? currentTime = null)
         {
-            var exchangeDate = GetDateEffect(Statistics, EffectEnum.CanBeExchange);
+            var exchangeDate = GetDateEffect(Statistics, EffectEnum.OBJETO_PUEDE_INTERCAMBIARSE);
             if (exchangeDate == null || exchangeDate.Value > (currentTime ?? DateTime.Now))
                 return false;
 
-            if (!Statistics.RemoveEffect(EffectEnum.CanBeExchange))
+            if (!Statistics.RemoveEffect(EffectEnum.OBJETO_PUEDE_INTERCAMBIARSE))
                 return false;
 
             SaveStats();
@@ -234,8 +234,8 @@ namespace Game.Database.Structure
 
         public bool IsTemporarilyLockedFromExchange(DateTime? currentTime = null)
         {
-            var exchangeDate = GetDateEffect(Statistics, EffectEnum.CanBeExchange);
-            return exchangeDate == null ? Statistics.HasEffect(EffectEnum.CanBeExchange) : exchangeDate.Value > (currentTime ?? DateTime.Now);
+            var exchangeDate = GetDateEffect(Statistics, EffectEnum.OBJETO_PUEDE_INTERCAMBIARSE);
+            return exchangeDate == null ? Statistics.HasEffect(EffectEnum.OBJETO_PUEDE_INTERCAMBIARSE) : exchangeDate.Value > (currentTime ?? DateTime.Now);
         }
 
         public static bool IsEquipedSlot(ItemSlotEnum slot)

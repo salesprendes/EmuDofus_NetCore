@@ -15,7 +15,7 @@ namespace Game.Fight.Effect.Type
         {
             Caster.StateManager.AddState(this);
 
-            castInfos.Caster.Fight.Dispatch(WorldMessage.GAME_ACTION(EffectEnum.PandaCarrier, castInfos.Caster.Id, target.Id.ToString()));
+            castInfos.Caster.Fight.Dispatch(WorldMessage.GAME_ACTION(EffectEnum.PANDA_CARGAR, castInfos.Caster.Id, target.Id.ToString()));
         }
 
         public override FightActionResultEnum ApplyEffect(ref int DamageValue, CastInfos DamageInfos = null)

@@ -22,13 +22,13 @@ namespace Game.Fight.AI.Actions
             }
 
             var spell = GetSpell(context);
-            if (spell?.Effects == null || !spell.Effects.Any(e => e.TypeEnum == EffectEnum.Invocation || e.TypeEnum == EffectEnum.InvocDouble || e.TypeEnum == EffectEnum.InvocationStatic))
+            if (spell?.Effects == null || !spell.Effects.Any(e => e.TypeEnum == EffectEnum.INVOCACION_CRIATURA || e.TypeEnum == EffectEnum.INVOCACION_DOBLE || e.TypeEnum == EffectEnum.INVOCACION_ESTATICA))
             {
                 Logger.Warn($"[SummonAIAction] El hechizo {Decision?.SpellId} no tiene efecto de invocacion. Efectos: {(spell?.Effects == null ? "null" : string.Join(",", spell.Effects.Select(e => (int)e.TypeEnum)))}");
                 return false;
             }
 
-            var maxInvocations = context.Fighter.Statistics.GetTotal(EffectEnum.AddInvocationMax);
+            var maxInvocations = context.Fighter.Statistics.GetTotal(EffectEnum.STAT_MAS_INVOCACIONES_MAX);
             var currentInvocations = context.Allies?.Count(f => f.Invocator == context.Fighter && !f.StaticInvocation) ?? 0;
             if (currentInvocations >= maxInvocations)
             {

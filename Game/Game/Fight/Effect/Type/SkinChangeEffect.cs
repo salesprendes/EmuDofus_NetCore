@@ -36,7 +36,7 @@ namespace Game.Fight.Effect.Type
                 castInfos.Value3 = castInfos.Target.Skin;
                 castInfos.Target.Skin = newSkin;
 
-                castInfos.Target.Fight.Dispatch(WorldMessage.GAME_ACTION(EffectEnum.ChangeSkin, castInfos.Caster.Id, castInfos.Target.Id + "," + currentSkin + "," + newSkin + "," + (castInfos.Duration + 1)));
+                castInfos.Target.Fight.Dispatch(WorldMessage.GAME_ACTION(EffectEnum.APARIENCIA_CAMBIAR, castInfos.Caster.Id, castInfos.Target.Id + "," + currentSkin + "," + newSkin + "," + (castInfos.Duration + 1)));
             }
 
             return FightActionResultEnum.RESULT_NOTHING;

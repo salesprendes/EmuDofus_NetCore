@@ -152,17 +152,17 @@ namespace Game.Fight
             set;
         }
 
-        public int MaxAP => Statistics.GetTotal(EffectEnum.AddAP);
+        public int MaxAP => Statistics.GetTotal(EffectEnum.STAT_MAS_PA);
 
-        public int MaxMP => Statistics.GetTotal(EffectEnum.AddMP);
+        public int MaxMP => Statistics.GetTotal(EffectEnum.STAT_MAS_PM);
 
         public int AP => MaxAP - UsedAP;
 
         public int MP => MaxMP - UsedMP;
 
-        public int APDodge => (int)Math.Floor((double)Statistics.GetTotal(EffectEnum.AddWisdom) / 4) + Statistics.GetTotal(EffectEnum.AddAPDodge);
+        public int APDodge => (int)Math.Floor((double)Statistics.GetTotal(EffectEnum.STAT_MAS_SABIDURIA) / 4) + Statistics.GetTotal(EffectEnum.STAT_MAS_ESQUIVA_PA);
 
-        public int MPDodge => (int)Math.Floor((double)Statistics.GetTotal(EffectEnum.AddWisdom) / 4) + Statistics.GetTotal(EffectEnum.AddMPDodge);
+        public int MPDodge => (int)Math.Floor((double)Statistics.GetTotal(EffectEnum.STAT_MAS_SABIDURIA) / 4) + Statistics.GetTotal(EffectEnum.STAT_MAS_ESQUIVA_PM);
 
         public AbstractFighter Invocator
         {
@@ -176,7 +176,7 @@ namespace Game.Fight
             set;
         }
 
-        public virtual EffectEnum SummonEffectType => StaticInvocation ? EffectEnum.InvocationStatic : EffectEnum.Invocation;
+        public virtual EffectEnum SummonEffectType => StaticInvocation ? EffectEnum.INVOCACION_ESTATICA : EffectEnum.INVOCACION_CRIATURA;
 
         public BuffEffectManager BuffManager
         {
@@ -351,26 +351,26 @@ namespace Game.Fight
         {
             switch (effect)
             {
-                case EffectEnum.DamageEarth:
-                case EffectEnum.StealEarth:
-                case EffectEnum.DamageNeutral:
-                case EffectEnum.StealNeutral:
-                    jet = (int)Math.Floor((double)jet * (100 + Statistics.GetTotal(EffectEnum.AddStrength) + Statistics.GetTotal(EffectEnum.AddDamagePercent)) / 100 + Statistics.GetTotal(EffectEnum.AddDamagePhysic) + Statistics.GetTotal(EffectEnum.AddDamage));
+                case EffectEnum.DANO_TIERRA:
+                case EffectEnum.ROBO_VIDA_TIERRA:
+                case EffectEnum.DANO_NEUTRAL:
+                case EffectEnum.ROBO_VIDA_NEUTRAL:
+                    jet = (int)Math.Floor((double)jet * (100 + Statistics.GetTotal(EffectEnum.STAT_MAS_FUERZA) + Statistics.GetTotal(EffectEnum.STAT_MAS_DANO_PORCENTAJE)) / 100 + Statistics.GetTotal(EffectEnum.STAT_MAS_DANO_FISICO) + Statistics.GetTotal(EffectEnum.STAT_MAS_DANO) + Statistics.GetTotal(EffectEnum.STAT_MAS_DANO_BIS) - Statistics.GetTotal(EffectEnum.STAT_MENOS_DANO_FIJO) - Statistics.GetTotal(EffectEnum.DANO_SIN_BOOST));
                     break;
 
-                case EffectEnum.DamageFire:
-                case EffectEnum.StealFire:
-                    jet = (int)Math.Floor((double)jet * (100 + Statistics.GetTotal(EffectEnum.AddIntelligence) + Statistics.GetTotal(EffectEnum.AddDamagePercent)) / 100 + Statistics.GetTotal(EffectEnum.AddDamageMagic) + Statistics.GetTotal(EffectEnum.AddDamage));
+                case EffectEnum.DANO_FUEGO:
+                case EffectEnum.ROBO_VIDA_FUEGO:
+                    jet = (int)Math.Floor((double)jet * (100 + Statistics.GetTotal(EffectEnum.STAT_MAS_INTELIGENCIA) + Statistics.GetTotal(EffectEnum.STAT_MAS_DANO_PORCENTAJE)) / 100 + Statistics.GetTotal(EffectEnum.STAT_MAS_DANO_MAGICO) + Statistics.GetTotal(EffectEnum.STAT_MAS_DANO) + Statistics.GetTotal(EffectEnum.STAT_MAS_DANO_BIS) - Statistics.GetTotal(EffectEnum.STAT_MENOS_DANO_FIJO) - Statistics.GetTotal(EffectEnum.DANO_SIN_BOOST));
                     break;
 
-                case EffectEnum.DamageAir:
-                case EffectEnum.StealAir:
-                    jet = (int)Math.Floor((double)jet * (100 + Statistics.GetTotal(EffectEnum.AddAgility) + Statistics.GetTotal(EffectEnum.AddDamagePercent)) / 100 + Statistics.GetTotal(EffectEnum.AddDamageMagic) + Statistics.GetTotal(EffectEnum.AddDamage));
+                case EffectEnum.DANO_AIRE:
+                case EffectEnum.ROBO_VIDA_AIRE:
+                    jet = (int)Math.Floor((double)jet * (100 + Statistics.GetTotal(EffectEnum.STAT_MAS_AGILIDAD) + Statistics.GetTotal(EffectEnum.STAT_MAS_DANO_PORCENTAJE)) / 100 + Statistics.GetTotal(EffectEnum.STAT_MAS_DANO_MAGICO) + Statistics.GetTotal(EffectEnum.STAT_MAS_DANO) + Statistics.GetTotal(EffectEnum.STAT_MAS_DANO_BIS) - Statistics.GetTotal(EffectEnum.STAT_MENOS_DANO_FIJO) - Statistics.GetTotal(EffectEnum.DANO_SIN_BOOST));
                     break;
 
-                case EffectEnum.DamageWater:
-                case EffectEnum.StealWater:
-                    jet = (int)Math.Floor((double)jet * (100 + Statistics.GetTotal(EffectEnum.AddChance) + Statistics.GetTotal(EffectEnum.AddDamagePercent)) / 100 + Statistics.GetTotal(EffectEnum.AddDamageMagic) + Statistics.GetTotal(EffectEnum.AddDamage));
+                case EffectEnum.DANO_AGUA:
+                case EffectEnum.ROBO_VIDA_AGUA:
+                    jet = (int)Math.Floor((double)jet * (100 + Statistics.GetTotal(EffectEnum.STAT_MAS_SUERTE) + Statistics.GetTotal(EffectEnum.STAT_MAS_DANO_PORCENTAJE)) / 100 + Statistics.GetTotal(EffectEnum.STAT_MAS_DANO_MAGICO) + Statistics.GetTotal(EffectEnum.STAT_MAS_DANO) + Statistics.GetTotal(EffectEnum.STAT_MAS_DANO_BIS) - Statistics.GetTotal(EffectEnum.STAT_MENOS_DANO_FIJO) - Statistics.GetTotal(EffectEnum.DANO_SIN_BOOST));
                     break;
             }
         }
@@ -380,74 +380,74 @@ namespace Game.Fight
             var coef = damages;
             switch (effect)
             {
-                case EffectEnum.DamageNeutral:
-                case EffectEnum.StealNeutral:
-                    coef = damages * (100 - Statistics.GetTotal(EffectEnum.AddReduceDamagePercentNeutral) - Statistics.GetTotal(EffectEnum.AddReduceDamagePercentPvPNeutral)) / 100
-                                             - Statistics.GetTotal(EffectEnum.AddReduceDamageNeutral) - Statistics.GetTotal(EffectEnum.AddReduceDamagePvPNeutral);
-                    damages = (int)(coef - Statistics.GetTotal(EffectEnum.AddReduceDamagePhysic));
+                case EffectEnum.DANO_NEUTRAL:
+                case EffectEnum.ROBO_VIDA_NEUTRAL:
+                    coef = damages * (100 - Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_NEUTRAL) - Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_PVP_NEUTRAL)) / 100
+                                             - Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_NEUTRAL) - Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PVP_NEUTRAL);
+                    damages = (int)(coef - Statistics.GetTotal(EffectEnum.STAT_MAS_REDUCCION_DANO_FISICO));
                     break;
 
-                case EffectEnum.DamageEarth:
-                case EffectEnum.StealEarth:
-                    coef = damages * (100 - Statistics.GetTotal(EffectEnum.AddReduceDamagePercentEarth) - Statistics.GetTotal(EffectEnum.AddReduceDamagePercentPvPEarth)) / 100
-                                             - Statistics.GetTotal(EffectEnum.AddReduceDamageEarth) - Statistics.GetTotal(EffectEnum.AddReduceDamagePvPEarth);
-                    damages = (int)(coef - Statistics.GetTotal(EffectEnum.AddReduceDamagePhysic));
+                case EffectEnum.DANO_TIERRA:
+                case EffectEnum.ROBO_VIDA_TIERRA:
+                    coef = damages * (100 - Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_TIERRA) - Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_PVP_TIERRA)) / 100
+                                             - Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_TIERRA) - Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PVP_TIERRA);
+                    damages = (int)(coef - Statistics.GetTotal(EffectEnum.STAT_MAS_REDUCCION_DANO_FISICO));
                     break;
 
-                case EffectEnum.DamageFire:
-                case EffectEnum.StealFire:
-                    coef = damages * (100 - Statistics.GetTotal(EffectEnum.AddReduceDamagePercentFire) - Statistics.GetTotal(EffectEnum.AddReduceDamagePercentPvPFire)) / 100
-                                             - Statistics.GetTotal(EffectEnum.AddReduceDamageFire) - Statistics.GetTotal(EffectEnum.AddReduceDamagePvPFire);
-                    damages = (int)(coef - Statistics.GetTotal(EffectEnum.AddReduceDamageMagic));
+                case EffectEnum.DANO_FUEGO:
+                case EffectEnum.ROBO_VIDA_FUEGO:
+                    coef = damages * (100 - Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_FUEGO) - Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_PVP_FUEGO)) / 100
+                                             - Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_FUEGO) - Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PVP_FUEGO);
+                    damages = (int)(coef - Statistics.GetTotal(EffectEnum.STAT_MAS_REDUCCION_DANO_MAGICO));
                     break;
 
-                case EffectEnum.DamageAir:
-                case EffectEnum.StealAir:
-                    coef = damages * (100 - Statistics.GetTotal(EffectEnum.AddReduceDamagePercentAir) - Statistics.GetTotal(EffectEnum.AddReduceDamagePercentPvPAir)) / 100
-                                             - Statistics.GetTotal(EffectEnum.AddReduceDamageAir) - Statistics.GetTotal(EffectEnum.AddReduceDamagePvPAir);
-                    damages = (int)(coef - Statistics.GetTotal(EffectEnum.AddReduceDamageMagic));
+                case EffectEnum.DANO_AIRE:
+                case EffectEnum.ROBO_VIDA_AIRE:
+                    coef = damages * (100 - Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_AIRE) - Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_PVP_AIRE)) / 100
+                                             - Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_AIRE) - Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PVP_AIRE);
+                    damages = (int)(coef - Statistics.GetTotal(EffectEnum.STAT_MAS_REDUCCION_DANO_MAGICO));
                     break;
 
-                case EffectEnum.DamageWater:
-                case EffectEnum.StealWater:
-                    coef = damages * (100 - Statistics.GetTotal(EffectEnum.AddReduceDamagePercentWater) - Statistics.GetTotal(EffectEnum.AddReduceDamagePercentPvPWater)) / 100
-                                             - Statistics.GetTotal(EffectEnum.AddReduceDamageWater) - Statistics.GetTotal(EffectEnum.AddReduceDamagePvPWater);
-                    damages = (int)(coef - Statistics.GetTotal(EffectEnum.AddReduceDamageMagic));
+                case EffectEnum.DANO_AGUA:
+                case EffectEnum.ROBO_VIDA_AGUA:
+                    coef = damages * (100 - Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_AGUA) - Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_PVP_AGUA)) / 100
+                                             - Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_AGUA) - Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PVP_AGUA);
+                    damages = (int)(coef - Statistics.GetTotal(EffectEnum.STAT_MAS_REDUCCION_DANO_MAGICO));
                     break;
             }
         }
 
         public void CalculHeal(ref int heal)
         {
-            heal = (int)Math.Floor((double)heal * (100 + Statistics.GetTotal(EffectEnum.AddIntelligence)) / 100 + Statistics.GetTotal(EffectEnum.AddHealCare));
+            heal = (int)Math.Floor((double)heal * (100 + Statistics.GetTotal(EffectEnum.STAT_MAS_INTELIGENCIA)) / 100 + Statistics.GetTotal(EffectEnum.STAT_MAS_CURAS));
         }
 
         public void CalculCriticalHitRate(ref int cHitRate)
         {
-            cHitRate = (int)(cHitRate * Math.E * 1.1 / Math.Log(Statistics.GetTotal(EffectEnum.AddAgility) + 12));
+            cHitRate = (int)(cHitRate * Math.E * 1.1 / Math.Log(Statistics.GetTotal(EffectEnum.STAT_MAS_AGILIDAD) + 12));
         }
 
         public int CalculArmor(EffectEnum damageEffect)
         {
             switch (damageEffect)
             {
-                case EffectEnum.DamageEarth:
-                case EffectEnum.StealEarth:
-                case EffectEnum.DamageNeutral:
-                case EffectEnum.StealNeutral:
-                    return (Statistics.GetTotal(EffectEnum.AddArmorEarth) * Math.Max(1 + Statistics.GetTotal(EffectEnum.AddStrength) / 100, 1 + Statistics.GetTotal(EffectEnum.AddStrength) / 200 + Statistics.GetTotal(EffectEnum.AddIntelligence) / 200)) + (Statistics.GetTotal(EffectEnum.AddArmor) * Math.Max(1 + Statistics.GetTotal(EffectEnum.AddStrength) / 100, 1 + Statistics.GetTotal(EffectEnum.AddStrength) / 200 + Statistics.GetTotal(EffectEnum.AddIntelligence) / 200));
+                case EffectEnum.DANO_TIERRA:
+                case EffectEnum.ROBO_VIDA_TIERRA:
+                case EffectEnum.DANO_NEUTRAL:
+                case EffectEnum.ROBO_VIDA_NEUTRAL:
+                    return (Statistics.GetTotal(EffectEnum.STAT_MAS_ARMADURA_TIERRA) * Math.Max(1 + Statistics.GetTotal(EffectEnum.STAT_MAS_FUERZA) / 100, 1 + Statistics.GetTotal(EffectEnum.STAT_MAS_FUERZA) / 200 + Statistics.GetTotal(EffectEnum.STAT_MAS_INTELIGENCIA) / 200)) + (Statistics.GetTotal(EffectEnum.STAT_MAS_ARMADURA) * Math.Max(1 + Statistics.GetTotal(EffectEnum.STAT_MAS_FUERZA) / 100, 1 + Statistics.GetTotal(EffectEnum.STAT_MAS_FUERZA) / 200 + Statistics.GetTotal(EffectEnum.STAT_MAS_INTELIGENCIA) / 200));
 
-                case EffectEnum.DamageFire:
-                case EffectEnum.StealFire:
-                    return (Statistics.GetTotal(EffectEnum.AddArmorFire) * Math.Max(1 + Statistics.GetTotal(EffectEnum.AddIntelligence) / 100, 1 + Statistics.GetTotal(EffectEnum.AddIntelligence) / 200 + Statistics.GetTotal(EffectEnum.AddIntelligence) / 200)) + (Statistics.GetTotal(EffectEnum.AddArmor) * Math.Max(1 + Statistics.GetTotal(EffectEnum.AddIntelligence) / 100, 1 + Statistics.GetTotal(EffectEnum.AddIntelligence) / 200 + Statistics.GetTotal(EffectEnum.AddIntelligence) / 200));
+                case EffectEnum.DANO_FUEGO:
+                case EffectEnum.ROBO_VIDA_FUEGO:
+                    return (Statistics.GetTotal(EffectEnum.STAT_MAS_ARMADURA_FUEGO) * Math.Max(1 + Statistics.GetTotal(EffectEnum.STAT_MAS_INTELIGENCIA) / 100, 1 + Statistics.GetTotal(EffectEnum.STAT_MAS_INTELIGENCIA) / 200 + Statistics.GetTotal(EffectEnum.STAT_MAS_INTELIGENCIA) / 200)) + (Statistics.GetTotal(EffectEnum.STAT_MAS_ARMADURA) * Math.Max(1 + Statistics.GetTotal(EffectEnum.STAT_MAS_INTELIGENCIA) / 100, 1 + Statistics.GetTotal(EffectEnum.STAT_MAS_INTELIGENCIA) / 200 + Statistics.GetTotal(EffectEnum.STAT_MAS_INTELIGENCIA) / 200));
 
-                case EffectEnum.DamageAir:
-                case EffectEnum.StealAir:
-                    return (Statistics.GetTotal(EffectEnum.AddArmorAir) * Math.Max(1 + Statistics.GetTotal(EffectEnum.AddAgility) / 100, 1 + Statistics.GetTotal(EffectEnum.AddAgility) / 200 + Statistics.GetTotal(EffectEnum.AddIntelligence) / 200)) + (Statistics.GetTotal(EffectEnum.AddArmor) * Math.Max(1 + Statistics.GetTotal(EffectEnum.AddAgility) / 100, 1 + Statistics.GetTotal(EffectEnum.AddAgility) / 200 + Statistics.GetTotal(EffectEnum.AddIntelligence) / 200));
+                case EffectEnum.DANO_AIRE:
+                case EffectEnum.ROBO_VIDA_AIRE:
+                    return (Statistics.GetTotal(EffectEnum.STAT_MAS_ARMADURA_AIRE) * Math.Max(1 + Statistics.GetTotal(EffectEnum.STAT_MAS_AGILIDAD) / 100, 1 + Statistics.GetTotal(EffectEnum.STAT_MAS_AGILIDAD) / 200 + Statistics.GetTotal(EffectEnum.STAT_MAS_INTELIGENCIA) / 200)) + (Statistics.GetTotal(EffectEnum.STAT_MAS_ARMADURA) * Math.Max(1 + Statistics.GetTotal(EffectEnum.STAT_MAS_AGILIDAD) / 100, 1 + Statistics.GetTotal(EffectEnum.STAT_MAS_AGILIDAD) / 200 + Statistics.GetTotal(EffectEnum.STAT_MAS_INTELIGENCIA) / 200));
 
-                case EffectEnum.DamageWater:
-                case EffectEnum.StealWater:
-                    return (Statistics.GetTotal(EffectEnum.AddArmorWater) * Math.Max(1 + Statistics.GetTotal(EffectEnum.AddChance) / 100, 1 + Statistics.GetTotal(EffectEnum.AddChance) / 200 + Statistics.GetTotal(EffectEnum.AddIntelligence) / 200)) + (Statistics.GetTotal(EffectEnum.AddArmor) * Math.Max(1 + Statistics.GetTotal(EffectEnum.AddChance) / 100, 1 + Statistics.GetTotal(EffectEnum.AddChance) / 200 + Statistics.GetTotal(EffectEnum.AddIntelligence) / 200));
+                case EffectEnum.DANO_AGUA:
+                case EffectEnum.ROBO_VIDA_AGUA:
+                    return (Statistics.GetTotal(EffectEnum.STAT_MAS_ARMADURA_AGUA) * Math.Max(1 + Statistics.GetTotal(EffectEnum.STAT_MAS_SUERTE) / 100, 1 + Statistics.GetTotal(EffectEnum.STAT_MAS_SUERTE) / 200 + Statistics.GetTotal(EffectEnum.STAT_MAS_INTELIGENCIA) / 200)) + (Statistics.GetTotal(EffectEnum.STAT_MAS_ARMADURA) * Math.Max(1 + Statistics.GetTotal(EffectEnum.STAT_MAS_SUERTE) / 100, 1 + Statistics.GetTotal(EffectEnum.STAT_MAS_SUERTE) / 200 + Statistics.GetTotal(EffectEnum.STAT_MAS_INTELIGENCIA) / 200));
             }
 
             return 0;

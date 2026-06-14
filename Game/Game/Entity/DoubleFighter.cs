@@ -59,7 +59,7 @@ namespace Game.Entity
 
         public override int AlignmentId => m_source.AlignmentId;
 
-        public override EffectEnum SummonEffectType => EffectEnum.InvocDouble;
+        public override EffectEnum SummonEffectType => EffectEnum.INVOCACION_DOBLE;
 
         public DoubleFighter(long id, CharacterEntity source) : base(EntityTypeEnum.TYPE_MONSTER_FIGHTER, id)
         {
@@ -131,23 +131,23 @@ namespace Game.Entity
                     {
                         case FightTypeEnum.TYPE_CHALLENGE:
                         case FightTypeEnum.TYPE_AGGRESSION:
-                            message.Append(Statistics.GetTotal(EffectEnum.AddReduceDamagePercentNeutral) + Statistics.GetTotal(EffectEnum.AddReduceDamagePercentPvPNeutral)).Append(';');
-                            message.Append(Statistics.GetTotal(EffectEnum.AddReduceDamagePercentEarth) + Statistics.GetTotal(EffectEnum.AddReduceDamagePercentPvPEarth)).Append(';');
-                            message.Append(Statistics.GetTotal(EffectEnum.AddReduceDamagePercentFire) + Statistics.GetTotal(EffectEnum.AddReduceDamagePercentPvPFire)).Append(';');
-                            message.Append(Statistics.GetTotal(EffectEnum.AddReduceDamagePercentWater) + Statistics.GetTotal(EffectEnum.AddReduceDamagePercentPvPWater)).Append(';');
-                            message.Append(Statistics.GetTotal(EffectEnum.AddReduceDamagePercentAir) + Statistics.GetTotal(EffectEnum.AddReduceDamagePercentPvPAir)).Append(';');
+                            message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_NEUTRAL) + Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_PVP_NEUTRAL)).Append(';');
+                            message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_TIERRA) + Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_PVP_TIERRA)).Append(';');
+                            message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_FUEGO) + Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_PVP_FUEGO)).Append(';');
+                            message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_AGUA) + Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_PVP_AGUA)).Append(';');
+                            message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_AIRE) + Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_PVP_AIRE)).Append(';');
                             break;
 
                         default:
-                            message.Append(Statistics.GetTotal(EffectEnum.AddReduceDamagePercentNeutral)).Append(';');
-                            message.Append(Statistics.GetTotal(EffectEnum.AddReduceDamagePercentEarth)).Append(';');
-                            message.Append(Statistics.GetTotal(EffectEnum.AddReduceDamagePercentFire)).Append(';');
-                            message.Append(Statistics.GetTotal(EffectEnum.AddReduceDamagePercentWater)).Append(';');
-                            message.Append(Statistics.GetTotal(EffectEnum.AddReduceDamagePercentAir)).Append(';');
+                            message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_NEUTRAL)).Append(';');
+                            message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_TIERRA)).Append(';');
+                            message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_FUEGO)).Append(';');
+                            message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_AGUA)).Append(';');
+                            message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_AIRE)).Append(';');
                             break;
                     }
-                    message.Append(Statistics.GetTotal(EffectEnum.AddAPDodge)).Append(';');
-                    message.Append(Statistics.GetTotal(EffectEnum.AddMPDodge)).Append(';');
+                    message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_ESQUIVA_PA)).Append(';');
+                    message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_ESQUIVA_PM)).Append(';');
                     message.Append(Team.Id).Append(';');
                     message.Append("");
                     break;

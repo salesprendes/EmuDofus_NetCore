@@ -22,45 +22,45 @@ namespace Game.Stats
     {
         private static readonly Dictionary<EffectEnum, List<EffectEnum>> OppositeStats = new Dictionary<EffectEnum, List<EffectEnum>>()
         {
-            {EffectEnum.AddInitiative, new List<EffectEnum>() { EffectEnum.SubInitiative }},
-            {EffectEnum.AddAP, new List<EffectEnum>() { EffectEnum.SubAP,  EffectEnum.SubAPDodgeable }},
-            {EffectEnum.AddMP, new List<EffectEnum>() { EffectEnum.SubMP, EffectEnum.SubMPDodgeable }},
-            {EffectEnum.AddPO, new List<EffectEnum>() { EffectEnum.SubPO }},
-            {EffectEnum.AddHealCare, new List<EffectEnum>() { EffectEnum.SubHealCare }},
-            {EffectEnum.AddProspection, new List<EffectEnum>() { EffectEnum.SubProspection }},
-            {EffectEnum.AddPods, new List<EffectEnum>() { EffectEnum.SubPods }},
-            {EffectEnum.AddVitality, new List<EffectEnum>() { EffectEnum.SubVitality }},
-            {EffectEnum.AddWisdom, new List<EffectEnum>() { EffectEnum.SubWisdom }},
-            {EffectEnum.AddStrength, new List<EffectEnum>() { EffectEnum.SubStrength }},
-            {EffectEnum.AddIntelligence, new List<EffectEnum>() { EffectEnum.SubIntelligence }},
-            {EffectEnum.AddAgility, new List<EffectEnum>() { EffectEnum.SubAgility }},
-            {EffectEnum.AddChance, new List<EffectEnum>() { EffectEnum.SubChance }},
+            {EffectEnum.STAT_MAS_INICIATIVA, new List<EffectEnum>() { EffectEnum.STAT_MENOS_INICIATIVA }},
+            {EffectEnum.STAT_MAS_PA, new List<EffectEnum>() { EffectEnum.STAT_MENOS_PA,  EffectEnum.STAT_MENOS_PA_ESQUIVABLE }},
+            {EffectEnum.STAT_MAS_PM, new List<EffectEnum>() { EffectEnum.STAT_MENOS_PM, EffectEnum.STAT_MENOS_PM_ESQUIVABLE }},
+            {EffectEnum.STAT_MAS_ALCANCE, new List<EffectEnum>() { EffectEnum.STAT_MENOS_ALCANCE }},
+            {EffectEnum.STAT_MAS_CURAS, new List<EffectEnum>() { EffectEnum.STAT_MENOS_CURAS }},
+            {EffectEnum.STAT_MAS_PROSPECCION, new List<EffectEnum>() { EffectEnum.STAT_MENOS_PROSPECCION }},
+            {EffectEnum.STAT_MAS_PODS, new List<EffectEnum>() { EffectEnum.STAT_MENOS_PODS }},
+            {EffectEnum.STAT_MAS_VITALIDAD, new List<EffectEnum>() { EffectEnum.STAT_MENOS_VITALIDAD }},
+            {EffectEnum.STAT_MAS_SABIDURIA, new List<EffectEnum>() { EffectEnum.STAT_MENOS_SABIDURIA }},
+            {EffectEnum.STAT_MAS_FUERZA, new List<EffectEnum>() { EffectEnum.STAT_MENOS_FUERZA }},
+            {EffectEnum.STAT_MAS_INTELIGENCIA, new List<EffectEnum>() { EffectEnum.STAT_MENOS_INTELIGENCIA }},
+            {EffectEnum.STAT_MAS_AGILIDAD, new List<EffectEnum>() { EffectEnum.STAT_MENOS_AGILIDAD }},
+            {EffectEnum.STAT_MAS_SUERTE, new List<EffectEnum>() { EffectEnum.STAT_MENOS_SUERTE }},
 
-            {EffectEnum.AddDamage, new List<EffectEnum>() { EffectEnum.SubDamage }},
-            {EffectEnum.AddDamagePercent, new List<EffectEnum>() { EffectEnum.SubDamagePercent }},
-            {EffectEnum.AddDamageCritic, new List<EffectEnum>() { EffectEnum.SubDamageCritic }},
-            {EffectEnum.AddDamageMagic, new List<EffectEnum>() { EffectEnum.SubDamageMagic }},
-            {EffectEnum.AddDamagePhysic, new List<EffectEnum>() { EffectEnum.SubDamagePhysic }},
-            {EffectEnum.AddAPDodge, new List<EffectEnum>() { EffectEnum.SubAPDodgeable }},
-            {EffectEnum.AddMPDodge, new List<EffectEnum>() { EffectEnum.SubMPDodgeable }},
+            {EffectEnum.STAT_MAS_DANO, new List<EffectEnum>() { EffectEnum.STAT_MENOS_DANO }},
+            {EffectEnum.STAT_MAS_DANO_PORCENTAJE, new List<EffectEnum>() { EffectEnum.STAT_MENOS_DANO_PORCENTAJE }},
+            {EffectEnum.STAT_MAS_DANO_CRITICO, new List<EffectEnum>() { EffectEnum.STAT_MENOS_DANO_CRITICO }},
+            {EffectEnum.STAT_MAS_DANO_MAGICO, new List<EffectEnum>() { EffectEnum.STAT_MENOS_DANO_MAGICO }},
+            {EffectEnum.STAT_MAS_DANO_FISICO, new List<EffectEnum>() { EffectEnum.STAT_MENOS_DANO_FISICO }},
+            {EffectEnum.STAT_MAS_ESQUIVA_PA, new List<EffectEnum>() { EffectEnum.STAT_MENOS_PA_ESQUIVABLE }},
+            {EffectEnum.STAT_MAS_ESQUIVA_PM, new List<EffectEnum>() { EffectEnum.STAT_MENOS_PM_ESQUIVABLE }},
 
-            {EffectEnum.AddReduceDamageAir, new List<EffectEnum>() { EffectEnum.SubReduceDamageAir }},
-            {EffectEnum.AddReduceDamageWater, new List<EffectEnum>() { EffectEnum.SubReduceDamageWater }},
-            {EffectEnum.AddReduceDamageFire, new List<EffectEnum>() { EffectEnum.SubReduceDamageFire }},
-            {EffectEnum.AddReduceDamageNeutral, new List<EffectEnum>() { EffectEnum.SubReduceDamageNeutral }},
-            {EffectEnum.AddReduceDamageEarth, new List<EffectEnum>() { EffectEnum.SubReduceDamageEarth }},
+            {EffectEnum.STAT_MAS_RESISTENCIA_AIRE, new List<EffectEnum>() { EffectEnum.STAT_MENOS_RESISTENCIA_AIRE }},
+            {EffectEnum.STAT_MAS_RESISTENCIA_AGUA, new List<EffectEnum>() { EffectEnum.STAT_MENOS_RESISTENCIA_AGUA }},
+            {EffectEnum.STAT_MAS_RESISTENCIA_FUEGO, new List<EffectEnum>() { EffectEnum.STAT_MENOS_RESISTENCIA_FUEGO }},
+            {EffectEnum.STAT_MAS_RESISTENCIA_NEUTRAL, new List<EffectEnum>() { EffectEnum.STAT_MENOS_RESISTENCIA_NEUTRAL }},
+            {EffectEnum.STAT_MAS_RESISTENCIA_TIERRA, new List<EffectEnum>() { EffectEnum.STAT_MENOS_RESISTENCIA_TIERRA }},
 
-            {EffectEnum.AddReduceDamagePercentAir, new List<EffectEnum>() { EffectEnum.SubReduceDamagePercentAir }},
-            {EffectEnum.AddReduceDamagePercentWater, new List<EffectEnum>() { EffectEnum.SubReduceDamagePercentWater }},
-            {EffectEnum.AddReduceDamagePercentFire, new List<EffectEnum>() { EffectEnum.SubReduceDamagePercentFire }},
-            {EffectEnum.AddReduceDamagePercentNeutral, new List<EffectEnum>() { EffectEnum.SubReduceDamagePercentNeutral }},
-            {EffectEnum.AddReduceDamagePercentEarth, new List<EffectEnum>() { EffectEnum.SubReduceDamagePercentEarth }},
+            {EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_AIRE, new List<EffectEnum>() { EffectEnum.STAT_MENOS_RESISTENCIA_PORCENTAJE_AIRE }},
+            {EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_AGUA, new List<EffectEnum>() { EffectEnum.STAT_MENOS_RESISTENCIA_PORCENTAJE_AGUA }},
+            {EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_FUEGO, new List<EffectEnum>() { EffectEnum.STAT_MENOS_RESISTENCIA_PORCENTAJE_FUEGO }},
+            {EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_NEUTRAL, new List<EffectEnum>() { EffectEnum.STAT_MENOS_RESISTENCIA_PORCENTAJE_NEUTRAL }},
+            {EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_TIERRA, new List<EffectEnum>() { EffectEnum.STAT_MENOS_RESISTENCIA_PORCENTAJE_TIERRA }},
 
-            {EffectEnum.AddReduceDamagePercentPvPAir, new List<EffectEnum>() { EffectEnum.SubReduceDamagePercentPvPAir }},
-            {EffectEnum.AddReduceDamagePercentPvPWater, new List<EffectEnum>() { EffectEnum.SubReduceDamagePercentPvPWater }},
-            {EffectEnum.AddReduceDamagePercentPvPFire, new List<EffectEnum>() { EffectEnum.SubReduceDamagePercentPvPFire }},
-            {EffectEnum.AddReduceDamagePercentPvPNeutral, new List<EffectEnum>() { EffectEnum.SubReduceDamagePercentPvpNeutral }},
-            {EffectEnum.AddReduceDamagePercentPvPEarth, new List<EffectEnum>() { EffectEnum.SubReduceDamagePercentPvPEarth }},
+            {EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_PVP_AIRE, new List<EffectEnum>() { EffectEnum.STAT_MENOS_RESISTENCIA_PORCENTAJE_PVP_AIRE }},
+            {EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_PVP_AGUA, new List<EffectEnum>() { EffectEnum.STAT_MENOS_RESISTENCIA_PORCENTAJE_PVP_AGUA }},
+            {EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_PVP_FUEGO, new List<EffectEnum>() { EffectEnum.STAT_MENOS_RESISTENCIA_PORCENTAJE_PVP_FUEGO }},
+            {EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_PVP_NEUTRAL, new List<EffectEnum>() { EffectEnum.STAT_MENOS_RESISTENCIA_PORCENTAJE_PVP_NEUTRAL }},
+            {EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_PVP_TIERRA, new List<EffectEnum>() { EffectEnum.STAT_MENOS_RESISTENCIA_PORCENTAJE_PVP_TIERRA }},
         };
 
 
@@ -605,61 +605,61 @@ namespace Game.Stats
 
         public GenericStats(MonsterGradeDAO monster)
         {
-            m_effects.Add(EffectEnum.AddAP, new GenericEffect(EffectEnum.AddAP, monster.AP));
-            m_effects.Add(EffectEnum.AddMP, new GenericEffect(EffectEnum.AddMP, monster.MP));
-            m_effects.Add(EffectEnum.AddInvocationMax, new GenericEffect(EffectEnum.AddInvocationMax, monster.MaxInvocation));
-            m_effects.Add(EffectEnum.AddInitiative, new GenericEffect(EffectEnum.AddInitiative, monster.Initiative));
-            m_effects.Add(EffectEnum.AddWisdom, new GenericEffect(EffectEnum.AddWisdom, monster.Wisdom));
-            m_effects.Add(EffectEnum.AddStrength, new GenericEffect(EffectEnum.AddStrength, monster.Strenght));
-            m_effects.Add(EffectEnum.AddIntelligence, new GenericEffect(EffectEnum.AddIntelligence, monster.Intelligence));
-            m_effects.Add(EffectEnum.AddAgility, new GenericEffect(EffectEnum.AddAgility, monster.Agility));
-            m_effects.Add(EffectEnum.AddChance, new GenericEffect(EffectEnum.AddChance, monster.Chance));
+            m_effects.Add(EffectEnum.STAT_MAS_PA, new GenericEffect(EffectEnum.STAT_MAS_PA, monster.AP));
+            m_effects.Add(EffectEnum.STAT_MAS_PM, new GenericEffect(EffectEnum.STAT_MAS_PM, monster.MP));
+            m_effects.Add(EffectEnum.STAT_MAS_INVOCACIONES_MAX, new GenericEffect(EffectEnum.STAT_MAS_INVOCACIONES_MAX, monster.MaxInvocation));
+            m_effects.Add(EffectEnum.STAT_MAS_INICIATIVA, new GenericEffect(EffectEnum.STAT_MAS_INICIATIVA, monster.Initiative));
+            m_effects.Add(EffectEnum.STAT_MAS_SABIDURIA, new GenericEffect(EffectEnum.STAT_MAS_SABIDURIA, monster.Wisdom));
+            m_effects.Add(EffectEnum.STAT_MAS_FUERZA, new GenericEffect(EffectEnum.STAT_MAS_FUERZA, monster.Strenght));
+            m_effects.Add(EffectEnum.STAT_MAS_INTELIGENCIA, new GenericEffect(EffectEnum.STAT_MAS_INTELIGENCIA, monster.Intelligence));
+            m_effects.Add(EffectEnum.STAT_MAS_AGILIDAD, new GenericEffect(EffectEnum.STAT_MAS_AGILIDAD, monster.Agility));
+            m_effects.Add(EffectEnum.STAT_MAS_SUERTE, new GenericEffect(EffectEnum.STAT_MAS_SUERTE, monster.Chance));
 
-            m_effects.Add(EffectEnum.AddReduceDamagePercentNeutral, new GenericEffect(EffectEnum.AddReduceDamagePercentNeutral, monster.NeutralResistance));
-            m_effects.Add(EffectEnum.AddReduceDamagePercentEarth, new GenericEffect(EffectEnum.AddReduceDamagePercentEarth, monster.EarthResistance));
-            m_effects.Add(EffectEnum.AddReduceDamagePercentFire, new GenericEffect(EffectEnum.AddReduceDamagePercentFire, monster.FireResistance));
-            m_effects.Add(EffectEnum.AddReduceDamagePercentWater, new GenericEffect(EffectEnum.AddReduceDamagePercentWater, monster.WaterResistance));
-            m_effects.Add(EffectEnum.AddReduceDamagePercentAir, new GenericEffect(EffectEnum.AddReduceDamagePercentAir, monster.AirResistance));
+            m_effects.Add(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_NEUTRAL, new GenericEffect(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_NEUTRAL, monster.NeutralResistance));
+            m_effects.Add(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_TIERRA, new GenericEffect(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_TIERRA, monster.EarthResistance));
+            m_effects.Add(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_FUEGO, new GenericEffect(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_FUEGO, monster.FireResistance));
+            m_effects.Add(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_AGUA, new GenericEffect(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_AGUA, monster.WaterResistance));
+            m_effects.Add(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_AIRE, new GenericEffect(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_AIRE, monster.AirResistance));
 
-            m_effects.Add(EffectEnum.AddAPDodge, new GenericEffect(EffectEnum.AddAPDodge, monster.APDodgePercent));
-            m_effects.Add(EffectEnum.AddMPDodge, new GenericEffect(EffectEnum.AddMPDodge, monster.MPDodgePercent));
+            m_effects.Add(EffectEnum.STAT_MAS_ESQUIVA_PA, new GenericEffect(EffectEnum.STAT_MAS_ESQUIVA_PA, monster.APDodgePercent));
+            m_effects.Add(EffectEnum.STAT_MAS_ESQUIVA_PM, new GenericEffect(EffectEnum.STAT_MAS_ESQUIVA_PM, monster.MPDodgePercent));
         }
 
         public GenericStats(GuildDAO guild)
         {
-            m_effects.Add(EffectEnum.AddAP, new GenericEffect(EffectEnum.AddAP, 6));
-            m_effects.Add(EffectEnum.AddMP, new GenericEffect(EffectEnum.AddMP, 5));
-            m_effects.Add(EffectEnum.AddProspection, new GenericEffect(EffectEnum.AddProspection, 100));
-            m_effects.Add(EffectEnum.AddPods, new GenericEffect(EffectEnum.AddPods, 1000));
-            m_effects.Add(EffectEnum.AddInitiative, new GenericEffect(EffectEnum.AddInitiative, 100));
-            m_effects.Add(EffectEnum.AddVitality, new GenericEffect(EffectEnum.AddVitality, 100 * guild.Level));
-            m_effects.Add(EffectEnum.AddWisdom, new GenericEffect(EffectEnum.AddWisdom, guild.Level * 4));
-            m_effects.Add(EffectEnum.AddStrength, new GenericEffect(EffectEnum.AddStrength, guild.Level));
-            m_effects.Add(EffectEnum.AddIntelligence, new GenericEffect(EffectEnum.AddIntelligence, guild.Level));
-            m_effects.Add(EffectEnum.AddAgility, new GenericEffect(EffectEnum.AddAgility, guild.Level));
-            m_effects.Add(EffectEnum.AddChance, new GenericEffect(EffectEnum.AddChance, guild.Level));
-            m_effects.Add(EffectEnum.AddDamage, new GenericEffect(EffectEnum.AddDamage, guild.Level));
-            m_effects.Add(EffectEnum.AddReduceDamagePercentAir, new GenericEffect(EffectEnum.AddReduceDamagePercentAir, guild.Level / 2));
-            m_effects.Add(EffectEnum.AddReduceDamagePercentWater, new GenericEffect(EffectEnum.AddReduceDamagePercentWater, guild.Level / 2));
-            m_effects.Add(EffectEnum.AddReduceDamagePercentFire, new GenericEffect(EffectEnum.AddReduceDamagePercentFire, guild.Level / 2));
-            m_effects.Add(EffectEnum.AddReduceDamagePercentEarth, new GenericEffect(EffectEnum.AddReduceDamagePercentEarth, guild.Level / 2));
-            m_effects.Add(EffectEnum.AddReduceDamagePercentNeutral, new GenericEffect(EffectEnum.AddReduceDamagePercentNeutral, guild.Level / 2));
+            m_effects.Add(EffectEnum.STAT_MAS_PA, new GenericEffect(EffectEnum.STAT_MAS_PA, 6));
+            m_effects.Add(EffectEnum.STAT_MAS_PM, new GenericEffect(EffectEnum.STAT_MAS_PM, 5));
+            m_effects.Add(EffectEnum.STAT_MAS_PROSPECCION, new GenericEffect(EffectEnum.STAT_MAS_PROSPECCION, 100));
+            m_effects.Add(EffectEnum.STAT_MAS_PODS, new GenericEffect(EffectEnum.STAT_MAS_PODS, 1000));
+            m_effects.Add(EffectEnum.STAT_MAS_INICIATIVA, new GenericEffect(EffectEnum.STAT_MAS_INICIATIVA, 100));
+            m_effects.Add(EffectEnum.STAT_MAS_VITALIDAD, new GenericEffect(EffectEnum.STAT_MAS_VITALIDAD, 100 * guild.Level));
+            m_effects.Add(EffectEnum.STAT_MAS_SABIDURIA, new GenericEffect(EffectEnum.STAT_MAS_SABIDURIA, guild.Level * 4));
+            m_effects.Add(EffectEnum.STAT_MAS_FUERZA, new GenericEffect(EffectEnum.STAT_MAS_FUERZA, guild.Level));
+            m_effects.Add(EffectEnum.STAT_MAS_INTELIGENCIA, new GenericEffect(EffectEnum.STAT_MAS_INTELIGENCIA, guild.Level));
+            m_effects.Add(EffectEnum.STAT_MAS_AGILIDAD, new GenericEffect(EffectEnum.STAT_MAS_AGILIDAD, guild.Level));
+            m_effects.Add(EffectEnum.STAT_MAS_SUERTE, new GenericEffect(EffectEnum.STAT_MAS_SUERTE, guild.Level));
+            m_effects.Add(EffectEnum.STAT_MAS_DANO, new GenericEffect(EffectEnum.STAT_MAS_DANO, guild.Level));
+            m_effects.Add(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_AIRE, new GenericEffect(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_AIRE, guild.Level / 2));
+            m_effects.Add(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_AGUA, new GenericEffect(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_AGUA, guild.Level / 2));
+            m_effects.Add(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_FUEGO, new GenericEffect(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_FUEGO, guild.Level / 2));
+            m_effects.Add(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_TIERRA, new GenericEffect(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_TIERRA, guild.Level / 2));
+            m_effects.Add(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_NEUTRAL, new GenericEffect(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_NEUTRAL, guild.Level / 2));
         }
 
         public GenericStats(CharacterDAO character)
         {
-            m_effects.Add(EffectEnum.AddAP, new GenericEffect(EffectEnum.AddAP, character.Level >= 100 ? 7 : 6));
-            m_effects.Add(EffectEnum.AddMP, new GenericEffect(EffectEnum.AddMP, 3));
-            m_effects.Add(EffectEnum.AddProspection, new GenericEffect(EffectEnum.AddProspection, ((CharacterBreedEnum)character.Breed == CharacterBreedEnum.BREED_ENUTROF ? 120 : 100)));
-            m_effects.Add(EffectEnum.AddPods, new GenericEffect(EffectEnum.AddPods, 1000));
-            m_effects.Add(EffectEnum.AddInvocationMax, new GenericEffect(EffectEnum.AddInvocationMax, 1));
-            m_effects.Add(EffectEnum.AddInitiative, new GenericEffect(EffectEnum.AddInitiative, 100));
-            m_effects.Add(EffectEnum.AddVitality, new GenericEffect(EffectEnum.AddVitality, character.Vitality));
-            m_effects.Add(EffectEnum.AddWisdom, new GenericEffect(EffectEnum.AddWisdom, character.Wisdom));
-            m_effects.Add(EffectEnum.AddStrength, new GenericEffect(EffectEnum.AddStrength, character.Strength));
-            m_effects.Add(EffectEnum.AddIntelligence, new GenericEffect(EffectEnum.AddIntelligence, character.Intelligence));
-            m_effects.Add(EffectEnum.AddAgility, new GenericEffect(EffectEnum.AddAgility, character.Agility));
-            m_effects.Add(EffectEnum.AddChance, new GenericEffect(EffectEnum.AddChance, character.Chance));
+            m_effects.Add(EffectEnum.STAT_MAS_PA, new GenericEffect(EffectEnum.STAT_MAS_PA, character.Level >= 100 ? 7 : 6));
+            m_effects.Add(EffectEnum.STAT_MAS_PM, new GenericEffect(EffectEnum.STAT_MAS_PM, 3));
+            m_effects.Add(EffectEnum.STAT_MAS_PROSPECCION, new GenericEffect(EffectEnum.STAT_MAS_PROSPECCION, ((CharacterBreedEnum)character.Breed == CharacterBreedEnum.BREED_ENUTROF ? 120 : 100)));
+            m_effects.Add(EffectEnum.STAT_MAS_PODS, new GenericEffect(EffectEnum.STAT_MAS_PODS, 1000));
+            m_effects.Add(EffectEnum.STAT_MAS_INVOCACIONES_MAX, new GenericEffect(EffectEnum.STAT_MAS_INVOCACIONES_MAX, 1));
+            m_effects.Add(EffectEnum.STAT_MAS_INICIATIVA, new GenericEffect(EffectEnum.STAT_MAS_INICIATIVA, 100));
+            m_effects.Add(EffectEnum.STAT_MAS_VITALIDAD, new GenericEffect(EffectEnum.STAT_MAS_VITALIDAD, character.Vitality));
+            m_effects.Add(EffectEnum.STAT_MAS_SABIDURIA, new GenericEffect(EffectEnum.STAT_MAS_SABIDURIA, character.Wisdom));
+            m_effects.Add(EffectEnum.STAT_MAS_FUERZA, new GenericEffect(EffectEnum.STAT_MAS_FUERZA, character.Strength));
+            m_effects.Add(EffectEnum.STAT_MAS_INTELIGENCIA, new GenericEffect(EffectEnum.STAT_MAS_INTELIGENCIA, character.Intelligence));
+            m_effects.Add(EffectEnum.STAT_MAS_AGILIDAD, new GenericEffect(EffectEnum.STAT_MAS_AGILIDAD, character.Agility));
+            m_effects.Add(EffectEnum.STAT_MAS_SUERTE, new GenericEffect(EffectEnum.STAT_MAS_SUERTE, character.Chance));
         }
 
         public GenericEffect GetTotalEffect(EffectEnum effectType)
@@ -673,18 +673,18 @@ namespace Game.Stats
 
             switch (effectType)
             {
-                case EffectEnum.AddAPDodge:
-                case EffectEnum.AddMPDodge:
-                    totalBase += GetTotal(EffectEnum.AddWisdom) / 4;
+                case EffectEnum.STAT_MAS_ESQUIVA_PA:
+                case EffectEnum.STAT_MAS_ESQUIVA_PM:
+                    totalBase += GetTotal(EffectEnum.STAT_MAS_SABIDURIA) / 4;
                     break;
-                case EffectEnum.AddAP:
-                    totalItems += GetTotal(EffectEnum.AddAPBis);
+                case EffectEnum.STAT_MAS_PA:
+                    totalItems += GetTotal(EffectEnum.STAT_MAS_PA_BIS);
                     break;
-                case EffectEnum.AddMP:
-                    totalItems += GetTotal(EffectEnum.MPBonus);
+                case EffectEnum.STAT_MAS_PM:
+                    totalItems += GetTotal(EffectEnum.STAT_MAS_PM_BONUS);
                     break;
-                case EffectEnum.AddReflectDamage:
-                    totalItems += GetTotal(EffectEnum.AddReflectDamageItem);
+                case EffectEnum.STAT_MAS_DANO_DEVUELTO:
+                    totalItems += GetTotal(EffectEnum.STAT_MAS_DANO_DEVUELTO_OBJETO);
                     break;
             }
 
@@ -714,17 +714,17 @@ namespace Game.Stats
 
             switch (effectType)
             {
-                case EffectEnum.AddAPDodge:
-                case EffectEnum.AddMPDodge:
-                    total += GetTotal(EffectEnum.AddWisdom) / 4;
+                case EffectEnum.STAT_MAS_ESQUIVA_PA:
+                case EffectEnum.STAT_MAS_ESQUIVA_PM:
+                    total += GetTotal(EffectEnum.STAT_MAS_SABIDURIA) / 4;
                     break;
 
-                case EffectEnum.AddAP:
-                    total += GetTotal(EffectEnum.AddAPBis);
+                case EffectEnum.STAT_MAS_PA:
+                    total += GetTotal(EffectEnum.STAT_MAS_PA_BIS);
                     break;
 
-                case EffectEnum.AddMP:
-                    total += GetTotal(EffectEnum.MPBonus);
+                case EffectEnum.STAT_MAS_PM:
+                    total += GetTotal(EffectEnum.STAT_MAS_PM_BONUS);
                     break;
             }
 

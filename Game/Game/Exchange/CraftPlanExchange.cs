@@ -189,7 +189,7 @@ namespace Game.Exchange
                     // Firma de artesano: "Fabricado por <nombre>".
                     if (signed)
                     {
-                        item.Statistics.AddEffect(EffectEnum.MadeBy, 0, 0, 0, Character.Name);
+                        item.Statistics.AddEffect(EffectEnum.OBJETO_FABRICADO_POR, 0, 0, 0, Character.Name);
                         item.SaveStats();
                         Character.Inventory.AddItem(item, merge: false);
                     }

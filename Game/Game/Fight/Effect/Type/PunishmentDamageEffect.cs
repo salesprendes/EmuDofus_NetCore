@@ -14,7 +14,7 @@ namespace Game.Fight.Effect.Type
             if (castInfos.Target == null)
                 return FightActionResultEnum.RESULT_NOTHING;
 
-            castInfos.EffectType = EffectEnum.DamageBrut;
+            castInfos.EffectType = EffectEnum.DANO_BRUTO;
 
 
             var damageCoef = (double)castInfos.RandomJet / 100;

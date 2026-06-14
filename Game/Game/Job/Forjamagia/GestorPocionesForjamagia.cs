@@ -30,8 +30,8 @@ namespace Game.Job.Forjamagia
     public sealed class GestorPocionesForjamagia : Singleton<GestorPocionesForjamagia>
     {
         // Bases de las líneas de arma en el orden Agua, Tierra, Aire, Fuego, Neutral.
-        private const int BaseRobo = (int)EffectEnum.StealWater;    // 91
-        private const int BaseDanio = (int)EffectEnum.DamageWater;  // 96
+        private const int BaseRobo = (int)EffectEnum.ROBO_VIDA_AGUA;    // 91
+        private const int BaseDanio = (int)EffectEnum.DANO_AGUA;  // 96
 
         /// <summary>Pociones conocidas: idPlantilla → elemento destino (vacío por defecto, sembrar aquí).</summary>
         private readonly Dictionary<int, ElementoArma> m_pociones = new Dictionary<int, ElementoArma>();

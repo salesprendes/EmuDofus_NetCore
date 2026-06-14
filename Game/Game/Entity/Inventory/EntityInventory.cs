@@ -166,7 +166,7 @@ namespace Game.Entity.Inventory
                     }
 
 
-                    var livingType = GetLivingEffectValue(item, EffectEnum.LivingType);
+                    var livingType = GetLivingEffectValue(item, EffectEnum.OBJETO_VIVO_TIPO);
                     var validSlots = ItemTemplateDAO.GetSlotByType((ItemTypeEnum)livingType);
                     if ((validSlots & slot) != slot)
                     {
@@ -308,7 +308,7 @@ namespace Game.Entity.Inventory
 
         private static bool IsLivingAssociated(ItemDAO item)
         {
-            return item != null && !IsLivingItem(item) && item.Statistics.HasEffect(EffectEnum.LivingGfxId);
+            return item != null && !IsLivingItem(item) && item.Statistics.HasEffect(EffectEnum.OBJETO_VIVO_ID_GRAFICO);
         }
 
         private static int GetLivingEffectValue(ItemDAO item, EffectEnum effect, int defaultValue = 0, bool zeroIsDefault = true)
@@ -331,14 +331,14 @@ namespace Game.Entity.Inventory
 
         private static void RemoveLivingEffects(ItemDAO item)
         {
-            item.Statistics.RemoveEffect(EffectEnum.LivingGfxId);
-            item.Statistics.RemoveEffect(EffectEnum.LivingMood);
-            item.Statistics.RemoveEffect(EffectEnum.LivingSkin);
-            item.Statistics.RemoveEffect(EffectEnum.LivingType);
-            item.Statistics.RemoveEffect(EffectEnum.LivingXp);
-            item.Statistics.RemoveEffect(EffectEnum.Received);
-            item.Statistics.RemoveEffect(EffectEnum.LastEat);
-            item.Statistics.RemoveEffect(EffectEnum.CanBeExchange);
+            item.Statistics.RemoveEffect(EffectEnum.OBJETO_VIVO_ID_GRAFICO);
+            item.Statistics.RemoveEffect(EffectEnum.OBJETO_VIVO_HUMOR);
+            item.Statistics.RemoveEffect(EffectEnum.OBJETO_VIVO_APARIENCIA);
+            item.Statistics.RemoveEffect(EffectEnum.OBJETO_VIVO_TIPO);
+            item.Statistics.RemoveEffect(EffectEnum.OBJETO_VIVO_EXPERIENCIA);
+            item.Statistics.RemoveEffect(EffectEnum.OBJETO_RECIBIDO);
+            item.Statistics.RemoveEffect(EffectEnum.OBJETO_ULTIMA_COMIDA);
+            item.Statistics.RemoveEffect(EffectEnum.OBJETO_PUEDE_INTERCAMBIARSE);
         }
 
         private static int GetLivingMaxSkinValue(int xp)
@@ -384,30 +384,30 @@ namespace Game.Entity.Inventory
 
         private static bool CanLivingItemEat(ItemDAO item, DateTime now)
         {
-            var lastMeal = ItemDAO.GetDateEffect(item.Statistics, EffectEnum.LastEat);
+            var lastMeal = ItemDAO.GetDateEffect(item.Statistics, EffectEnum.OBJETO_ULTIMA_COMIDA);
             return lastMeal == null || lastMeal.Value.Add(LIVING_FEED_INTERVAL) <= now;
         }
 
         private static bool SetLivingMood(ItemDAO item, int mood)
         {
-            var currentMood = GetLivingEffectValue(item, EffectEnum.LivingMood, LIVING_MOOD_SATISFIED, false);
+            var currentMood = GetLivingEffectValue(item, EffectEnum.OBJETO_VIVO_HUMOR, LIVING_MOOD_SATISFIED, false);
             if (currentMood == mood)
                 return false;
 
-            SetLivingEffectValue(item, EffectEnum.LivingMood, mood);
+            SetLivingEffectValue(item, EffectEnum.OBJETO_VIVO_HUMOR, mood);
             return true;
         }
 
         private static bool RefreshLivingMoodFromMeal(ItemDAO item, DateTime now)
         {
-            if ((!IsLivingItem(item) && !IsLivingAssociated(item)) || !item.Statistics.HasEffect(EffectEnum.LivingMood))
+            if ((!IsLivingItem(item) && !IsLivingAssociated(item)) || !item.Statistics.HasEffect(EffectEnum.OBJETO_VIVO_HUMOR))
                 return false;
 
-            var lastMeal = ItemDAO.GetDateEffect(item.Statistics, EffectEnum.LastEat);
+            var lastMeal = ItemDAO.GetDateEffect(item.Statistics, EffectEnum.OBJETO_ULTIMA_COMIDA);
             if (lastMeal == null)
                 return SetLivingMood(item, LIVING_MOOD_LEAN);
 
-            var currentMood = GetLivingEffectValue(item, EffectEnum.LivingMood, LIVING_MOOD_LEAN, false);
+            var currentMood = GetLivingEffectValue(item, EffectEnum.OBJETO_VIVO_HUMOR, LIVING_MOOD_LEAN, false);
             if (lastMeal.Value.Add(LIVING_FEED_INTERVAL) <= now)
             {
                 if (currentMood == LIVING_MOOD_FAT)
@@ -423,13 +423,13 @@ namespace Game.Entity.Inventory
         private static GenericStats CreateDetachedLivingStats(ItemDAO associatedItem)
         {
             var stats = new GenericStats();
-            stats.AddEffect(EffectEnum.LivingMood, 0, 0, GetLivingEffectValue(associatedItem, EffectEnum.LivingMood, LIVING_MOOD_SATISFIED, false));
-            stats.AddEffect(EffectEnum.LivingSkin, 0, 0, GetLivingEffectValue(associatedItem, EffectEnum.LivingSkin, 1));
-            stats.AddEffect(EffectEnum.LivingType, 0, 0, GetLivingEffectValue(associatedItem, EffectEnum.LivingType, associatedItem.Template.Type));
-            stats.AddEffect(EffectEnum.LivingXp, 0, 0, GetLivingEffectValue(associatedItem, EffectEnum.LivingXp));
-            CopyLivingEffect(associatedItem, stats, EffectEnum.Received);
-            CopyLivingEffect(associatedItem, stats, EffectEnum.LastEat);
-            CopyLivingEffect(associatedItem, stats, EffectEnum.CanBeExchange);
+            stats.AddEffect(EffectEnum.OBJETO_VIVO_HUMOR, 0, 0, GetLivingEffectValue(associatedItem, EffectEnum.OBJETO_VIVO_HUMOR, LIVING_MOOD_SATISFIED, false));
+            stats.AddEffect(EffectEnum.OBJETO_VIVO_APARIENCIA, 0, 0, GetLivingEffectValue(associatedItem, EffectEnum.OBJETO_VIVO_APARIENCIA, 1));
+            stats.AddEffect(EffectEnum.OBJETO_VIVO_TIPO, 0, 0, GetLivingEffectValue(associatedItem, EffectEnum.OBJETO_VIVO_TIPO, associatedItem.Template.Type));
+            stats.AddEffect(EffectEnum.OBJETO_VIVO_EXPERIENCIA, 0, 0, GetLivingEffectValue(associatedItem, EffectEnum.OBJETO_VIVO_EXPERIENCIA));
+            CopyLivingEffect(associatedItem, stats, EffectEnum.OBJETO_RECIBIDO);
+            CopyLivingEffect(associatedItem, stats, EffectEnum.OBJETO_ULTIMA_COMIDA);
+            CopyLivingEffect(associatedItem, stats, EffectEnum.OBJETO_PUEDE_INTERCAMBIARSE);
             return stats;
         }
 
@@ -461,7 +461,7 @@ namespace Game.Entity.Inventory
         private void AssociateLivingItem(ItemDAO livingItem, ItemSlotEnum slot)
         {
             var targetItem = Items.Find(entry => entry.Slot == slot && entry.Id != livingItem.Id);
-            var livingType = GetLivingEffectValue(livingItem, EffectEnum.LivingType);
+            var livingType = GetLivingEffectValue(livingItem, EffectEnum.OBJETO_VIVO_TIPO);
             var now = DateTime.Now;
 
             if (targetItem == null)
@@ -479,8 +479,8 @@ namespace Game.Entity.Inventory
             var livingDatesChanged = EnsureLivingReceptionStats(livingItem, now);
             if (livingItem.RefreshTemporaryExchangeLock(now))
                 livingDatesChanged = true;
-            var livingXp = NormalizeLivingExperience(GetLivingEffectValue(livingItem, EffectEnum.LivingXp));
-            var livingSkin = GetLivingEffectValue(livingItem, EffectEnum.LivingSkin, 1);
+            var livingXp = NormalizeLivingExperience(GetLivingEffectValue(livingItem, EffectEnum.OBJETO_VIVO_EXPERIENCIA));
+            var livingSkin = GetLivingEffectValue(livingItem, EffectEnum.OBJETO_VIVO_APARIENCIA, 1);
             var maxSkin = GetLivingMaxSkinValue(livingXp);
 
             if (livingSkin < 1)
@@ -488,14 +488,14 @@ namespace Game.Entity.Inventory
             if (livingSkin > maxSkin)
                 livingSkin = maxSkin;
 
-            SetLivingEffectValue(targetItem, EffectEnum.LivingGfxId, livingItem.TemplateId);
-            SetLivingEffectValue(targetItem, EffectEnum.LivingMood, GetLivingEffectValue(livingItem, EffectEnum.LivingMood, LIVING_MOOD_SATISFIED, false));
-            SetLivingEffectValue(targetItem, EffectEnum.LivingSkin, livingSkin);
-            SetLivingEffectValue(targetItem, EffectEnum.LivingType, livingType);
-            SetLivingEffectValue(targetItem, EffectEnum.LivingXp, livingXp);
-            CopyLivingEffect(livingItem, targetItem, EffectEnum.Received);
-            CopyLivingEffect(livingItem, targetItem, EffectEnum.LastEat);
-            CopyLivingEffect(livingItem, targetItem, EffectEnum.CanBeExchange);
+            SetLivingEffectValue(targetItem, EffectEnum.OBJETO_VIVO_ID_GRAFICO, livingItem.TemplateId);
+            SetLivingEffectValue(targetItem, EffectEnum.OBJETO_VIVO_HUMOR, GetLivingEffectValue(livingItem, EffectEnum.OBJETO_VIVO_HUMOR, LIVING_MOOD_SATISFIED, false));
+            SetLivingEffectValue(targetItem, EffectEnum.OBJETO_VIVO_APARIENCIA, livingSkin);
+            SetLivingEffectValue(targetItem, EffectEnum.OBJETO_VIVO_TIPO, livingType);
+            SetLivingEffectValue(targetItem, EffectEnum.OBJETO_VIVO_EXPERIENCIA, livingXp);
+            CopyLivingEffect(livingItem, targetItem, EffectEnum.OBJETO_RECIBIDO);
+            CopyLivingEffect(livingItem, targetItem, EffectEnum.OBJETO_ULTIMA_COMIDA);
+            CopyLivingEffect(livingItem, targetItem, EffectEnum.OBJETO_PUEDE_INTERCAMBIARSE);
             targetItem.SaveStats();
 
             if (livingDatesChanged)
@@ -523,8 +523,8 @@ namespace Game.Entity.Inventory
 
 
             var livingType = isStandalone
-                ? GetLivingEffectValue(associatedItem, EffectEnum.LivingType, 0, false)
-                : GetLivingEffectValue(associatedItem, EffectEnum.LivingType, associatedItem.Template.Type);
+                ? GetLivingEffectValue(associatedItem, EffectEnum.OBJETO_VIVO_TIPO, 0, false)
+                : GetLivingEffectValue(associatedItem, EffectEnum.OBJETO_VIVO_TIPO, associatedItem.Template.Type);
 
             if (livingType == 0 || foodItem == null || foodItem.Id == associatedItem.Id || foodItem.IsEquiped || foodItem.Template.Type != livingType || IsLivingItem(foodItem) || IsLivingAssociated(foodItem))
             {
@@ -537,7 +537,7 @@ namespace Game.Entity.Inventory
             if (associatedItem.RefreshTemporaryExchangeLock(now))
                 metadataChanged = true;
 
-            var currentMood = GetLivingEffectValue(associatedItem, EffectEnum.LivingMood, LIVING_MOOD_LEAN, false);
+            var currentMood = GetLivingEffectValue(associatedItem, EffectEnum.OBJETO_VIVO_HUMOR, LIVING_MOOD_LEAN, false);
 
 
 
@@ -556,16 +556,16 @@ namespace Game.Entity.Inventory
 
             int newMood = currentMood == LIVING_MOOD_LEAN ? LIVING_MOOD_SATISFIED : LIVING_MOOD_FAT;
             SetLivingMood(associatedItem, newMood);
-            ItemDAO.SetDateEffect(associatedItem.Statistics, EffectEnum.LastEat, now);
+            ItemDAO.SetDateEffect(associatedItem.Statistics, EffectEnum.OBJETO_ULTIMA_COMIDA, now);
 
-            var currentXp = GetLivingEffectValue(associatedItem, EffectEnum.LivingXp);
+            var currentXp = GetLivingEffectValue(associatedItem, EffectEnum.OBJETO_VIVO_EXPERIENCIA);
             var newXp = NormalizeLivingExperience(currentXp + Math.Max(1, foodItem.Template.Level / 3));
-            SetLivingEffectValue(associatedItem, EffectEnum.LivingXp, newXp);
+            SetLivingEffectValue(associatedItem, EffectEnum.OBJETO_VIVO_EXPERIENCIA, newXp);
 
             var maxSkin = GetLivingMaxSkinValue(newXp);
-            var currentSkin = GetLivingEffectValue(associatedItem, EffectEnum.LivingSkin, 1);
+            var currentSkin = GetLivingEffectValue(associatedItem, EffectEnum.OBJETO_VIVO_APARIENCIA, 1);
             if (currentSkin > maxSkin)
-                SetLivingEffectValue(associatedItem, EffectEnum.LivingSkin, maxSkin);
+                SetLivingEffectValue(associatedItem, EffectEnum.OBJETO_VIVO_APARIENCIA, maxSkin);
 
             associatedItem.SaveStats();
 
@@ -582,7 +582,7 @@ namespace Game.Entity.Inventory
                 return;
             }
 
-            var maxSkin = GetLivingMaxSkinValue(GetLivingEffectValue(associatedItem, EffectEnum.LivingXp));
+            var maxSkin = GetLivingMaxSkinValue(GetLivingEffectValue(associatedItem, EffectEnum.OBJETO_VIVO_EXPERIENCIA));
 
             if (skinId < 1)
                 skinId = 1;
@@ -590,7 +590,7 @@ namespace Game.Entity.Inventory
             if (skinId > maxSkin)
                 skinId = maxSkin;
 
-            SetLivingEffectValue(associatedItem, EffectEnum.LivingSkin, skinId);
+            SetLivingEffectValue(associatedItem, EffectEnum.OBJETO_VIVO_APARIENCIA, skinId);
             associatedItem.SaveStats();
 
             RefreshLivingItem(associatedItem);
@@ -605,7 +605,7 @@ namespace Game.Entity.Inventory
                 return;
             }
 
-            var livingTemplateId = GetLivingEffectValue(associatedItem, EffectEnum.LivingGfxId);
+            var livingTemplateId = GetLivingEffectValue(associatedItem, EffectEnum.OBJETO_VIVO_ID_GRAFICO);
             var livingTemplate = ItemTemplateRepository.Instance.GetById(livingTemplateId);
             if (livingTemplate == null || (ItemTypeEnum)livingTemplate.Type != ItemTypeEnum.TYPE_OBJET_VIVANT)
             {
@@ -634,10 +634,10 @@ namespace Game.Entity.Inventory
 
         private static void AppendLivingAccessory(StringBuilder message, ItemDAO item)
         {
-            var livingTemplateId = GetLivingEffectValue(item, EffectEnum.LivingGfxId);
+            var livingTemplateId = GetLivingEffectValue(item, EffectEnum.OBJETO_VIVO_ID_GRAFICO);
             if (livingTemplateId > 0)
             {
-                message.Append(livingTemplateId.ToString("x")).Append('~').Append(item.Template.Type).Append('~').Append(GetLivingEffectValue(item, EffectEnum.LivingSkin, 1));
+                message.Append(livingTemplateId.ToString("x")).Append('~').Append(item.Template.Type).Append('~').Append(GetLivingEffectValue(item, EffectEnum.OBJETO_VIVO_APARIENCIA, 1));
                 return;
             }
 

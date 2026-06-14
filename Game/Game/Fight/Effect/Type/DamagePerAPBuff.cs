@@ -20,7 +20,7 @@ namespace Game.Fight.Effect.Type
             if (usedAp < 1)
                 return FightActionResultEnum.RESULT_NOTHING;
 
-            damageInfos = new CastInfos(EffectEnum.DamageNeutral, -1, -1, -1, -1, -1, -1, -1, CastInfos.Caster, CastInfos.Target);
+            damageInfos = new CastInfos(EffectEnum.DANO_NEUTRAL, -1, -1, -1, -1, -1, -1, -1, CastInfos.Caster, CastInfos.Target);
             var damageJet = (usedAp / CastInfos.Value1) * CastInfos.Value2;
 
             return DamageEffect.ApplyDamages(damageInfos, CastInfos.Target, ref damageJet);

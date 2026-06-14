@@ -63,18 +63,18 @@ namespace Game.Fight
             if (BossMechanicStateIds.Contains(buff.CastInfos.Value3))
                 return;
 
-            buff.CastInfos.SubEffect = EffectEnum.AddState;
+            buff.CastInfos.SubEffect = EffectEnum.ESTADO_MAS;
 
             if (buff.Caster.Fight.State == FightStateEnum.STATE_FIGHTING)
             {
                 switch (buff.CastInfos.EffectType)
                 {
-                    case EffectEnum.Stealth:
+                    case EffectEnum.ESTADO_INVISIBILIDAD:
 
                         if (HasState(FighterStateEnum.STATE_STEALTH))
                             return;
 
-                        m_fighter.Fight.Dispatch(WorldMessage.GAME_ACTION(EffectEnum.Stealth, m_fighter.Id, m_fighter.Id + "," + buff.Duration));
+                        m_fighter.Fight.Dispatch(WorldMessage.GAME_ACTION(EffectEnum.ESTADO_INVISIBILIDAD, m_fighter.Id, m_fighter.Id + "," + buff.Duration));
 
                         m_states.Add(FighterStateEnum.STATE_STEALTH, buff);
 
@@ -82,7 +82,7 @@ namespace Game.Fight
 
                     default:
 
-                        m_fighter.Fight.Dispatch(WorldMessage.GAME_ACTION(EffectEnum.AddState, m_fighter.Id, m_fighter.Id + "," + buff.CastInfos.Value3 + ",1"));
+                        m_fighter.Fight.Dispatch(WorldMessage.GAME_ACTION(EffectEnum.ESTADO_MAS, m_fighter.Id, m_fighter.Id + "," + buff.CastInfos.Value3 + ",1"));
 
                         break;
                 }
@@ -103,15 +103,15 @@ namespace Game.Fight
             {
                 switch (buff.CastInfos.EffectType)
                 {
-                    case EffectEnum.Stealth:
-                        m_fighter.Fight.Dispatch(WorldMessage.GAME_ACTION(EffectEnum.Stealth, m_fighter.Id, m_fighter.Id.ToString()));
+                    case EffectEnum.ESTADO_INVISIBILIDAD:
+                        m_fighter.Fight.Dispatch(WorldMessage.GAME_ACTION(EffectEnum.ESTADO_INVISIBILIDAD, m_fighter.Id, m_fighter.Id.ToString()));
                         m_fighter.Fight.Dispatch(WorldMessage.GAME_ACTION(GameActionTypeEnum.MAP_TELEPORT, m_fighter.Id, m_fighter.Id + "," + m_fighter.Cell.Id));
 
                         m_states.Remove(FighterStateEnum.STATE_STEALTH);
                         return;
 
                     default:
-                        m_fighter.Fight.Dispatch(WorldMessage.GAME_ACTION(EffectEnum.AddState, m_fighter.Id, m_fighter.Id + "," + buff.CastInfos.Value3 + ",0"));
+                        m_fighter.Fight.Dispatch(WorldMessage.GAME_ACTION(EffectEnum.ESTADO_MAS, m_fighter.Id, m_fighter.Id + "," + buff.CastInfos.Value3 + ",0"));
                         break;
                 }
             }
@@ -134,7 +134,7 @@ namespace Game.Fight
             m_states[state] = null;
 
             if (m_fighter?.Fight?.State == FightStateEnum.STATE_FIGHTING)
-                m_fighter.Fight.Dispatch(WorldMessage.GAME_ACTION(EffectEnum.AddState, m_fighter.Id, m_fighter.Id + "," + (int)state + ",1"));
+                m_fighter.Fight.Dispatch(WorldMessage.GAME_ACTION(EffectEnum.ESTADO_MAS, m_fighter.Id, m_fighter.Id + "," + (int)state + ",1"));
         }
 
         public void ForceRemoveState(FighterStateEnum state)
@@ -145,7 +145,7 @@ namespace Game.Fight
             m_states.Remove(state);
 
             if (m_fighter?.Fight?.State == FightStateEnum.STATE_FIGHTING)
-                m_fighter.Fight.Dispatch(WorldMessage.GAME_ACTION(EffectEnum.AddState, m_fighter.Id, m_fighter.Id + "," + (int)state + ",0"));
+                m_fighter.Fight.Dispatch(WorldMessage.GAME_ACTION(EffectEnum.ESTADO_MAS, m_fighter.Id, m_fighter.Id + "," + (int)state + ",0"));
         }
 
         public void Clear()

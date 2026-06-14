@@ -134,12 +134,12 @@ namespace Game.Condition
             return code switch
             {
 
-                "CI" => ch => ch.Statistics.GetTotal(EffectEnum.AddIntelligence),
-                "CV" => ch => ch.Statistics.GetTotal(EffectEnum.AddVitality),
-                "CA" => ch => ch.Statistics.GetTotal(EffectEnum.AddAgility),
-                "CW" => ch => ch.Statistics.GetTotal(EffectEnum.AddWisdom),
-                "CC" => ch => ch.Statistics.GetTotal(EffectEnum.AddChance),
-                "CS" => ch => ch.Statistics.GetTotal(EffectEnum.AddStrength),
+                "CI" => ch => ch.Statistics.GetTotal(EffectEnum.STAT_MAS_INTELIGENCIA),
+                "CV" => ch => ch.Statistics.GetTotal(EffectEnum.STAT_MAS_VITALIDAD),
+                "CA" => ch => ch.Statistics.GetTotal(EffectEnum.STAT_MAS_AGILIDAD),
+                "CW" => ch => ch.Statistics.GetTotal(EffectEnum.STAT_MAS_SABIDURIA),
+                "CC" => ch => ch.Statistics.GetTotal(EffectEnum.STAT_MAS_SUERTE),
+                "CS" => ch => ch.Statistics.GetTotal(EffectEnum.STAT_MAS_FUERZA),
 
                 "Ci" => ch => ch.DatabaseRecord.Intelligence,
                 "Cs" => ch => ch.DatabaseRecord.Strength,

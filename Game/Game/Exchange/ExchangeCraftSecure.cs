@@ -206,7 +206,7 @@ namespace Game.Exchange
                 var item = craftItem.Create(Client.Id, (int)Client.Type);
                 if (signed)
                 {
-                    item.Statistics.AddEffect(EffectEnum.MadeBy, 0, 0, 0, Artisan.Name);
+                    item.Statistics.AddEffect(EffectEnum.OBJETO_FABRICADO_POR, 0, 0, 0, Artisan.Name);
                     item.SaveStats();
                 }
                 Client.Inventory.AddItem(item, merge: !signed);
@@ -308,8 +308,8 @@ namespace Game.Exchange
                 // Firma "Modificado por <artesano>".
                 if (signature != null)
                 {
-                    target.Statistics.RemoveEffect(EffectEnum.ModifiedBy);
-                    target.Statistics.AddEffect(EffectEnum.ModifiedBy, 0, 0, 0, Artisan.Name);
+                    target.Statistics.RemoveEffect(EffectEnum.OBJETO_MODIFICADO_POR);
+                    target.Statistics.AddEffect(EffectEnum.OBJETO_MODIFICADO_POR, 0, 0, 0, Artisan.Name);
                     signatureOwner.Inventory.RemoveItem(signature.Id, 1);
                 }
 

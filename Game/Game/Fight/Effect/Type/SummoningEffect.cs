@@ -20,7 +20,7 @@ namespace Game.Fight.Effect.Type
             if (cell == null)
                 return FightActionResultEnum.RESULT_NOTHING;
 
-            if (castInfos.EffectType == EffectEnum.InvocDouble)
+            if (castInfos.EffectType == EffectEnum.INVOCACION_DOBLE)
                 return SummonDouble(castInfos, cell);
 
             return SummonMonster(castInfos, cell);

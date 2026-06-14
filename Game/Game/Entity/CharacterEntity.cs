@@ -385,7 +385,7 @@ namespace Game.Entity
 
         public override int BaseLife => 50 + (Level * 5);
 
-        public int MaxPods => Statistics.GetTotal(EffectEnum.AddPods) + Statistics.GetTotal(EffectEnum.AddStrength) * 5 + CharacterJobs.GetPodsBonus();
+        public int MaxPods => Statistics.GetTotal(EffectEnum.STAT_MAS_PODS) + Statistics.GetTotal(EffectEnum.STAT_MAS_FUERZA) * 5 + CharacterJobs.GetPodsBonus();
         public int CurrentPods => Inventory.Items.Sum(item => (item.Template?.Weight ?? 0) * item.Quantity);
         public string HexColor1 => DatabaseRecord.HexColor1;
         public string HexColor2 => DatabaseRecord.HexColor2;
@@ -988,9 +988,9 @@ namespace Game.Entity
                         var items = Inventory.Items.FindAll(item => item.IsBoostEquiped);
                         foreach (var item in items)
                         {
-                            if (item.Statistics.HasEffect(EffectEnum.AddBoost))
+                            if (item.Statistics.HasEffect(EffectEnum.BOOST_MAS))
                             {
-                                var effect = item.Statistics.GetEffect(EffectEnum.AddBoost);
+                                var effect = item.Statistics.GetEffect(EffectEnum.BOOST_MAS);
                                 effect.Value3--;
                                 item.SaveStats();
                                 changedItems.Add(item);
@@ -1719,7 +1719,7 @@ namespace Game.Entity
                 Life = MaxLife;
 
                 if (Level == 100)
-                    Statistics.AddBase(EffectEnum.AddAP, 1);
+                    Statistics.AddBase(EffectEnum.STAT_MAS_PA, 1);
 
                 SpellBook?.GenerateLevelUpSpell(Breed, Level);
             }
@@ -2038,23 +2038,23 @@ namespace Game.Entity
                         {
                             case FightTypeEnum.TYPE_CHALLENGE:
                             case FightTypeEnum.TYPE_AGGRESSION:
-                                message.Append(Statistics.GetTotal(EffectEnum.AddReduceDamagePercentNeutral) + Statistics.GetTotal(EffectEnum.AddReduceDamagePercentPvPNeutral)).Append(';');
-                                message.Append(Statistics.GetTotal(EffectEnum.AddReduceDamagePercentEarth) + Statistics.GetTotal(EffectEnum.AddReduceDamagePercentPvPEarth)).Append(';');
-                                message.Append(Statistics.GetTotal(EffectEnum.AddReduceDamagePercentFire) + Statistics.GetTotal(EffectEnum.AddReduceDamagePercentPvPFire)).Append(';');
-                                message.Append(Statistics.GetTotal(EffectEnum.AddReduceDamagePercentWater) + Statistics.GetTotal(EffectEnum.AddReduceDamagePercentPvPWater)).Append(';');
-                                message.Append(Statistics.GetTotal(EffectEnum.AddReduceDamagePercentAir) + Statistics.GetTotal(EffectEnum.AddReduceDamagePercentPvPAir)).Append(';');
+                                message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_NEUTRAL) + Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_PVP_NEUTRAL)).Append(';');
+                                message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_TIERRA) + Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_PVP_TIERRA)).Append(';');
+                                message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_FUEGO) + Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_PVP_FUEGO)).Append(';');
+                                message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_AGUA) + Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_PVP_AGUA)).Append(';');
+                                message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_AIRE) + Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_PVP_AIRE)).Append(';');
                                 break;
 
                             default:
-                                message.Append(Statistics.GetTotal(EffectEnum.AddReduceDamagePercentNeutral)).Append(';');
-                                message.Append(Statistics.GetTotal(EffectEnum.AddReduceDamagePercentEarth)).Append(';');
-                                message.Append(Statistics.GetTotal(EffectEnum.AddReduceDamagePercentFire)).Append(';');
-                                message.Append(Statistics.GetTotal(EffectEnum.AddReduceDamagePercentWater)).Append(';');
-                                message.Append(Statistics.GetTotal(EffectEnum.AddReduceDamagePercentAir)).Append(';');
+                                message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_NEUTRAL)).Append(';');
+                                message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_TIERRA)).Append(';');
+                                message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_FUEGO)).Append(';');
+                                message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_AGUA)).Append(';');
+                                message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_AIRE)).Append(';');
                                 break;
                         }
-                        message.Append(Statistics.GetTotal(EffectEnum.AddAPDodge)).Append(';');
-                        message.Append(Statistics.GetTotal(EffectEnum.AddMPDodge)).Append(';');
+                        message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_ESQUIVA_PA)).Append(';');
+                        message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_ESQUIVA_PM)).Append(';');
                         message.Append(Team.Id).Append(';');
                     }
                     if (m_mount != null && RidingMount)

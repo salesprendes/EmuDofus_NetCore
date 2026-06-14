@@ -274,21 +274,21 @@ namespace Game.Guild
         {
             Level++;
             BoostPoint += 5;
-            Statistics.BaseStatistics.AddBase(EffectEnum.AddInitiative, 100);
-            Statistics.BaseStatistics.AddBase(EffectEnum.AddVitality, 100);
-            Statistics.BaseStatistics.AddBase(EffectEnum.AddWisdom, 4);
-            Statistics.BaseStatistics.AddBase(EffectEnum.AddStrength, 1);
-            Statistics.BaseStatistics.AddBase(EffectEnum.AddIntelligence, 1);
-            Statistics.BaseStatistics.AddBase(EffectEnum.AddAgility, 1);
-            Statistics.BaseStatistics.AddBase(EffectEnum.AddChance, 1);
-            Statistics.BaseStatistics.AddBase(EffectEnum.AddDamage, 1);
+            Statistics.BaseStatistics.AddBase(EffectEnum.STAT_MAS_INICIATIVA, 100);
+            Statistics.BaseStatistics.AddBase(EffectEnum.STAT_MAS_VITALIDAD, 100);
+            Statistics.BaseStatistics.AddBase(EffectEnum.STAT_MAS_SABIDURIA, 4);
+            Statistics.BaseStatistics.AddBase(EffectEnum.STAT_MAS_FUERZA, 1);
+            Statistics.BaseStatistics.AddBase(EffectEnum.STAT_MAS_INTELIGENCIA, 1);
+            Statistics.BaseStatistics.AddBase(EffectEnum.STAT_MAS_AGILIDAD, 1);
+            Statistics.BaseStatistics.AddBase(EffectEnum.STAT_MAS_SUERTE, 1);
+            Statistics.BaseStatistics.AddBase(EffectEnum.STAT_MAS_DANO, 1);
             if ((Level % 2) == 0)
             {
-                Statistics.BaseStatistics.AddBase(EffectEnum.AddReduceDamagePercentAir, 1);
-                Statistics.BaseStatistics.AddBase(EffectEnum.AddReduceDamagePercentWater, 1);
-                Statistics.BaseStatistics.AddBase(EffectEnum.AddReduceDamagePercentFire, 1);
-                Statistics.BaseStatistics.AddBase(EffectEnum.AddReduceDamagePercentEarth, 1);
-                Statistics.BaseStatistics.AddBase(EffectEnum.AddReduceDamagePercentNeutral, 1);
+                Statistics.BaseStatistics.AddBase(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_AIRE, 1);
+                Statistics.BaseStatistics.AddBase(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_AGUA, 1);
+                Statistics.BaseStatistics.AddBase(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_FUEGO, 1);
+                Statistics.BaseStatistics.AddBase(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_TIERRA, 1);
+                Statistics.BaseStatistics.AddBase(EffectEnum.STAT_MAS_RESISTENCIA_PORCENTAJE_NEUTRAL, 1);
             }
         }
 
@@ -490,26 +490,26 @@ namespace Game.Guild
             switch (statId)
             {
                 case 'o':
-                    if (Statistics.BaseStatistics.GetTotal(EffectEnum.AddPods) >= 5000)
+                    if (Statistics.BaseStatistics.GetTotal(EffectEnum.STAT_MAS_PODS) >= 5000)
                         return;
 
-                    Statistics.BaseStatistics.AddBase(EffectEnum.AddPods, 20);
+                    Statistics.BaseStatistics.AddBase(EffectEnum.STAT_MAS_PODS, 20);
                     BoostPoint--;
                     break;
 
                 case 'x':
-                    if (Statistics.BaseStatistics.GetTotal(EffectEnum.AddWisdom) >= 400)
+                    if (Statistics.BaseStatistics.GetTotal(EffectEnum.STAT_MAS_SABIDURIA) >= 400)
                         return;
 
-                    Statistics.BaseStatistics.AddBase(EffectEnum.AddWisdom, 1);
+                    Statistics.BaseStatistics.AddBase(EffectEnum.STAT_MAS_SABIDURIA, 1);
                     BoostPoint--;
                     break;
 
                 case 'p':
-                    if (Statistics.BaseStatistics.GetTotal(EffectEnum.AddProspection) >= 500)
+                    if (Statistics.BaseStatistics.GetTotal(EffectEnum.STAT_MAS_PROSPECCION) >= 500)
                         return;
 
-                    Statistics.BaseStatistics.AddBase(EffectEnum.AddProspection, 1);
+                    Statistics.BaseStatistics.AddBase(EffectEnum.STAT_MAS_PROSPECCION, 1);
                     BoostPoint--;
                     break;
 

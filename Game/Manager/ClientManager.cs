@@ -46,7 +46,7 @@ namespace Game.Manager
 
         public void AddTicket(long accountId, string name, string pseudo, int power, long remainingSub, long lastConnection, string lastIp, string ticket)
         {
-            Logger.Info($"TicketJuego: cuenta={name} ticket={ticket}");
+            Logger.Debug($"TicketJuego: cuenta={name} ticket={ticket}");
             WorldService.Instance.AddMessage(() => m_accountByTicket.Add(ticket, new AccountTicket()
             {
                 Id = accountId,

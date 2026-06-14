@@ -53,7 +53,7 @@ namespace Game.Fight.AI.Actions
                 if (effect == null)
                     continue;
 
-                if (effect.TypeEnum == EffectEnum.AddState && effect.Value3 > 0
+                if (effect.TypeEnum == EffectEnum.ESTADO_MAS && effect.Value3 > 0
                     && target.StateManager.HasState((FighterStateEnum)effect.Value3))
                     return true;
             }

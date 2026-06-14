@@ -54,7 +54,7 @@ namespace Game.Fight.Ending
                                    arguments.Losers,
                                    arguments.Droppers,
                                    fighter.Level,
-                                   fighter.Statistics.GetTotal(EffectEnum.AddWisdom),
+                                   fighter.Statistics.GetTotal(EffectEnum.STAT_MAS_SABIDURIA),
                                    arguments.Fight.ChallengeXpBonus,
                                    monsterFight?.MonsterGroup.AgeBonus ?? 0);
 
@@ -63,7 +63,7 @@ namespace Game.Fight.Ending
                                    arguments.Losers,
                                    arguments.Droppers,
                                    fighter.Level,
-                                   fighter.Statistics.GetTotal(EffectEnum.AddWisdom),
+                                   fighter.Statistics.GetTotal(EffectEnum.STAT_MAS_SABIDURIA),
                                    arguments.Fight.ChallengeXpBonus,
                                    monsterFight?.MonsterGroup.AgeBonus ?? 0);
 
@@ -87,7 +87,7 @@ namespace Game.Fight.Ending
 
             var loserFighters = arguments.Fight.LoserTeam.Fighters.Where(f => f.Invocator == null && !arguments.Fight.Result.HasResult(f));
 
-            return Util.CalculPVMExperience(killedMonsters, loserFighters, fighter.Level, fighter.Statistics.GetTotal(EffectEnum.AddWisdom), 1.0, monsterFight?.MonsterGroup.AgeBonus ?? 0);
+            return Util.CalculPVMExperience(killedMonsters, loserFighters, fighter.Level, fighter.Statistics.GetTotal(EffectEnum.STAT_MAS_SABIDURIA), 1.0, monsterFight?.MonsterGroup.AgeBonus ?? 0);
         }
     }
 }
