@@ -20,6 +20,7 @@ namespace Game.Database.Structure
         private string _createTime;
         private string _places;
         private int _capabilities;
+        private bool _outdoor;
 
 
         [Key]
@@ -87,6 +88,12 @@ namespace Game.Database.Structure
         {
             get => _capabilities;
             set => SetProperty(ref _capabilities, value);
+        }
+        
+        public bool Outdoor
+        {
+            get => _outdoor;
+            set => SetProperty(ref _outdoor, value);
         }
 
         private List<int> m_fightTeam0Cells, m_fightTeam1Cells;

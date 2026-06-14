@@ -20,7 +20,9 @@ namespace Game.Database.Structure
         private int _quantity;
         private string _stringEffects;
         private long _merchantPrice;
-
+        private double _forgemagiePuits;
+        private ItemTemplateDAO m_template;
+        private GenericStats m_statistics;
 
         [Key]
         public long Id
@@ -71,16 +73,11 @@ namespace Game.Database.Structure
             set => SetProperty(ref _merchantPrice, value);
         }
 
-        private double m_forgemagiePuits;
-
-        [Write(false)]
-        public double ForgemagiePuits
+        public double ForjamagiaPozo
         {
-            get => m_forgemagiePuits;
-            set => m_forgemagiePuits = value;
+            get => _forgemagiePuits;
+            set => SetProperty(ref _forgemagiePuits, value);
         }
-
-        private ItemTemplateDAO m_template;
 
         [Write(false)]
         public ItemTemplateDAO Template
@@ -93,8 +90,6 @@ namespace Game.Database.Structure
                 return m_template;
             }
         }
-
-        private GenericStats m_statistics;
 
         [Write(false)]
         public GenericStats Statistics

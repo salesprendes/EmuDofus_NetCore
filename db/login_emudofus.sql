@@ -11,7 +11,7 @@
  Target Server Version : 80403 (8.4.3)
  File Encoding         : 65001
 
- Date: 12/06/2026 20:25:18
+ Date: 14/06/2026 02:24:16
 */
 
 SET NAMES utf8mb4;
@@ -34,14 +34,14 @@ CREATE TABLE `account`  (
   `Banned` tinyint(1) NOT NULL,
   `Question` varchar(20) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
   `Response` varchar(20) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
-  PRIMARY KEY (`Id`) USING BTREE
+  PRIMARY KEY (`Id`, `Name`, `Pseudo`) USING BTREE
 ) ENGINE = MyISAM AUTO_INCREMENT = 17 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of account
 -- ----------------------------
-INSERT INTO `account` VALUES (1, 'test', 'test', 'test', 1000, '2026-05-08 19:30:10', '2026-06-12 20:13:18', '127.0.0.1', '2026-05-08 20:30:13', 0, 'test', 'test');
-INSERT INTO `account` VALUES (2, 'test2', 'test', 'test', 1000, '2000-01-01 00:00:00', '2026-06-09 22:44:53', '127.0.0.1', '2000-01-01 00:00:00', 0, '', '');
+INSERT INTO `account` VALUES (1, 'test', 'test', 'test', 1000, '2026-05-08 19:30:10', '2026-06-14 02:01:44', '127.0.0.1', '2026-05-08 20:30:13', 0, 'test', 'test');
+INSERT INTO `account` VALUES (2, 'test2', 'test2', 'test', 1000, '2000-01-01 00:00:00', '2026-06-13 11:18:03', '127.0.0.1', '2000-01-01 00:00:00', 0, '', '');
 
 -- ----------------------------
 -- Table structure for characterinstance

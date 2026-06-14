@@ -87,9 +87,6 @@ namespace Game
             5867, 6197, 6021, 6044, 8196, 6055, 8195, 1905, 1907, 6049
         }.ToFrozenSet();
 
-
-
-
         public static readonly FrozenDictionary<int, int> BALANCED_INSTANCE_MAPS = new Dictionary<int, int>()
         {
 
@@ -188,13 +185,9 @@ namespace Game
         }.ToFrozenDictionary();
 
         [Configurable()] public static int GAME_ID = 1;
-
         [Configurable("LogDebug")] public static bool LOG_DEBUG = true;
-
         [Configurable("LogLevel")] public static string LOG_LEVEL = "Info";
-
         [Configurable("LogConsoleLevel")] public static string LOG_CONSOLE_LEVEL = "";
-
         [Configurable("LogFileLevel")] public static string LOG_FILE_LEVEL = "";
     }
 }

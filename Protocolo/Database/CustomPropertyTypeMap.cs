@@ -24,15 +24,8 @@ namespace Protocolo.Framework.Database
             _propertySelector = propertySelector;
         }
 
-        public ConstructorInfo FindConstructor(string[] names, Type[] types)
-        {
-            return _type.GetConstructor(Array.Empty<Type>());
-        }
-
-        public SqlMapper.IMemberMap GetConstructorParameter(ConstructorInfo constructor, string columnName)
-        {
-            throw new NotSupportedException();
-        }
+        public ConstructorInfo FindConstructor(string[] names, Type[] types) => _type.GetConstructor(Array.Empty<Type>());
+        public SqlMapper.IMemberMap GetConstructorParameter(ConstructorInfo constructor, string columnName) => throw new NotSupportedException();
 
         public SqlMapper.IMemberMap GetMember(string columnName)
         {

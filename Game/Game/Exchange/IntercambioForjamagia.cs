@@ -43,7 +43,7 @@ namespace Game.Exchange
         }
 
         private readonly ServicioForjamagia m_servicioForjamagia;
-        private Dictionary<long, int> m_itemsCasillas;
+        private readonly Dictionary<long, int> m_itemsCasillas;
         private CraftPlan m_plan;
         private int m_repeticionesPendientes;
         private UpdatableTimer m_temporizadorRepeticion;
@@ -148,6 +148,7 @@ namespace Game.Exchange
             }
 
             Personaje.CachedBuffer = true;
+
             try
             {
                 if (objetivo == null || !objetivo.Template.Forgemageable)
@@ -192,7 +193,7 @@ namespace Game.Exchange
             ConsumirUno(runa.Id, out var runaRestante);
 
             var forjado = objetivo.Clone(1);
-            forjado.ForgemagiePuits = objetivo.ForgemagiePuits;
+            forjado.ForjamagiaPozo = objetivo.ForjamagiaPozo;
 
             var nivelOficio = Personaje.CharacterJobs.GetJobLevel(IdOficio);
             var objetoForjable = new AdaptadorObjetoForjable(forjado);
@@ -236,8 +237,8 @@ namespace Game.Exchange
 
             ConsumirUno(pocion.Id, out var pocionRestante);
 
-            var forjado = objetivo.Clone(1);
-            forjado.ForgemagiePuits = objetivo.ForgemagiePuits;
+            ItemDAO forjado = objetivo.Clone(1);
+            forjado.ForjamagiaPozo = objetivo.ForjamagiaPozo;
 
             var cambiado = GestorPocionesForjamagia.Instance.Aplicar(forjado, elemento.Value);
 
@@ -278,7 +279,7 @@ namespace Game.Exchange
             m_itemsCasillas.Remove(objetivo.Id);
             m_itemsCasillas[forjado.Id] = 1;
 
-            Personaje.Dispatch(WorldMessage.EXCHANGE_DISTANT_MOVEMENT(ExchangeMoveEnum.MOVE_OBJECT, OperatorEnum.OPERATOR_ADD, forjado.Id + "|1|" + forjado.TemplateId + "|" + forjado.StringEffects));
+            Personaje.Dispatch(WorldMessage.EXCHANGE_DISTANT_MOVEMENT(ExchangeMoveEnum.MOVE_OBJECT, OperatorEnum.OPERATOR_ADD, forjado.Id + "|" + forjado.Quantity + "|" + forjado.TemplateId + "|" + forjado.StringEffects));
             return forjado;
         }
 

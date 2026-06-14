@@ -76,6 +76,13 @@ namespace Game.Manager
                 return;
             }
 
+            // Los fuegos artificiales (tipo 74) solo pueden lanzarse a cielo abierto.
+            if (item.Template.Type == (int)ItemTypeEnum.TYPE_FEE_ARTIFICE && !character.Map.Outdoor)
+            {
+                character.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_CONDITIONS_UNSATISFIED));
+                return;
+            }
+
             var used = false;
             if (item.StringEffects != string.Empty)
             {

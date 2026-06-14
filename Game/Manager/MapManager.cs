@@ -28,7 +28,7 @@ namespace Game.Manager
         {
             foreach (var mapDAO in MapTemplateRepository.Instance.All)
             {
-                var map = new MapInstance(mapDAO.SubAreaId, mapDAO.Id, mapDAO.X, mapDAO.Y, mapDAO.Width, mapDAO.Height, mapDAO.Data, mapDAO.DataKey, mapDAO.CreateTime, mapDAO.FightTeam0Cells, mapDAO.FightTeam1Cells);
+                var map = new MapInstance(mapDAO.SubAreaId, mapDAO.Id, mapDAO.X, mapDAO.Y, mapDAO.Width, mapDAO.Height, mapDAO.Data, mapDAO.DataKey, mapDAO.CreateTime, mapDAO.FightTeam0Cells, mapDAO.FightTeam1Cells, mapDAO.Outdoor);
                 m_mapById.Add(map.Id, map);
                 m_mapByCoord[CoordKey(map.X, map.Y)] = map;
 
@@ -49,14 +49,6 @@ namespace Game.Manager
                     m_balancedInstances.Add(map.Id, instances);
                 }
             }
-
-            foreach (var map in m_mapById.Values)
-                if (!WorldConfig.MULTIPLE_INSTANCE_MAP_ID.Contains(map.Id))
-                    map.FreeRawData();
-
-            foreach (var instances in m_balancedInstances.Values)
-                for (int i = 1; i < instances.Count; i++)
-                    instances[i].FreeRawData();
 
             Logger.Info($"MapManager: {m_mapById.Count} mapas cargados.");
         }

@@ -85,14 +85,14 @@ namespace Game.Job.Forjamagia
 
         public double Pozo
         {
-            get => m_item.ForgemagiePuits;
-            set => m_item.ForgemagiePuits = value;
+            get => m_item.ForjamagiaPozo;
+            set => m_item.ForjamagiaPozo = value;
         }
 
         public int PesoCentiPozo
         {
-            get => CalculoPesos.ACenti(m_item.ForgemagiePuits);
-            set => m_item.ForgemagiePuits = CalculoPesos.DesdeCenti(value);
+            get => CalculoPesos.ACenti(m_item.ForjamagiaPozo);
+            set => m_item.ForjamagiaPozo = CalculoPesos.DesdeCenti(value);
         }
     }
 }

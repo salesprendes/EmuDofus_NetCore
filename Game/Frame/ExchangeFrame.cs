@@ -1,12 +1,10 @@
-using System;
-using System.Linq;
-using Protocolo.Framework.Network;
-using Game;
 using Game.Action;
 using Game.Entity;
 using Game.Exchange;
 using Game.Network;
-using Game.Manager;
+using Protocolo.Framework.Network;
+using System;
+using System.Linq;
 
 namespace Game.Frame
 {
@@ -88,35 +86,41 @@ namespace Game.Frame
         private void MerchantModeProcess(CharacterEntity character, string message)
         {
             character.AddMessage(() =>
+            {
+                if (character.Inventory.Kamas < character.MerchantTaxe)
                 {
-                    if (character.Inventory.Kamas < character.MerchantTaxe)
-                    {
-                        character.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_NOT_ENOUGH_KAMAS_TO_PAY_MERCHANT_MODE_TAXE));
-                        return;
-                    }
+                    character.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_NOT_ENOUGH_KAMAS_TO_PAY_MERCHANT_MODE_TAXE));
+                    return;
+                }
 
-                    if (character.Map.Entities.OfType<MerchantEntity>().Count() >= 5)
-                    {
-                        character.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_TOO_MANY_MERCHANT_ON_MAP, 5));
-                        return;
-                    }
+                if (character.Map.Entities.OfType<MerchantEntity>().Count() >= 5)
+                {
+                    character.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_TOO_MANY_MERCHANT_ON_MAP, 5));
+                    return;
+                }
 
-                    if (character.PersonalShop.Items.Count == 0)
-                    {
-                        character.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_NOT_ENOUGH_ITEMS_TO_BE_MERCHANT));
-                        return;
-                    }
+                if (character.PersonalShop.Items.Count == 0)
+                {
+                    character.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_NOT_ENOUGH_ITEMS_TO_BE_MERCHANT));
+                    return;
+                }
 
-                    if (character.HasPlayerRestriction(PlayerRestrictionEnum.RESTRICTION_CANT_BE_MERCHANT))
-                    {
-                        character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
-                        return;
-                    }
+                if (character.HasPlayerRestriction(PlayerRestrictionEnum.RESTRICTION_CANT_BE_MERCHANT))
+                {
+                    character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                    return;
+                }
 
-                    character.Inventory.SubKamas(character.MerchantTaxe);
-                    character.Merchant = true;
-                    character.ServerKick("Modo Mercante");
-                });
+                if (!character.Map.Outdoor)
+                {
+                    character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                    return;
+                }
+
+                character.Inventory.SubKamas(character.MerchantTaxe);
+                character.Merchant = true;
+                character.ServerKick("Modo Mercante");
+            });
         }
 
         private void MerchantModeTaxe(CharacterEntity character, string message)
@@ -157,8 +161,7 @@ namespace Game.Frame
                     return;
                 }
 
-                var exchangeAction = character.CurrentAction as AbstractGameAuctionHouseAction;
-                if (exchangeAction == null)
+                if (character.CurrentAction is not AbstractGameAuctionHouseAction exchangeAction)
                 {
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
@@ -211,8 +214,7 @@ namespace Game.Frame
                     return;
                 }
 
-                var exchangeAction = character.CurrentAction as AbstractGameAuctionHouseAction;
-                if (exchangeAction == null)
+                if (character.CurrentAction is not AbstractGameAuctionHouseAction exchangeAction)
                 {
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
@@ -240,8 +242,7 @@ namespace Game.Frame
                     return;
                 }
 
-                var exchangeAction = character.CurrentAction as AbstractGameAuctionHouseAction;
-                if (exchangeAction == null)
+                if (character.CurrentAction is not AbstractGameAuctionHouseAction exchangeAction)
                 {
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
@@ -269,8 +270,7 @@ namespace Game.Frame
                         return;
                     }
 
-                    var exchangeAction = character.CurrentAction as AbstractGameAuctionHouseAction;
-                    if (exchangeAction == null)
+                    if (character.CurrentAction is not AbstractGameAuctionHouseAction exchangeAction)
                     {
                         character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                         return;
@@ -432,10 +432,7 @@ namespace Game.Frame
                     return;
                 }
 
-                // Intercambio entre jugadores o craft seguro: ambos derivan de
-                // AbstractGameExchangeAction y exponen DistantEntity (el invitado).
-                var action = character.CurrentAction as AbstractGameExchangeAction;
-                if (action == null || action.DistantEntity == null || !(action is GamePlayerExchangeAction || action is GameCraftSecureExchangeAction))
+                if (character.CurrentAction is not AbstractGameExchangeAction action || action.DistantEntity == null || !(action is GamePlayerExchangeAction || action is GameCraftSecureExchangeAction))
                 {
                     Logger.Debug($"ExchangeFrame::Accept la entidad no esta en un intercambio entre jugadores: {character.Name}");
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
@@ -453,9 +450,6 @@ namespace Game.Frame
             });
         }
 
-        /// <summary>
-        /// Craft seguro: pago del cliente. EP&lt;zona&gt;&lt;G|O&gt;&lt;...&gt; (zona 1=siempre, 2=si éxito).
-        /// </summary>
         private void ExchangePayMovement(CharacterEntity character, string message)
         {
             if (message.Length < 5 || (message[3] != 'G' && message[3] != 'O'))
@@ -507,7 +501,7 @@ namespace Game.Frame
 
             character.AddMessage(() =>
             {
-                if (!(character.CurrentAction is AbstractGameExchangeAction action) || !(action.Exchange is ExchangeCraftSecure craft))
+                if (character.CurrentAction is not AbstractGameExchangeAction action || action.Exchange is not ExchangeCraftSecure craft)
                 {
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
@@ -556,8 +550,8 @@ namespace Game.Frame
                     }
 
                     var action = character.CurrentAction as AbstractGameExchangeAction;
-                    var exchange = action.Exchange as IValidableExchange;
-                    if (exchange == null)
+
+                    if (action.Exchange is not IValidableExchange exchange)
                     {
                         character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                         return;
@@ -699,6 +693,7 @@ namespace Game.Frame
             var itemData = data[parts[0]];
             var add = itemData[0] == '+';
             long itemId = -1;
+
             if (!long.TryParse(itemData.Slice(1), out itemId))
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
@@ -785,9 +780,9 @@ namespace Game.Frame
                     return;
                 }
 
-                var action = character.CurrentAction as AbstractGameExchangeAction;
-                IRetryableExchange exchange = action.Exchange as IRetryableExchange;
-                if (exchange == null)
+                AbstractGameExchangeAction action = character.CurrentAction as AbstractGameExchangeAction;
+
+                if (action.Exchange is not IRetryableExchange exchange)
                 {
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;

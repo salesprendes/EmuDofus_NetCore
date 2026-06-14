@@ -183,6 +183,14 @@ namespace Game.Map
             private set;
         }
 
+        // Mapa exterior (a cielo abierto). Dato de servidor leído de MapTemplateDAO.Outdoor,
+        // disponible para lógica que dependa de interior/exterior.
+        public bool Outdoor
+        {
+            get;
+            private set;
+        }
+
         public List<int> FightTeam0Cells
         {
             get;
@@ -323,7 +331,7 @@ namespace Game.Map
         private ConquestPrismEntity m_conquestPrism;
         private HashSet<int> m_occupiedCells;
 
-        public MapInstance(int subAreaId, int id, int x, int y, int width, int height, string data, string dataKey, string createTime, List<int> f0teamCells, List<int> f1teamCells, bool subInstance = false)
+        public MapInstance(int subAreaId, int id, int x, int y, int width, int height, string data, string dataKey, string createTime, List<int> f0teamCells, List<int> f1teamCells, bool outdoor = false, bool subInstance = false)
         {
             Id = id;
             SubAreaId = subAreaId;
@@ -336,6 +344,7 @@ namespace Game.Map
             CreateTime = createTime;
             FightTeam0Cells = f0teamCells;
             FightTeam1Cells = f1teamCells;
+            Outdoor = outdoor;
 
             m_subInstance = subInstance;
             m_interactiveObjects = new List<InteractiveObject>();
@@ -490,7 +499,7 @@ namespace Game.Map
 
         public MapInstance Clone()
         {
-            return new MapInstance(SubAreaId, Id, X, Y, Width, Height, Data, DataKey, CreateTime, FightTeam0Cells, FightTeam1Cells, true);
+            return new MapInstance(SubAreaId, Id, X, Y, Width, Height, Data, DataKey, CreateTime, FightTeam0Cells, FightTeam1Cells, Outdoor, true);
         }
 
         public void SetSpawnQueue(SpawnQueue spawnQueue)
@@ -1461,15 +1470,10 @@ namespace Game.Map
             SetEntityCell(entity, cellId);
         }
 
-        public void FreeRawData()
-        {
-            Data = null;
-        }
-
         public new void Dispose()
         {
             SubArea.RemoveUpdatable(this);
-            SubArea.RemoveHandler(base.Dispatch);
+            SubArea.RemoveHandler(Dispatch);
 
             m_entityById.Clear();
             m_entityById = null;

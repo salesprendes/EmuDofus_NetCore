@@ -212,16 +212,7 @@ namespace Protocolo.Framework.Generic.Logging
             public readonly int QueueCapacity;
             public readonly long FlushIntervalTicks;
 
-            private LogOptions(
-                LogLevel minimumLevel,
-                LogLevel consoleLevel,
-                LogLevel fileLevel,
-                bool consoleEnabled,
-                bool fileEnabled,
-                string logDirectory,
-                string timestampFormat,
-                int queueCapacity,
-                long flushIntervalTicks)
+            private LogOptions(LogLevel minimumLevel, LogLevel consoleLevel, LogLevel fileLevel, bool consoleEnabled, bool fileEnabled, string logDirectory, string timestampFormat, int queueCapacity, long flushIntervalTicks)
             {
                 MinimumLevel = minimumLevel;
                 ConsoleLevel = consoleLevel;

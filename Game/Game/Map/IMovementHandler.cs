@@ -27,9 +27,7 @@ namespace Game.Map
         }
 
         void Move(AbstractEntity entity, int cellId, string movementPath);
-
         void MovementFinish(AbstractEntity entity, MovementPath path, int cellId);
-
         void Dispatch(string message);
     }
 }
