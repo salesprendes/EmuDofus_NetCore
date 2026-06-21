@@ -33,6 +33,9 @@ namespace Game.Fight.AI.Core
         Kimbo = 1006,
         Rasboul = 1007,
 
-        TaxCollector = 2000
+        TaxCollector = 2000,
+
+        // IAs de monstruos concretos.
+        Tofu = 3000
     }
 }

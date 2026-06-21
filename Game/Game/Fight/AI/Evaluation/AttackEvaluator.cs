@@ -24,14 +24,15 @@ namespace Game.Fight.AI.Evaluation
                     continue;
                 }
 
-                var estimatedDamage = SpellEvaluator.EstimateDamage(spell);
-
                 foreach (var enemy in context.Enemies)
                 {
                     if (enemy?.Cell == null || enemy.IsFighterDead)
                     {
                         continue;
                     }
+
+                    // Danio estimado contra ESTE enemigo (segun sus resistencias y nuestro elemento).
+                    var estimatedDamage = SpellEvaluator.EstimateDamageOnTarget(context.Fighter, spell, enemy);
 
                     int targetCellId = enemy.Cell.Id;
 
@@ -70,7 +71,11 @@ namespace Game.Fight.AI.Evaluation
 
 
 
-                    var canAttackAfterMove = false;
+                    // Busca la celda alcanzable de MENOR riesgo desde la que el hechizo alcanza al
+                    // enemigo: el movimiento y el lanzamiento se emiten como una unica decision
+                    // atomica, garantizando que el desplazamiento habilita realmente el ataque.
+                    int? bestMoveCell = null;
+                    var bestMoveRisk = int.MaxValue;
                     foreach (var reachCell in reachableCells)
                     {
                         if (reachCell == context.CurrentCellId)
@@ -78,37 +83,36 @@ namespace Game.Fight.AI.Evaluation
                             continue;
                         }
 
-                        if (SpellEvaluator.CanCastFromCell(context, spell, reachCell, targetCellId))
+                        if (!SpellEvaluator.CanCastFromCell(context, spell, reachCell, targetCellId))
                         {
-                            canAttackAfterMove = true;
-                            break;
+                            continue;
+                        }
+
+                        var risk = RiskEvaluator.ScoreCellRisk(context, reachCell, false);
+                        if (risk < bestMoveRisk)
+                        {
+                            bestMoveRisk = risk;
+                            bestMoveCell = reachCell;
                         }
                     }
 
-                    if (!canAttackAfterMove)
+                    if (bestMoveCell == null)
                     {
                         continue;
                     }
 
-
-
-
-
-
                     {
                         var killScore = TargetEvaluator.ScoreKillChance(context.Fighter, enemy, estimatedDamage);
-                        var score = 75 + estimatedDamage / 2 + TargetEvaluator.ScoreLowHp(enemy) / 2 + killScore;
+                        var score = 75 + estimatedDamage / 2 + TargetEvaluator.ScoreLowHp(enemy) / 2 + killScore - bestMoveRisk / 4;
 
-                        yield return new AIDecision
-                        {
-                            Type = AIDecisionType.CastSpell,
-                            Priority = AIDecisionPriority.Low,
-                            Score = score,
-                            SpellId = spell.SpellId,
-                            TargetId = enemy.Id,
-                            CellId = (short)targetCellId,
-                            Reason = killScore > 0 ? "Golpe mortal tras movimiento" : "Ataque tras movimiento"
-                        };
+                        yield return AIDecision.MoveAndCast(
+                            bestMoveCell.Value,
+                            spell.SpellId,
+                            targetCellId,
+                            enemy.Id,
+                            score,
+                            killScore > 0 ? AIDecisionPriority.Normal : AIDecisionPriority.Low,
+                            killScore > 0 ? "Golpe mortal tras movimiento" : "Ataque tras movimiento");
                     }
                 }
             }

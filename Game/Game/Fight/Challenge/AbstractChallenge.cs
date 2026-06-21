@@ -132,6 +132,22 @@ namespace Game.Fight.Challenge
             }
         }
 
+        // Fuerza el fracaso del reto aunque ya estuviera marcado como exito.
+        // En Dofus, perder el combate anula TODO el progreso de retos (incluidos los ya cumplidos).
+        public void ForceFail()
+        {
+            if (Failed)
+            {
+                return;
+            }
+
+            Success = false;
+            Failed = true;
+            base.CachedBuffer = true;
+            base.Dispatch(WorldMessage.FIGHT_CHALLENGE_FAILED(Id));
+            base.CachedBuffer = false;
+        }
+
         public void FlagCell(int cellId, long fighterId = 0)
         {
             base.Dispatch(WorldMessage.FIGHT_CELL_FLAG(cellId, fighterId));

@@ -191,6 +191,16 @@ namespace Game.Fight
             m_challenges.Add(challenge);
         }
 
+        // Anula TODOS los retos del equipo al perder el combate, incluso los ya cumplidos:
+        // en Dofus, ser derrotado fracasa todos los retos y no se otorga ningun bonus.
+        public void FailChallenges()
+        {
+            foreach (var challenge in m_challenges)
+            {
+                challenge.ForceFail();
+            }
+        }
+
         public void AddFighter(AbstractFighter fighter)
         {
             m_fighters.Add(fighter);

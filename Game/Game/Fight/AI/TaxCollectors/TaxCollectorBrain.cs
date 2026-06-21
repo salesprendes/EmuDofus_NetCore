@@ -146,25 +146,12 @@ namespace Game.Fight.AI.TaxCollectors
             return true;
         }
 
-        private static bool IsTargetAlive(AIContext context, long targetId)
-        {
-            return context?.Allies?.Any(f => f != null && f.Id == targetId && !f.IsFighterDead) == true
-                || context?.Enemies?.Any(f => f != null && f.Id == targetId && !f.IsFighterDead) == true;
-        }
+        private static bool IsTargetAlive(AIContext context, long targetId) => context?.Allies?.Any(f => f != null && f.Id == targetId && !f.IsFighterDead) == true || context?.Enemies?.Any(f => f != null && f.Id == targetId && !f.IsFighterDead) == true;
 
-        private static bool IsSpellDecision(AIDecisionType type)
-        {
-            return type == AIDecisionType.CastSpell || type == AIDecisionType.Heal || type == AIDecisionType.Buff || type == AIDecisionType.Debuff || type == AIDecisionType.Summon;
-        }
+        private static bool IsSpellDecision(AIDecisionType type) => type == AIDecisionType.CastSpell || type == AIDecisionType.Heal || type == AIDecisionType.Buff || type == AIDecisionType.Debuff || type == AIDecisionType.Summon;
 
-        private static bool CanMove(AIContext context)
-        {
-            return context?.Fighter != null && context.CurrentMP > 0 && context.Fighter.CanBeMoved();
-        }
+        private static bool CanMove(AIContext context) => context?.Fighter != null && context.CurrentMP > 0 && context.Fighter.CanBeMoved();
 
-        private static bool HasUsableContext(AIContext context)
-        {
-            return context?.Fighter != null && context.Fight != null && context.Fighter.Team != null && context.Fighter.Cell != null && !context.Fighter.IsFighterDead;
-        }
+        private static bool HasUsableContext(AIContext context) => context?.Fighter != null && context.Fight != null && context.Fighter.Team != null && context.Fighter.Cell != null && !context.Fighter.IsFighterDead;
     }
 }

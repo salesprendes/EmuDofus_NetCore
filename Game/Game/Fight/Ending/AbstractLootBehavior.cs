@@ -46,6 +46,7 @@ namespace Game.Fight.Ending
                 var itemWon = distributedDrop[fighter];
                 var kamasWon = GetKamasWon(arguments, fighter);
                 var xpWon = GetExperienceWon(arguments, fighter);
+                long mountXpWon = 0;
                 switch (fighter.Type)
                 {
                     case EntityTypeEnum.TYPE_CHARACTER:
@@ -53,7 +54,10 @@ namespace Game.Fight.Ending
                         foreach (var item in itemWon)
                             character.Inventory.AddItem(item);
                         character.Inventory.AddKamas(kamasWon);
-                        character.AddExperience(xpWon);
+                        // Reparte la XP: la montura equipada se queda con su porcentaje y el
+                        // personaje con el resto. xpWon pasa a ser solo lo que gana el personaje.
+                        mountXpWon = character.AddFightExperience(xpWon);
+                        xpWon -= mountXpWon;
                         break;
 
                     case EntityTypeEnum.TYPE_MONSTER_FIGHTER:
@@ -98,7 +102,7 @@ namespace Game.Fight.Ending
                     0,
                     0,
                     0,
-                    0,
+                    mountXpWon,
                     itemWon
                         .GroupBy(item => item.TemplateId)
                         .Select(g => new { TemplateId = g.Key, Count = g.Count() })
@@ -113,8 +117,9 @@ namespace Game.Fight.Ending
                 var xpWon = GetLoserExperienceWon(arguments, loserCharacter);
                 if (xpWon <= 0) continue;
                 loserCharacter.CachedBuffer = true;
-                loserCharacter.AddExperience(xpWon);
-                fight.Result.AddResult(loserCharacter, FightEndTypeEnum.END_LOSER, false, 0, xpWon);
+                var mountXpWon = loserCharacter.AddFightExperience(xpWon);
+                xpWon -= mountXpWon;
+                fight.Result.AddResult(loserCharacter, FightEndTypeEnum.END_LOSER, false, 0, xpWon, 0, 0, 0, mountXpWon);
                 loserCharacter.CachedBuffer = false;
             }
         }

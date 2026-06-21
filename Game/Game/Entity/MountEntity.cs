@@ -1,3 +1,4 @@
+using Game.Database.Repository;
 using Game.Database.Structure;
 using Game.Manager;
 using Game.Mount;
@@ -160,7 +161,15 @@ namespace Game.Entity
 
         public bool Ridable => Maturity == Template.MaxMaturity && !Wild;
 
-        public int XPSharePercent => m_record.XPSharePercent;
+        public int XPSharePercent
+        {
+            get => m_record.XPSharePercent;
+            set => m_record.XPSharePercent = value;
+        }
+        public void SetName(string name) => m_record.Name = name;
+        public void SetCastrated() => m_record.Castrated = true;
+        public void SetWild(bool value) => m_record.Wild = value;
+        public void SetOwner(long ownerId) => m_record.OwnerId = ownerId;
         public long UniqueId => m_record.Id;
         public long OwnerId => m_record.OwnerId;
         public int Reproduction => m_record.Reproduction;
@@ -203,6 +212,31 @@ namespace Game.Entity
     : base(EntityTypeEnum.TYPE_MOUNT, Interlocked.Decrement(ref NextId))
         {
             m_record = record;
+        }
+
+        // La montura esta al nivel maximo cuando su experiencia alcanza el ultimo piso definido.
+        public bool IsMaxLevel
+        {
+            get
+            {
+                var maxExperience = ExperienceTemplateRepository.Instance.GetMaxMountExperience();
+                return maxExperience > 0 && Experience >= maxExperience;
+            }
+        }
+
+        // Anade experiencia a la montura. El nivel se deriva de la experiencia, asi que se
+        // limita al ultimo piso definido para no disparar un bucle infinito en GetLevel.
+        public void AddExperience(long amount)
+        {
+            if (amount <= 0)
+                return;
+
+            var newExperience = Experience + amount;
+            var maxExperience = ExperienceTemplateRepository.Instance.GetMaxMountExperience();
+            if (maxExperience > 0 && newExperience > maxExperience)
+                newExperience = maxExperience;
+
+            Experience = newExperience;
         }
 
         public GenericStats GetStatistics()

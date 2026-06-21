@@ -203,6 +203,11 @@ namespace Game.Guild
             Guild.AddMessage(() => { Guild.SendMembersInformations(this); });
         }
 
+        public void SendMountParksInformations()
+        {
+            Guild.AddMessage(() => { Guild.SendMountParks(this); });
+        }
+
         public void SendBoostInformations()
         {
             Guild.AddMessage(() => { Guild.SendBoostInformations(this); });

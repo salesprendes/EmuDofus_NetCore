@@ -14,6 +14,9 @@ namespace Game.Fight.AI.Cache
 
         public Dictionary<int, int> CellRiskScores { get; } = new Dictionary<int, int>();
 
+        // Amenazas de los enemigos (movimiento + alcance + danio), calculadas una sola vez por turno.
+        public IReadOnlyList<AIEnemyThreat> EnemyThreats { get; set; }
+
         public AITurnCache(AIFighter fighter, IReadOnlyList<AbstractFighter> allies, IReadOnlyList<AbstractFighter> enemies, AISpellBook spellBook)
         {
             Fighter = fighter;

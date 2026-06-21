@@ -15,7 +15,10 @@ namespace Game.Fight.AI.Core
         public int CurrentMP => Fighter?.MP ?? 0;
         public int CurrentCellId => Fighter?.Cell?.Id ?? -1;
         public AISpellBook SpellBook { get; private set; }
-        public AITurnBudget Budget { get; private set; }
+
+        // Presupuesto del turno. Se puede inyectar uno persistente para que la planificacion
+        // iterativa (un paso, ejecutar, re-planificar) acumule el gasto a lo largo del turno.
+        public AITurnBudget Budget { get; set; }
         public AITurnCache TurnCache { get; private set; }
         public AILastDecisionMemory LastDecisionMemory { get; private set; }
 
@@ -34,7 +37,7 @@ namespace Game.Fight.AI.Core
             LastDecisionMemory = memory ?? new AILastDecisionMemory();
             Allies = LoadAllies(fighter);
             Enemies = LoadEnemies(fighter);
-            SpellBook = new AISpellBook(fighter);
+            SpellBook = fighter?.AISpellBook ?? new AISpellBook(null);
             Budget = new AITurnBudget();
             TurnCache = new AITurnCache(fighter, Allies, Enemies, SpellBook);
 

@@ -9,6 +9,7 @@ namespace Game.Fight.AI.Core
         Buff,
         Debuff,
         Summon,
+        MoveAndCast,
         EndTurn
     }
 }

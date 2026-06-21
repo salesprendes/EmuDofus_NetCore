@@ -9,6 +9,7 @@ using Game.Guild;
 using Game.Interactive;
 using Game.Job;
 using Game.Manager;
+using Game.Mount;
 using Game.Quest;
 using Game.Spell;
 using System;
@@ -1703,11 +1704,30 @@ namespace Game.Network
         public static string MOUNT_NAME(string name)
     => "Rn" + name;
 
+        public static string MOUNT_DATA(string informations)
+    => "Rd" + informations;
+
         public static string MOUNT_RIDING_START()
     => "Rr+";
 
         public static string MOUNT_RIDING_STOP()
     => "Rr-";
+
+        public static string GUILD_MOUNTPARKS(int maxMountParks, IEnumerable<Paddock> paddocks)
+        {
+            // Formato: gIF<maxParques>|<mapa>;<plazasMontura>;<plazasObjeto>;<monturas>|...
+            // (la lista de monturas colocadas va vacia: aun no se modela su colocacion en el mapa).
+            var message = new StringBuilder("gIF");
+            message.Append(maxMountParks);
+            foreach (var paddock in paddocks)
+            {
+                message.Append('|')
+                       .Append(paddock.MapId).Append(';')
+                       .Append(paddock.MountPlace).Append(';')
+                       .Append(paddock.ItemPlace).Append(';');
+            }
+            return message.ToString();
+        }
 
         public static string PADDOCK_BUY_START(int defaultPrice)
     => "RD|" + defaultPrice;

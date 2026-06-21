@@ -40,6 +40,9 @@ namespace Game.Fight.AI.Core
                 case AIProfile.TaxCollector:
                     return new TaxCollectorBrain(fighter);
 
+                case AIProfile.Tofu:
+                    return new TofuBrain(fighter);
+
                 case AIProfile.DopeulPandawa:
                     return new DopeulPandawaBrain(fighter);
                 case AIProfile.DopeulFeca:

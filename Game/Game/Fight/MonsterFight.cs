@@ -99,17 +99,22 @@ namespace Game.Fight
         protected override void FightEnd()
         {
             MonsterGroupEntity group = MonsterGroup;
+
+            // El panel de fin de combate muestra las estrellas (bonus) del grupo de monstruos.
+            if (group != null && group.AgeBonus > 0)
+            {
+                Result.StarsBonus = group.AgeBonus;
+            }
+
             if (WinnerTeam == Team0)
             {
-
-
-
-
                 Map.DestroyEntity(group);
                 Map.ScheduleRepop(group.CellId);
             }
             else
             {
+                // El jugador ha perdido el combate PvM: los retos en curso se dan por fallidos.
+                Team0.FailChallenges();
 
                 Map.AddMessage(() => { Map.DestroyEntity(group); Map.SpawnEntity(group); });
             }

@@ -23,6 +23,13 @@ namespace Game.Fight.AI
             protected set;
         }
 
+        private AISpellBook m_aiSpellBook;
+
+        // Categorizacion de hechizos por efecto (danio, cura, buff, etc.). Es estatica durante el
+        // combate, asi que se calcula una sola vez por luchador y se reutiliza en cada
+        // re-planificacion del turno en lugar de reconstruirla en cada paso.
+        public AISpellBook AISpellBook => m_aiSpellBook ??= new AISpellBook(this);
+
         protected AIFighter(EntityTypeEnum type, long id, bool staticInvocation = false) : base(type, id, staticInvocation)
         {
             CurrentBrain = AIBrainFactory.Create(this, AIProfile.Default);

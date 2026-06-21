@@ -45,6 +45,16 @@ namespace Game.Mount
         public bool OnSale => GuildId == -2;
         public bool Public => GuildId == -1;
 
+        // Fija el precio de reventa del enclos (0 = retirar de la venta).
+        public void SetForSale(long price) => Price = price < 0 ? 0 : price;
+
+        // Transfiere la propiedad del enclos a un gremio y lo retira de la venta.
+        public void TransferTo(int guildId)
+        {
+            GuildId = guildId;
+            Price = 0;
+        }
+
         private GuildInstance m_guild;
         private readonly PaddockDAO m_record;
 

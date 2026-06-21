@@ -83,17 +83,13 @@ namespace Game.Entity.Inventory
 
         public bool TryMerge(ItemDAO item)
         {
-            var sameItem = Items.Find(
-                entry => entry.TemplateId == item.TemplateId &&
-                    entry.StringEffects == item.StringEffects &&
-                    entry.Id != item.Id &&
-                    entry.SlotId == item.SlotId &&
-                    !ItemDAO.IsEquipedSlot(entry.Slot));
+            var sameItem = Items.Find(entry => entry.TemplateId == item.TemplateId && entry.StringEffects == item.StringEffects && entry.Id != item.Id && entry.SlotId == item.SlotId && !ItemDAO.IsEquipedSlot(entry.Slot));
 
             if (sameItem != null)
             {
                 sameItem.Quantity += item.Quantity;
                 OnItemQuantity(sameItem.Id, sameItem.Quantity);
+                item.OwnerId = -1;
                 return true;
             }
 

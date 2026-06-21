@@ -94,7 +94,7 @@ namespace Game.Frame
                                 case 'G':
                                     return GuildGeneralInformations;
                                 case 'F':
-                                    break;
+                                    return GuildMountParksList;
                                 case 'H':
                                     break;
                                 case 'T':
@@ -640,6 +640,18 @@ namespace Game.Frame
             }
 
             character.GuildMember.SendGeneralInformations();
+        }
+
+        // "gIF" : lista de cercados (parques de montura) que posee el gremio.
+        private void GuildMountParksList(CharacterEntity character, string message)
+        {
+            if (character.GuildMember == null)
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
+            character.GuildMember.SendMountParksInformations();
         }
 
         private void GuildMembersInformations(CharacterEntity character, string message)

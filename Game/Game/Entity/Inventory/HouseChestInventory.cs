@@ -1,5 +1,4 @@
 using Game.Database.Structure;
-using Game.Entity;
 
 namespace Game.Entity.Inventory
 {

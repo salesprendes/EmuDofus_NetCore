@@ -110,6 +110,43 @@ namespace Game.Fight.AI.Evaluation
             return spell.Effects.Where(e => CastInfos.IsDamageEffect(e.TypeEnum)).Sum(EstimateEffectValue);
         }
 
+        // Estimacion de danio realista contra un objetivo concreto: aplica el mismo modelo que el
+        // motor (caracteristicas elementales del lanzador y resistencias/armadura del objetivo) en
+        // lugar del valor crudo del efecto. Permite priorizar el mejor elemento por enemigo y
+        // detectar golpes mortales de forma fiable.
+        public static int EstimateDamageOnTarget(AbstractFighter caster, SpellLevel spell, AbstractFighter target)
+        {
+            if (spell?.Effects == null)
+                return 0;
+
+            var total = 0;
+            foreach (var effect in spell.Effects)
+            {
+                if (effect == null || !CastInfos.IsDamageEffect(effect.TypeEnum))
+                    continue;
+
+                var jet = EstimateEffectValue(effect);
+                if (jet <= 0)
+                    continue;
+
+                caster?.CalculDamages(effect.TypeEnum, ref jet);
+
+                if (target != null)
+                {
+                    target.CalculReduceDamages(effect.TypeEnum, ref jet);
+
+                    var armor = target.CalculArmor(effect.TypeEnum);
+                    if (armor > 0)
+                        jet -= armor;
+                }
+
+                if (jet > 0)
+                    total += jet;
+            }
+
+            return total;
+        }
+
         public static int EstimateHeal(SpellLevel spell)
         {
             if (spell?.Effects == null)

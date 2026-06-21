@@ -55,6 +55,14 @@ namespace Game.Database.Repository
             return m_experienceByLevel.Values.Max(template => template.Pvp);
         }
 
+        public long GetMaxMountExperience()
+        {
+            if (m_experienceByLevel.Count == 0)
+                return 0;
+
+            return m_experienceByLevel.Values.Max(template => template.Mount);
+        }
+
         public int GetPvpGrade(long honor, int maxGrade)
         {
             var grade = 1;

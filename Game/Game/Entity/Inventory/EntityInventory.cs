@@ -37,8 +37,7 @@ namespace Game.Entity.Inventory
 
         private bool m_entityLookRefresh;
 
-        public EntityInventory(AbstractEntity entity, int type, long id)
-    : base(type, id)
+        public EntityInventory(AbstractEntity entity, int type, long id) : base(type, id)
         {
             m_equippedSets = new Dictionary<int, int>();
 

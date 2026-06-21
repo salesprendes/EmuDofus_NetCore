@@ -1533,6 +1533,212 @@ namespace Game.Entity
             }
         }
 
+        public void RenameMount(string name)
+        {
+            if (m_mount == null)
+            {
+                Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
+            name = name?.Trim();
+            if (string.IsNullOrEmpty(name) || name.Length > 25)
+            {
+                Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
+            m_mount.SetName(name);
+            Dispatch(WorldMessage.MOUNT_NAME(m_mount.Name));
+        }
+
+        public void SetMountXpShare(int percent)
+        {
+            if (m_mount == null)
+            {
+                Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
+            // El cliente solo permite repartir entre 0 y 90 % de la experiencia con la montura.
+            percent = Math.Clamp(percent, 0, 90);
+
+            m_mount.XPSharePercent = percent;
+            Dispatch(WorldMessage.MOUNT_EXPERIENCE_SHARED(m_mount.XPSharePercent));
+        }
+
+        public void SendMountData(long mountId)
+        {
+            // La montura equipada esta disponible directamente; si no, se busca por id.
+            var mount = (m_mount != null && m_mount.UniqueId == mountId)
+                ? m_mount
+                : EntityManager.Instance.GetMountById(mountId);
+
+            // Solo se entregan los datos de monturas que pertenecen al jugador.
+            if (mount == null || mount.OwnerId != Id)
+            {
+                Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
+            Dispatch(WorldMessage.MOUNT_DATA(mount.SerializeAs_MountInfos()));
+        }
+
+        // "Rf" : liberar la montura equipada (vuelve a estado salvaje y deja de pertenecer al jugador).
+        public void FreeMount()
+        {
+            if (m_mount == null)
+            {
+                Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
+            CachedBuffer = true;
+            if (RidingMount)
+            {
+                RidingMount = false;
+                Statistics.UnMerge(StatsType.TYPE_ITEM, m_mount.GetStatistics());
+                Dispatch(WorldMessage.MOUNT_RIDING_STOP());
+            }
+
+            m_mount.SetWild(true);
+            m_mount.SetOwner(-1);
+            m_mount = null;
+            EquippedMount = -1;
+
+            Dispatch(WorldMessage.MOUNT_UNEQUIP());
+            SendAccountStats();
+            RefreshOnMap();
+            CachedBuffer = false;
+        }
+
+        // "Rc" : castrar la montura equipada (deja de poder reproducirse).
+        public void CastrateMount()
+        {
+            if (m_mount == null || m_mount.Castrated)
+            {
+                Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
+            m_mount.SetCastrated();
+            SendMountEquipped();
+        }
+
+        // "Rp" : pedir la informacion del enclos del mapa actual.
+        public void SendCurrentPaddockInformations()
+        {
+            if (Map?.Paddock == null)
+            {
+                Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
+            Map.SendPaddockInformations(this);
+        }
+
+        // "Rv" : cerrar el dialogo de compra/venta del enclos.
+        public void PaddockLeave()
+        {
+            Dispatch(WorldMessage.PADDOCK_BUY_LEAVE());
+        }
+
+        // "Rs<precio>" : el propietario fija el precio de venta del enclos (0 = retirar de la venta).
+        public void PaddockSetPrice(long price)
+        {
+            var paddock = Map?.Paddock;
+            if (paddock == null)
+            {
+                Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
+            var member = GuildMember;
+            if (member == null || member.Guild.Id != paddock.GuildId
+                || !(member.HasRight(GuildRightEnum.ARRANGE_MOUNTPARK) || member.HasRight(GuildRightEnum.BOSS)))
+            {
+                if (member == null)
+                    Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                else
+                    member.SendHasNotEnoughRights();
+                return;
+            }
+
+            paddock.SetForSale(price);
+            Map.SendPaddockInformations(this);
+        }
+
+        // "Rb<precio>" : comprar el enclos (transfiere la propiedad al gremio del comprador).
+        public void PaddockBuy(long price)
+        {
+            var paddock = Map?.Paddock;
+            if (paddock == null)
+            {
+                Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
+            var member = GuildMember;
+            if (member == null || !member.HasRight(GuildRightEnum.BOSS))
+            {
+                if (member == null)
+                    Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                else
+                    member.SendHasNotEnoughRights();
+                return;
+            }
+
+            // No tiene sentido comprar un enclos que ya pertenece al gremio del comprador.
+            if (paddock.GuildId == member.Guild.Id)
+            {
+                Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
+            // Enclos disponible (sin gremio) se compra al precio base; en venta, al precio fijado.
+            var cost = paddock.OnSale ? paddock.DefaultPrice : paddock.Price;
+            if (cost <= 0 || Inventory.Kamas < cost)
+            {
+                Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
+            CachedBuffer = true;
+            Inventory.SubKamas(cost);
+            paddock.TransferTo((int)member.Guild.Id);
+            Dispatch(WorldMessage.PADDOCK_BUY_LEAVE());
+            Map.SendPaddockInformations(this);
+            CachedBuffer = false;
+        }
+
+        // "Ro<celda>" : retirar del enclos la montura colocada en la celda indicada.
+        public void PaddockRemoveObject(int cellId)
+        {
+            var paddock = Map?.Paddock;
+            if (paddock == null)
+            {
+                Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
+            var member = GuildMember;
+            if (member == null || member.Guild.Id != paddock.GuildId
+                || !(member.HasRight(GuildRightEnum.MANAGE_OTHERS_MOUNT)
+                     || member.HasRight(GuildRightEnum.ARRANGE_MOUNTPARK)
+                     || member.HasRight(GuildRightEnum.BOSS)))
+            {
+                if (member == null)
+                    Dispatch(WorldMessage.BASIC_NO_OPERATION());
+                else
+                    member.SendHasNotEnoughRights();
+                return;
+            }
+
+            // La colocacion de monturas dentro del enclos sobre el mapa aun no esta implementada,
+            // por lo que no hay ningun objeto que retirar todavia.
+            Dispatch(WorldMessage.BASIC_NO_OPERATION());
+        }
+
         public void GuildCreationOpen()
         {
             CurrentAction = new GameGuildCreationAction(this);
@@ -1704,6 +1910,27 @@ namespace Game.Entity
         {
             CurrentAction = new GameConquestDefenderAction(this, fight);
             StartAction(GameActionTypeEnum.PRISM_AGGRESSION);
+        }
+
+        // Reparte la experiencia de combate entre el personaje y, si lleva una montura equipada
+        // con porcentaje de reparto, la propia montura. Devuelve la parte que recibio la montura
+        // (para mostrarla en el panel de fin de combate). El personaje recibe el resto.
+        public long AddFightExperience(long experience)
+        {
+            if (experience <= 0)
+                return 0;
+
+            long mountExperience = 0;
+
+            // La montura equipada se queda con su porcentaje, salvo que ya este al nivel maximo.
+            if (m_mount != null && m_mount.XPSharePercent > 0 && !m_mount.IsMaxLevel)
+            {
+                mountExperience = experience * m_mount.XPSharePercent / 100;
+                m_mount.AddExperience(mountExperience);
+            }
+
+            AddExperience(experience - mountExperience);
+            return mountExperience;
         }
 
         public void AddExperience(long experience)

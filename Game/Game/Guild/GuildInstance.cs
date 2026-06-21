@@ -718,6 +718,12 @@ namespace Game.Guild
             member.Dispatch(WorldMessage.GUILD_MEMBERS_INFORMATIONS(m_members));
         }
 
+        public void SendMountParks(GuildMember member)
+        {
+            var paddocks = PaddockManager.Instance.GetByGuild((int)Id).ToList();
+            member.Dispatch(WorldMessage.GUILD_MOUNTPARKS(paddocks.Count, paddocks));
+        }
+
         public void SendBoostInformations(GuildMember member)
         {
             member.Dispatch(WorldMessage.GUILD_BOOST_INFORMATIONS(BoostPoint, TaxCollectorPrice, Statistics));

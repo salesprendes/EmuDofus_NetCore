@@ -35,6 +35,11 @@ namespace Game.Manager
                 return m_paddockByMap[mapId];
             return null;
         }
+
+        public IEnumerable<Paddock> GetByGuild(int guildId)
+        {
+            return m_paddockByMap.Values.Where(paddock => paddock.GuildId == guildId);
+        }
     }
 }
 

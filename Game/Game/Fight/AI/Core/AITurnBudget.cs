@@ -57,7 +57,7 @@ namespace Game.Fight.AI.Core
             FailedActions++;
         }
 
-        private static bool IsSpellDecision(AIDecisionType type)
+        public static bool IsSpellDecision(AIDecisionType type)
         {
             return type == AIDecisionType.CastSpell || type == AIDecisionType.Heal || type == AIDecisionType.Buff || type == AIDecisionType.Debuff || type == AIDecisionType.Summon;
         }

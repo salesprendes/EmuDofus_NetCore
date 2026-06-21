@@ -99,7 +99,38 @@ namespace Game.Fight
             private set;
         }
 
-        public string Message => m_message.ToString();
+        // Duracion del combate en milisegundos, mostrada en el panel de fin de combate.
+        public long Duration
+        {
+            get;
+            set;
+        }
+
+        // Bonus de estrellas del grupo de monstruos (solo PvM); -1 = no enviar.
+        public int StarsBonus
+        {
+            get;
+            set;
+        } = -1;
+
+        public string Message
+        {
+            get
+            {
+                // Primer campo: "<duracion>" o "<duracion>;<estrellas>" si hay bonus de grupo.
+                var message = new StringBuilder("GE");
+                message.Append(Duration);
+                if (StarsBonus >= 0)
+                {
+                    message.Append(';').Append(StarsBonus);
+                }
+                message.Append('|').Append(m_fightId).Append('|').Append(CanWinHonor ? '1' : '0');
+                message.Append(m_message);
+                return message.ToString();
+            }
+        }
+
+        private readonly long m_fightId;
 
         private StringBuilder m_message;
 
@@ -108,12 +139,12 @@ namespace Game.Fight
         public FightEndResult(long fightId, bool canWinHonor)
         {
             CanWinHonor = canWinHonor;
+            m_fightId = fightId;
 
-            m_message = new StringBuilder("GE");
+            // m_message acumula solo la parte de cada luchador (cada una empieza por '|').
+            // La cabecera (con duracion y estrellas) se construye al leer Message.
+            m_message = new StringBuilder();
             m_resultFighterIds = new HashSet<long>();
-            m_message.Append(0).Append('|');
-            m_message.Append(fightId).Append('|');
-            m_message.Append(CanWinHonor ? '1' : '0');
         }
 
         public bool HasResult(AbstractFighter fighter)
@@ -474,6 +505,14 @@ namespace Game.Fight
         public long StartTime
         {
             get;
+        }
+
+        // Momento (UpdateTime, en ms) en que el combate paso de colocacion a lucha.
+        // Sirve para calcular la duracion mostrada en el panel de fin de combate.
+        public long CombatStartTime
+        {
+            get;
+            private set;
         }
 
         public long TurnTimeLeft
@@ -1065,6 +1104,8 @@ namespace Game.Fight
         {
             AddMessage(() =>
             {
+                CombatStartTime = UpdateTime;
+
                 OnFightStart();
 
                 TurnProcessor.InitTurns(Fighters);
@@ -2196,6 +2237,7 @@ namespace Game.Fight
                 }
             }
 
+            Result.Duration = CombatStartTime > 0 ? UpdateTime - CombatStartTime : 0;
             Dispatch(WorldMessage.FIGHT_END_RESULT(Result));
 
             foreach (var fighter in WinnerTeam.Fighters.ToArray())
@@ -2224,6 +2266,7 @@ namespace Game.Fight
             State = FightStateEnum.STATE_ENDED;
             LoopState = FightLoopStateEnum.STATE_ENDED;
 
+            Result.Duration = CombatStartTime > 0 ? UpdateTime - CombatStartTime : 0;
             Dispatch(WorldMessage.FIGHT_END_RESULT(Result));
 
             foreach (var fighter in Fighters.ToArray())

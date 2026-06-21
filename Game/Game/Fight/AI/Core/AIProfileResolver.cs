@@ -1,6 +1,6 @@
+using Game.Database.Structure;
 using Game.Entity;
 using System;
-using System.Reflection;
 
 namespace Game.Fight.AI.Core
 {
@@ -49,6 +49,9 @@ namespace Game.Fight.AI.Core
         {
             switch (monsterId)
             {
+                case 43:
+                    return AIProfile.Tofu;
+
                 case 423:
                     return AIProfile.Kralamar;
 
@@ -64,35 +67,17 @@ namespace Game.Fight.AI.Core
             }
         }
 
-        private static AIProfile? ReadProfileValue(object template)
+        private static AIProfile? ReadProfileValue(MonsterDAO template)
         {
             if (template == null)
                 return null;
 
-            foreach (var name in new[] { "AiProfile", "AIProfile", "ai_profile" })
-            {
-                var property = template.GetType().GetProperty(name, BindingFlags.Instance | BindingFlags.Public);
-                if (property == null)
-                    continue;
+            var profileValue = template.AiProfile;
+            if (profileValue <= 0)
+                return null;
 
-                var value = property.GetValue(template, null);
-                if (value == null)
-                    continue;
-
-                try
-                {
-                    var intValue = Convert.ToInt32(value);
-                    if (intValue <= 0)
-                        continue;
-
-                    if (Enum.IsDefined(typeof(AIProfile), intValue))
-                        return (AIProfile)intValue;
-                }
-                catch
-                {
-                    return null;
-                }
-            }
+            if (Enum.IsDefined(typeof(AIProfile), profileValue))
+                return (AIProfile)profileValue;
 
             return null;
         }

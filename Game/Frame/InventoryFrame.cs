@@ -50,6 +50,36 @@ namespace Game.Frame
                     {
                         case 'r':
                             return MountRide;
+
+                        case 'n':
+                            return MountRename;
+
+                        case 'x':
+                            return MountXpShare;
+
+                        case 'd':
+                            return MountData;
+
+                        case 'f':
+                            return MountFree;
+
+                        case 'c':
+                            return MountCastrate;
+
+                        case 'p':
+                            return PaddockInformations;
+
+                        case 'o':
+                            return PaddockRemoveObject;
+
+                        case 's':
+                            return PaddockSetPrice;
+
+                        case 'b':
+                            return PaddockBuy;
+
+                        case 'v':
+                            return PaddockLeave;
                     }
                     break;
 
@@ -61,6 +91,88 @@ namespace Game.Frame
         }
 
         private void MountRide(CharacterEntity character, string message) => character.AddMessage(character.MountRideUnride);
+
+        // "Rn<nombre>" : renombrar la montura equipada.
+        private void MountRename(CharacterEntity character, string message)
+        {
+            var name = message.Substring(2);
+            character.AddMessage(() => character.RenameMount(name));
+        }
+
+        // "Rx<porcentaje>" : fijar el % de experiencia compartido con la montura equipada.
+        private void MountXpShare(CharacterEntity character, string message)
+        {
+            if (!int.TryParse(message.AsSpan(2), out var percent))
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
+            character.AddMessage(() => character.SetMountXpShare(percent));
+        }
+
+        // "Rd<idMontura>|<tiempo>" : pedir la ficha detallada de una montura para el visor.
+        private void MountData(CharacterEntity character, string message)
+        {
+            var data = message.AsSpan(2);
+            var separator = data.IndexOf('|');
+            var idSpan = separator >= 0 ? data.Slice(0, separator) : data;
+            if (!long.TryParse(idSpan, out var mountId))
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
+            character.AddMessage(() => character.SendMountData(mountId));
+        }
+
+        // "Rf" : liberar la montura equipada.
+        private void MountFree(CharacterEntity character, string message) => character.AddMessage(character.FreeMount);
+
+        // "Rc" : castrar la montura equipada.
+        private void MountCastrate(CharacterEntity character, string message) => character.AddMessage(character.CastrateMount);
+
+        // "Rp<idSprite>" : pedir la informacion del enclos del mapa actual.
+        private void PaddockInformations(CharacterEntity character, string message) => character.AddMessage(character.SendCurrentPaddockInformations);
+
+        // "Rv" : cerrar el dialogo de compra/venta del enclos.
+        private void PaddockLeave(CharacterEntity character, string message) => character.AddMessage(character.PaddockLeave);
+
+        // "Ro<celda>" : retirar la montura colocada en una celda del enclos.
+        private void PaddockRemoveObject(CharacterEntity character, string message)
+        {
+            if (!int.TryParse(message.AsSpan(2), out var cellId))
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
+            character.AddMessage(() => character.PaddockRemoveObject(cellId));
+        }
+
+        // "Rs<precio>" : fijar el precio de venta del enclos.
+        private void PaddockSetPrice(CharacterEntity character, string message)
+        {
+            if (!long.TryParse(message.AsSpan(2), out var price))
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
+            character.AddMessage(() => character.PaddockSetPrice(price));
+        }
+
+        // "Rb<precio>" : comprar el enclos.
+        private void PaddockBuy(CharacterEntity character, string message)
+        {
+            if (!long.TryParse(message.AsSpan(2), out var price))
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
+            character.AddMessage(() => character.PaddockBuy(price));
+        }
 
 
         private void ObjectMove(CharacterEntity character, string message)
