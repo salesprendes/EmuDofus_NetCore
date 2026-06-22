@@ -160,6 +160,12 @@ namespace Game.Fight.AI.Evaluation
             if (castableSpells.Count == 0)
                 return null;
 
+            // El danio estimado solo depende del hechizo: se precalcula una vez en lugar de
+            // recomputarlo dentro del bucle celda x hechizo x enemigo.
+            var spellDamage = new Dictionary<SpellLevel, int>(castableSpells.Count);
+            foreach (var spell in castableSpells)
+                spellDamage[spell] = SpellEvaluator.EstimateDamage(spell);
+
             int? bestCell = null;
             var bestScore = int.MinValue;
 
@@ -185,7 +191,7 @@ namespace Game.Fight.AI.Evaluation
                         var newDist = context.TurnCache.Cells.GetDistance(cellId, enemy.Cell.Id);
                         var proximityBonus = System.Math.Max(0, currentDist - newDist) * 15;
 
-                        var score = 120 + SpellEvaluator.EstimateDamage(spell) + TargetEvaluator.ScoreLowHp(enemy) + proximityBonus - RiskEvaluator.ScoreCellRisk(context, cellId, false);
+                        var score = 120 + spellDamage[spell] + TargetEvaluator.ScoreLowHp(enemy) + proximityBonus - RiskEvaluator.ScoreCellRisk(context, cellId, false);
 
                         if (score > bestScore)
                         {

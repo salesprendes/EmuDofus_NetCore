@@ -8,13 +8,10 @@ using System.Linq;
 
 namespace Game.Fight.AI.Evaluation
 {
-    public sealed class SpellEvaluator : IAIEvaluator
+    // Helpers de hechizos: alcance, lanzabilidad, estimacion de danio/cura y zonas. No es un
+    // evaluador: lo usan los evaluadores reales por sus metodos estaticos.
+    public static class SpellEvaluator
     {
-        public IEnumerable<AIDecision> Evaluate(AIContext context)
-        {
-            return new AttackEvaluator().Evaluate(context);
-        }
-
         public static bool CanCastFromCurrentCell(AIContext context, SpellLevel spell, int castCell)
         {
             return CanCastFromCell(context, spell, context?.CurrentCellId ?? -1, castCell);
@@ -86,8 +83,9 @@ namespace Game.Fight.AI.Evaluation
                 if (spell.InLine && !Pathfinding.InLine(context.Fight.Map, fromCell, castCell))
                     return false;
             }
-            catch
+            catch (System.Exception ex)
             {
+                AIDiagnostics.LogSwallowed("SpellEvaluator.CanReachCell", ex);
                 return false;
             }
 
@@ -211,8 +209,9 @@ namespace Game.Fight.AI.Evaluation
             {
                 cells = string.IsNullOrEmpty(spell.RangeType) ? [castCell] : CellZone.GetCells(context.Fight.Map, castCell, context.Fighter.Cell.Id, spell.RangeType);
             }
-            catch
+            catch (System.Exception ex)
             {
+                AIDiagnostics.LogSwallowed("SpellEvaluator.GetAffectedFighters", ex);
                 cells = [castCell];
             }
 

@@ -59,8 +59,9 @@ namespace Game.Fight.AI.Actions
             {
                 m_path = context.Fight.Map?.Pathmaker?.FindPathAsString(context.Fighter.Cell.Id, targetCell, false, context.Fighter.MP, context.Fight.Obstacles) ?? string.Empty;
             }
-            catch
+            catch (System.Exception ex)
             {
+                AIDiagnostics.LogSwallowed("MoveToCellAIAction.TryPreparePath", ex);
                 m_path = string.Empty;
             }
 

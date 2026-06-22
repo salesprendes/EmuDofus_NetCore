@@ -10,7 +10,16 @@ namespace Game.Fight.AI.Profiles
 
         protected override IEnumerable<AIDecision> Evaluate(AIContext context)
         {
-            foreach (var decision in RunEvaluators(context, new HealEvaluator(), new SummonEvaluator(), new BuffEvaluator(), new DebuffEvaluator(), new AttackEvaluator(), new MovementEvaluator()))
+            foreach (var decision in RunEvaluators(context,
+                new HealEvaluator(),
+                new DispelEvaluator(),
+                new SummonEvaluator(),
+                new GlyphTrapEvaluator(),
+                new BuffEvaluator(),
+                new DebuffEvaluator(),
+                new PushPullEvaluator(),
+                new AttackEvaluator(),
+                new MovementEvaluator()))
             {
                 yield return decision;
             }

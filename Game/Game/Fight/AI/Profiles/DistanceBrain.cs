@@ -16,6 +16,20 @@ namespace Game.Fight.AI.Profiles
 
         protected override IEnumerable<AIDecision> Evaluate(AIContext context)
         {
+            // Opciones tacticas: disipar buffs, glifos/trampas y empuje (un atacante a distancia
+            // adora empujar al enemigo lejos contra un muro). Solo aplican si tiene esos hechizos.
+            foreach (var decision in new DispelEvaluator().Evaluate(context))
+                yield return decision;
+
+            foreach (var decision in new GlyphTrapEvaluator().Evaluate(context))
+                yield return decision;
+
+            foreach (var decision in new PushPullEvaluator().Evaluate(context))
+            {
+                decision.Score += 40;
+                yield return decision;
+            }
+
             foreach (var decision in new DebuffEvaluator().Evaluate(context))
             {
                 decision.Score += 30;

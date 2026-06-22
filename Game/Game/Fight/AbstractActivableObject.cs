@@ -91,6 +91,9 @@ namespace Game.Fight
             get;
         }
 
+        // Lanzador del objeto (glifo/trampa). Permite a la IA distinguir los hostiles de los propios.
+        public AbstractFighter Caster => m_caster;
+
         protected AbstractFight m_fight;
         protected AbstractFighter m_caster;
         protected SpellTemplate m_actionSpell;

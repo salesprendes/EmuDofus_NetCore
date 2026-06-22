@@ -15,16 +15,18 @@ namespace Game.Fight.AI.Core
         {
             get
             {
-                return ActionsUsed < MaxActions && FailedActions < MaxFailedActions && SpellCastsUsed <= MaxSpellCasts && MovementsUsed <= MaxMovements;
+                // Los topes por tipo (hechizos/movimientos) los aplica CanUse; aqui basta con el
+                // limite global de acciones y de fallos para saber si queda algo por intentar.
+                return ActionsUsed < MaxActions && FailedActions < MaxFailedActions;
             }
         }
 
         public AITurnBudget()
         {
-            MaxActions = 6;
-            MaxSpellCasts = 6;
-            MaxMovements = 2;
-            MaxFailedActions = 3;
+            MaxActions = AITuning.MaxActionsPerTurn;
+            MaxSpellCasts = AITuning.MaxSpellCastsPerTurn;
+            MaxMovements = AITuning.MaxMovementsPerTurn;
+            MaxFailedActions = AITuning.MaxFailedActionsPerTurn;
         }
 
         public bool CanUse(AIDecisionType type)

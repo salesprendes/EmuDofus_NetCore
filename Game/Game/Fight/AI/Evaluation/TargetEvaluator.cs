@@ -5,13 +5,10 @@ using System.Linq;
 
 namespace Game.Fight.AI.Evaluation
 {
-    public sealed class TargetEvaluator : IAIEvaluator
+    // Coleccion de helpers de puntuacion/seleccion de objetivos. No es un evaluador (no produce
+    // decisiones por si mismo): lo usan los evaluadores reales a traves de sus metodos estaticos.
+    public static class TargetEvaluator
     {
-        public IEnumerable<AIDecision> Evaluate(AIContext context)
-        {
-            yield break;
-        }
-
         public static int ScoreLowHp(AbstractFighter target)
         {
             if (target == null || target.MaxLife <= 0)

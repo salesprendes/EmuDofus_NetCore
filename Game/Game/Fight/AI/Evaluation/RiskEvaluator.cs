@@ -8,13 +8,10 @@ using System.Linq;
 
 namespace Game.Fight.AI.Evaluation
 {
-    public sealed class RiskEvaluator : IAIEvaluator
+    // Helpers de evaluacion de riesgo de casilla (amenaza enemiga, glifos). No es un evaluador:
+    // lo usan los evaluadores reales por sus metodos estaticos.
+    public static class RiskEvaluator
     {
-        public IEnumerable<AIDecision> Evaluate(AIContext context)
-        {
-            yield break;
-        }
-
         public static int ScoreCellRisk(AIContext context, int cellId, bool meleeOrTank = false)
         {
             if (context?.Enemies == null || cellId < 0)
@@ -49,6 +46,25 @@ namespace Game.Fight.AI.Evaluation
 
             if (!meleeOrTank && nearestDistance <= 2)
                 penalty += 40;
+
+            // Penaliza pisar glifos hostiles (son visibles). Las trampas enemigas estan ocultas,
+            // asi que la IA no las "ve" y no las esquiva (seria hacer trampa).
+            var fightCell = context.Fight?.GetCell(cellId);
+            if (fightCell != null)
+            {
+                foreach (var obstacle in fightCell.FightObjects)
+                {
+                    if (obstacle.ObstacleType != FightObstacleTypeEnum.TYPE_GLYPH)
+                        continue;
+
+                    if (obstacle is AbstractActivableObject activable
+                        && activable.Caster?.Team != null
+                        && activable.Caster.Team != context.Fighter.Team)
+                    {
+                        penalty += 90;
+                    }
+                }
+            }
 
             // Amenaza a distancia: un enemigo lejano pero con PM + alcance suficiente (y linea de
             // vision) puede golpear esta celda en su turno. Penaliza para que la IA a distancia

@@ -24,8 +24,9 @@ namespace Game.Fight.AI.Cache
             {
                 result = Pathfinding.CheckView(fight, fromCell, toCell);
             }
-            catch
+            catch (System.Exception ex)
             {
+                AIDiagnostics.LogSwallowed("AILineOfSightCache.HasLineOfSight", ex);
                 result = MapLos(fight?.Map, fromCell, toCell);
             }
 

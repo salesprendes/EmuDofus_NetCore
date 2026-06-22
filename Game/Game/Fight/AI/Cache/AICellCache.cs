@@ -1,7 +1,7 @@
-using Game.Map;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Game.Map;
 
 namespace Game.Fight.AI.Cache
 {
@@ -42,8 +42,9 @@ namespace Game.Fight.AI.Cache
             {
                 distance = Pathfinding.GoalDistance(map, fromCell, toCell);
             }
-            catch
+            catch (Exception ex)
             {
+                AIDiagnostics.LogSwallowed("AICellCache.GetDistance", ex);
                 distance = int.MaxValue;
             }
 
@@ -104,19 +105,35 @@ namespace Game.Fight.AI.Cache
             }
 
             var startCell = m_fighter.Cell.Id;
+            var maxMP = m_fighter.MP;
+
+            // BFS (flood-fill) limitado a los PM en una sola pasada, en vez de un pathfinding por
+            // cada casilla del circulo. Como el movimiento de combate es a 4 vecinos con coste 1,
+            // alcanzar una casilla por BFS sobre celdas transitables equivale al pathfinding.
+            var distance = new Dictionary<int, int> { [startCell] = 0 };
+            var frontier = new Queue<int>();
+            frontier.Enqueue(startCell);
             m_reachableCells.Add(startCell);
 
-            foreach (var cellId in CellZone.GetCircleCells(m_fighter.Fight.Map, startCell, m_fighter.MP))
+            while (frontier.Count > 0)
             {
-                if (cellId == startCell || !IsCellFree(cellId))
+                var cell = frontier.Dequeue();
+                var cost = distance[cell];
+                if (cost >= maxMP)
                 {
                     continue;
                 }
 
-                var path = GetPathToCell(cellId);
-                if (!string.IsNullOrEmpty(path))
+                foreach (var neighbor in GetNeighbors(cell))
                 {
-                    m_reachableCells.Add(cellId);
+                    if (distance.ContainsKey(neighbor) || !IsCellFree(neighbor))
+                    {
+                        continue;
+                    }
+
+                    distance[neighbor] = cost + 1;
+                    m_reachableCells.Add(neighbor);
+                    frontier.Enqueue(neighbor);
                 }
             }
 
@@ -150,8 +167,9 @@ namespace Game.Fight.AI.Cache
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                AIDiagnostics.LogSwallowed("AICellCache.GetPathToCell", ex);
                 path = string.Empty;
             }
 

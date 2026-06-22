@@ -689,15 +689,7 @@ namespace Game.Map
 
             return fighters;
         }
-
-
-        private static void Swap<T>(ref T a, ref T b)
-        {
-            T c = a;
-            a = b;
-            b = c;
-        }
-
+        
         private static bool BresenhamLine(AbstractFight fight, int beginCell, int endCell)
         {
             if (beginCell == endCell)
@@ -707,34 +699,64 @@ namespace Game.Map
             var end = GetPoint(fight.Map, endCell);
             int x0 = (int)begin.X, y0 = (int)begin.Y, x1 = (int)end.X, y1 = (int)end.Y;
 
-            bool steep = Math.Abs(y1 - y0) > Math.Abs(x1 - x0);
-            if (steep) { Swap(ref x0, ref y0); Swap(ref x1, ref y1); }
-            if (x0 > x1) { Swap(ref x0, ref x1); Swap(ref y0, ref y1); }
+            int dx = Math.Abs(x1 - x0), dy = Math.Abs(y1 - y0);
+            int x = x0, y = y0;
+            int xi = x1 > x0 ? 1 : -1;
+            int yi = y1 > y0 ? 1 : -1;
+            int err = dx - dy;
+            int dx2 = dx * 2, dy2 = dy * 2;
+            int steps = dx + dy;
 
-            int dx = x1 - x0, dy = Math.Abs(y1 - y0), err = 0, y = y0, ystep = y0 < y1 ? 1 : -1;
-
-            for (int x = x0; x <= x1; x++)
+            for (int i = 0; i < steps;)
             {
-                int cellId = steep ? GetCell1(fight.Map, y, x) : GetCell1(fight.Map, x, y);
-                if (cellId != beginCell && cellId != endCell)
+                if (err > 0)
                 {
-                    var fightCell = fight.GetCell(cellId);
-                    if (fightCell == null || !fightCell.LineOfSight || fightCell.HasObject(FightObstacleTypeEnum.TYPE_FIGHTER))
-                        return false;
+                    x += xi;
+                    err -= dy2;
                 }
-                err += dy;
-                if (2 * err >= dx) { y += ystep; err -= dx; }
+                else if (err < 0)
+                {
+                    y += yi;
+                    err += dx2;
+                }
+                else
+                {
+                    if (!IsTransparent(fight, GetCell1(fight.Map, x + xi, y), beginCell, endCell))
+                        return false;
+                    if (!IsTransparent(fight, GetCell1(fight.Map, x, y + yi), beginCell, endCell))
+                        return false;
+
+                    x += xi;
+                    y += yi;
+                    err -= dy2;
+                    err += dx2;
+                    i++;
+                }
+
+                if (!IsTransparent(fight, GetCell1(fight.Map, x, y), beginCell, endCell))
+                    return false;
+
+                i++;
             }
 
             return true;
         }
+        
+        private static bool IsTransparent(AbstractFight fight, int cellId, int beginCell, int endCell)
+        {
+            if (cellId == beginCell || cellId == endCell)
+                return true;
+
+            var fightCell = fight.GetCell(cellId);
+            if (fightCell == null)
+                return true;
+
+            return fightCell.LineOfSight && !fightCell.HasObject(FightObstacleTypeEnum.TYPE_FIGHTER);
+        }
 
         public static bool CheckView(AbstractFight fight, int beginCell, int endCell) => BresenhamLine(fight, beginCell, endCell);
 
-        public static int GetCell1(MapInstance map, double x, double y)
-        {
-            return (int)y * map.Width + (int)x * (map.Width - 1);
-        }
+        public static int GetCell1(MapInstance map, double x, double y) => (int)x * map.Width + (int)y * (map.Width - 1);
 
     }
 

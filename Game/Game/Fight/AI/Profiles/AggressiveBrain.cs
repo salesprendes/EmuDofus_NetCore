@@ -10,6 +10,19 @@ namespace Game.Fight.AI.Profiles
 
         protected override IEnumerable<AIDecision> Evaluate(AIContext context)
         {
+            // Opciones tacticas: disipar buffs enemigos, colocar glifos/trampas y empujar contra
+            // obstaculos (solo producen decisiones si el monstruo tiene esos hechizos).
+            foreach (var decision in new DispelEvaluator().Evaluate(context))
+                yield return decision;
+
+            foreach (var decision in new GlyphTrapEvaluator().Evaluate(context))
+                yield return decision;
+
+            foreach (var decision in new PushPullEvaluator().Evaluate(context))
+            {
+                decision.Score += 30;
+                yield return decision;
+            }
 
             foreach (var decision in new AttackEvaluator().Evaluate(context))
             {
