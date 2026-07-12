@@ -11,7 +11,6 @@ namespace Game.Fight.Effect.Type
         public IncreaseSpellJetBuff(CastInfos castInfos, AbstractFighter target)
     : base(castInfos, target, ActiveType.ACTIVE_ATTACK_BEFORE_JET, DecrementType.TYPE_ENDTURN)
         {
-            Duration += 2;
         }
 
         public override FightActionResultEnum ApplyEffect(ref int damageValue, CastInfos damageInfos = null)

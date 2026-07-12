@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -7,8 +8,18 @@ namespace Protocolo.Framework.Database
 {
     public sealed partial class DefaultTypeMap : SqlMapper.ITypeMap
     {
-        private readonly List<FieldInfo> _fields;
-        private readonly List<PropertyInfo> _properties;
+        private static readonly ConcurrentDictionary<Type, TypeMembers> MemberCache = new ConcurrentDictionary<Type, TypeMembers>();
+
+        private sealed class TypeMembers
+        {
+            internal List<FieldInfo> Fields;
+            internal List<PropertyInfo> Properties;
+        }
+
+        private readonly Dictionary<string, FieldInfo> _fieldsByName;
+        private readonly Dictionary<string, FieldInfo> _fieldsByNameIgnoreCase;
+        private readonly Dictionary<string, PropertyInfo> _propertiesByName;
+        private readonly Dictionary<string, PropertyInfo> _propertiesByNameIgnoreCase;
         private readonly Type _type;
 
         public DefaultTypeMap(Type type)
@@ -18,9 +29,25 @@ namespace Protocolo.Framework.Database
                 throw new ArgumentNullException(nameof(type));
             }
 
-            _fields = GetSettableFields(type);
-            _properties = GetSettableProps(type);
+            var fields = GetSettableFields(type);
+            var properties = GetSettableProps(type);
+            _fieldsByName = CreateLookup(fields, field => field.Name, StringComparer.Ordinal);
+            _fieldsByNameIgnoreCase = CreateLookup(fields, field => field.Name, StringComparer.OrdinalIgnoreCase);
+            _propertiesByName = CreateLookup(properties, property => property.Name, StringComparer.Ordinal);
+            _propertiesByNameIgnoreCase = CreateLookup(properties, property => property.Name, StringComparer.OrdinalIgnoreCase);
             _type = type;
+        }
+
+        private static Dictionary<string, TMember> CreateLookup<TMember>(
+            IEnumerable<TMember> members,
+            Func<TMember, string> getName,
+            StringComparer comparer)
+        {
+            var lookup = new Dictionary<string, TMember>(comparer);
+            foreach (var member in members)
+                lookup.TryAdd(getName(member), member);
+
+            return lookup;
         }
 
         internal static MethodInfo GetPropertySetter(PropertyInfo propertyInfo, Type type)
@@ -32,12 +59,26 @@ namespace Protocolo.Framework.Database
 
         internal static List<PropertyInfo> GetSettableProps(Type t)
         {
-            return t.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).Where(p => GetPropertySetter(p, t) != null).ToList();
+            return GetMembers(t).Properties;
         }
 
         internal static List<FieldInfo> GetSettableFields(Type t)
         {
-            return t.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).ToList();
+            return GetMembers(t).Fields;
+        }
+
+        private static TypeMembers GetMembers(Type type)
+        {
+            return MemberCache.GetOrAdd(type, static mappedType => new TypeMembers
+            {
+                Properties = mappedType
+                    .GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                    .Where(property => GetPropertySetter(property, mappedType) != null)
+                    .ToList(),
+                Fields = mappedType
+                    .GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                    .ToList()
+            });
         }
 
         public ConstructorInfo FindConstructor(string[] names, Type[] types)
@@ -47,40 +88,30 @@ namespace Protocolo.Framework.Database
             {
                 ParameterInfo[] ctorParameters = ctor.GetParameters();
                 if (ctorParameters.Length == 0)
-                {
                     return ctor;
-                }
 
-                if (ctorParameters.Length != types.Length)
+                if (ctorParameters.Length == types.Length)
                 {
-                    continue;
-                }
-
-                int i = 0;
-                for (; i < ctorParameters.Length; i++)
-                {
-                    if (!string.Equals(ctorParameters[i].Name, names[i], StringComparison.OrdinalIgnoreCase))
+                    var parameterIndex = 0;
+                    var parametersMatch = true;
+                    while (parameterIndex < ctorParameters.Length && parametersMatch)
                     {
-                        break;
+                        var parameter = ctorParameters[parameterIndex];
+                        parametersMatch = string.Equals(parameter.Name, names[parameterIndex], StringComparison.OrdinalIgnoreCase);
+
+                        if (parametersMatch && !(types[parameterIndex] == typeof(byte[]) && parameter.ParameterType.FullName == SqlMapper.LinqBinary))
+                        {
+                            var unboxedType = Nullable.GetUnderlyingType(parameter.ParameterType) ?? parameter.ParameterType;
+                            parametersMatch = unboxedType == types[parameterIndex]
+                                || (unboxedType.IsEnum && Enum.GetUnderlyingType(unboxedType) == types[parameterIndex])
+                                || (unboxedType == typeof(char) && types[parameterIndex] == typeof(string));
+                        }
+
+                        parameterIndex++;
                     }
 
-                    if (types[i] == typeof(byte[]) && ctorParameters[i].ParameterType.FullName == SqlMapper.LinqBinary)
-                    {
-                        continue;
-                    }
-
-                    var unboxedType = Nullable.GetUnderlyingType(ctorParameters[i].ParameterType) ?? ctorParameters[i].ParameterType;
-                    if (unboxedType != types[i]
-                        && !(unboxedType.IsEnum && Enum.GetUnderlyingType(unboxedType) == types[i])
-                        && !(unboxedType == typeof(char) && types[i] == typeof(string)))
-                    {
-                        break;
-                    }
-                }
-
-                if (i == ctorParameters.Length)
-                {
-                    return ctor;
+                    if (parametersMatch)
+                        return ctor;
                 }
             }
 
@@ -90,29 +121,32 @@ namespace Protocolo.Framework.Database
         public SqlMapper.IMemberMap GetConstructorParameter(ConstructorInfo constructor, string columnName)
         {
             var parameters = constructor.GetParameters();
+            ParameterInfo matchingParameter = null;
+            var parameterIndex = 0;
+            while (parameterIndex < parameters.Length && matchingParameter == null)
+            {
+                var parameter = parameters[parameterIndex];
+                if (string.Equals(parameter.Name, columnName, StringComparison.OrdinalIgnoreCase))
+                    matchingParameter = parameter;
 
-            return new SimpleMemberMap(columnName, parameters.FirstOrDefault(p => string.Equals(p.Name, columnName, StringComparison.OrdinalIgnoreCase)));
+                parameterIndex++;
+            }
+
+            return matchingParameter == null ? null : new SimpleMemberMap(columnName, matchingParameter);
         }
 
         public SqlMapper.IMemberMap GetMember(string columnName)
         {
-            var property = _properties.FirstOrDefault(p => string.Equals(p.Name, columnName, StringComparison.Ordinal))
-               ?? _properties.FirstOrDefault(p => string.Equals(p.Name, columnName, StringComparison.OrdinalIgnoreCase));
+            if (!_propertiesByName.TryGetValue(columnName, out var property))
+                _propertiesByNameIgnoreCase.TryGetValue(columnName, out property);
 
             if (property != null)
-            {
                 return new SimpleMemberMap(columnName, property);
-            }
 
-            var field = _fields.FirstOrDefault(p => string.Equals(p.Name, columnName, StringComparison.Ordinal))
-               ?? _fields.FirstOrDefault(p => string.Equals(p.Name, columnName, StringComparison.OrdinalIgnoreCase));
+            if (!_fieldsByName.TryGetValue(columnName, out var field))
+                _fieldsByNameIgnoreCase.TryGetValue(columnName, out field);
 
-            if (field != null)
-            {
-                return new SimpleMemberMap(columnName, field);
-            }
-
-            return null;
+            return field == null ? null : new SimpleMemberMap(columnName, field);
         }
     }
 

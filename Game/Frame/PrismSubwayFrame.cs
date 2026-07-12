@@ -13,6 +13,9 @@ namespace Game.Frame
     {
         public override Action<CharacterEntity, string> GetHandler(string message)
         {
+            if (message.Length < 2)
+                return null;
+
             switch (message[1])
             {
                 case 'p': return PrismUse;

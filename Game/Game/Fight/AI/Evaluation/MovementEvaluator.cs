@@ -48,6 +48,17 @@ namespace Game.Fight.AI.Evaluation
             }
             else
             {
+                // Sin lanzamientos útiles este turno (PA agotados o hechizos bloqueados): un
+                // atacante a distancia se retira fuera del alcance enemigo con los PM sobrantes
+                // (kiting) en vez de quedarse quieto o acercarse sin motivo al cuerpo a cuerpo.
+                if (GetCastableDamageSpells(context).Count == 0)
+                {
+                    var kiteCell = GetBestKitingCell(context);
+                    if (kiteCell.HasValue)
+                        yield return AIDecision.Move(kiteCell.Value, 90, AIDecisionPriority.Low, "Retirada tactica (sin PA utiles)");
+                    yield break;
+                }
+
                 var attackCell = GetBestCellForDistanceAttack(context);
                 if (attackCell.HasValue)
                     yield return AIDecision.Move(attackCell.Value, 100, AIDecisionPriority.Low, "Moverse para lanzar hechizo");
@@ -56,6 +67,47 @@ namespace Game.Fight.AI.Evaluation
                 if (nearCell.HasValue)
                     yield return AIDecision.Move(nearCell.Value, 60, AIDecisionPriority.Low, "Acercarse al objetivo");
             }
+        }
+
+        /// <summary>
+        /// Mejor celda de retirada: alcanzable, con amenaza estrictamente menor que la actual
+        /// (el mapa de riesgo ya modela alcance y línea de visión de cada enemigo), desempatando
+        /// por distancia al enemigo más cercano. Null si ya estamos a salvo o no hay mejora.
+        /// </summary>
+        public int? GetBestKitingCell(AIContext context)
+        {
+            if (!CanMove(context) || context?.Enemies == null)
+                return null;
+
+            var currentRisk = RiskEvaluator.ScoreCellRisk(context, context.CurrentCellId, false);
+            if (currentRisk <= 0)
+                return null;
+
+            int? bestCell = null;
+            var bestScore = int.MinValue;
+
+            foreach (var cellId in context.TurnCache.Cells.GetReachableCells())
+            {
+                if (cellId == context.CurrentCellId)
+                    continue;
+
+                var risk = RiskEvaluator.ScoreCellRisk(context, cellId, false);
+                if (risk >= currentRisk)
+                    continue;
+
+                var nearest = context.Enemies.Where(e => e?.Cell != null && !e.IsFighterDead)
+                    .Select(e => context.TurnCache.Cells.GetDistance(cellId, e.Cell.Id))
+                    .DefaultIfEmpty(0).Min();
+
+                var score = (currentRisk - risk) * 3 + nearest * 5;
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    bestCell = cellId;
+                }
+            }
+
+            return bestCell;
         }
 
         private static bool IsMeleeOnly(AIContext context)
@@ -83,9 +135,6 @@ namespace Game.Fight.AI.Evaluation
 
         public int? GetBestCellNearEnemy(AIContext context)
         {
-
-
-
             if (!CanMove(context))
                 return null;
 
@@ -93,6 +142,36 @@ namespace Game.Fight.AI.Evaluation
             if (context?.Fighter?.Cell == null || target?.Cell == null || context.CurrentMP <= 0)
                 return null;
 
+            var approach = context.TurnCache.Cells.GetApproachDistances(target.Cell.Id);
+            if (!approach.TryGetValue(context.CurrentCellId, out var currentDistance))
+                return GetBestCellNearEnemyByGoalDistance(context, target);
+
+            int? bestCell = null;
+            var bestScore = int.MinValue;
+
+            foreach (var cellId in context.TurnCache.Cells.GetReachableCells())
+            {
+                if (cellId == context.CurrentCellId)
+                    continue;
+
+                if (!approach.TryGetValue(cellId, out var distance) || distance >= currentDistance)
+                    continue;
+
+                var score = (currentDistance - distance) * 60 - RiskEvaluator.ScoreCellRisk(context, cellId, true);
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    bestCell = cellId;
+                }
+            }
+
+            return bestCell;
+        }
+
+        // Heuristica de respaldo con distancia Manhattan, para cuando el objetivo esta en una
+        // region no transitable desde aqui (arenas partidas) y el BFS de aproximacion no llega.
+        private static int? GetBestCellNearEnemyByGoalDistance(AIContext context, AbstractFighter target)
+        {
             var currentDistance = context.TurnCache.Cells.GetDistance(context.CurrentCellId, target.Cell.Id);
             int? bestCell = null;
             var bestScore = int.MinValue;
@@ -103,7 +182,7 @@ namespace Game.Fight.AI.Evaluation
                     continue;
 
                 var distance = context.TurnCache.Cells.GetDistance(cellId, target.Cell.Id);
-                if (distance > currentDistance)
+                if (distance >= currentDistance)
                     continue;
 
                 var score = (currentDistance - distance) * 60 - RiskEvaluator.ScoreCellRisk(context, cellId, true);
@@ -367,13 +446,29 @@ namespace Game.Fight.AI.Evaluation
             var target = TargetEvaluator.GetNearestEnemy(context);
             if (target?.Cell == null) return null;
 
+            // Distancia real de marcha cuando el objetivo es alcanzable; Manhattan como respaldo.
+            var approach = context.TurnCache.Cells.GetApproachDistances(target.Cell.Id);
+            var useApproach = approach.TryGetValue(context.CurrentCellId, out var bestDist);
+            if (!useApproach)
+                bestDist = context.TurnCache.Cells.GetDistance(context.CurrentCellId, target.Cell.Id);
+
             int? bestCell = null;
-            var bestDist = context.TurnCache.Cells.GetDistance(context.CurrentCellId, target.Cell.Id);
 
             foreach (var cellId in context.TurnCache.Cells.GetReachableCells())
             {
                 if (cellId == context.CurrentCellId) continue;
-                var dist = context.TurnCache.Cells.GetDistance(cellId, target.Cell.Id);
+
+                int dist;
+                if (useApproach)
+                {
+                    if (!approach.TryGetValue(cellId, out dist))
+                        continue;
+                }
+                else
+                {
+                    dist = context.TurnCache.Cells.GetDistance(cellId, target.Cell.Id);
+                }
+
                 if (dist < bestDist)
                 {
                     bestDist = dist;
@@ -387,6 +482,59 @@ namespace Game.Fight.AI.Evaluation
         private static bool CanMove(AIContext context)
         {
             return context?.Fighter != null && context.CurrentMP > 0 && context.Fighter.CanBeMoved();
+        }
+
+        // ¿La celda tiene un glifo del equipo contrario (que golpeara al empezar el turno aqui)?
+        public static bool IsOnHostileGlyph(AIContext context, int cellId)
+        {
+            var fightCell = context?.Fight?.GetCell(cellId);
+            if (fightCell == null || context.Fighter == null)
+                return false;
+
+            foreach (var obstacle in fightCell.FightObjects)
+            {
+                if (obstacle.ObstacleType != FightObstacleTypeEnum.TYPE_GLYPH)
+                    continue;
+
+                if (obstacle is AbstractActivableObject activable
+                    && activable.Caster?.Team != null
+                    && activable.Caster.Team != context.Fighter.Team)
+                    return true;
+            }
+
+            return false;
+        }
+
+        // Mejor celda alcanzable SIN glifo hostil, para bajarse del que se esta pisando. Se
+        // prioriza la de menor riesgo y, a igualdad, la mas cercana al enemigo (seguir siendo
+        // util). Devuelve null si toda celda alcanzable tiene glifo hostil (no hay a donde ir).
+        public int? GetBestCellOffHostileGlyph(AIContext context)
+        {
+            if (!CanMove(context))
+                return null;
+
+            int? bestCell = null;
+            var bestScore = int.MinValue;
+
+            foreach (var cellId in context.TurnCache.Cells.GetReachableCells())
+            {
+                if (cellId == context.CurrentCellId || IsOnHostileGlyph(context, cellId))
+                    continue;
+
+                var nearest = context.Enemies == null ? 0 : context.Enemies
+                    .Where(e => e?.Cell != null && !e.IsFighterDead)
+                    .Select(e => context.TurnCache.Cells.GetDistance(cellId, e.Cell.Id))
+                    .DefaultIfEmpty(0).Min();
+
+                var score = -RiskEvaluator.ScoreCellRisk(context, cellId, IsMeleeOnly(context)) - nearest;
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    bestCell = cellId;
+                }
+            }
+
+            return bestCell;
         }
 
         private static List<SpellLevel> GetCastableDamageSpells(AIContext context)

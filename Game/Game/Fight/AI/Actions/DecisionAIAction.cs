@@ -5,15 +5,17 @@ namespace Game.Fight.AI.Actions
     public sealed class DecisionAIAction : AIActionBase
     {
         private readonly AIDecision m_decision;
+        private readonly string m_failureKey;
         private AIContext m_context;
         private IAIAction m_action;
         private bool m_executed;
 
-        public DecisionAIAction(AIFighter fighter, AIContext context, AIDecision decision)
+        public DecisionAIAction(AIFighter fighter, AIContext context, AIDecision decision, string failureKey = null)
             : base(fighter)
         {
             m_context = context;
             m_decision = decision ?? AIDecision.EndTurn("Decision nula");
+            m_failureKey = failureKey;
         }
 
 
@@ -24,13 +26,13 @@ namespace Game.Fight.AI.Actions
 
             if (m_action == null)
             {
-                m_context?.Budget?.FailAction();
+                RegisterFailure();
                 return ChainResult.Done;
             }
 
             if (!m_action.CanExecute(m_context))
             {
-                m_context?.Budget?.FailAction();
+                RegisterFailure();
                 return ChainResult.Done;
             }
 
@@ -46,7 +48,7 @@ namespace Game.Fight.AI.Actions
 
                 if (result == null || !result.Success)
                 {
-                    m_context?.Budget?.FailAction();
+                    RegisterFailure();
                     return ChainResult.Done;
                 }
 
@@ -60,6 +62,16 @@ namespace Game.Fight.AI.Actions
             }
 
             return Timedout ? ChainResult.Done : ChainResult.Running;
+        }
+
+        // Ademas de consumir presupuesto de fallos, veta la decision para el resto del turno:
+        // re-planificar la misma opcion fallida quemaba el turno sin intentar alternativas.
+        private void RegisterFailure()
+        {
+            m_context?.Budget?.FailAction();
+
+            if (!string.IsNullOrEmpty(m_failureKey))
+                m_context?.FailedDecisionKeys?.Add(m_failureKey);
         }
 
 

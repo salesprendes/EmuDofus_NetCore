@@ -22,7 +22,7 @@ namespace Game.Fight.Effect.Type
                 if (target.StateManager.HasState(FighterStateEnum.STATE_CARRIED))
                 {
                     var cell = target.Fight.GetCell(CastInfos.CellId);
-                    if (cell.CanWalk)
+                    if (cell != null && cell.CanWalk)
                     {
                         var sleepTime = 1 + (WorldConfig.FIGHT_PANDA_LAUNCH_CELL_TIME * Pathfinding.GoalDistance(target.Fight.Map, target.Cell.Id, CastInfos.CellId));
                         var caster = CastInfos.Caster;

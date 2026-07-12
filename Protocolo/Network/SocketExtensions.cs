@@ -24,7 +24,12 @@ namespace Protocolo.Framework.Network
         internal static IPAddress ResolveIPv4Address(string host)
         {
             if (IPAddress.TryParse(host, out var address))
-                return address;
+            {
+                if (address.AddressFamily == AddressFamily.InterNetwork)
+                    return address;
+
+                throw new SocketException((int)SocketError.AddressFamilyNotSupported);
+            }
 
             var addresses = Dns.GetHostAddresses(host);
             for (var i = 0; i < addresses.Length; i++)

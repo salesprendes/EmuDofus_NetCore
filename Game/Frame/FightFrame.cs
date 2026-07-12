@@ -221,7 +221,7 @@ namespace Game.Frame
                     return;
                 }
 
-                character.Fight.AddMessage(() => character.Fight.Dispatch(WorldMessage.FIGHT_CELL_FLAG(cellId, character.Id)));
+                character.Fight.AddMessage(() => character.Fight.Dispatch(WorldMessage.FIGHT_CELL_FLAG(character.Id, cellId)));
             });
         }
     }

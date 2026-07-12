@@ -12,10 +12,12 @@ namespace Game.Map
         {
             if (map == null) yield break;
 
-            yield return Pathfinding.NextCell(map, cellId, DirectionEnum.Este);
-            yield return Pathfinding.NextCell(map, cellId, DirectionEnum.Sur);
-            yield return Pathfinding.NextCell(map, cellId, DirectionEnum.Oeste);
-            yield return Pathfinding.NextCell(map, cellId, DirectionEnum.Norte);
+            // Solo vecinos reales: descarta los saltos de fila por el borde del mapa (wrap-around).
+            foreach (var dir in CardinalDirections)
+            {
+                if (Pathfinding.TryGetCellInDirection(map, cellId, dir, 1, out var next))
+                    yield return next;
+            }
         }
 
         public static IEnumerable<int> GetLineCells(MapInstance map, int cellId, DirectionEnum direction, int length)
@@ -25,9 +27,10 @@ namespace Game.Map
             length = Clamp(length, 0, MaxRadius);
             for (int i = 1; i <= length; i++)
             {
-                var next = Pathfinding.NextCell(map, cellId, direction, i);
-                if (IsInBounds(map, next))
-                    yield return next;
+                // Una línea que llega al borde no continúa por la fila de al lado: se corta.
+                if (!Pathfinding.TryGetCellInDirection(map, cellId, direction, i, out var next))
+                    break;
+                yield return next;
             }
         }
 
@@ -115,13 +118,22 @@ namespace Game.Map
             width = Clamp(width, 1, MaxRadius);
             height = Clamp(height, 1, MaxRadius);
 
+            // El rectángulo se recorre por pasos validados (h en Sureste, w en Noreste): así no
+            // se cuela una fila del otro borde del mapa por el wrap-around de la aritmética.
             for (int h = 0; h < height; h++)
             {
-                for (int w = 0; w < width; w++)
+                int rowStart;
+                if (h == 0)
+                    rowStart = cellId;
+                else if (!Pathfinding.TryGetCellInDirection(map, cellId, DirectionEnum.Sureste, h, out rowStart))
+                    continue;
+
+                yield return rowStart;
+                for (int w = 1; w < width; w++)
                 {
-                    var cell = cellId + w + h * (map.Width * 2 - 1);
-                    if (IsInBounds(map, cell))
-                        yield return cell;
+                    if (!Pathfinding.TryGetCellInDirection(map, rowStart, DirectionEnum.Noreste, w, out var cell))
+                        break;
+                    yield return cell;
                 }
             }
         }
@@ -136,11 +148,9 @@ namespace Game.Map
             {
                 for (int i = 1; i <= radius; i++)
                 {
-                    var next = Pathfinding.NextCell(map, currentCell, dir, i);
-                    if (IsInBounds(map, next))
-                        yield return next;
-                    else
+                    if (!Pathfinding.TryGetCellInDirection(map, currentCell, dir, i, out var next))
                         break;
+                    yield return next;
                 }
             }
         }
@@ -156,11 +166,9 @@ namespace Game.Map
             {
                 for (int i = radiusIn; i <= radiusOut; i++)
                 {
-                    var next = Pathfinding.NextCell(map, currentCell, dir, i);
-                    if (IsInBounds(map, next))
-                        yield return next;
-                    else
+                    if (!Pathfinding.TryGetCellInDirection(map, currentCell, dir, i, out var next))
                         break;
+                    yield return next;
                 }
             }
         }
@@ -177,16 +185,16 @@ namespace Game.Map
 
             for (int i = 1; i <= length; i++)
             {
-                var next = Pathfinding.NextCell(map, cellId, perpDir, i);
-                if (IsInBounds(map, next))
-                    yield return next;
+                if (!Pathfinding.TryGetCellInDirection(map, cellId, perpDir, i, out var next))
+                    break;
+                yield return next;
             }
 
             for (int i = 1; i <= length; i++)
             {
-                var next = Pathfinding.NextCell(map, cellId, oppDir, i);
-                if (IsInBounds(map, next))
-                    yield return next;
+                if (!Pathfinding.TryGetCellInDirection(map, cellId, oppDir, i, out var next))
+                    break;
+                yield return next;
             }
         }
 

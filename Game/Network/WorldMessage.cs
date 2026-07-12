@@ -411,7 +411,13 @@ namespace Game.Network
 
         public static string INFORMATION_MESSAGE(InformationTypeEnum type, InformationEnum id, params object[] args)
         {
-            return "Im" + (int)type + (int)id + (args.Length > 0 ? ";" : "") + string.Join("~", args.Select(arg => arg.ToString()));
+            var message = new StringBuilder("Im", 32);
+            message.Append((int)type).Append((int)id);
+            for (int i = 0; i < args.Length; i++)
+            {
+                message.Append(i == 0 ? ';' : '~').Append(args[i]);
+            }
+            return message.ToString();
         }
 
         public static string GAME_CREATION_SUCCESS()
@@ -522,7 +528,13 @@ namespace Game.Network
 
         public static string GAME_MESSAGE(GamePopupTypeEnum type, GameMessageEnum message, params object[] args)
         {
-            return "M" + (int)type + "" + (int)message + (args.Length > 0 ? "|" : "") + string.Join(";", args.Select(arg => arg.ToString()));
+            var builder = new StringBuilder("M", 32);
+            builder.Append((int)type).Append((int)message);
+            for (int i = 0; i < args.Length; i++)
+            {
+                builder.Append(i == 0 ? '|' : ';').Append(args[i]);
+            }
+            return builder.ToString();
         }
 
         public static string SERVER_INFO_MESSAGE(string message)
@@ -610,6 +622,29 @@ namespace Game.Network
         public static string OBJECT_DROP_SUCCESS()
         {
             return "ODK";
+        }
+
+        // Objeto en el suelo del mapa (roleplay). El cliente (Game::onCellObject) espera
+        // "GDO" + signo + "|" + entradas "celda;plantilla;tipoVisual" separadas por '|'. El
+        // '|' inicial es obligatorio: el cliente ignora el primer token tras el signo.
+        public static string OBJECT_GROUND_ADD(int cellId, int templateId)
+        {
+            return "GDO+|" + cellId + ";" + templateId + ";0";
+        }
+
+        public static string OBJECT_GROUND_ADD(IEnumerable<Game.Map.GroundItem> groundItems)
+        {
+            var message = new StringBuilder("GDO+");
+            foreach (var ground in groundItems)
+            {
+                message.Append('|').Append(ground.CellId).Append(';').Append(ground.TemplateId).Append(";0");
+            }
+            return message.ToString();
+        }
+
+        public static string OBJECT_GROUND_REMOVE(int cellId)
+        {
+            return "GDO-|" + cellId;
         }
 
         public static string OBJECT_DROP_ERROR_CANT_DROP()
@@ -988,7 +1023,7 @@ namespace Game.Network
             return "Gd" + id + ";" + (showTarget ? "1" : "0") + ";" + targetId + ";" + basicXpBonus + ";" + teamXpBonus + ";" + basicDropBonus + ";" + teamDropBonus + ";" + (success ? "1" : "0");
         }
 
-        public static string FIGHT_CELL_FLAG(int cellId, long fighterId = 0)
+        public static string FIGHT_CELL_FLAG(long fighterId, int cellId)
         {
             return "Gf" + fighterId + "|" + cellId;
         }

@@ -6,10 +6,16 @@ using System.Threading.Tasks;
 
 namespace Game.Fight.Effect.Type
 {
+    /// <summary>
+    /// Veneno: todo efecto de daño (E96-E100) con duración. Tickea al INICIO del turno del
+    /// envenenado, simétrico a <see cref="HealBuff"/>, y decrementa al final de ese mismo turno,
+    /// de modo que una duración N produce exactamente N ticks (el +1 de AbstractSpellBuff cubre
+    /// el caso de envenenarse a sí mismo dentro de la propia zona de efecto).
+    /// </summary>
     public sealed class DamageBuff : AbstractSpellBuff
     {
         public DamageBuff(CastInfos castInfos, AbstractFighter target)
-            : base(castInfos, target, ActiveType.ACTIVE_ENDTURN, DecrementType.TYPE_ENDTURN)
+            : base(castInfos, target, ActiveType.ACTIVE_BEGINTURN, DecrementType.TYPE_ENDTURN)
         {
         }
 

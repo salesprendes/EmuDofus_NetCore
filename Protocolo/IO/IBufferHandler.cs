@@ -2,6 +2,11 @@ namespace Protocolo.Framework.Network
 {
     public interface IBufferHandler
     {
+        byte[] Buffer
+        {
+            get;
+        }
+
         int Offset
         {
             get;

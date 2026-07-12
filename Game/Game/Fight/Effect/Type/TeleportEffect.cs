@@ -19,17 +19,14 @@ namespace Game.Fight.Effect.Type
 
             FightCell cell = lanzador.Fight.GetCell(castInfos.CellId);
 
-            if (!cell.CanWalk)
+            // Comprobar null ANTES de desreferenciar (un invocador nuevo del efecto —glifo,
+            // trampa, IA— podría pasar una celda inexistente).
+            if (cell == null || !cell.CanWalk)
                 return FightActionResultEnum.RESULT_NOTHING;
 
-            if (cell != null)
-            {
-                lanzador.Fight.Dispatch(WorldMessage.GAME_ACTION(GameActionTypeEnum.MAP_TELEPORT, lanzador.Id, lanzador.Id + "," + castInfos.CellId));
+            lanzador.Fight.Dispatch(WorldMessage.GAME_ACTION(GameActionTypeEnum.MAP_TELEPORT, lanzador.Id, lanzador.Id + "," + castInfos.CellId));
 
-                return lanzador.SetCell(cell);
-            }
-
-            return FightActionResultEnum.RESULT_NOTHING;
+            return lanzador.SetCell(cell);
         }
     }
 }

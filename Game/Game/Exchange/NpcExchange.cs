@@ -65,7 +65,9 @@ namespace Game.Exchange
                     return 0;
                 if (!m_templateQuantity.ContainsKey(invItem.TemplateId))
                     m_templateQuantity.Add(invItem.TemplateId, 0);
-                m_templateQuantity[invItem.TemplateId] += quantity;
+                // Acumular la cantidad realmente aportada (base.AddItem la recorta a lo que
+                // el jugador posee), nunca la pedida por el cliente: evita duplicar recompensas.
+                m_templateQuantity[invItem.TemplateId] += added;
 
                 CheckRewards();
 
@@ -83,8 +85,8 @@ namespace Game.Exchange
                 var invItem = Character.Inventory.GetItem(guid);
                 if (invItem == null)
                     return 0;
-                m_templateQuantity[invItem.TemplateId] -= quantity;
-                if (m_templateQuantity[invItem.TemplateId] == 0)
+                m_templateQuantity[invItem.TemplateId] -= removed;
+                if (m_templateQuantity[invItem.TemplateId] <= 0)
                     m_templateQuantity.Remove(invItem.TemplateId);
 
                 CheckRewards();

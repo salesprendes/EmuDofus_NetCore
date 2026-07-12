@@ -19,16 +19,27 @@ namespace Login.Frames
                 return;
             }
 
-            var credentials = message.Split('#');
-            if (credentials.Length != 2 || credentials[0].Length == 0 || credentials[0].Length > 64 || credentials[1].Length < 2 || credentials[1].Length > 512)
+            // El cliente envía "login\n#1<pwdCifrado>"; el framing descarta el '\n', así que
+            // aquí llega "login#1<pwdCifrado>". El cifrado solo usa el alfabeto HASH (sin '#'),
+            // por lo que el último "#1" es siempre el prefijo del password, incluso si el
+            // nombre de cuenta contiene '#'.
+            var separator = message.LastIndexOf("#1", StringComparison.Ordinal);
+            if (separator < 1)
             {
                 AuthService.Instance.RegisterFailedAuth(client.Ip);
                 client.Send(AuthMessage.AUTH_FAILED_CREDENTIALS());
                 return;
             }
 
-            var account = credentials[0];
-            var password = credentials[1].AsSpan(1).ToString();
+            var account = message.Substring(0, separator);
+            var password = message.Substring(separator + 2);
+
+            if (account.Length > 64 || password.Length == 0 || password.Length > 512)
+            {
+                AuthService.Instance.RegisterFailedAuth(client.Ip);
+                client.Send(AuthMessage.AUTH_FAILED_CREDENTIALS());
+                return;
+            }
 
             AuthService.Instance.AddMessage(() => ProcessAuthentification(client, account, password));
         }

@@ -12,6 +12,7 @@ namespace Game.Map
         public int GroundLevel { get; }
         public bool Walkable { get; }
         public bool IsDestinationOnly { get; }
+        public int Movement { get; }
         public InteractiveObject InteractiveObject { get; }
         public MapTriggerDAO Trigger { get; }
 
@@ -25,6 +26,7 @@ namespace Game.Map
 
             LineOfSight = (data[0] & 1) != 0;
             GroundLevel = data[1] & 15;
+            Movement = active ? movement : 0;
             IsDestinationOnly = active && movement == 1;
 
             bool baseWalkable = active && movement > 0;

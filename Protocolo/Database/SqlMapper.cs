@@ -172,10 +172,9 @@ namespace Protocolo.Framework.Database
 
         private static void SetQueryCache(Identity key, CacheInfo value)
         {
-            if (Interlocked.Increment(ref collect) >= COLLECT_PER_ITEMS || _queryCache.Count >= QUERY_CACHE_MAX_ITEMS)
-            {
+            var shouldCollect = Interlocked.Increment(ref collect) >= COLLECT_PER_ITEMS || _queryCache.Count >= QUERY_CACHE_MAX_ITEMS;
+            if (shouldCollect && Interlocked.CompareExchange(ref collecting, 1, 0) == 0)
                 CollectCacheGarbage();
-            }
 
             _queryCache[key] = value;
         }
@@ -202,6 +201,7 @@ namespace Protocolo.Framework.Database
             finally
             {
                 Interlocked.Exchange(ref collect, 0);
+                Volatile.Write(ref collecting, 0);
             }
         }
 
@@ -210,6 +210,7 @@ namespace Protocolo.Framework.Database
         private const int COLLECT_HIT_COUNT_KEEP_MIN = 1;
         private const int QUERY_CACHE_MAX_ITEMS = 4096;
         private static int collect;
+        private static int collecting;
         private static bool TryGetQueryCache(Identity key, out CacheInfo value)
         {
             if (_queryCache.TryGetValue(key, out value))
@@ -442,26 +443,38 @@ namespace Protocolo.Framework.Database
             {
                 bool isFirst = true;
                 int total = 0;
-                using (var cmd = SetupCommand(cnn, transaction, sql, null, null, commandTimeout, commandType))
+                var wasClosed = cnn.State == ConnectionState.Closed;
+                try
                 {
-                    string masterSql = null;
-                    foreach (var obj in multiExec)
+                    if (wasClosed)
+                        cnn.Open();
+
+                    using (var cmd = SetupCommand(cnn, transaction, sql, null, null, commandTimeout, commandType))
                     {
-                        if (isFirst)
+                        string masterSql = null;
+                        foreach (var obj in multiExec)
                         {
-                            masterSql = cmd.CommandText;
-                            isFirst = false;
-                            identity = new Identity(sql, cmd.CommandType, cnn, null, obj.GetType(), null);
-                            info = GetCacheInfo(identity);
+                            if (isFirst)
+                            {
+                                masterSql = cmd.CommandText;
+                                isFirst = false;
+                                identity = new Identity(sql, cmd.CommandType, cnn, null, obj.GetType(), null);
+                                info = GetCacheInfo(identity);
+                            }
+                            else
+                            {
+                                cmd.CommandText = masterSql;
+                                cmd.Parameters.Clear();
+                            }
+                            info.ParamReader(cmd, obj);
+                            total += cmd.ExecuteNonQuery();
                         }
-                        else
-                        {
-                            cmd.CommandText = masterSql;
-                            cmd.Parameters.Clear();
-                        }
-                        info.ParamReader(cmd, obj);
-                        total += cmd.ExecuteNonQuery();
                     }
+                }
+                finally
+                {
+                    if (wasClosed)
+                        cnn.Close();
                 }
                 return total;
             }
@@ -847,38 +860,28 @@ namespace Protocolo.Framework.Database
                 {
                     var props = DefaultTypeMap.GetSettableProps(type);
                     var fields = DefaultTypeMap.GetSettableFields(type);
-
-                    foreach (var name in props.Select(p => p.Name).Concat(fields.Select(f => f.Name)))
-                    {
-                        if (string.Equals(name, currentSplit, StringComparison.OrdinalIgnoreCase))
-                        {
-                            skipFirst = true;
-                            startingPos = current;
-                            break;
-                        }
-                    }
-
+                    skipFirst = props.Any(property => string.Equals(property.Name, currentSplit, StringComparison.OrdinalIgnoreCase))
+                        || fields.Any(field => string.Equals(field.Name, currentSplit, StringComparison.OrdinalIgnoreCase));
+                    if (skipFirst)
+                        startingPos = current;
                 }
 
-                int pos;
-                for (pos = startingPos; pos < reader.FieldCount; pos++)
+                var pos = startingPos;
+                var searchingSplit = true;
+                while (pos < reader.FieldCount && searchingSplit)
                 {
-
                     if (splitOn == "*")
-                    {
-                        break;
-                    }
-                    if (string.Equals(reader.GetName(pos), currentSplit, StringComparison.OrdinalIgnoreCase))
+                        searchingSplit = false;
+                    else if (string.Equals(reader.GetName(pos), currentSplit, StringComparison.OrdinalIgnoreCase))
                     {
                         if (skipFirst)
-                        {
                             skipFirst = false;
-                        }
                         else
-                        {
-                            break;
-                        }
+                            searchingSplit = false;
                     }
+
+                    if (searchingSplit)
+                        pos++;
                 }
                 current = pos;
                 return pos;
@@ -1520,14 +1523,6 @@ namespace Protocolo.Framework.Database
             }
             foreach (var prop in props)
             {
-                if (filterParams)
-                {
-                    if (identity.sql.IndexOf("@" + prop.Name, StringComparison.InvariantCultureIgnoreCase) < 0
-                        && identity.sql.IndexOf(":" + prop.Name, StringComparison.InvariantCultureIgnoreCase) < 0)
-                    {
-                        continue;
-                    }
-                }
                 if (typeof(ICustomQueryParameter).IsAssignableFrom(prop.PropertyType))
                 {
                     il.Emit(OpCodes.Ldloc_0);
@@ -1535,23 +1530,25 @@ namespace Protocolo.Framework.Database
                     il.Emit(OpCodes.Ldarg_0);
                     il.Emit(OpCodes.Ldstr, prop.Name);
                     il.EmitCall(OpCodes.Callvirt, prop.PropertyType.GetMethod("AddParameter"), null);
-                    continue;
                 }
-                DbType dbType = LookupDbType(prop.PropertyType, prop.Name);
-                if (dbType == DynamicParameters.EnumerableMultiParameter)
+                else
                 {
-
-                    il.Emit(OpCodes.Ldarg_0);
-                    il.Emit(OpCodes.Ldstr, prop.Name);
-                    il.Emit(OpCodes.Ldloc_0);
-                    il.Emit(OpCodes.Callvirt, prop.GetGetMethod());
-                    if (prop.PropertyType.IsValueType)
+                    DbType dbType = LookupDbType(prop.PropertyType, prop.Name);
+                    if (dbType == DynamicParameters.EnumerableMultiParameter)
                     {
-                        il.Emit(OpCodes.Box, prop.PropertyType);
+
+                        il.Emit(OpCodes.Ldarg_0);
+                        il.Emit(OpCodes.Ldstr, prop.Name);
+                        il.Emit(OpCodes.Ldloc_0);
+                        il.Emit(OpCodes.Callvirt, prop.GetGetMethod());
+                        if (prop.PropertyType.IsValueType)
+                        {
+                            il.Emit(OpCodes.Box, prop.PropertyType);
+                        }
+                        il.EmitCall(OpCodes.Call, typeof(SqlMapper).GetMethod("PackListParameters"), null);
                     }
-                    il.EmitCall(OpCodes.Call, typeof(SqlMapper).GetMethod("PackListParameters"), null);
-                    continue;
-                }
+                    else
+                    {
                 il.Emit(OpCodes.Dup);
 
                 il.Emit(OpCodes.Ldarg_0);
@@ -1671,6 +1668,8 @@ namespace Protocolo.Framework.Database
 
                     il.EmitCall(OpCodes.Callvirt, typeof(IList).GetMethod("Add"), null);
                     il.Emit(OpCodes.Pop);
+                }
+                    }
                 }
             }
 
@@ -1836,25 +1835,11 @@ namespace Protocolo.Framework.Database
                 throw new ArgumentNullException(nameof(type));
             }
 
-            var map = (ITypeMap)_typeMaps[type];
-            if (map == null)
-            {
-                lock (_typeMaps)
-                {
-
-                    map = (ITypeMap)_typeMaps[type];
-                    if (map == null)
-                    {
-                        map = new DefaultTypeMap(type);
-                        _typeMaps[type] = map;
-                    }
-                }
-            }
-            return map;
+            return _typeMaps.GetOrAdd(type, static mappedType => new DefaultTypeMap(mappedType));
         }
 
 
-        private static readonly Hashtable _typeMaps = new Hashtable();
+        private static readonly ConcurrentDictionary<Type, ITypeMap> _typeMaps = new ConcurrentDictionary<Type, ITypeMap>();
 
         public static void SetTypeMap(Type type, ITypeMap map)
         {
@@ -1864,19 +1849,9 @@ namespace Protocolo.Framework.Database
             }
 
             if (map == null || map is DefaultTypeMap)
-            {
-                lock (_typeMaps)
-                {
-                    _typeMaps.Remove(type);
-                }
-            }
+                _typeMaps.TryRemove(type, out _);
             else
-            {
-                lock (_typeMaps)
-                {
-                    _typeMaps[type] = map;
-                }
-            }
+                _typeMaps[type] = map;
 
             PurgeQueryCacheByType(type);
         }
@@ -2046,47 +2021,32 @@ namespace Protocolo.Framework.Database
                             else
                             {
 
-                                bool handled = true;
-                                OpCode opCode = default(OpCode);
+                                var handled = true;
+                                OpCode? conversionOpCode = null;
                                 if (dataTypeCode == TypeCode.Decimal || unboxTypeCode == TypeCode.Decimal)
-                                {
-
                                     handled = false;
-                                }
                                 else
                                 {
-                                    switch (unboxTypeCode)
+                                    conversionOpCode = unboxTypeCode switch
                                     {
-                                        case TypeCode.Byte:
-                                            opCode = OpCodes.Conv_Ovf_I1_Un; break;
-                                        case TypeCode.SByte:
-                                            opCode = OpCodes.Conv_Ovf_I1; break;
-                                        case TypeCode.UInt16:
-                                            opCode = OpCodes.Conv_Ovf_I2_Un; break;
-                                        case TypeCode.Int16:
-                                            opCode = OpCodes.Conv_Ovf_I2; break;
-                                        case TypeCode.UInt32:
-                                            opCode = OpCodes.Conv_Ovf_I4_Un; break;
-                                        case TypeCode.Boolean:
-                                        case TypeCode.Int32:
-                                            opCode = OpCodes.Conv_Ovf_I4; break;
-                                        case TypeCode.UInt64:
-                                            opCode = OpCodes.Conv_Ovf_I8_Un; break;
-                                        case TypeCode.Int64:
-                                            opCode = OpCodes.Conv_Ovf_I8; break;
-                                        case TypeCode.Single:
-                                            opCode = OpCodes.Conv_R4; break;
-                                        case TypeCode.Double:
-                                            opCode = OpCodes.Conv_R8; break;
-                                        default:
-                                            handled = false;
-                                            break;
-                                    }
+                                        TypeCode.Byte => OpCodes.Conv_Ovf_I1_Un,
+                                        TypeCode.SByte => OpCodes.Conv_Ovf_I1,
+                                        TypeCode.UInt16 => OpCodes.Conv_Ovf_I2_Un,
+                                        TypeCode.Int16 => OpCodes.Conv_Ovf_I2,
+                                        TypeCode.UInt32 => OpCodes.Conv_Ovf_I4_Un,
+                                        TypeCode.Boolean or TypeCode.Int32 => OpCodes.Conv_Ovf_I4,
+                                        TypeCode.UInt64 => OpCodes.Conv_Ovf_I8_Un,
+                                        TypeCode.Int64 => OpCodes.Conv_Ovf_I8,
+                                        TypeCode.Single => OpCodes.Conv_R4,
+                                        TypeCode.Double => OpCodes.Conv_R8,
+                                        _ => null
+                                    };
+                                    handled = conversionOpCode.HasValue;
                                 }
                                 if (handled)
                                 {
                                     il.Emit(OpCodes.Unbox_Any, dataType);
-                                    il.Emit(opCode);
+                                    il.Emit(conversionOpCode.Value);
                                     if (unboxTypeCode == TypeCode.Boolean)
                                     {
                                         il.Emit(OpCodes.Ldc_I4_0);
@@ -2200,23 +2160,21 @@ namespace Protocolo.Framework.Database
                 throw new ArgumentNullException(nameof(index));
             }
 
-            switch (index)
+            if (index <= 3)
             {
-                case 0: il.Emit(OpCodes.Ldloc_0); break;
-                case 1: il.Emit(OpCodes.Ldloc_1); break;
-                case 2: il.Emit(OpCodes.Ldloc_2); break;
-                case 3: il.Emit(OpCodes.Ldloc_3); break;
-                default:
-                    if (index <= 255)
-                    {
-                        il.Emit(OpCodes.Ldloc_S, (byte)index);
-                    }
-                    else
-                    {
-                        il.Emit(OpCodes.Ldloc, (short)index);
-                    }
-                    break;
+                var opCode = index switch
+                {
+                    0 => OpCodes.Ldloc_0,
+                    1 => OpCodes.Ldloc_1,
+                    2 => OpCodes.Ldloc_2,
+                    _ => OpCodes.Ldloc_3
+                };
+                il.Emit(opCode);
             }
+            else if (index <= byte.MaxValue)
+                il.Emit(OpCodes.Ldloc_S, (byte)index);
+            else
+                il.Emit(OpCodes.Ldloc, (short)index);
         }
         private static void StoreLocal(ILGenerator il, int index)
         {
@@ -2225,23 +2183,21 @@ namespace Protocolo.Framework.Database
                 throw new ArgumentNullException(nameof(index));
             }
 
-            switch (index)
+            if (index <= 3)
             {
-                case 0: il.Emit(OpCodes.Stloc_0); break;
-                case 1: il.Emit(OpCodes.Stloc_1); break;
-                case 2: il.Emit(OpCodes.Stloc_2); break;
-                case 3: il.Emit(OpCodes.Stloc_3); break;
-                default:
-                    if (index <= 255)
-                    {
-                        il.Emit(OpCodes.Stloc_S, (byte)index);
-                    }
-                    else
-                    {
-                        il.Emit(OpCodes.Stloc, (short)index);
-                    }
-                    break;
+                var opCode = index switch
+                {
+                    0 => OpCodes.Stloc_0,
+                    1 => OpCodes.Stloc_1,
+                    2 => OpCodes.Stloc_2,
+                    _ => OpCodes.Stloc_3
+                };
+                il.Emit(opCode);
             }
+            else if (index <= byte.MaxValue)
+                il.Emit(OpCodes.Stloc_S, (byte)index);
+            else
+                il.Emit(OpCodes.Stloc, (short)index);
         }
         private static void LoadLocalAddress(ILGenerator il, int index)
         {
@@ -2288,29 +2244,27 @@ namespace Protocolo.Framework.Database
         }
         private static void EmitInt32(ILGenerator il, int value)
         {
-            switch (value)
+            if (value >= -1 && value <= 8)
             {
-                case -1: il.Emit(OpCodes.Ldc_I4_M1); break;
-                case 0: il.Emit(OpCodes.Ldc_I4_0); break;
-                case 1: il.Emit(OpCodes.Ldc_I4_1); break;
-                case 2: il.Emit(OpCodes.Ldc_I4_2); break;
-                case 3: il.Emit(OpCodes.Ldc_I4_3); break;
-                case 4: il.Emit(OpCodes.Ldc_I4_4); break;
-                case 5: il.Emit(OpCodes.Ldc_I4_5); break;
-                case 6: il.Emit(OpCodes.Ldc_I4_6); break;
-                case 7: il.Emit(OpCodes.Ldc_I4_7); break;
-                case 8: il.Emit(OpCodes.Ldc_I4_8); break;
-                default:
-                    if (value >= -128 && value <= 127)
-                    {
-                        il.Emit(OpCodes.Ldc_I4_S, (sbyte)value);
-                    }
-                    else
-                    {
-                        il.Emit(OpCodes.Ldc_I4, value);
-                    }
-                    break;
+                var opCode = value switch
+                {
+                    -1 => OpCodes.Ldc_I4_M1,
+                    0 => OpCodes.Ldc_I4_0,
+                    1 => OpCodes.Ldc_I4_1,
+                    2 => OpCodes.Ldc_I4_2,
+                    3 => OpCodes.Ldc_I4_3,
+                    4 => OpCodes.Ldc_I4_4,
+                    5 => OpCodes.Ldc_I4_5,
+                    6 => OpCodes.Ldc_I4_6,
+                    7 => OpCodes.Ldc_I4_7,
+                    _ => OpCodes.Ldc_I4_8
+                };
+                il.Emit(opCode);
             }
+            else if (value >= sbyte.MinValue && value <= sbyte.MaxValue)
+                il.Emit(OpCodes.Ldc_I4_S, (sbyte)value);
+            else
+                il.Emit(OpCodes.Ldc_I4, value);
         }
 
 

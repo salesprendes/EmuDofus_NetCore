@@ -3,25 +3,32 @@ using Protocolo.Framework.Generic.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace Protocolo.Framework.Database
 {
     public sealed class SqlManager
     {
-        public static ILogger Logger = LogManager.GetLogger(typeof(SqlManager));
+        private static readonly ILogger Logger = LogManager.GetLogger(typeof(SqlManager));
 
-        private string m_connectionString;
+        private MySqlDataSource m_dataSource;
 
         public MySqlConnection CreateConnection()
         {
-            var connection = new MySqlConnection(m_connectionString);
-            connection.Open();
-            return connection;
+            var dataSource = Volatile.Read(ref m_dataSource);
+            if (dataSource == null)
+                throw new InvalidOperationException("SqlManager must be initialized before creating connections.");
+
+            return dataSource.OpenConnection();
         }
 
         public void Initialize(string connectionString)
         {
-            m_connectionString = connectionString;
+            if (string.IsNullOrWhiteSpace(connectionString))
+                throw new ArgumentException("Connection string is required.", nameof(connectionString));
+
+            var dataSource = new MySqlDataSource(connectionString);
+            Interlocked.Exchange(ref m_dataSource, dataSource)?.Dispose();
         }
 
         public IEnumerable<T> Query<T>(string query, object param = null)
@@ -84,46 +91,16 @@ namespace Protocolo.Framework.Database
 
         public bool InsertWithKey<T>(IEnumerable<T> dataObjects) where T : DataAccessObject<T>, new()
         {
-            using (var connection = CreateConnection())
-            {
-                using (var transaction = connection.BeginTransaction())
-                {
-                    try
-                    {
-                        connection.InsertWithKey<T>(dataObjects, transaction);
-                        transaction.Commit();
-                        return true;
-                    }
-                    catch (Exception ex)
-                    {
-                        transaction.Rollback();
-                        Logger.Error($"Error fatal al insertar en la base de datos: {ex.Message}");
-                        return false;
-                    }
-                }
-            }
+            return ExecuteTransaction(
+                (connection, transaction) => connection.InsertWithKey(dataObjects, transaction),
+                "insertar");
         }
 
         public bool Insert<T>(IEnumerable<T> dataObjects) where T : DataAccessObject<T>, new()
         {
-            using (var connection = CreateConnection())
-            {
-                using (var transaction = connection.BeginTransaction())
-                {
-                    try
-                    {
-                        connection.Insert<T>(dataObjects, transaction);
-                        transaction.Commit();
-                        return true;
-                    }
-                    catch (Exception ex)
-                    {
-                        transaction.Rollback();
-                        Logger.Error($"Error fatal al insertar en la base de datos: {ex.Message}");
-                        return false;
-                    }
-                }
-            }
+            return ExecuteTransaction(
+                (connection, transaction) => connection.Insert(dataObjects, transaction),
+                "insertar");
         }
 
         public bool Delete<T>(T dataObject) where T : DataAccessObject<T>, new()
@@ -154,6 +131,32 @@ namespace Protocolo.Framework.Database
             using (var connection = CreateConnection())
             {
                 return connection.Update<T>(dataObject);
+            }
+        }
+
+        private bool ExecuteTransaction(Action<MySqlConnection, MySqlTransaction> operation, string operationName)
+        {
+            using var connection = CreateConnection();
+            using var transaction = connection.BeginTransaction();
+            try
+            {
+                operation(connection, transaction);
+                transaction.Commit();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    transaction.Rollback();
+                }
+                catch (Exception rollbackException)
+                {
+                    Logger.Error($"Error al revertir la transacción de {operationName}: {rollbackException}");
+                }
+
+                Logger.Error($"Error fatal al {operationName} en la base de datos: {ex}");
+                return false;
             }
         }
     }

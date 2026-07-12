@@ -14,20 +14,19 @@ namespace Protocolo.Framework.Network
 
         public bool Process(TClient client, TMessage message)
         {
-            var handler = GetHandler(message);
-            if (handler != null)
+            try
             {
-                try
-                {
-                    handler(client, message);
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error($"Error en el manejador del frame: {ex}");
-                }
-                return true;
+                var handler = GetHandler(message);
+                if (handler == null)
+                    return false;
+
+                handler(client, message);
             }
-            return false;
+            catch (Exception ex)
+            {
+                Logger.Error($"Error en el manejador del frame: {ex}");
+            }
+            return true;
         }
     }
 }

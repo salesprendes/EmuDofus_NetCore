@@ -74,8 +74,10 @@ namespace Game.Fight.AI.Core
 
             if (decision.SpellId.HasValue && decision.SpellId == LastUsefulSpellId)
                 bonus += 10;
+            // Foco persistente: seguir castigando al mismo objetivo (ya herido) en vez de
+            // repartir el daño entre varios enemigos sin matar a ninguno.
             if (decision.TargetId.HasValue && decision.TargetId == LastTargetId)
-                bonus += 10;
+                bonus += 25;
             if (decision.CellId.HasValue && decision.CellId == LastCellId)
                 bonus += 4;
 

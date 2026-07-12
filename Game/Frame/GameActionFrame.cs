@@ -23,7 +23,12 @@ namespace Game.Frame
             switch (message[0])
             {
                 case 'G':
-                    return message[1] switch { 'A' => GameActionStart, 'K' => message[2] switch { 'K' => GameActionFinish, 'E' => GameActionAbort, _ => null, }, _ => null, };
+                    return message[1] switch
+                    {
+                        'A' => GameActionStart,
+                        'K' when message.Length > 2 => message[2] switch { 'K' => GameActionFinish, 'E' => GameActionAbort, _ => null, },
+                        _ => null,
+                    };
 
                 case 'D':
                     switch (message[1])

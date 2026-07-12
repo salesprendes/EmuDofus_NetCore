@@ -40,10 +40,10 @@ namespace Game.Fight.Effect.Type
         {
             var caster = castInfos.Caster;
 
-
-            if (!castInfos.IsPoison && !castInfos.IsTrap && !castInfos.IsReflect && caster.StateManager.HasState(FighterStateEnum.STATE_STEALTH))
-                caster.BuffManager.RemoveStealth();
-
+            // La revelacion del Sram invisible se decide a nivel de accion (ataque directo o arma
+            // revelan; trampa/veneno/Miedo/boost solo señalan la casilla), en TryLaunchSpell/
+            // TryUseWeapon, no por cada instancia de daño: asi el daño de choque del empuje de
+            // Miedo o el de una trampa no revelan indebidamente.
 
             if (!castInfos.IsPoison && !castInfos.IsReflect)
             {
@@ -55,7 +55,10 @@ namespace Game.Fight.Effect.Type
             }
 
 
-            caster.CalculDamages(castInfos.EffectType, ref damageJet);
+            // El daño devuelto (renvoi) ya viene calculado (valor + multiplicador de sabiduría):
+            // no debe re-escalarse con las características de daño del reflector.
+            if (!castInfos.IsReflect)
+                caster.CalculDamages(castInfos.EffectType, ref damageJet, castInfos.IsMelee);
 
 
             if (!castInfos.IsPoison && !castInfos.IsReflect && !castInfos.IsTrap && damageJet > 0 && target is AIFighter aiTarget && aiTarget.CurrentBrain is IDamageReceivedBrain damageReceiver)
@@ -64,7 +67,7 @@ namespace Game.Fight.Effect.Type
             }
 
 
-            target.CalculReduceDamages(castInfos.EffectType, ref damageJet);
+            target.CalculReduceDamages(castInfos.EffectType, ref damageJet, castInfos.IsMelee, IsPlayerSource(caster));
 
 
             if (damageJet > 0)
@@ -143,6 +146,19 @@ namespace Game.Fight.Effect.Type
 
 
             return castInfos.Fight.TryKillFighter(target, caster);
+        }
+
+        // Un golpe cuenta como "de jugador" (para las resistencias PvP) si lo origina un
+        // personaje o una invocación cuya cadena de invocadores llega a un personaje.
+        private static bool IsPlayerSource(AbstractFighter fighter)
+        {
+            for (var current = fighter; current != null; current = current.Invocator)
+            {
+                if (current is Game.Entity.CharacterEntity)
+                    return true;
+            }
+
+            return false;
         }
     }
 }

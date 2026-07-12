@@ -5,15 +5,20 @@ namespace Protocolo.Framework.Network
 {
     public sealed class FrameManager<TClient, TMessage> : IDisposable
     {
-        private TClient m_client;
+        private readonly object m_lock = new object();
+        private readonly TClient m_client;
         private bool m_processing;
-        private List<IFrame<TClient, TMessage>> m_frames, m_framesToAdd, m_framesToRemove;
+        private bool m_disposed;
+        private readonly List<IFrame<TClient, TMessage>> m_frames, m_framesToAdd, m_framesToRemove;
 
         public bool IsEmpty
         {
             get
             {
-                return m_frames.Count == 0 && m_framesToAdd.Count == 0;
+                lock (m_lock)
+                {
+                    return m_frames.Count == 0 && m_framesToAdd.Count == 0;
+                }
             }
         }
 
@@ -28,75 +33,97 @@ namespace Protocolo.Framework.Network
 
         public bool HasFrame(IFrame<TClient, TMessage> frame)
         {
-            return m_frames.Contains(frame) || m_framesToAdd.Contains(frame);
+            lock (m_lock)
+            {
+                return m_frames.Contains(frame) || m_framesToAdd.Contains(frame);
+            }
         }
 
         public bool ProcessMessage(TMessage message)
         {
-            m_processing = true;
-            var processed = false;
-
-            try
+            lock (m_lock)
             {
-                for (var i = 0; i < m_frames.Count; i++)
+                if (m_disposed)
+                    return false;
+
+                m_processing = true;
+                var processed = false;
+
+                try
                 {
-                    var frame = m_frames[i];
-                    if (frame.Process(m_client, message))
-                        processed = true;
+                    for (var i = 0; i < m_frames.Count; i++)
+                    {
+                        var frame = m_frames[i];
+                        if (frame.Process(m_client, message))
+                            processed = true;
+                    }
                 }
-            }
-            finally
-            {
-                for (var i = 0; i < m_framesToAdd.Count; i++)
+                finally
                 {
-                    var frame = m_framesToAdd[i];
-                    if (!m_frames.Contains(frame))
-                        m_frames.Add(frame);
+                    for (var i = 0; i < m_framesToAdd.Count; i++)
+                    {
+                        var frame = m_framesToAdd[i];
+                        if (!m_frames.Contains(frame))
+                            m_frames.Add(frame);
+                    }
+
+                    for (var i = 0; i < m_framesToRemove.Count; i++)
+                        m_frames.Remove(m_framesToRemove[i]);
+
+                    m_processing = false;
+
+                    m_framesToAdd.Clear();
+                    m_framesToRemove.Clear();
                 }
 
-                for (var i = 0; i < m_framesToRemove.Count; i++)
-                    m_frames.Remove(m_framesToRemove[i]);
-
-                m_processing = false;
-
-                m_framesToAdd.Clear();
-                m_framesToRemove.Clear();
+                return processed;
             }
-
-            return processed;
         }
 
         public void AddFrame(IFrame<TClient, TMessage> frame)
         {
-            if (m_processing)
+            lock (m_lock)
             {
-                m_framesToAdd.Add(frame);
-                return;
-            }
+                if (m_disposed)
+                    return;
 
-            if (!m_frames.Contains(frame))
-                m_frames.Add(frame);
+                if (m_processing)
+                {
+                    m_framesToAdd.Add(frame);
+                    return;
+                }
+
+                if (!m_frames.Contains(frame))
+                    m_frames.Add(frame);
+            }
         }
 
         public void RemoveFrame(IFrame<TClient, TMessage> frame)
         {
-            if (m_processing)
+            lock (m_lock)
             {
-                m_framesToRemove.Add(frame);
-                return;
-            }
+                if (m_disposed)
+                    return;
 
-            m_frames.Remove(frame);
+                if (m_processing)
+                {
+                    m_framesToRemove.Add(frame);
+                    return;
+                }
+
+                m_frames.Remove(frame);
+            }
         }
 
         public void Dispose()
         {
-            m_frames.Clear();
-            m_frames = null;
-            m_framesToAdd.Clear();
-            m_framesToAdd = null;
-            m_framesToRemove.Clear();
-            m_framesToRemove = null;
+            lock (m_lock)
+            {
+                m_disposed = true;
+                m_frames.Clear();
+                m_framesToAdd.Clear();
+                m_framesToRemove.Clear();
+            }
         }
     }
 }

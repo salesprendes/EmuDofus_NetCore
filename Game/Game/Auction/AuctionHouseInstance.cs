@@ -138,14 +138,14 @@ namespace Game.Auction
 
                     WorldService.Instance.AddMessage(() =>
                     {
-                        auction.OwnerBank.AddKamas(price);
-
-
                         var seller = EntityManager.Instance.GetCharacterByAccount(auction.OwnerId);
                         if (seller != null)
                         {
+                            // Abonar en el hilo del vendedor: su banco puede estar siendo
+                            // manipulado a la vez desde un StorageExchange en el hilo de juego.
                             seller.AddMessage(() =>
                             {
+                                auction.OwnerBank.AddKamas(price);
                                 seller.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, InformationEnum.INFO_AUCTION_BANK_CREDITED, price, auction.Item.TemplateId));
                                 if (seller.HasGameAction(GameActionTypeEnum.EXCHANGE))
                                 {
@@ -159,6 +159,10 @@ namespace Game.Auction
                                     }
                                 }
                             });
+                        }
+                        else
+                        {
+                            auction.OwnerBank.AddKamas(price);
                         }
                     });
                     break;
@@ -232,9 +236,8 @@ namespace Game.Auction
 
             m_auctionsByAccount[character.AccountId].Remove(auction);
             AuctionCategory category = null;
-            int i = 0;
             var categories = m_categoriesByTemplate[auction.Item.TemplateId];
-            while (i < categories.Count && category == null)
+            for (int i = 0; i < categories.Count && category == null; i++)
             {
                 var current = categories[i];
                 if (current.Remove(auction))
@@ -243,8 +246,11 @@ namespace Game.Auction
                 }
             }
 
-            CheckEmptyCategory(category);
-            UpdateMiddlePrice(category.TemplateId);
+            if (category != null)
+            {
+                CheckEmptyCategory(category);
+                UpdateMiddlePrice(category.TemplateId);
+            }
 
             auction.Remove();
             character.Inventory.AddItem(auction.Item);

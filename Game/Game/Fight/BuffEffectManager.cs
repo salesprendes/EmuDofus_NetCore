@@ -96,71 +96,117 @@ namespace Game.Fight
             DecrementBuffs[buff.DecrementType].Remove(buff);
         }
 
-        public FightActionResultEnum BeginTurn()
+        /// <summary>
+        /// Retira las instancias previas de UN castigo concreto (y su erosión asociada, que
+        /// comparte SpellId). Pueden convivir castigos distintos a la vez; relanzar el mismo
+        /// lo refresca en lugar de apilarse consigo mismo (duplicaría la ganancia por golpe).
+        /// </summary>
+        public void RemovePunishment(int spellId)
+        {
+            foreach (var buffList in ActiveBuffs.Values)
+            {
+                foreach (var buff in buffList.ToArray())
+                {
+                    if (buff.CastInfos.SpellId != spellId)
+                        continue;
+
+                    if (buff is Effect.Type.PunishmentBuff || buff.CastInfos.EffectType == EffectEnum.CASTIGO_EROSION)
+                    {
+                        buff.RemoveEffect();
+                        RemoveBuff(buff);
+                    }
+                }
+            }
+        }
+
+        // Combina resultados sin perder señales: RESULT_END (fin de combate) siempre gana; en su
+        // defecto se conserva el primer resultado significativo (p.ej. una muerte por veneno).
+        private static FightActionResultEnum Combine(FightActionResultEnum current, FightActionResultEnum next)
+        {
+            if (current == FightActionResultEnum.RESULT_END || next == FightActionResultEnum.RESULT_END)
+                return FightActionResultEnum.RESULT_END;
+            return current != FightActionResultEnum.RESULT_NOTHING ? current : next;
+        }
+
+        // Aplica una lista ACTIVE. Deja de aplicar en cuanto un buff devuelve algo != NOTHING
+        // (p.ej. el objetivo muere y no debe recibir más ticks), pero NO corta el decremento de
+        // duraciones posterior: así los demás buffs siguen expirando en su turno correcto.
+        private FightActionResultEnum ApplyActive(ActiveType type)
         {
             var damage = 0;
-            foreach (var buff in ActiveBuffs[ActiveType.ACTIVE_BEGINTURN].ToArray())
+            foreach (var buff in ActiveBuffs[type].ToArray())
             {
                 var result = buff.ApplyEffect(ref damage);
                 if (result != FightActionResultEnum.RESULT_NOTHING)
                     return result;
             }
+            return FightActionResultEnum.RESULT_NOTHING;
+        }
 
-            foreach (var buff in DecrementBuffs[DecrementType.TYPE_BEGINTURN].ToArray())
+        // Decrementa las duraciones de una lista y revierte los buffs expirados. Recorre siempre
+        // toda la lista (salvo RESULT_END) para que ninguna duración se quede sin decrementar.
+        private FightActionResultEnum DecrementExpire(DecrementType type)
+        {
+            var pending = FightActionResultEnum.RESULT_NOTHING;
+
+            foreach (var buff in DecrementBuffs[type].ToArray())
             {
-                if (buff.DecrementDuration() <= 0)
-                {
-                    DecrementBuffs[DecrementType.TYPE_BEGINTURN].Remove(buff);
-                    var result = buff.RemoveEffect();
-                    if (result != FightActionResultEnum.RESULT_NOTHING)
-                        return result;
-                }
+                if (buff.DecrementDuration() > 0)
+                    continue;
+
+                DecrementBuffs[type].Remove(buff);
+                var result = buff.RemoveEffect();
+                if (result == FightActionResultEnum.RESULT_END)
+                    return FightActionResultEnum.RESULT_END;
+                pending = Combine(pending, result);
             }
 
             foreach (var buffList in ActiveBuffs.Values)
-                buffList.RemoveAll(buff => buff.DecrementType == DecrementType.TYPE_BEGINTURN && buff.Duration <= 0);
+                buffList.RemoveAll(buff => buff.DecrementType == type && buff.Duration <= 0);
+
+            return pending;
+        }
+
+        public FightActionResultEnum BeginTurn()
+        {
+            var pending = ApplyActive(ActiveType.ACTIVE_BEGINTURN);
+            if (pending == FightActionResultEnum.RESULT_END)
+                return pending;
+
+            pending = Combine(pending, DecrementExpire(DecrementType.TYPE_BEGINTURN));
+            if (pending != FightActionResultEnum.RESULT_NOTHING)
+                return pending;
 
             return m_fighter.Fight.TryKillFighter(m_fighter, m_fighter);
         }
 
         public FightActionResultEnum EndTurn()
         {
-            foreach (var buff in DecrementBuffs[DecrementType.TYPE_ENDTURN].ToArray())
-            {
-                if (buff.DecrementDuration() <= 0)
-                {
-                    DecrementBuffs[DecrementType.TYPE_ENDTURN].Remove(buff);
-                    var result = buff.RemoveEffect();
-                    if (result != FightActionResultEnum.RESULT_NOTHING)
-                        return result;
-                }
-            }
+            // Aplicar ANTES de decrementar (espejo de BeginTurn): si no, un buff de duración N
+            // expiraría antes de su último tick (y los de 1 turno no tickearían nunca).
+            var pending = ApplyActive(ActiveType.ACTIVE_ENDTURN);
+            if (pending == FightActionResultEnum.RESULT_END)
+                return pending;
 
-            foreach (var buffList in ActiveBuffs.Values)
-                buffList.RemoveAll(buff => buff.DecrementType == DecrementType.TYPE_ENDTURN && buff.Duration <= 0);
-
-            var damage = 0;
-            foreach (var buff in ActiveBuffs[ActiveType.ACTIVE_ENDTURN].ToArray())
-            {
-                var result = buff.ApplyEffect(ref damage);
-                if (result != FightActionResultEnum.RESULT_NOTHING)
-                    return result;
-            }
+            pending = Combine(pending, DecrementExpire(DecrementType.TYPE_ENDTURN));
+            if (pending != FightActionResultEnum.RESULT_NOTHING)
+                return pending;
 
             return m_fighter.Fight.TryKillFighter(m_fighter, m_fighter);
         }
 
         public FightActionResultEnum EndMove()
         {
-            var damage = 0;
-            foreach (var buff in ActiveBuffs[ActiveType.ACTIVE_ENDMOVE].ToArray())
-            {
-                var result = buff.ApplyEffect(ref damage);
-                if (result != FightActionResultEnum.RESULT_NOTHING)
-                    return result;
-            }
+            var pending = ApplyActive(ActiveType.ACTIVE_ENDMOVE);
+            if (pending == FightActionResultEnum.RESULT_END)
+                return pending;
 
+            // Mantener sincronizadas ambas listas al purgar buffs ENDMOVE expirados.
             ActiveBuffs[ActiveType.ACTIVE_ENDMOVE].RemoveAll(buff => buff.DecrementType == DecrementType.TYPE_ENDMOVE && buff.Duration <= 0);
+            DecrementBuffs[DecrementType.TYPE_ENDMOVE].RemoveAll(buff => buff.Duration <= 0);
+
+            if (pending != FightActionResultEnum.RESULT_NOTHING)
+                return pending;
 
             return m_fighter.Fight.TryKillFighter(m_fighter, m_fighter);
         }
@@ -235,6 +281,16 @@ namespace Game.Fight
                 }
 
             foreach (var buff in DecrementBuffs[DecrementType.TYPE_ENDTURN].ToArray())
+                if (buff.IsDebuffable)
+                {
+                    var result = buff.RemoveEffect();
+                    if (result != FightActionResultEnum.RESULT_NOTHING)
+                        return result;
+                }
+
+            // Simétrico con las otras dos listas: sin esto, un futuro buff ENDMOVE debufeable se
+            // borraría de la lista sin revertir su efecto.
+            foreach (var buff in DecrementBuffs[DecrementType.TYPE_ENDMOVE].ToArray())
                 if (buff.IsDebuffable)
                 {
                     var result = buff.RemoveEffect();

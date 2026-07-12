@@ -856,6 +856,46 @@ namespace Game.Stats
                 effect.Value.Boosts = 0;
         }
 
+        /// <summary>
+        /// Captura los buckets que el combate puede mutar (Boosts y Dons) para restaurarlos al
+        /// terminar. Necesario porque los buffs de combate y los boosts de objetos/caramelos
+        /// comparten el bucket Boosts, y las armaduras usan Dons: un ClearBoosts()/ClearDons()
+        /// a ciegas corrompería los boosts legítimos o dejaría las armaduras permanentes.
+        /// </summary>
+        public Dictionary<EffectEnum, (int Boosts, int Dons)> CaptureCombatBuckets()
+        {
+            var snapshot = new Dictionary<EffectEnum, (int, int)>(m_effects.Count);
+            foreach (var effect in m_effects)
+                snapshot[effect.Key] = (effect.Value.Boosts, effect.Value.Dons);
+            return snapshot;
+        }
+
+        public void RestoreCombatBuckets(Dictionary<EffectEnum, (int Boosts, int Dons)> snapshot)
+        {
+            if (snapshot == null)
+            {
+                ClearBoosts();
+                ClearDons();
+                return;
+            }
+
+            foreach (var effect in m_effects)
+            {
+                if (snapshot.TryGetValue(effect.Key, out var saved))
+                {
+                    effect.Value.Boosts = saved.Boosts;
+                    effect.Value.Dons = saved.Dons;
+                }
+                else
+                {
+                    // Efecto añadido durante el combate (un buff sobre una stat que no existía):
+                    // no tenía Boosts/Dons antes del combate.
+                    effect.Value.Boosts = 0;
+                    effect.Value.Dons = 0;
+                }
+            }
+        }
+
         public void StatisticsChanged()
         {
             m_serialized = null;

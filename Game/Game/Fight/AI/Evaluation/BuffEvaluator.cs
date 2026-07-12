@@ -31,6 +31,10 @@ namespace Game.Fight.AI.Evaluation
                     if (WouldRecastActiveState(spell, ally))
                         continue;
 
+                    // El aliado ya lleva este buff activo: no desperdiciar PA relanzándolo.
+                    if (SpellEvaluator.HasActiveBuffFromSpell(ally, spell.SpellId))
+                        continue;
+
                     var score = 70 + buffValue;
                     if (ally == context.Fighter)
                         score += 35;

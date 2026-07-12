@@ -3,6 +3,7 @@ using Protocolo.Framework.Generic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace Protocolo.Framework.Database
 {
@@ -26,7 +27,7 @@ namespace Protocolo.Framework.Database
     where TDataObject : DataAccessObject<TDataObject>, new()
     where TRepository : class, new()
     {
-        private static string TableName = SqlMapperExtensions.GetTableName(typeof(TDataObject));
+        private static readonly string TableName = SqlMapperExtensions.GetTableName(typeof(TDataObject));
 
         public SqlManager SqlMgr
         {
@@ -34,19 +35,20 @@ namespace Protocolo.Framework.Database
             private set;
         }
 
-        protected object m_syncLock = new object ();
+        protected readonly Lock m_syncLock = new Lock();
 
-        protected List<TDataObject> m_dataObjects;
+        protected readonly List<TDataObject> m_dataObjects;
 
-        private List<TDataObject> m_updateBuffer;
-        private List<TDataObject> m_insertBuffer;
-        private List<TDataObject> m_deleteBuffer;
+        private readonly List<TDataObject> m_updateBuffer;
+        private readonly List<TDataObject> m_insertBuffer;
+        private readonly List<TDataObject> m_deleteBuffer;
 
         public int ObjectCount
         {
             get
             {
-                return m_dataObjects.Count;
+                lock (m_syncLock)
+                    return m_dataObjects.Count;
             }
         }
 

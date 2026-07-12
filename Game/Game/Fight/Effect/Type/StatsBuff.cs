@@ -1,6 +1,7 @@
 using Game.Entity;
 using Game.Network;
 using Game.Spell;
+using System;
 
 namespace Game.Fight.Effect.Type
 {
@@ -15,9 +16,18 @@ namespace Game.Fight.Effect.Type
             switch (CastInfos.EffectType)
             {
                 case EffectEnum.STAT_MENOS_PA:
-                case EffectEnum.STAT_MENOS_PM:
                 case EffectEnum.STAT_MENOS_PA_ESQUIVABLE:
+                    // El "-100 PA" (Potencia Silvestre y similares) significa "quitar todos": se
+                    // acota a la capacidad actual para que el maximo no quede negativo (se veia
+                    // "92 PA" en vez de 0) y para que al expirar se restaure EXACTAMENTE lo quitado,
+                    // no un +100 fantasma. El valor acotado se guarda en el propio buff.
+                    CastInfos.Value1 = Math.Min(CastInfos.Value1, Math.Max(0, Target.MaxAP));
+                    showValue = -CastInfos.Value1;
+                    break;
+
+                case EffectEnum.STAT_MENOS_PM:
                 case EffectEnum.STAT_MENOS_PM_ESQUIVABLE:
+                    CastInfos.Value1 = Math.Min(CastInfos.Value1, Math.Max(0, Target.MaxMP));
                     showValue = -CastInfos.Value1;
                     break;
 
@@ -25,6 +35,9 @@ namespace Game.Fight.Effect.Type
                     showValue = CastInfos.Value1;
                     break;
             }
+
+            if (CastInfos.Value1 == 0)
+                return base.ApplyEffect(ref damageValue, damageInfos);
 
             if (CastInfos.EffectType != EffectEnum.DEFENSA_DEVOLVER_HECHIZO)
                 Target.Fight.Dispatch(WorldMessage.GAME_ACTION(CastInfos.EffectType, Target.Id, Target.Id + "," + showValue + "," + Duration));
@@ -40,6 +53,10 @@ namespace Game.Fight.Effect.Type
 
         public override FightActionResultEnum RemoveEffect()
         {
+            // Nada que revertir si al aplicarse se acoto a 0 (el objetivo ya no tenia PA/PM).
+            if (CastInfos.Value1 == 0)
+                return base.RemoveEffect();
+
             Target.Statistics.GetEffect(CastInfos.EffectType).Boosts -= CastInfos.Value1;
             Target.Statistics.StatisticsChanged();
 

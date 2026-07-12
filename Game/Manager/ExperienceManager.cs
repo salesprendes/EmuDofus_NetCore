@@ -19,11 +19,14 @@ namespace Game.Manager
         public int GetLevel(ExperienceTypeEnum type, long experience)
         {
             int x = 1;
-            while (GetFloor(x, type) < experience)
+            long floor;
+            while ((floor = GetFloor(x, type)) >= 0 && floor < experience)
             {
                 x++;
             }
-            return x;
+            // floor == -1: la experiencia supera el último nivel definido; devolver ese último
+            // nivel en vez de iterar sin fin.
+            return floor < 0 && x > 1 ? x - 1 : x;
         }
 
         public long GetFlootCurrent(ExperienceTypeEnum type, long experience)

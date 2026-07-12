@@ -42,7 +42,7 @@ namespace Game.Fight.AI.Evaluation
                     if (SpellEvaluator.CanCastFromCurrentCell(context, spell, targetCellId))
                     {
                         int killScore = TargetEvaluator.ScoreKillChance(context.Fighter, enemy, estimatedDamage);
-                        int score = 100 + estimatedDamage + TargetEvaluator.ScoreLowHp(enemy) + TargetEvaluator.ScorePriorityTarget(enemy) / 4 + killScore;
+                        int score = 100 + estimatedDamage + TargetEvaluator.ScoreLowHp(enemy) + TargetEvaluator.ScorePriorityTarget(enemy) / 4 + TargetEvaluator.ScoreThreat(context, enemy) + killScore;
 
                         score += SpellEvaluator.ScoreAreaImpact(context, spell, targetCellId, false);
 
@@ -103,7 +103,7 @@ namespace Game.Fight.AI.Evaluation
 
                     {
                         var killScore = TargetEvaluator.ScoreKillChance(context.Fighter, enemy, estimatedDamage);
-                        var score = 75 + estimatedDamage / 2 + TargetEvaluator.ScoreLowHp(enemy) / 2 + killScore - bestMoveRisk / 4;
+                        var score = 75 + estimatedDamage / 2 + TargetEvaluator.ScoreLowHp(enemy) / 2 + TargetEvaluator.ScoreThreat(context, enemy) / 2 + killScore - bestMoveRisk / 4;
 
                         yield return AIDecision.MoveAndCast(
                             bestMoveCell.Value,

@@ -1,7 +1,9 @@
+using Game.Action;
 using Game.Database.Structure;
 using Game.Entity;
 using Game.Manager;
 using Game.Network;
+using Game.Spell;
 using Protocolo.Framework.Network;
 using System;
 
@@ -313,8 +315,11 @@ namespace Game.Frame
             }
 
             int skinId = 0;
-            if (partCount >= 3)
-                int.TryParse(data[parts[2]], out skinId);
+            if (partCount >= 3 && !int.TryParse(data[parts[2]], out skinId))
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
 
             character.AddMessage(() => character.Inventory.SetLivingItemSkin(itemId, skinId));
         }
@@ -349,21 +354,65 @@ namespace Game.Frame
             }
 
             int quantity = 1;
-            if (partCount > 1)
-                int.TryParse(data[parts[1]], out quantity);
-
-            if (quantity <= 0)
-                quantity = 1;
+            if (partCount > 1 && (!int.TryParse(data[parts[1]], out quantity) || quantity <= 0))
+            {
+                character.SafeDispatch(WorldMessage.OBJECT_DROP_ERROR_CANT_DROP());
+                return;
+            }
 
             character.AddMessage(() =>
             {
                 var item = character.Inventory.Items.Find(x => x.Id == itemId);
-                if (item == null)
+                if (item == null || item.IsEquiped)
                 {
                     character.Dispatch(WorldMessage.OBJECT_DROP_ERROR_CANT_DROP());
                     return;
                 }
-                character.Inventory.RemoveItem(itemId, quantity);
+
+                // Solo se puede tirar al suelo estando REALMENTE en un mapa (roleplay): ni en
+                // combate ni durante un teletransporte. HasGameAction(MAP) exige que la entidad
+                // este presente en el mapa; durante la ventana de teletransporte los mensajes del
+                // personaje corren en el hilo de WorldService y tocar m_groundItems desde ahi
+                // seria una carrera con el hilo de las subareas.
+                var map = character.Map;
+                if (map == null || character.Fight != null || !character.HasGameAction(GameActionTypeEnum.MAP))
+                {
+                    character.Dispatch(WorldMessage.OBJECT_DROP_ERROR_CANT_DROP());
+                    return;
+                }
+
+                // Tirar durante un intercambio permitiria estafar gratis: ofrecer 100, tirar 50
+                // al suelo (recuperables) y entregar solo 50 al validar.
+                if (character.HasGameAction(GameActionTypeEnum.EXCHANGE))
+                {
+                    character.Dispatch(WorldMessage.OBJECT_DROP_ERROR_CANT_DROP());
+                    return;
+                }
+
+                var itemType = (ItemTypeEnum)item.Template.Type;
+                if (itemType == ItemTypeEnum.TYPE_OBJET_VIVANT
+                    || itemType == ItemTypeEnum.TYPE_QUETES
+                    || item.Statistics.HasEffect(EffectEnum.OBJETO_VIVO_ID_GRAFICO))
+                {
+                    character.Dispatch(WorldMessage.OBJECT_DROP_ERROR_CANT_DROP());
+                    return;
+                }
+
+                var dropQuantity = Math.Min(quantity, item.Quantity);
+
+                var templateId = item.TemplateId;
+                var stringEffects = item.Statistics.ToItemStats();
+
+                var dropCell = map.FindGroundDropCell(character.CellId, templateId, stringEffects);
+                if (dropCell == null)
+                {
+                    character.Dispatch(WorldMessage.OBJECT_DROP_ERROR_CANT_DROP());
+                    return;
+                }
+
+                character.Inventory.RemoveItem(itemId, dropQuantity);
+                map.DropGroundItem(dropCell.Value, templateId, dropQuantity, stringEffects);
+
                 character.Dispatch(WorldMessage.OBJECT_DROP_SUCCESS());
             });
         }

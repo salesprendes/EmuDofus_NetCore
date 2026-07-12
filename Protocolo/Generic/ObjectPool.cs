@@ -30,27 +30,16 @@ namespace Protocolo.Framework.Generic
 
         public void Push(T obj)
         {
-            if (obj is IPoolable)
-            {
-                ((IPoolable)obj).Cleanup();
-            }
-
             m_objects.Enqueue(obj);
         }
 
         public void Dispose()
         {
-            while (m_objects.Count > 0)
+            while (m_objects.TryDequeue(out var obj))
             {
-                var obj = Pop();
-                if (obj is IPoolable)
+                if (obj is IDisposable disposable)
                 {
-                    ((IPoolable)obj).Cleanup();
-                }
-
-                if (obj is IDisposable)
-                {
-                    ((IDisposable)obj).Dispose();
+                    disposable.Dispose();
                 }
             }
         }

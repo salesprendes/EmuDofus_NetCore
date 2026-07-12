@@ -14,16 +14,20 @@ namespace Game.Fight.Effect.Type
             if (castInfos.Target == null)
                 return FightActionResultEnum.RESULT_NOTHING;
 
+            var damageValue = 0;
+
             if (castInfos.Duration > 1)
             {
                 var subInfos = new CastInfos(EffectEnum.STAT_MENOS_PM_ESQUIVABLE, castInfos.SpellId, 0, castInfos.Value1, 0, 0, 0, castInfos.Duration, castInfos.Caster, null);
                 var buff = new MPDodgeSubstractBuff(subInfos, castInfos.Target);
 
+                // Igual que la variante de PA: sin este ApplyEffect la retirada de PM con
+                // duración >1 no quitaba PM nunca (el buff quedaba inerte en la lista).
+                buff.ApplyEffect(ref damageValue);
                 castInfos.Target.BuffManager.AddBuff(buff);
             }
             else
             {
-                var damageValue = 0;
                 var subInfos = new CastInfos(EffectEnum.STAT_MENOS_PM_ESQUIVABLE, castInfos.SpellId, 0, castInfos.Value1, 0, 0, 0, 0, castInfos.Caster, null);
                 var buff = new MPDodgeSubstractBuff(subInfos, castInfos.Target);
 

@@ -33,15 +33,27 @@ namespace Game.Fight.AI.Bosses
                 var spell = context.SpellBook.AllSpells.FirstOrDefault(s => s?.SpellId == characteristicSpellId.Value);
                 if (spell != null)
                 {
-                    var projectedAP = context.CurrentAP;
-
-                    if (spell.APCost > projectedAP)
+                    // El hechizo caracteristico es la razon de ser del tentaculo (p.ej. el Tentaculo
+                    // Primario "mata" cuerpo a cuerpo y su golpe es imprescindible para que el
+                    // Kralamar Gigante se vuelva vulnerable). Objetivo: lanzarlo SIEMPRE que pueda.
+                    if (context.CurrentAP >= spell.APCost)
                     {
+                        // Ya tiene PA: lanzarlo si o si, reposicionandose a cuerpo a cuerpo si hace
+                        // falta (antes solo se lanzaba desde la celda actual, asi que un hechizo
+                        // melee no se lanzaba nunca si no habia un enemigo justo al lado).
+                        foreach (var decision in EvaluateCharacteristicCast(context, spell))
+                            yield return decision;
+                    }
+                    else if (Fighter.MaxAP < spell.APCost)
+                    {
+                        // Le falta CAPACIDAD de PA para su hechizo: se motiva (Motivacion Natural,
+                        // +PA persistente) hasta que su maximo alcance el coste. El Primario nace con
+                        // 4 PA y su Kraken cuesta 5, de ahi que sea "reticente a jugar" el primer turno.
                         var motivation = FindNaturalMotivationSpell(context, characteristicSpellId.Value);
-                        if (motivation != null)
+                        if (motivation != null
+                            && context.CurrentAP >= motivation.APCost
+                            && SpellEvaluator.CanCastFromCurrentCell(context, motivation, context.CurrentCellId))
                         {
-                            projectedAP = projectedAP - motivation.APCost + GetAPBonus(motivation);
-
                             yield return new AIDecision
                             {
                                 Type = AIDecisionType.Buff,
@@ -50,25 +62,9 @@ namespace Game.Fight.AI.Bosses
                                 SpellId = motivation.SpellId,
                                 TargetId = Fighter.Id,
                                 CellId = (short)context.CurrentCellId,
-                                Reason = "Tentaculo intenta utilizar bonificacion de PA"
+                                Reason = "Tentaculo acumula PA (Motivacion Natural) para su hechizo caracteristico"
                             };
                         }
-                    }
-
-                    var target = spell.APCost <= projectedAP ? GetBestTargetForSpell(context, spell, projectedAP) : null;
-
-                    if (target?.Cell != null)
-                    {
-                        yield return new AIDecision
-                        {
-                            Type = AIDecisionType.CastSpell,
-                            Priority = AIDecisionPriority.Critical,
-                            Score = 1000,
-                            SpellId = characteristicSpellId.Value,
-                            TargetId = target.Id,
-                            CellId = (short)target.Cell.Id,
-                            Reason = "Tentaculo hechizo caracteristico"
-                        };
                     }
                 }
             }
@@ -107,40 +103,81 @@ namespace Game.Fight.AI.Bosses
             }
         }
 
-        private static AbstractFighter GetBestTargetForSpell(AIContext context, SpellLevel spell, int projectedAP)
+        // Lanza el hechizo caracteristico contra el mejor objetivo. Si no llega desde la celda
+        // actual (es cuerpo a cuerpo), se reposiciona: emite un mover-y-lanzar atomico hacia la
+        // celda de MENOR riesgo desde la que SI alcanza. Todo a prioridad Critica: es su cometido.
+        private IEnumerable<AIDecision> EvaluateCharacteristicCast(AIContext context, SpellLevel spell)
         {
             if (context?.Fight?.Map == null || context.Fighter?.Cell == null || spell == null)
-                return null;
+                yield break;
 
-            return context.Enemies
+            var targets = context.Enemies
                 .Where(enemy => enemy?.Cell != null && !enemy.IsFighterDead)
-                .Where(enemy => CanCastFromCurrentCell(context, spell, enemy.Cell.Id, projectedAP))
                 .OrderByDescending(TargetEvaluator.ScorePriorityTarget)
                 .ThenBy(enemy => Pathfinding.GoalDistance(context.Fight.Map, context.Fighter.Cell.Id, enemy.Cell.Id))
-                .FirstOrDefault();
-        }
+                .ToList();
 
-        private static bool CanCastFromCurrentCell(AIContext context, SpellLevel spell, int castCell, int projectedAP)
-        {
-            if (context?.Fighter == null || spell == null)
-                return false;
+            // 1) Lanzamiento directo si ya esta a rango desde su celda.
+            foreach (var enemy in targets)
+            {
+                if (SpellEvaluator.CanCastFromCurrentCell(context, spell, enemy.Cell.Id))
+                {
+                    yield return new AIDecision
+                    {
+                        Type = AIDecisionType.CastSpell,
+                        Priority = AIDecisionPriority.Critical,
+                        Score = 1000 + TargetEvaluator.ScorePriorityTarget(enemy) / 2,
+                        SpellId = spell.SpellId,
+                        TargetId = enemy.Id,
+                        CellId = (short)enemy.Cell.Id,
+                        Reason = "Tentaculo hechizo caracteristico"
+                    };
+                    yield break;
+                }
+            }
 
-            var fighter = context.Fighter;
-            if (projectedAP < spell.APCost
-                || fighter.Cell == null
-                || fighter.Statistics == null
-                || fighter.IsFighterDead)
-                return false;
+            // 2) No llega desde su celda: mover-y-lanzar hacia una celda a rango (si puede moverse).
+            if (Fighter.StaticInvocation || context.CurrentMP <= 0)
+                yield break;
 
-            if (spell.RequiredLevel > 0 && fighter.Level < spell.RequiredLevel)
-                return false;
+            var reachable = context.TurnCache?.Cells?.GetReachableCells();
+            if (reachable == null)
+                yield break;
 
-            if (fighter.StateManager != null
-                && (fighter.StateManager.HasState(FighterStateEnum.STATE_WEAKENED)
-                    || fighter.StateManager.HasState(FighterStateEnum.STATE_CARRIED)))
-                return false;
+            foreach (var enemy in targets)
+            {
+                int? bestCell = null;
+                var bestRisk = int.MaxValue;
 
-            return SpellEvaluator.CanReachCell(context, spell, context.CurrentCellId, castCell);
+                foreach (var reachCell in reachable)
+                {
+                    if (reachCell == context.CurrentCellId)
+                        continue;
+
+                    if (!SpellEvaluator.CanCastFromCell(context, spell, reachCell, enemy.Cell.Id))
+                        continue;
+
+                    var risk = RiskEvaluator.ScoreCellRisk(context, reachCell, false);
+                    if (risk < bestRisk)
+                    {
+                        bestRisk = risk;
+                        bestCell = reachCell;
+                    }
+                }
+
+                if (bestCell.HasValue)
+                {
+                    yield return AIDecision.MoveAndCast(
+                        bestCell.Value,
+                        spell.SpellId,
+                        enemy.Cell.Id,
+                        enemy.Id,
+                        1000 + TargetEvaluator.ScorePriorityTarget(enemy) / 2,
+                        AIDecisionPriority.Critical,
+                        "Tentaculo se reposiciona para lanzar su hechizo caracteristico");
+                    yield break;
+                }
+            }
         }
 
         private static SpellLevel FindNaturalMotivationSpell(AIContext context, int characteristicSpellId)

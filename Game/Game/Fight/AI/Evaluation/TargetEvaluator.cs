@@ -49,6 +49,24 @@ namespace Game.Fight.AI.Evaluation
             return score;
         }
 
+        /// <summary>
+        /// Peligrosidad del enemigo contra NOSOTROS (0-100), del perfil de amenazas del turno:
+        /// prioriza eliminar antes a quien más daño nos puede hacer.
+        /// </summary>
+        public static int ScoreThreat(AIContext context, AbstractFighter enemy)
+        {
+            if (context == null || enemy == null)
+                return 0;
+
+            foreach (var threat in RiskEvaluator.GetEnemyThreats(context))
+            {
+                if (threat.Fighter == enemy)
+                    return System.Math.Min(threat.Damage, 400) / 4;
+            }
+
+            return 0;
+        }
+
         public static AbstractFighter GetNearestEnemy(AIContext context)
         {
 

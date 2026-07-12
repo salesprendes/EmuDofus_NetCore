@@ -65,6 +65,8 @@ namespace Game.Frame
                         case 'b':
                             return GuildBoostSpell;
                         case 'J':
+                            if (message.Length < 3)
+                                break;
                             switch (message[2])
                             {
                                 case 'R':
@@ -76,6 +78,8 @@ namespace Game.Frame
                             }
                             break;
                         case 'T':
+                            if (message.Length < 3)
+                                break;
                             switch (message[2])
                             {
                                 case 'J':
@@ -85,6 +89,8 @@ namespace Game.Frame
                             }
                             break;
                         case 'I':
+                            if (message.Length < 3)
+                                break;
                             switch (message[2])
                             {
                                 case 'M':
@@ -213,6 +219,12 @@ namespace Game.Frame
 
         private void ChatChannelEnable(CharacterEntity character, string message)
         {
+            if (message.Length < 4)
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
             var enabled = message[2] == '+';
             var channel = (ChatChannelEnum)message[3];
             character.SafeDispatch(WorldMessage.CHAT_CHANNEL(enabled, channel));
@@ -347,7 +359,7 @@ namespace Game.Frame
 
         private void GuildBoostStats(CharacterEntity character, string message)
         {
-            if (character.GuildMember == null)
+            if (message.Length < 3 || character.GuildMember == null)
             {
                 character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
                 return;

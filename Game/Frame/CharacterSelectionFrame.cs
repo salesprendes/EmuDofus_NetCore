@@ -109,6 +109,34 @@ namespace Game.Frame
             });
         }
 
+        /// <summary>
+        /// Reglas de nombre del cliente 1.29: de 3 a 20 caracteres, solo letras y como mucho
+        /// un guion, que no puede ir al principio ni al final.
+        /// </summary>
+        private static bool IsValidCharacterName(string name)
+        {
+            if (name == null || name.Length < 3 || name.Length > 20)
+                return false;
+
+            var hyphens = 0;
+            for (var i = 0; i < name.Length; i++)
+            {
+                var c = name[i];
+                if (c == '-')
+                {
+                    hyphens++;
+                    if (hyphens > 1 || i == 0 || i == name.Length - 1)
+                        return false;
+                    continue;
+                }
+
+                if (c is (< 'a' or > 'z') and (< 'A' or > 'Z'))
+                    return false;
+            }
+
+            return true;
+        }
+
         private void HandleCharacterCreate(WorldClient client, string message)
         {
             if (client.Characters == null)
@@ -127,6 +155,11 @@ namespace Game.Frame
             }
 
             var name = infos[infoParts[0]].ToString();
+            if (!IsValidCharacterName(name))
+            {
+                client.Send(WorldMessage.CHARACTER_CREATION_ERROR_BAD_NAME());
+                return;
+            }
 
             byte breed = 0;
             if (!byte.TryParse(infos[infoParts[1]], out breed))

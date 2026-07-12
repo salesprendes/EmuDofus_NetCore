@@ -3,73 +3,54 @@ using System.Collections.Generic;
 
 namespace Game.Fight.AI.Cache
 {
-    public sealed class AILineOfSightCache(AbstractFight fight)
+    /// <summary>
+    /// Línea de visión de la IA. NO tiene algoritmo propio: delega siempre en
+    /// <see cref="Pathfinding.CheckView"/>, el mismo port del cliente 1.29 que valida los
+    /// lanzamientos de los jugadores, de modo que la IA no puede "ver" ni más ni menos que ellos.
+    /// Solo añade memorización dentro del paso de planificación actual.
+    /// </summary>
+    public sealed class AILineOfSightCache(AbstractFighter owner)
     {
-        private readonly Dictionary<long, bool> m_cache = new Dictionary<long, bool>();
+        private readonly Dictionary<(int From, int To, int Self), bool> m_cache = new Dictionary<(int, int, int), bool>();
 
-        public bool HasLineOfSight(int fromCell, int toCell)
+        /// <param name="selfCell">
+        /// Celda que ocupará la IA al ejecutar lo que está evaluando (la de origen si va a lanzar
+        /// tras moverse, la de destino si está midiendo quién la vería desde allí). Por defecto, su
+        /// celda actual: entonces el tablero proyectado coincide con el real.
+        /// </param>
+        public bool HasLineOfSight(int fromCell, int toCell, int selfCell = -1)
         {
+            var fight = owner?.Fight;
             if (fight == null || fromCell < 0 || toCell < 0)
                 return false;
 
             if (fromCell == toCell)
                 return true;
 
-            long key = fromCell < toCell ? ((long)fromCell << 32) | (uint)toCell : ((long)toCell << 32) | (uint)fromCell;
+            if (selfCell < 0)
+                selfCell = owner.Cell?.Id ?? -1;
 
+            // La clave conserva el sentido de la mirada: CheckView no es simétrico (la altura del
+            // ojo del que mira y la del objetivo entran en la interpolación de alturas), así que
+            // meter (A,B) y (B,A) en la misma entrada devolvía la vista del sentido contrario.
+            var key = (fromCell, toCell, selfCell);
             if (m_cache.TryGetValue(key, out bool result))
                 return result;
 
             try
             {
-                result = Pathfinding.CheckView(fight, fromCell, toCell);
+                result = Pathfinding.CheckView(fight, fromCell, toCell, owner, selfCell);
             }
             catch (System.Exception ex)
             {
+                // Sin algoritmo de reserva: uno alternativo volvería a separar la vista de la IA de
+                // la del jugador, que es justo lo que hay que evitar. Se deniega la vista y se avisa.
                 AIDiagnostics.LogSwallowed("AILineOfSightCache.HasLineOfSight", ex);
-                result = MapLos(fight?.Map, fromCell, toCell);
+                result = false;
             }
 
             m_cache[key] = result;
             return result;
         }
-
-
-        private static bool MapLos(MapInstance map, int fromCell, int toCell)
-        {
-            if (map == null || fromCell == toCell) return fromCell == toCell;
-
-            var p0 = Pathfinding.GetPoint(map, fromCell);
-            var p1 = Pathfinding.GetPoint(map, toCell);
-            if (p0.X < 0 || p1.X < 0) return false;
-
-            int x0 = (int)p0.X, y0 = (int)p0.Y;
-            int x1 = (int)p1.X, y1 = (int)p1.Y;
-
-            bool steep = System.Math.Abs(y1 - y0) > System.Math.Abs(x1 - x0);
-            if (steep) { Swap(ref x0, ref y0); Swap(ref x1, ref y1); }
-            if (x0 > x1) { Swap(ref x0, ref x1); Swap(ref y0, ref y1); }
-
-            int dx = x1 - x0, dy = System.Math.Abs(y1 - y0);
-            int err = 0, y = y0, ystep = y0 < y1 ? 1 : -1;
-
-            for (int x = x0; x <= x1; x++)
-            {
-                int cellId = steep ? Pathfinding.GetCell1(map, y, x) : Pathfinding.GetCell1(map, x, y);
-
-                if (cellId != fromCell && cellId != toCell)
-                {
-                    var cell = map.GetCell(cellId);
-                    if (cell == null || !cell.LineOfSight) return false;
-                }
-
-                err += dy;
-                if (2 * err >= dx) { y += ystep; err -= dx; }
-            }
-
-            return true;
-        }
-
-        private static void Swap(ref int a, ref int b) => (b, a) = (a, b);
     }
 }

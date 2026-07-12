@@ -14,7 +14,14 @@ namespace Game.Fight.Effect.Type
     {
         public override FightActionResultEnum ApplyEffect(CastInfos castInfos)
         {
-            DirectionEnum direction = Pathfinding.GetDirection(castInfos.Map, castInfos.Caster.Cell.Id, castInfos.CellId);
+            if (castInfos.Caster?.Cell == null || castInfos.Caster.Cell.Id == castInfos.CellId)
+                return FightActionResultEnum.RESULT_NOTHING;
+
+            // Cardinal siempre: con una celda de lanzamiento no alineada, la 8-direcciones
+            // devolvía una diagonal y el efecto buscaba al objetivo en una celda inválida.
+            DirectionEnum direction = Pathfinding.InLine(castInfos.Map, castInfos.Caster.Cell.Id, castInfos.CellId)
+                ? Pathfinding.GetDirection(castInfos.Map, castInfos.Caster.Cell.Id, castInfos.CellId)
+                : Pathfinding.GetCardinalDirection(castInfos.Map, castInfos.Caster.Cell.Id, castInfos.CellId);
             var targetFighterCell = Pathfinding.NextCell(castInfos.Map, castInfos.Caster.Cell.Id, direction);
 
             var target = castInfos.Fight.GetFighterOnCell(targetFighterCell);
@@ -26,7 +33,11 @@ namespace Game.Fight.Effect.Type
 
             for (int i = 0; i < distance; i++)
             {
-                var nextCell = castInfos.Fight.GetCell(Pathfinding.NextCell(castInfos.Map, currentCell.Id, direction));
+                // Paso validado: en el borde del mapa el huido choca en vez de reaparecer en el
+                // extremo opuesto (wrap-around).
+                var nextCell = Pathfinding.TryGetCellInDirection(castInfos.Map, currentCell.Id, direction, 1, out var nextCellId)
+                    ? castInfos.Fight.GetCell(nextCellId)
+                    : null;
 
                 if (nextCell != null && nextCell.CanWalk)
                 {

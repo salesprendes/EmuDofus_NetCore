@@ -18,6 +18,9 @@ namespace Game.Fight.AI.Core
         // Mientras esta activo se sigue re-planificando cuando se agota la cadena de acciones.
         private bool m_turnActive;
 
+        // Decisiones que ya fallaron en este turno: no se vuelven a intentar.
+        private readonly HashSet<string> m_failedDecisionKeys = new HashSet<string>();
+
         public AIFighter Fighter { get; private set; }
 
         public AIActionBase CurrentAction { get; protected set; }
@@ -35,6 +38,9 @@ namespace Game.Fight.AI.Core
             // (objetivos muertos, nuevas posiciones, hechizos recien habilitados...).
             m_turnActive = true;
             m_memory.BeginTurn();
+            m_failedDecisionKeys.Clear();
+            Fighter.TrapAvoidanceThisTurn.Clear();
+            Fighter.StealthDetectionThisTurn.Clear();
             m_turnBudget = new AITurnBudget();
             CurrentAction = new DelayAIAction(Fighter, WorldConfig.FIGHT_AI_START_DELAY);
         }
@@ -62,7 +68,7 @@ namespace Game.Fight.AI.Core
                 if (!CanThink() || m_turnBudget == null || !m_turnBudget.CanContinue)
                     return EndTurnStep("Limite de turno o luchador no puede jugar");
 
-                var context = new AIContext(Fighter, m_memory) { Budget = m_turnBudget };
+                var context = new AIContext(Fighter, m_memory) { Budget = m_turnBudget, FailedDecisionKeys = m_failedDecisionKeys };
 
                 var decision = SelectNextDecision(context);
                 if (decision == null || decision.Type == AIDecisionType.EndTurn)
@@ -90,11 +96,91 @@ namespace Game.Fight.AI.Core
                 if (decision.Type == AIDecisionType.EndTurn)
                     return decision;
 
+                if (m_failedDecisionKeys.Contains(GetDecisionKey(decision)))
+                    continue;
+
                 if (CanSchedule(context, decision))
                     return decision;
             }
 
             return null;
+        }
+
+        // Genera el movimiento de "bajarse de un glifo hostil" si el luchador esta sobre uno y
+        // puede moverse a una celda libre de glifo. Prioridad alta: se antepone a ataques normales
+        // y desplazamientos, pero no a un remate seguro (Critical en AttackEvaluator).
+        private static AIDecision TryEscapeHostileGlyph(AIContext context)
+        {
+            if (context?.Fighter == null || context.CurrentMP <= 0 || !context.Fighter.CanBeMoved())
+                return null;
+
+            if (!Evaluation.MovementEvaluator.IsOnHostileGlyph(context, context.CurrentCellId))
+                return null;
+
+            var offCell = new Evaluation.MovementEvaluator().GetBestCellOffHostileGlyph(context);
+            if (offCell == null)
+                return null;
+
+            return AIDecision.Move(offCell.Value, 200, AIDecisionPriority.High, "Salir de un glifo hostil");
+        }
+
+        // Genera el movimiento de "buscar al enemigo invisible": cuando NO queda ningun enemigo
+        // visible pero si invisibles (Sram), en vez de pasar turno el monstruo se dirige hacia la
+        // ultima casilla señalada publicamente (todos la vieron) o, si ya llego alli o nunca hubo
+        // señal, patrulla hacia una celda alcanzable aleatoria. Al quedar adyacente al invisible,
+        // la deteccion por proximidad (IsEnemyDetected) hace el resto en la re-planificacion.
+        private static AIDecision TrySearchHiddenEnemy(AIContext context)
+        {
+            if (context?.Fighter == null
+                || context.Enemies.Count > 0
+                || context.HiddenEnemies.Count == 0
+                || context.CurrentMP <= 0
+                || !context.Fighter.CanBeMoved())
+                return null;
+
+            var reachable = context.TurnCache?.Cells?.GetReachableCells();
+            if (reachable == null || reachable.Count == 0)
+                return null;
+
+            // Ultima posicion señalada de cualquier invisible (publica, no es trampa).
+            var lastKnown = context.HiddenEnemies
+                .Select(hidden => hidden.LastKnownStealthCell)
+                .FirstOrDefault(cell => cell >= 0, -1);
+
+            var bestCell = -1;
+
+            if (lastKnown >= 0 && context.TurnCache.Cells.GetDistance(context.CurrentCellId, lastKnown) > 1)
+            {
+                // Acercarse a la ultima señal: celda alcanzable que minimiza la distancia.
+                var bestDistance = int.MaxValue;
+                foreach (var cell in reachable)
+                {
+                    if (cell == context.CurrentCellId)
+                        continue;
+
+                    var distance = context.TurnCache.Cells.GetDistance(cell, lastKnown);
+                    if (distance < bestDistance)
+                    {
+                        bestDistance = distance;
+                        bestCell = cell;
+                    }
+                }
+            }
+            else
+            {
+                // Sin pista (o ya registrada la zona): patrullar hacia una celda aleatoria.
+                for (var attempt = 0; attempt < 4 && bestCell < 0; attempt++)
+                {
+                    var candidate = reachable[Util.Next(0, reachable.Count)];
+                    if (candidate != context.CurrentCellId)
+                        bestCell = candidate;
+                }
+            }
+
+            if (bestCell < 0)
+                return null;
+
+            return AIDecision.Move(bestCell, 150, AIDecisionPriority.Normal, "Buscar al enemigo invisible");
         }
 
         // Evalua, aplica el bono de continuidad, deduplica y ordena por prioridad/score.
@@ -105,6 +191,19 @@ namespace Game.Fight.AI.Core
 
             if (evaluated != null)
                 decisions.AddRange(evaluated);
+
+            // Comun a todos los perfiles: si el luchador esta sobre un glifo hostil, salir de el es
+            // prioritario (golpea al empezar su proximo turno). Solo termina el turno encima si no
+            // hay ninguna celda alcanzable libre de glifo ("no hay mas remedio").
+            var escapeGlyph = TryEscapeHostileGlyph(context);
+            if (escapeGlyph != null)
+                decisions.Add(escapeGlyph);
+
+            // Comun a todos los perfiles: si solo quedan enemigos invisibles, buscarlos en vez de
+            // pasar turno.
+            var searchHidden = TrySearchHiddenEnemy(context);
+            if (searchHidden != null)
+                decisions.Add(searchHidden);
 
             if (decisions.Count == 0)
                 decisions.AddRange(GetFallbackDecisions(context));
@@ -155,7 +254,7 @@ namespace Game.Fight.AI.Core
             m_memory.TrackUsage(decision.Type);
             m_memory.Record(decision);
 
-            var head = new DecisionAIAction(Fighter, context, decision);
+            var head = new DecisionAIAction(Fighter, context, decision, GetDecisionKey(decision));
             head.LinkWith(new DelayAIAction(Fighter, WorldConfig.FIGHT_AI_THINK_DELAY));
             return head;
         }
@@ -175,9 +274,11 @@ namespace Game.Fight.AI.Core
             m_memory.TrackUsage(AIDecisionType.CastSpell);
             m_memory.Record(castDecision);
 
-            var head = new DecisionAIAction(Fighter, context, moveDecision);
+            // Si falla cualquiera de las dos mitades, se veta la decision MoveAndCast original.
+            var planKey = GetDecisionKey(decision);
+            var head = new DecisionAIAction(Fighter, context, moveDecision, planKey);
             var tail = head.LinkWith(new DelayAIAction(Fighter, WorldConfig.FIGHT_AI_THINK_DELAY));
-            tail = tail.LinkWith(new DecisionAIAction(Fighter, context, castDecision));
+            tail = tail.LinkWith(new DecisionAIAction(Fighter, context, castDecision, planKey));
             tail.LinkWith(new DelayAIAction(Fighter, WorldConfig.FIGHT_AI_THINK_DELAY));
             return head;
         }

@@ -25,6 +25,10 @@ namespace Game.Fight.AI.Evaluation
                     if (missingLife <= 0)
                         continue;
 
+                    // No curar rasguños: por encima del 85% de vida los PA rinden más atacando.
+                    if ((double)ally.Life / ally.MaxLife > 0.85)
+                        continue;
+
                     if (!SpellEvaluator.CanCastFromCurrentCell(context, spell, ally.Cell.Id))
                         continue;
 

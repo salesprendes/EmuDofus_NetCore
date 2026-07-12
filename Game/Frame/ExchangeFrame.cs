@@ -328,8 +328,11 @@ namespace Game.Frame
 
                 if (distantEntity == null)
                 {
-                    var entityIds = string.Join(", ", character.Map.Entities.Select(e => e.Id + "(" + e.Type + ")"));
-                    Logger.Debug($"ExchangeFrame::Request entidad desconocida {exchangeActorId} mapa={character.Map.Id} entidades=[{entityIds}] jugador={character.Name}");
+                    if (Logger.IsEnabled(Protocolo.Framework.Generic.Logging.LogLevel.Debug))
+                    {
+                        var entityIds = string.Join(", ", character.Map.Entities.Select(e => e.Id + "(" + e.Type + ")"));
+                        Logger.Debug($"ExchangeFrame::Request entidad desconocida {exchangeActorId} mapa={character.Map.Id} entidades=[{entityIds}] jugador={character.Name}");
+                    }
                     character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
                 }
@@ -459,6 +462,12 @@ namespace Game.Frame
             }
 
             var zone = message[2] - '0';
+            if (zone != 1 && zone != 2)
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
             var isKamas = message[3] == 'G';
             var payload = message.AsSpan(4);
 

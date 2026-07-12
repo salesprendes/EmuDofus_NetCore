@@ -26,16 +26,40 @@ namespace Game.Fight.Effect.Type
             switch (castInfos.EffectType)
             {
                 case EffectEnum.MOVIMIENTO_EMPUJAR:
-                    if (Pathfinding.InLine(castInfos.Map, castInfos.CellId, castInfos.Target.Cell.Id) && castInfos.CellId != castInfos.Target.Cell.Id)
-                        direction = Pathfinding.GetDirection(castInfos.Map, castInfos.CellId, castInfos.Target.Cell.Id);
-                    else if (Pathfinding.InLine(castInfos.Map, castInfos.Caster.Cell.Id, castInfos.Target.Cell.Id))
-                        direction = Pathfinding.GetDirection(castInfos.Map, castInfos.Caster.Cell.Id, castInfos.Target.Cell.Id);
+                    // Origen del empuje = celda de lanzamiento (para las trampas, su centro).
+                    // Como el cliente (getDirectionFromCoordinates con bAllDirections=false), la
+                    // dirección siempre se resuelve a una cardinal: exacta si hay alineación y por
+                    // cuadrante si no. Antes, un objetivo no alineado —o de pie sobre el centro de
+                    // la Trampa Repulsiva con el Sram fuera de línea— no era empujado nunca.
+                    if (castInfos.CellId != castInfos.Target.Cell.Id)
+                    {
+                        direction = Pathfinding.InLine(castInfos.Map, castInfos.CellId, castInfos.Target.Cell.Id)
+                            ? Pathfinding.GetDirection(castInfos.Map, castInfos.CellId, castInfos.Target.Cell.Id)
+                            : Pathfinding.GetCardinalDirection(castInfos.Map, castInfos.CellId, castInfos.Target.Cell.Id);
+                    }
+                    else if (castInfos.Caster.Cell != null && castInfos.Caster.Cell.Id != castInfos.Target.Cell.Id)
+                    {
+                        // Objetivo exactamente sobre el origen (p.ej. teletransportado al centro
+                        // de la trampa): se empuja alejándolo del lanzador.
+                        direction = Pathfinding.GetCardinalDirection(castInfos.Map, castInfos.Caster.Cell.Id, castInfos.Target.Cell.Id);
+                    }
                     else
+                    {
+                        // Lanzador y objetivo en la misma celda (el Sram activa su propia trampa
+                        // sobre el centro): sin dirección posible.
                         return FightActionResultEnum.RESULT_NOTHING;
+                    }
                     break;
 
                 case EffectEnum.MOVIMIENTO_ATRAER:
-                    direction = Pathfinding.GetDirection(castInfos.Map, castInfos.Target.Cell.Id, castInfos.Caster.Cell.Id);
+                    if (castInfos.Caster.Cell == null || castInfos.Caster.Cell.Id == castInfos.Target.Cell.Id)
+                        return FightActionResultEnum.RESULT_NOTHING;
+
+                    // Cardinal por cuadrante: la 8-direcciones podía devolver una diagonal y el
+                    // objetivo se deslizaba en diagonal (movimiento ilegal en combate).
+                    direction = Pathfinding.InLine(castInfos.Map, castInfos.Target.Cell.Id, castInfos.Caster.Cell.Id)
+                        ? Pathfinding.GetDirection(castInfos.Map, castInfos.Target.Cell.Id, castInfos.Caster.Cell.Id)
+                        : Pathfinding.GetCardinalDirection(castInfos.Map, castInfos.Target.Cell.Id, castInfos.Caster.Cell.Id);
                     break;
             }
 
@@ -51,7 +75,11 @@ namespace Game.Fight.Effect.Type
 
             for (int i = 0; i < length; i++)
             {
-                var nextCell = target.Fight.GetCell(Pathfinding.NextCell(castInfos.Map, currentCell.Id, direction));
+                // Paso validado: un empuje que alcanza el borde choca (colisión), no continúa por
+                // la fila del otro extremo del mapa por el wrap-around de NextCell.
+                var nextCell = Pathfinding.TryGetCellInDirection(castInfos.Map, currentCell.Id, direction, 1, out var nextCellId)
+                    ? target.Fight.GetCell(nextCellId)
+                    : null;
 
                 if (nextCell != null && nextCell.CanWalk)
                 {
@@ -98,10 +126,12 @@ namespace Game.Fight.Effect.Type
 
         private static FightActionResultEnum ApplyPushBackDamages(CastInfos castInfos, AbstractFighter target, int length, int currentLength)
         {
-            var damageCoef = Util.Next(9, 17);
-            double levelCoef = castInfos.Caster.Level / 50;
+            var damageCoef = Util.Next(8, 17);
+            double levelCoef = castInfos.Caster.Level / 50.0;
+
             if (levelCoef < 0.1)
                 levelCoef = 0.1;
+
             int damageValue = (int)Math.Floor(damageCoef * levelCoef) * (length - currentLength);
             var subInfos = new CastInfos(EffectEnum.DANO_BRUTO, castInfos.SpellId, castInfos.CellId, 0, 0, 0, 0, 0, castInfos.Caster, null);
 

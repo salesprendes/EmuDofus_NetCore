@@ -1,10 +1,21 @@
 ﻿using Game.Entity;
 using Game.Fight.AI.Core;
+using System.Collections.Generic;
 
 namespace Game.Fight.AI
 {
     public abstract class AIFighter : AbstractFighter
     {
+        // Decision "detecto/esquivo esta trampa" por celda, estable durante todo el turno (el
+        // caché de celdas se reconstruye en cada paso de planificacion, pero esto persiste en el
+        // luchador). Se limpia al empezar el turno.
+        public Dictionary<int, bool> TrapAvoidanceThisTurn { get; } = new Dictionary<int, bool>();
+
+        // Decision "detecto a este enemigo invisible adyacente" por id de enemigo, estable durante
+        // el turno. Se limpia al empezar el turno.
+        public Dictionary<long, bool> StealthDetectionThisTurn { get; } = new Dictionary<long, bool>();
+
+
         public override bool TurnReady
         {
             get;

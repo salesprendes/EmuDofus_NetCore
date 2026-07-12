@@ -28,7 +28,7 @@ namespace Game.Fight
 
         private string m_serializedFlag;
 
-        public MonsterFight(MapInstance map, long id, CharacterEntity character, MonsterGroupEntity monsterGroup) : base(FightTypeEnum.TYPE_PVM, map, id, character.Id, -1, character.CellId, monsterGroup.Id, -1, monsterGroup.CellId, WorldConfig.PVM_START_TIMEOUT, WorldConfig.PVM_TURN_TIME, false, false, new LootMonsterBehavior())
+        public MonsterFight(MapInstance map, long id, CharacterEntity character, MonsterGroupEntity monsterGroup) : base(FightTypeEnum.TYPE_PVM, map, id, character.Id, -1, character.CellId, monsterGroup.Id, -1, monsterGroup.CellId, 60000, 30000, false, false, new LootMonsterBehavior())
         {
             Character = character;
             MonsterGroup = monsterGroup;

@@ -56,6 +56,9 @@ namespace Game.Entity.Inventory
         {
             if (value < 0)
                 throw new ArgumentException($"InventoryBag::SubKamas el valor debe ser mayor que 0: {value}");
+            // Nunca dejar el saldo en negativo aunque el llamador no haya revalidado fondos.
+            if (value > Kamas)
+                value = Kamas;
             Kamas -= value;
             OnKamasSubstracted(value);
         }
@@ -64,6 +67,12 @@ namespace Game.Entity.Inventory
 
         public bool AddItem(ItemDAO item, bool merge = true)
         {
+            // Guarda anti-NRE: RemoveItem devuelve null si el objeto ya no esta (p.ej. ofrecido
+            // en un intercambio y tirado/borrado antes de validar); AddItem(null) reventaba en
+            // CheckWeight a mitad de la transferencia.
+            if (item == null)
+                return false;
+
             if (Items.Contains(item))
                 return false;
 

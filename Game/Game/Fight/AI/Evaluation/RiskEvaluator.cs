@@ -47,6 +47,20 @@ namespace Game.Fight.AI.Evaluation
             if (!meleeOrTank && nearestDistance <= 2)
                 penalty += 40;
 
+            // Anti-apiñamiento: pegarse a los aliados regala golpes en área al enemigo. Los
+            // cuerpo a cuerpo lo penalizan menos (inevitablemente se agrupan sobre el objetivo).
+            if (context.Allies != null)
+            {
+                foreach (var ally in context.Allies)
+                {
+                    if (ally == null || ally == context.Fighter || ally.Cell == null || ally.IsFighterDead)
+                        continue;
+
+                    if (context.TurnCache.Cells.GetDistance(cellId, ally.Cell.Id) <= 1)
+                        penalty += meleeOrTank ? 6 : 15;
+                }
+            }
+
             // Penaliza pisar glifos hostiles (son visibles). Las trampas enemigas estan ocultas,
             // asi que la IA no las "ve" y no las esquiva (seria hacer trampa).
             var fightCell = context.Fight?.GetCell(cellId);
@@ -80,8 +94,9 @@ namespace Game.Fight.AI.Evaluation
                     if (distance > threat.Reach)
                         continue;
 
-                    // Los enemigos a distancia necesitan linea de vision para alcanzar la celda.
-                    if (threat.Ranged && !context.TurnCache.LineOfSight.HasLineOfSight(threat.Fighter.Cell.Id, cellId))
+                    // Los enemigos a distancia necesitan linea de vision para alcanzar la celda. Se
+                    // mide con la IA ya situada en ella: es el blanco que el enemigo tendria delante.
+                    if (threat.Ranged && !context.TurnCache.LineOfSight.HasLineOfSight(threat.Fighter.Cell.Id, cellId, cellId))
                         continue;
 
                     penalty += 20 + Math.Min(threat.Damage, 240) / 4;
@@ -101,7 +116,7 @@ namespace Game.Fight.AI.Evaluation
 
         // Construye (y cachea por turno) el perfil de amenaza de cada enemigo: hasta donde puede
         // golpear este turno (PM + alcance del hechizo de danio) y cuanto danio nos haria.
-        private static IReadOnlyList<AIEnemyThreat> GetEnemyThreats(AIContext context)
+        public static IReadOnlyList<AIEnemyThreat> GetEnemyThreats(AIContext context)
         {
             if (context?.TurnCache == null)
                 return Array.Empty<AIEnemyThreat>();

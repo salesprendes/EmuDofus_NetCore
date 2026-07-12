@@ -13,6 +13,10 @@ namespace Game.Fight.Effect.Type
             if (CastInfos.Target == null)
                 return FightActionResultEnum.RESULT_NOTHING;
 
+            // Los castigos distintos conviven; relanzar el MISMO castigo lo refresca
+            // (retira la instancia anterior y su erosión) en vez de apilarse consigo mismo.
+            CastInfos.Target.BuffManager.RemovePunishment(CastInfos.SpellId);
+
             CastInfos.Target.BuffManager.AddBuff(new PunishmentBuff(CastInfos, CastInfos.Target));
 
             return FightActionResultEnum.RESULT_NOTHING;

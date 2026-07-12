@@ -6,8 +6,15 @@ namespace Game.Network
 {
     public class MessageDispatcher : Updatable
     {
+        /// <summary>
+        /// Umbral de auto-reparación: un tramo cacheado legítimo dura microsegundos; si el
+        /// contador lleva más de esto activo es que una excepción rompió el par true/false.
+        /// </summary>
+        private const long StaleCachedBufferMs = 5000;
+
         private event Action<string> OnMessage;
         private int m_cached = 0;
+        private long m_cachedSince;
         private StringBuilder m_buffer = new StringBuilder();
         public bool IsConnected => OnMessage != null;
 
@@ -19,17 +26,39 @@ namespace Game.Network
             }
             set
             {
-                m_cached += value ? 1 : -1;
-                if (m_cached == 0)
+                if (value)
                 {
-                    if (m_buffer.Length > 0)
-                    {
-                        Dispatch(m_buffer.ToString());
-                        m_buffer.Clear();
-                    }
+                    if (m_cached == 0)
+                        m_cachedSince = Environment.TickCount64;
+                    m_cached++;
+                    return;
                 }
-                if (m_cached < 0)
-                    throw new InvalidOperationException("cached buffer should be >= 0");
+
+                // Un false desbalanceado (excepción entre el par true/false) no debe tumbar
+                // la conexión: se ignora en vez de lanzar.
+                if (m_cached > 0)
+                    m_cached--;
+
+                if (m_cached == 0)
+                    FlushCachedBuffer();
+            }
+        }
+
+        private void FlushCachedBuffer()
+        {
+            if (m_buffer.Length > 0)
+            {
+                Dispatch(m_buffer.ToString());
+                m_buffer.Clear();
+            }
+        }
+
+        private void RecoverStaleCachedBuffer()
+        {
+            if (m_cached > 0 && Environment.TickCount64 - m_cachedSince > StaleCachedBufferMs)
+            {
+                m_cached = 0;
+                FlushCachedBuffer();
             }
         }
 
@@ -65,6 +94,8 @@ namespace Game.Network
 
         public virtual void Dispatch(string message)
         {
+            RecoverStaleCachedBuffer();
+
             if (CachedBuffer)
             {
                 m_buffer.Append(message).Append('\0');
@@ -78,7 +109,7 @@ namespace Game.Network
 
         public virtual void SafeDispatch(string message)
         {
-            AddMessage(() => { if (CachedBuffer) { m_buffer.Append(message).Append('\0'); } else if (OnMessage != null) { OnMessage(message); } });
+            AddMessage(() => Dispatch(message));
         }
     }
 }

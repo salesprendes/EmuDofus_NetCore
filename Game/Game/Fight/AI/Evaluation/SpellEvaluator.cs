@@ -92,7 +92,9 @@ namespace Game.Fight.AI.Evaluation
             if (spell.EmptyCell && fightCell.HasObject(FightObstacleTypeEnum.TYPE_FIGHTER))
                 return false;
 
-            if (spell.LOS && !context.TurnCache.LineOfSight.HasLineOfSight(fromCell, castCell))
+            // La IA lanzará DESDE fromCell: la vista se mide con ella ya puesta ahí, no desde donde
+            // aún está (si no, su propio cuerpo podía cortar la línea y perdía la altura del ojo).
+            if (spell.LOS && !context.TurnCache.LineOfSight.HasLineOfSight(fromCell, castCell, fromCell))
                 return false;
 
             var target = context.Fight.GetFighterOnCell(castCell);
@@ -242,6 +244,24 @@ namespace Game.Fight.AI.Evaluation
             }
 
             return score;
+        }
+
+        /// <summary>
+        /// El objetivo ya tiene un buff activo procedente de este mismo hechizo: relanzarlo
+        /// suele ser desperdiciar PA (el efecto no se acumula o se pisa a sí mismo).
+        /// </summary>
+        public static bool HasActiveBuffFromSpell(AbstractFighter target, int spellId)
+        {
+            if (target?.BuffManager == null)
+                return false;
+
+            foreach (var buff in target.BuffManager.GetAllBuffs())
+            {
+                if (buff.CastInfos != null && buff.CastInfos.SpellId == spellId)
+                    return true;
+            }
+
+            return false;
         }
 
         private static int EstimateEffectValue(SpellEffect effect)

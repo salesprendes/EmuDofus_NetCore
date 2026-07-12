@@ -19,7 +19,9 @@ namespace Login
 {
     public sealed class AuthService : AbstractTcpServer<AuthService, AuthClient>
     {
-        public AuthService() : base(600) { }
+        public AuthService()
+        {
+        }
 
         [Configurable("AuthServiceIP")] public static string AuthServiceIP = "127.0.0.1";
 
@@ -84,6 +86,7 @@ namespace Login
             AuthDbMgr.Instance.UpdateAll();
             CharacterInstanceRepository.Instance.Reload();
             CleanExpiredBans();
+            DecayFailedAuthAttempts();
             CheckClientTimeouts();
         }
 
@@ -96,8 +99,11 @@ namespace Login
             {
                 if ((now - client.LastActivityTime) > timeout)
                 {
-                    AddMessage(() => client.Send(AuthMessage.ACCOUNT_KICK_TIMEOUT));
-                    client.Disconnect();
+                    AddMessage(() =>
+                    {
+                        client.Send(AuthMessage.ACCOUNT_KICK_TIMEOUT);
+                        AddMessage(client.Disconnect);
+                    });
                 }
             }
         }
@@ -116,7 +122,7 @@ namespace Login
             var newCount = m_connectionCountByIp.AddOrUpdate(ip, 1, (_, c) => c + 1);
             if (newCount > AuthMaxConnectionsPerIp)
             {
-                m_connectionCountByIp.AddOrUpdate(ip, 0, (_, c) => Math.Max(0, c - 1));
+                DecrementConnectionCount(ip);
                 return false;
             }
 
@@ -129,11 +135,49 @@ namespace Login
             }
             if (Interlocked.Increment(ref m_rateWindowCount) > AuthMaxConnectionsPerSecond)
             {
-                m_connectionCountByIp.AddOrUpdate(ip, 0, (_, c) => Math.Max(0, c - 1));
+                DecrementConnectionCount(ip);
                 return false;
             }
 
             return true;
+        }
+
+        protected override void OnConnectionRefused(string ip)
+        {
+            // AllowConnection ya incrementó el contador de esta IP; si el servidor rechaza la
+            // conexión después (sin ids libres), hay que revertirlo o la IP queda bloqueada.
+            DecrementConnectionCount(ip);
+        }
+
+        private void DecrementConnectionCount(string ip)
+        {
+            // Decrementa y elimina las entradas a cero para que el diccionario no crezca
+            // indefinidamente con cada IP distinta que se haya conectado alguna vez.
+            while (m_connectionCountByIp.TryGetValue(ip, out var current))
+            {
+                var next = Math.Max(0, current - 1);
+                if (next == 0)
+                {
+                    if (m_connectionCountByIp.TryRemove(new KeyValuePair<string, int>(ip, current)))
+                        return;
+                }
+                else if (m_connectionCountByIp.TryUpdate(ip, next, current))
+                {
+                    return;
+                }
+            }
+        }
+
+        private void DecayFailedAuthAttempts()
+        {
+            foreach (var kvp in m_failedAuthByIp)
+            {
+                var next = kvp.Value - 1;
+                if (next <= 0)
+                    m_failedAuthByIp.TryRemove(new KeyValuePair<string, int>(kvp.Key, kvp.Value));
+                else
+                    m_failedAuthByIp.TryUpdate(kvp.Key, next, kvp.Value);
+            }
         }
 
         public void RegisterFailedAuth(string ip)
@@ -171,14 +215,14 @@ namespace Login
             {
                 m_activeAuthClientCount++;
                 client.FrameManager.AddFrame(VersionFrame.Instance);
-                client.AuthKey = Util.AuthKeyPool.Pop();
+                client.AuthKey = Util.GenerateLoginKey();
                 client.Send(AuthMessage.HELLO_CONNECT(client.AuthKey));
             });
         }
 
         protected override void OnClientDisconnected(AuthClient client)
         {
-            m_connectionCountByIp.AddOrUpdate(client.Ip, 0, (_, c) => Math.Max(0, c - 1));
+            DecrementConnectionCount(client.Ip);
 
             AddMessage(() =>
                 {
@@ -187,11 +231,6 @@ namespace Login
 
                     if (AuthService.LogDebugEnabled)
                         Logger.Debug($"Desconectado: {client.Ip}");
-
-                    if (client.AuthKey != null)
-                    {
-                        Util.AuthKeyPool.Push(client.AuthKey);
-                    }
 
                     var wasQueued = RemoveWaitingAuthentification(client, false);
 

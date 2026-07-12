@@ -1,7 +1,8 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
+using System.Threading;
 
 namespace Protocolo.Framework.Database
 {
@@ -10,17 +11,15 @@ namespace Protocolo.Framework.Database
         internal const DbType EnumerableMultiParameter = (DbType)(-1);
         private const int PARAM_READER_CACHE_MAX_ITEMS = 1024;
 
-        static readonly Dictionary<SqlMapper.Identity, Action<IDbCommand, object>> paramReaderCache = new Dictionary<SqlMapper.Identity, Action<IDbCommand, object>>();
+        private static readonly ConcurrentDictionary<SqlMapper.Identity, Lazy<Action<IDbCommand, object>>> ParamReaderCache = new ConcurrentDictionary<SqlMapper.Identity, Lazy<Action<IDbCommand, object>>>();
+        private static int m_purgingCache;
 
         readonly Dictionary<string, ParamInfo> parameters = new Dictionary<string, ParamInfo>();
         List<object> templates;
 
         internal static void PurgeCache()
         {
-            lock (paramReaderCache)
-            {
-                paramReaderCache.Clear();
-            }
+            ParamReaderCache.Clear();
         }
 
         partial class ParamInfo
@@ -86,7 +85,8 @@ namespace Protocolo.Framework.Database
 
         public void Add(string name, object value = null, DbType? dbType = null, ParameterDirection? direction = null, int? size = null)
         {
-            parameters[Clean(name)] = new ParamInfo { Name = name, Value = value, ParameterDirection = direction ?? ParameterDirection.Input, DbType = dbType, Size = size };
+            var cleanName = Clean(name);
+            parameters[cleanName] = new ParamInfo { Name = cleanName, Value = value, ParameterDirection = direction ?? ParameterDirection.Input, DbType = dbType, Size = size };
         }
 
         static string Clean(string name)
@@ -116,21 +116,17 @@ namespace Protocolo.Framework.Database
                 foreach (var template in templates)
                 {
                     var newIdent = identity.ForDynamicParameters(template.GetType());
-                    Action<IDbCommand, object> appender;
-
-                    lock (paramReaderCache)
+                    if (ParamReaderCache.Count >= PARAM_READER_CACHE_MAX_ITEMS && Interlocked.CompareExchange(ref m_purgingCache, 1, 0) == 0)
                     {
-                        if (!paramReaderCache.TryGetValue(newIdent, out appender))
-                        {
-                            if (paramReaderCache.Count >= PARAM_READER_CACHE_MAX_ITEMS)
-                            {
-                                paramReaderCache.Clear();
-                            }
-
-                            appender = SqlMapper.CreateParamInfoGenerator(newIdent, true);
-                            paramReaderCache[newIdent] = appender;
-                        }
+                        ParamReaderCache.Clear();
+                        Volatile.Write(ref m_purgingCache, 0);
                     }
+
+                    var appender = ParamReaderCache.GetOrAdd(
+                        newIdent,
+                        static cacheIdentity => new Lazy<Action<IDbCommand, object>>(
+                            () => SqlMapper.CreateParamInfoGenerator(cacheIdentity, true),
+                            LazyThreadSafetyMode.ExecutionAndPublication)).Value;
 
                     appender(command, template);
                 }
@@ -140,14 +136,14 @@ namespace Protocolo.Framework.Database
             {
                 var dbType = param.DbType;
                 var val = param.Value;
-                string name = Clean(param.Name);
+                string name = param.Name;
 
                 if (dbType == null && val != null)
                 {
                     dbType = SqlMapper.LookupDbType(val.GetType(), name);
                 }
 
-                if (dbType == DynamicParameters.EnumerableMultiParameter)
+                if (dbType == EnumerableMultiParameter)
                 {
                     SqlMapper.PackListParameters(command, name, val);
                 }

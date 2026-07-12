@@ -165,6 +165,7 @@ namespace Game.Spell
         COMBATE_COLOCAR_TRAMPA = 400,                             // E400: pone una trampa de nivel #2
         COMBATE_COLOCAR_GLIFO = 401,                              // E401: pone un glifo de nivel #2
         COMBATE_COLOCAR_GLIFO_BIS = 402,                           // E402: pone un glifo de nivel #2 (glifo de Blop)
+        LANZAR_HECHIZO = 405,                             // E405: lanza el hechizo #1 al nivel #2
         PRISMA_COLOCAR = 513,                             // E513: coloca un prisma
         MOVIMIENTO_TELETRANSPORTAR_ZAAP_GUARDADO = 600,               // E600: teletransporta al último registro
         OFICIO_APRENDER = 603,                            // E603: aprende el oficio #3
@@ -190,6 +191,7 @@ namespace Game.Spell
         COMBATE_SACRIFICIO = 765,                                // E765: sacrificio (intercambia el blanco del golpe)
         MOVIMIENTO_EMPUJAR_MIEDO = 783,                              // E783: hace retroceder hasta la casilla objetivo
         CURACION_AL_ATACAR = 786,                             // E786: cura durante el ataque (vampirismo)
+        CASTIGO_EROSION = 776,                          // E776: pierde #1% de los PDV máximos (contrapartida de los castigos)
         CASTIGO_MAS = 788,                              // E788: castigo #2 durante #3 turno(s)
         OBJETO_RECIBIDO = 805,                                  // E805: recibido el #1
         OBJETO_ULTIMA_COMIDA = 808,                              // E808: ha comido el #1

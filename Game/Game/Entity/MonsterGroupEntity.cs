@@ -231,7 +231,8 @@ namespace Game.Entity
                 return "-1";
 
             var color = colors[index].Trim();
-            return color.Length == 0 ? "-1" : color;
+            // Los colores en BD son decimales; el cliente los espera en hex (ver MonsterEntity.ToClientColor).
+            return color.Length == 0 ? "-1" : MonsterEntity.ToClientColor(color);
         }
 
         public override void SerializeAs_GameMapInformations(OperatorEnum operation, StringBuilder message)

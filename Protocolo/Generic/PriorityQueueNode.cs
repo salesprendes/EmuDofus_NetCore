@@ -154,7 +154,7 @@ namespace Protocolo.Framework.Generic
         private void SiftDown(int index)
         {
             var item = _heap[index];
-            int lastParent = (_count - 1) >> 1;
+            int lastParent = (_count - 2) >> 1;
             var shouldMove = index <= lastParent;
 
             while (shouldMove)

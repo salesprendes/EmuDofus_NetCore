@@ -8,7 +8,7 @@ namespace Protocolo.Framework.Network
 {
     public abstract class AbstractSocketClient
     {
-        private const int BufferSize = 1024;
+        private const int BufferSize = 8 * 1024;
 
         private Socket m_socket;
         private SocketAsyncEventArgs m_connectSaea;
@@ -18,6 +18,9 @@ namespace Protocolo.Framework.Network
         private readonly ConcurrentQueue<byte[]> m_pendingSends;
         private int m_disconnectState;
         private int m_sendLoopState;
+        private long m_pendingSendBytes;
+
+        protected virtual long MaxPendingSendBytes => 4L * 1024 * 1024;
 
         public event Action OnConnectedEvent;
         public event Action OnDisconnectedEvent;
@@ -46,12 +49,14 @@ namespace Protocolo.Framework.Network
         {
             if (string.IsNullOrWhiteSpace(host))
                 throw new ArgumentException("Host is required.", nameof(host));
+
             if (port <= 0 || port > ushort.MaxValue)
                 throw new ArgumentOutOfRangeException(nameof(port));
 
             BeginDisconnect(false);
             CleanupConnectSaea();
             ClearPendingSends();
+            OnConnecting();
             Volatile.Write(ref m_disconnectState, 0);
             Interlocked.Exchange(ref m_sendLoopState, 0);
 
@@ -82,7 +87,12 @@ namespace Protocolo.Framework.Network
             if (socket == null || Volatile.Read(ref m_disconnectState) != 0)
                 return;
 
-            m_pendingSends.Enqueue(data);
+            if (!TryEnqueueSend(data))
+            {
+                BeginDisconnect();
+                return;
+            }
+
             if (TryEnterSendLoop())
                 StartQueuedSend();
         }
@@ -109,14 +119,27 @@ namespace Protocolo.Framework.Network
 
         private void IOCompleted(object sender, SocketAsyncEventArgs saea)
         {
-            if (saea.LastOperation == SocketAsyncOperation.Connect)
-                ProcessConnected(saea);
-            else if (saea.LastOperation == SocketAsyncOperation.Receive)
-                ProcessReceived(saea);
-            else if (saea.LastOperation == SocketAsyncOperation.Send)
-                ProcessSent(saea);
-            else if (saea.LastOperation == SocketAsyncOperation.Disconnect)
-                BeginDisconnect();
+            try
+            {
+                if (saea.LastOperation == SocketAsyncOperation.Connect)
+                    ProcessConnected(saea);
+                else if (saea.LastOperation == SocketAsyncOperation.Receive)
+                    ProcessReceived(saea);
+                else if (saea.LastOperation == SocketAsyncOperation.Send)
+                    ProcessSent(saea);
+                else if (saea.LastOperation == SocketAsyncOperation.Disconnect)
+                    BeginDisconnect();
+            }
+            catch
+            {
+                try
+                {
+                    BeginDisconnect();
+                }
+                catch
+                {
+                }
+            }
         }
 
         private void ProcessConnected(SocketAsyncEventArgs saea)
@@ -133,10 +156,16 @@ namespace Protocolo.Framework.Network
 
         private void ProcessReceived(SocketAsyncEventArgs saea)
         {
+            if (HandleReceived(saea))
+                StartReceive(saea);
+        }
+
+        private bool HandleReceived(SocketAsyncEventArgs saea)
+        {
             if (saea.SocketError != SocketError.Success || saea.BytesTransferred <= 0)
             {
                 BeginDisconnect();
-                return;
+                return false;
             }
 
             try
@@ -146,104 +175,130 @@ namespace Protocolo.Framework.Network
             catch
             {
                 BeginDisconnect();
-                return;
+                return false;
             }
 
-            StartReceive(saea);
+            return true;
         }
 
         private void ProcessSent(SocketAsyncEventArgs saea)
         {
-            var sendState = saea.UserToken as SendState;
-            if (sendState == null)
-                return;
-
-            if (saea.SocketError != SocketError.Success || saea.BytesTransferred <= 0)
+            // Bucle en vez de recursión para los completados síncronos.
+            while (true)
             {
-                ResetSendState(sendState, saea);
-                BeginDisconnect();
-                return;
-            }
+                var sendState = saea.UserToken as SendState;
+                if (sendState == null)
+                    return;
 
-            sendState.Offset += saea.BytesTransferred;
-            sendState.Length -= saea.BytesTransferred;
-
-            if (sendState.Length > 0)
-            {
-                saea.SetBuffer(sendState.Buffer, sendState.Offset, sendState.Length);
-
-                try
-                {
-                    if (!sendState.Socket.SendAsync(saea))
-                        ProcessSent(saea);
-                }
-                catch
+                if (saea.SocketError != SocketError.Success || saea.BytesTransferred <= 0)
                 {
                     ResetSendState(sendState, saea);
                     BeginDisconnect();
+                    return;
                 }
 
-                return;
-            }
+                sendState.Offset += saea.BytesTransferred;
+                sendState.Length -= saea.BytesTransferred;
 
-            ResetSendState(sendState, saea);
-            StartQueuedSend();
+                if (sendState.Length > 0)
+                {
+                    saea.SetBuffer(sendState.Buffer, sendState.Offset, sendState.Length);
+
+                    try
+                    {
+                        if (sendState.Socket.SendAsync(saea))
+                            return;
+                    }
+                    catch
+                    {
+                        ResetSendState(sendState, saea);
+                        BeginDisconnect();
+                        return;
+                    }
+                }
+                else
+                {
+                    ResetSendState(sendState, saea);
+
+                    if (!StartQueuedSendCore())
+                        return;
+                }
+            }
         }
 
         private void StartReceive(SocketAsyncEventArgs saea)
         {
-            var socket = m_socket;
-            if (socket == null || Volatile.Read(ref m_disconnectState) != 0)
-                return;
+            while (true)
+            {
+                var socket = m_socket;
+                if (socket == null || Volatile.Read(ref m_disconnectState) != 0)
+                    return;
 
-            try
-            {
-                if (!socket.ReceiveAsync(saea))
-                    ProcessReceived(saea);
-            }
-            catch
-            {
-                BeginDisconnect();
+                try
+                {
+                    if (socket.ReceiveAsync(saea))
+                        return;
+                }
+                catch
+                {
+                    BeginDisconnect();
+                    return;
+                }
+
+                if (!HandleReceived(saea))
+                    return;
             }
         }
 
         private void StartQueuedSend()
         {
-            var socket = m_socket;
-            if (socket == null || Volatile.Read(ref m_disconnectState) != 0)
+            if (StartQueuedSendCore())
+                ProcessSent(m_sendSaea);
+        }
+
+        private bool StartQueuedSendCore()
+        {
+            var retryDequeue = true;
+            while (retryDequeue)
             {
-                ExitSendLoop();
-                return;
+                var socket = m_socket;
+                if (socket == null || Volatile.Read(ref m_disconnectState) != 0)
+                {
+                    ExitSendLoop();
+                    return false;
+                }
+
+                if (!TryDequeueSend(out var buffer))
+                {
+                    ExitSendLoop();
+                    retryDequeue = !m_pendingSends.IsEmpty && TryEnterSendLoop();
+                    if (!retryDequeue)
+                        return false;
+                }
+                else
+                {
+                    var sendState = (SendState)m_sendSaea.UserToken;
+                    sendState.Socket = socket;
+                    sendState.Buffer = buffer;
+                    sendState.Offset = 0;
+                    sendState.Length = buffer.Length;
+
+                    m_sendSaea.SetBuffer(buffer, 0, buffer.Length);
+
+                    try
+                    {
+                        return !socket.SendAsync(m_sendSaea);
+                    }
+                    catch
+                    {
+                        ResetSendState(sendState, m_sendSaea);
+                        BeginDisconnect();
+                        return false;
+                    }
+                }
             }
 
-            if (!m_pendingSends.TryDequeue(out var buffer))
-            {
-                ExitSendLoop();
-
-                if (!m_pendingSends.IsEmpty && TryEnterSendLoop())
-                    StartQueuedSend();
-
-                return;
-            }
-
-            var sendState = (SendState)m_sendSaea.UserToken;
-            sendState.Socket = socket;
-            sendState.Buffer = buffer;
-            sendState.Offset = 0;
-            sendState.Length = buffer.Length;
-
-            m_sendSaea.SetBuffer(buffer, 0, buffer.Length);
-
-            try
-            {
-                if (!socket.SendAsync(m_sendSaea))
-                    ProcessSent(m_sendSaea);
-            }
-            catch
-            {
-                ResetSendState(sendState, m_sendSaea);
-                BeginDisconnect();
-            }
+            return false;
         }
 
         private void ResetSendState(SendState sendState, SocketAsyncEventArgs saea)
@@ -290,7 +345,42 @@ namespace Protocolo.Framework.Network
             m_connectSaea = null;
         }
 
-        private void ClearPendingSends() => m_pendingSends.Clear();
+        private bool TryEnqueueSend(byte[] data)
+        {
+            if (Volatile.Read(ref m_disconnectState) != 0)
+                return false;
+
+            var pendingBytes = Interlocked.Add(ref m_pendingSendBytes, data.Length);
+            if (pendingBytes > MaxPendingSendBytes || Volatile.Read(ref m_disconnectState) != 0)
+            {
+                Interlocked.Add(ref m_pendingSendBytes, -data.Length);
+                return false;
+            }
+
+            m_pendingSends.Enqueue(data);
+            if (Volatile.Read(ref m_disconnectState) != 0)
+            {
+                ClearPendingSends();
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool TryDequeueSend(out byte[] data)
+        {
+            if (!m_pendingSends.TryDequeue(out data))
+                return false;
+
+            Interlocked.Add(ref m_pendingSendBytes, -data.Length);
+            return true;
+        }
+
+        private void ClearPendingSends()
+        {
+            while (m_pendingSends.TryDequeue(out var data))
+                Interlocked.Add(ref m_pendingSendBytes, -data.Length);
+        }
 
         private bool TryEnterSendLoop()
         {
@@ -303,6 +393,9 @@ namespace Protocolo.Framework.Network
         }
 
         private static void ConfigureSocket(Socket socket) => socket.ConfigureBase();
+        protected virtual void OnConnecting()
+        {
+        }
 
         protected abstract void OnBytesRead(byte[] buffer, int offset, int length);
         protected abstract void OnDisconnected();

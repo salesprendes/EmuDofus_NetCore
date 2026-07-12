@@ -12,7 +12,13 @@ namespace Game.Fight.Effect.Type
         {
             if (damageValue > 0 && Target.Life < Target.MaxLife)
             {
-                var heal = damageValue * Math.Max(1, CastInfos.Value1) / 100;
+                // Curar sobre el daño REALMENTE infligido: el hook corre antes del cap a la vida
+                // del objetivo, así que un golpe mortal curaba sobre el overkill.
+                var effectiveDamage = damageValue;
+                if (damageInfos?.Target != null)
+                    effectiveDamage = Math.Min(effectiveDamage, Math.Max(0, damageInfos.Target.Life));
+
+                var heal = effectiveDamage * Math.Max(1, CastInfos.Value1) / 100;
                 if (heal > 0)
                 {
                     if (Target.Life + heal > Target.MaxLife)

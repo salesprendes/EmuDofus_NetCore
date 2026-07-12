@@ -1,5 +1,4 @@
 using Protocolo.Framework.IO;
-using Protocolo.Framework.Generic.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -45,40 +44,62 @@ namespace Protocolo.Framework.Network
 
         public IEnumerable<string> Receive(byte[] buffer, int offset, int count)
         {
+            if (buffer == null)
+                throw new ArgumentNullException(nameof(buffer));
+            if (offset < 0 || count < 0 || offset > buffer.Length - count)
+                throw new ArgumentOutOfRangeException(nameof(offset));
+
             LastActivityTime = DateTime.UtcNow;
             var end = offset + count;
             var segmentStart = offset;
+            var scanPosition = offset;
             var stopReceiving = false;
+            var hasDataToScan = scanPosition < end;
 
-            for (int i = offset; i < end && !stopReceiving; i++)
+            while (hasDataToScan && !stopReceiving)
             {
-                var b = buffer[i];
-                if (b == '\n' || b == 0x00)
+                var relativeDelimiter = buffer.AsSpan(scanPosition, end - scanPosition).IndexOfAny((byte)'\n', (byte)0x00);
+
+                if (relativeDelimiter < 0)
                 {
-                    if (i > segmentStart)
+                    hasDataToScan = false;
+                }
+                else
+                {
+                    var delimiterPosition = scanPosition + relativeDelimiter;
+                    var b = buffer[delimiterPosition];
+                    var segmentLength = delimiterPosition - segmentStart;
+
+                    if (b == '\n')
                     {
-                        m_messageQueue.WriteBytes(buffer, segmentStart, i - segmentStart);
+                        if (segmentLength > 0)
+                            m_messageQueue.WriteBytes(buffer, segmentStart, segmentLength);
+                    }
+                    else if (m_messageQueue.Count + segmentLength > MaxMessageSize)
+                    {
+                        Logger.Warn($"Cliente expulsado por enviar un paquete demasiado grande: {Ip}");
+                        Disconnect();
+                        stopReceiving = true;
+                    }
+                    else if (!RegisterPacketActivity())
+                    {
+                        stopReceiving = true;
+                    }
+                    else if (m_messageQueue.Count == 0)
+                    {
+                        yield return segmentLength == 0 ? string.Empty : Encoding.UTF8.GetString(buffer, segmentStart, segmentLength);
+                    }
+                    else
+                    {
+                        if (segmentLength > 0)
+                            m_messageQueue.WriteBytes(buffer, segmentStart, segmentLength);
+
+                        yield return m_messageQueue.ReadStringDirect(m_messageQueue.Count, Encoding.UTF8);
                     }
 
-                    segmentStart = i + 1;
-
-                    if (b == 0x00)
-                    {
-                        if (m_messageQueue.Count > MaxMessageSize)
-                        {
-                            Logger.Warn($"Cliente expulsado por enviar un paquete demasiado grande: {Ip}");
-                            Disconnect();
-                            stopReceiving = true;
-                        }
-                        else if (!RegisterPacketActivity())
-                        {
-                            stopReceiving = true;
-                        }
-                        else
-                        {
-                            yield return m_messageQueue.ReadStringDirect(m_messageQueue.Count, Encoding.UTF8);
-                        }
-                    }
+                    segmentStart = delimiterPosition + 1;
+                    scanPosition = segmentStart;
+                    hasDataToScan = scanPosition < end;
                 }
             }
 
@@ -102,7 +123,7 @@ namespace Protocolo.Framework.Network
             if (DebugEnabled)
                 Logger.Debug($"Servidor: {message}");
 
-            base.Send(EncodePacket(message));
+            Send(EncodePacket(message));
         }
 
         public static byte[] EncodePacket(string message)

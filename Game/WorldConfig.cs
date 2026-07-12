@@ -113,7 +113,6 @@ namespace Game
         }.ToFrozenDictionary();
 
         [Configurable()] public static int SPAWN_MAX_GROUP_PER_MAP = 3;
-
         [Configurable()] public static int SPAWN_CHECK_INTERVAL = 1 * 60 * 1000;
 
 
@@ -150,10 +149,6 @@ namespace Game
         [Configurable()] public static int PVM_MAX_STAR_BONUS = 1000;
         [Configurable()] public static int PVM_STAR_BONUS_PERCENT_SECONDS = 10;
 
-        [Configurable()] public static int PVM_START_TIMEOUT = 60000;
-
-        [Configurable()] public static int PVM_TURN_TIME = 30000;
-
         public static double[] PVM_RATE_GROUP = [1, 1.1, 1.5, 2.3, 3.1, 3.6, 4.2, 4.7];
 
         [Configurable()] public static double RATE_XP = 5;
@@ -167,6 +162,8 @@ namespace Game
         public static int FIGHT_DISCONNECTION_TURN = 20;
         public static int FIGHT_PUSH_CELL_TIME = 270;
         public static int FIGHT_PANDA_LAUNCH_CELL_TIME = 250;
+        public static int FIGHT_CRITICAL_RATE_FLOOR = 2;
+
         public static int FIGHT_AI_START_DELAY = 250;
         public static int FIGHT_AI_THINK_DELAY = 150;
         public static int FIGHT_AI_SPELL_LAUNCH_TIME = 1200;

@@ -119,7 +119,7 @@ namespace Game.Entity
             message.Append((int)EntityTypeEnum.TYPE_MONSTER_FIGHTER).Append(';');
             message.Append(Skin).Append('^').Append(SkinSize).Append(';');
             message.Append(Grade.Grade).Append(';');
-            message.Append(Grade.Template.Colors.Replace(",", ";"));
+            AppendClientColors(message, Grade.Template.Colors);
             message.Append(";0,0,0,0;");
             message.Append(Life).Append(';');
             message.Append(AP).Append(';');
@@ -132,6 +132,37 @@ namespace Game.Entity
             message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_ESQUIVA_PA)).Append(';');
             message.Append(Statistics.GetTotal(EffectEnum.STAT_MAS_ESQUIVA_PM)).Append(';');
             message.Append(Team.Id);
+        }
+
+        // Los colores de los monstruos se guardan en decimal en la BD, pero el cliente los
+        // interpreta en hexadecimal (igual que los colores de personaje via HexColor). Sin esta
+        // conversion los monstruos con recolor (valores != -1) se veian con el color equivocado.
+        // -1 (o vacio) = color por defecto del gfx; se deja tal cual.
+        public static string ToClientColor(string rawColor)
+        {
+            var token = (rawColor ?? string.Empty).Trim();
+            if (token.Length == 0)
+                return "-1";
+
+            if (!long.TryParse(token, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out var value))
+                return token; // no es decimal (p.ej. ya viene en hex): se envia sin tocar
+
+            return value == -1 ? "-1" : value.ToString("x");
+        }
+
+        // Escribe exactamente 3 componentes de color (color1;color2;color3) en hex para el actor de
+        // combate. Rellena con -1 los que falten para no desplazar los campos siguientes del paquete.
+        private static void AppendClientColors(StringBuilder message, string rawColors)
+        {
+            var parts = (rawColors ?? string.Empty).Replace(';', ',').Split(',');
+
+            for (var i = 0; i < 3; i++)
+            {
+                if (i > 0)
+                    message.Append(';');
+
+                message.Append(ToClientColor(i < parts.Length ? parts[i] : "-1"));
+            }
         }
     }
 }

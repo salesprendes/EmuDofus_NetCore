@@ -91,6 +91,9 @@ namespace Game.Exchange
 
         public override int AddItem(AbstractEntity actor, long guid, int quantity, long price = -1)
         {
+            if (quantity < 1)
+                return 0;
+
             var item = Character.Inventory.RemoveItem(guid, quantity);
             if (item == null)
                 return 0;
@@ -102,6 +105,9 @@ namespace Game.Exchange
 
         public override int RemoveItem(AbstractEntity actor, long guid, int quantity)
         {
+            if (quantity < 1)
+                return 0;
+
             var item = Storage.RemoveItem(guid, quantity);
             if (item == null)
                 return 0;

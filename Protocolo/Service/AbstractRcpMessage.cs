@@ -37,12 +37,6 @@ namespace Protocolo.RPC.Service
             m_cache = null;
         }
 
-        public void SetData(byte[] data)
-        {
-            Reset();
-            WriteBytes(data);
-        }
-
         public void SetData(BinaryQueue data, int length)
         {
             Reset();

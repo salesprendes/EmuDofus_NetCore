@@ -1,23 +1,22 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 
 namespace Protocolo.Framework.Database
 {
     public partial class FeatureSupport
     {
-        private static readonly Dictionary<string, FeatureSupport> FeatureList = new Dictionary<string, FeatureSupport>(StringComparer.InvariantCultureIgnoreCase)
+        private static readonly FeatureSupport DefaultFeatures = new FeatureSupport { Arrays = false };
+        private static readonly Dictionary<string, FeatureSupport> FeatureList = new Dictionary<string, FeatureSupport>(StringComparer.OrdinalIgnoreCase)
         {
-            { "sqlserverconnection", new FeatureSupport { Arrays = false } },
+            { "sqlserverconnection", DefaultFeatures },
             { "npgsqlconnection", new FeatureSupport { Arrays = true } }
         };
 
         public static FeatureSupport Get(IDbConnection connection)
         {
             string name = connection.GetType().Name;
-            FeatureSupport features;
-            return FeatureList.TryGetValue(name, out features) ? features : FeatureList.Values.First();
+            return FeatureList.TryGetValue(name, out var features) ? features : DefaultFeatures;
         }
 
         public bool Arrays { get; set; }

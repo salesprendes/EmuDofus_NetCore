@@ -69,7 +69,19 @@ namespace Game.Manager
         {
             if (string.IsNullOrEmpty(afectados))
                 return new List<int>();
-            return afectados.Split('|').Select(x => { int.TryParse(x.Trim(), out int v); return v; }).ToList();
+
+            // Formato: "<mascaras de los efectos normales, separadas por coma>|<mascaras de los
+            // efectos criticos>", p.ej. Furia "0,32,32|0,32,32" (efecto 0 golpea al objetivo, los
+            // efectos 1 y 2 con bit 5 = solo el lanzador). Se aplana en una lista [normales...,
+            // criticos...] (GetEffectTarget indexa los criticos con offset = nº de efectos
+            // normales). Antes solo se separaba por '|' y "0,32,32" no parseaba -> quedaba 0, y los
+            // self-buffs de 127 hechizos (armaduras, Furia...) iban al objetivo en vez de al
+            // lanzador.
+            return afectados
+                .Replace('|', ',')
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(x => { int.TryParse(x.Trim(), out int v); return v; })
+                .ToList();
         }
 
         private static SpellLevel ParseLevel(string s, int spellId, int levelNum)

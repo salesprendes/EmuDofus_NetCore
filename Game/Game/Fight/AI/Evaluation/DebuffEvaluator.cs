@@ -27,6 +27,10 @@ namespace Game.Fight.AI.Evaluation
                     if (enemy?.Cell == null || enemy.IsFighterDead)
                         continue;
 
+                    // El enemigo ya sufre este debuff: gastar los PA en otra cosa.
+                    if (SpellEvaluator.HasActiveBuffFromSpell(enemy, spell.SpellId))
+                        continue;
+
                     var targetCellId = enemy.Cell.Id;
 
 

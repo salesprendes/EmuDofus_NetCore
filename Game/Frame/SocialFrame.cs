@@ -63,6 +63,12 @@ namespace Game.Frame
 
         private void RemoveEnnemy(CharacterEntity character, string message)
         {
+            if (message.Length < 4)
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
             WorldService.Instance.AddMessage(() =>
                 {
                     var pseudo = message.AsSpan(3);
@@ -88,6 +94,12 @@ namespace Game.Frame
 
         private void AddEnnemy(CharacterEntity character, string message)
         {
+            if (message.Length < 3)
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
             WorldService.Instance.AddMessage(() =>
             {
                 var name = message.AsSpan(2);
@@ -140,6 +152,12 @@ namespace Game.Frame
 
         private void FriendNotifyChange(CharacterEntity character, string message)
         {
+            if (message.Length < 3)
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
             WorldService.Instance.AddMessage(() => character.NotifyOnFriendConnection = message[2] == '+');
         }
 
@@ -150,6 +168,12 @@ namespace Game.Frame
 
         private void RemoveFriend(CharacterEntity character, string message)
         {
+            if (message.Length < 4)
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
             WorldService.Instance.AddMessage(() =>
                 {
                     var pseudo = message.AsSpan(3);
@@ -175,6 +199,12 @@ namespace Game.Frame
 
         private void AddFriend(CharacterEntity character, string message)
         {
+            if (message.Length < 3)
+            {
+                character.SafeDispatch(WorldMessage.BASIC_NO_OPERATION());
+                return;
+            }
+
             WorldService.Instance.AddMessage(() =>
                 {
                     var name = message.AsSpan(2);

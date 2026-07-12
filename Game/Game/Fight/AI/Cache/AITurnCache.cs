@@ -24,7 +24,7 @@ namespace Game.Fight.AI.Cache
             LivingEnemies = enemies ?? new List<AbstractFighter>();
             SpellBook = spellBook;
             Cells = new AICellCache(fighter);
-            LineOfSight = new AILineOfSightCache(fighter?.Fight);
+            LineOfSight = new AILineOfSightCache(fighter);
         }
     }
 }

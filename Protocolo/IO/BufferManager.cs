@@ -1,33 +1,56 @@
 using System;
-using System.Collections.Concurrent;
+using System.Buffers;
+using System.Threading;
 
 namespace Protocolo.Framework.Network
 {
     public sealed class BufferManager : IDisposable
     {
-        private byte[] m_bufferBlock;
+        private readonly ArrayPool<byte> m_bufferPool;
         private readonly int m_bufferSize;
-        private readonly ConcurrentStack<int> m_freeOffset;
+        private readonly int m_maxBuffers;
+        private int m_leasedBuffers;
+        private int m_disposed;
 
-        public BufferManager(int bufferSize, int chunkCount)
+        /// <param name="maxBuffers">Cero permite crecer sin límite lógico.</param>
+        public BufferManager(int bufferSize, int maxBuffers = 0)
         {
+            if (bufferSize <= 0)
+                throw new ArgumentOutOfRangeException(nameof(bufferSize));
+            if (maxBuffers < 0)
+                throw new ArgumentOutOfRangeException(nameof(maxBuffers));
+
             m_bufferSize = bufferSize;
-            m_freeOffset = new ConcurrentStack<int>();
-            m_bufferBlock = new byte[bufferSize * chunkCount];
-            for (int i = 0; i < chunkCount; i++)
-                m_freeOffset.Push(bufferSize * i);
+            m_maxBuffers = maxBuffers;
+            m_bufferPool = ArrayPool<byte>.Shared;
         }
 
         public void SetBuffer(IBufferHandler bufferHandler)
         {
-            int offset = -1;
-            if (m_freeOffset.TryPop(out offset))
+            if (bufferHandler == null)
+                throw new ArgumentNullException(nameof(bufferHandler));
+
+            ObjectDisposedException.ThrowIf(Volatile.Read(ref m_disposed) != 0, this);
+
+            if (Interlocked.Increment(ref m_leasedBuffers) > m_maxBuffers && m_maxBuffers > 0)
             {
-                bufferHandler.SetBuffer(m_bufferBlock, offset, m_bufferSize);
-            }
-            else
-            {
+                Interlocked.Decrement(ref m_leasedBuffers);
                 throw new InvalidOperationException("No more free offset on this BufferManager.");
+            }
+
+            byte[] buffer = null;
+            try
+            {
+                buffer = m_bufferPool.Rent(m_bufferSize);
+                bufferHandler.SetBuffer(buffer, 0, m_bufferSize);
+            }
+            catch
+            {
+                if (buffer != null)
+                    m_bufferPool.Return(buffer);
+
+                Interlocked.Decrement(ref m_leasedBuffers);
+                throw;
             }
         }
 
@@ -36,17 +59,18 @@ namespace Protocolo.Framework.Network
             if (bufferHandler == null)
                 throw new ArgumentNullException(nameof(bufferHandler));
 
-            if (m_bufferBlock == null)
+            var buffer = bufferHandler.Buffer;
+            if (buffer == null)
                 return;
 
-            m_freeOffset.Push(bufferHandler.Offset);
             bufferHandler.SetBuffer(null, 0, 0);
+            m_bufferPool.Return(buffer);
+            Interlocked.Decrement(ref m_leasedBuffers);
         }
 
         public void Dispose()
         {
-            m_bufferBlock = null;
-            m_freeOffset.Clear();
+            Interlocked.Exchange(ref m_disposed, 1);
         }
     }
 }

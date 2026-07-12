@@ -62,6 +62,10 @@ namespace Game.Fight.Effect
                 case EffectEnum.DANO_VIDA_AGUA:
                 case EffectEnum.DANO_POR_PA:
                 case EffectEnum.ROBO_VIDA_FIJO:
+                case EffectEnum.DANO_PROPIO:
+                case EffectEnum.DANO_ENTREGA_VIDA:
+                case EffectEnum.DANO_VIDA_NEUTRAL_BIS:
+                case EffectEnum.DANO_PUNICION:
                     return true;
             }
 
@@ -73,6 +77,8 @@ namespace Game.Fight.Effect
             switch (effectType)
             {
                 case EffectEnum.CURACION:
+                case EffectEnum.CURACION_VIDA_DEVUELTA:
+                case EffectEnum.CURACION_AL_ATACAR:
                 case EffectEnum.STAT_MAS_AGILIDAD:
                 case EffectEnum.STAT_MAS_PA:
                 case EffectEnum.STAT_MAS_PA_BIS:

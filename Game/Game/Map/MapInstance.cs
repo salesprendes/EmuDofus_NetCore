@@ -11,6 +11,7 @@ using Game.Manager;
 using Game.Mount;
 using Game.Network;
 using Game.Spawn;
+using Game.Stats;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -331,6 +332,10 @@ namespace Game.Map
         private ConquestPrismEntity m_conquestPrism;
         private HashSet<int> m_occupiedCells;
 
+        // Objetos tirados en el suelo, indexados por celda (un objeto por celda: el cliente
+        // dibuja un unico icono por celda). Persisten en memoria hasta que alguien los recoge.
+        private Dictionary<int, GroundItem> m_groundItems;
+
         public MapInstance(int subAreaId, int id, int x, int y, int width, int height, string data, string dataKey, string createTime, List<int> f0teamCells, List<int> f1teamCells, bool outdoor = false, bool subInstance = false)
         {
             Id = id;
@@ -354,6 +359,7 @@ namespace Game.Map
             m_moveableEntities = new List<AbstractEntity>();
             m_monsterGroups = new List<MonsterGroupEntity>();
             m_occupiedCells = new HashSet<int>();
+            m_groundItems = new Dictionary<int, GroundItem>();
             m_initialized = false;
 
             m_paddock = PaddockManager.Instance.GetByMapId(Id);
@@ -735,7 +741,9 @@ namespace Game.Map
 
             entity.StopAction(GameActionTypeEnum.MAP_MOVEMENT);
 
-            Move(entity, entity.CellId, Pathmaker.FindPathAsString(entity.CellId, cellId, false));
+            // Fuera de combate el movimiento es en 8 direcciones (como el cliente): rutas más
+            // naturales y cortas para los NPC que deambulan por el mapa.
+            Move(entity, entity.CellId, Pathmaker.FindPathAsString(entity.CellId, cellId, true));
             AddMessage(() => entity.StopAction(GameActionTypeEnum.MAP_MOVEMENT));
         }
 
@@ -1003,6 +1011,103 @@ namespace Game.Map
             });
         }
 
+        // Deja un objeto en el suelo en la celda del que lo tira (no se destruye). Si ya hay un
+        // objeto identico en esa celda, se acumula la cantidad. Debe llamarse en el hilo del mapa
+        // (p.ej. desde character.AddMessage, que corre en el procesador de la subarea).
+        // ¿Se puede dejar este objeto en esta celda? Solo si esta libre o ya tiene un objeto
+        // IDENTICO (misma plantilla y stats) con el que apilarse. Debe consultarse ANTES de sacar
+        // el objeto del inventario para no perderlo si la celda esta ocupada por otra cosa.
+        public bool CanDropGroundItem(int cellId, int templateId, string stringEffects)
+        {
+            if (m_groundItems == null)
+                return false;
+
+            return !m_groundItems.TryGetValue(cellId, out var existing)
+                || (existing.TemplateId == templateId && existing.StringEffects == (stringEffects ?? string.Empty));
+        }
+
+        public void DropGroundItem(int cellId, int templateId, int quantity, string stringEffects)
+        {
+            if (m_groundItems == null || quantity <= 0)
+                return;
+
+            if (m_groundItems.TryGetValue(cellId, out var existing))
+            {
+                if (existing.TemplateId != templateId || existing.StringEffects != (stringEffects ?? string.Empty))
+                    return; // Celda ocupada por otro objeto distinto: no se puede apilar.
+
+                existing.Quantity += quantity;
+                return; // El icono ya esta dibujado; solo cambia la cantidad (invisible al cliente).
+            }
+
+            m_groundItems[cellId] = new GroundItem(cellId, templateId, quantity, stringEffects);
+            Dispatch(WorldMessage.OBJECT_GROUND_ADD(cellId, templateId));
+        }
+
+        // Las 4 celdas contiguas (los "lados") donde el personaje puede dejar un objeto.
+        private static readonly DirectionEnum[] s_groundDropDirections =
+            { DirectionEnum.Este, DirectionEnum.Sur, DirectionEnum.Oeste, DirectionEnum.Norte };
+
+        // Busca una celda adyacente para dejar el objeto: prueba los 4 lados en orden y devuelve
+        // el primero valido (dentro del mapa, adyacente real, caminable y sin OTRO objeto distinto
+        // ya en el suelo). Que haya una entidad encima NO impide dejarlo. Devuelve null si los 4
+        // lados tienen ya un objeto distinto (o no son celdas validas).
+        public int? FindGroundDropCell(int fromCell, int templateId, string stringEffects)
+        {
+            var changes = Pathfinding.GetDirectionChanges(this);
+            if (changes.Length < 8)
+                return null;
+
+            foreach (var direction in s_groundDropDirections)
+            {
+                var target = fromCell + changes[(int)direction];
+
+                if (!Pathfinding.IsValidCellId(this, target)
+                    || Pathfinding.GoalDistance(this, fromCell, target) != 1 // descarta el "wrap" en los bordes
+                    || !IsWalkable(target)
+                    || !CanDropGroundItem(target, templateId, stringEffects))
+                {
+                    continue;
+                }
+
+                return target;
+            }
+
+            return null;
+        }
+
+        // Si en la celda hay un objeto en el suelo, se lo lleva el personaje (nuevo dueno) y se
+        // retira del suelo para todos. Devuelve true si recogio algo.
+        private bool TryPickupGroundItem(CharacterEntity character, int cellId)
+        {
+            if (m_groundItems == null || character == null || !m_groundItems.TryGetValue(cellId, out var ground))
+                return false;
+
+            // Si no puede cargar el peso, el objeto se queda en el suelo (no se pierde ni se
+            // crea un objeto huerfano fuera del inventario).
+            var template = ItemTemplateRepository.Instance.GetById(ground.TemplateId);
+            var weight = (template?.Weight ?? 0) * ground.Quantity;
+            if (character.CurrentPods + weight > character.MaxPods)
+                return false;
+
+            m_groundItems.Remove(cellId);
+            Dispatch(WorldMessage.OBJECT_GROUND_REMOVE(cellId));
+
+            // Se recrea el objeto con las MISMAS caracteristicas para el que lo recoge.
+            var stats = GenericStats.ParseFromString(ground.StringEffects);
+            var item = InventoryItemRepository.Instance.Create(ground.TemplateId, character.Id, (int)character.Type, ground.Quantity, stats);
+            character.Inventory.AddItem(item);
+            return true;
+        }
+
+        private void SendGroundItems(AbstractEntity entity)
+        {
+            if (m_groundItems == null || m_groundItems.Count == 0)
+                return;
+
+            entity.Dispatch(WorldMessage.OBJECT_GROUND_ADD(m_groundItems.Values));
+        }
+
         public void SendAllInformations(AbstractEntity entity)
         {
             entity.CachedBuffer = true;
@@ -1011,6 +1116,7 @@ namespace Game.Map
 
 
             SendMapInformations(entity);
+            SendGroundItems(entity);
             SendInteractiveData(entity);
             SendPaddockInformations(entity);
             SendHouseInformations(entity);
@@ -1456,6 +1562,7 @@ namespace Game.Map
                         }
 
                         SetEntityCell(entity, cellId);
+                        TryPickupGroundItem(character, cellId);
                         TryOpenDoorSwitch(character, cellId);
                         ApplyTriggerActions(character, cell, cellId);
                         return;
@@ -1463,6 +1570,7 @@ namespace Game.Map
                 }
 
                 SetEntityCell(entity, cellId);
+                TryPickupGroundItem(character, cellId);
                 TryOpenDoorSwitch(character, cellId);
                 return;
             }
@@ -1491,6 +1599,9 @@ namespace Game.Map
 
             m_occupiedCells.Clear();
             m_occupiedCells = null;
+
+            m_groundItems.Clear();
+            m_groundItems = null;
 
             m_cellsArray = null;
             m_walkableCellIds = null;

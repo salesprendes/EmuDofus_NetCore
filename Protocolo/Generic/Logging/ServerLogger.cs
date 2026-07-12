@@ -13,7 +13,9 @@ namespace Protocolo.Framework.Generic.Logging
 
         private static volatile LogOptions _options = LogOptions.Load();
         private static readonly object _writerLock = new object ();
-        private static readonly Channel<LogEntry> _channel = Channel.CreateBounded<LogEntry>(new BoundedChannelOptions(_options.QueueCapacity) { SingleReader = true, SingleWriter = false, AllowSynchronousContinuations = false, FullMode = BoundedChannelFullMode.Wait });
+        // DropWrite refleja la semántica real: solo se usa TryWrite (nunca se espera) y los
+        // mensajes descartados se contabilizan en _droppedMessages.
+        private static readonly Channel<LogEntry> _channel = Channel.CreateBounded<LogEntry>(new BoundedChannelOptions(_options.QueueCapacity) { SingleReader = true, SingleWriter = false, AllowSynchronousContinuations = false, FullMode = BoundedChannelFullMode.DropWrite });
         private static readonly Thread _writerThread;
         private readonly string _name;
         private static string _currentDate = string.Empty;

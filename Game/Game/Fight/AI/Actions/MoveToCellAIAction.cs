@@ -55,21 +55,19 @@ namespace Game.Fight.AI.Actions
             if (fightCell == null || !fightCell.CanWalk)
                 return false;
 
-            try
-            {
-                m_path = context.Fight.Map?.Pathmaker?.FindPathAsString(context.Fighter.Cell.Id, targetCell, false, context.Fighter.MP, context.Fight.Obstacles) ?? string.Empty;
-            }
-            catch (System.Exception ex)
-            {
-                AIDiagnostics.LogSwallowed("MoveToCellAIAction.TryPreparePath", ex);
-                m_path = string.Empty;
-            }
-
+            // Primero un camino que termine EXACTAMENTE en la celda planificada (evita que el
+            // luchador derive a celdas no planificadas). Si no existe, un camino de aproximacion
+            // que el motor puede truncar en una trampa: el monstruo avanza y la PISA en vez de
+            // descartar el movimiento y pasar turno.
+            var cells = context.TurnCache?.Cells;
+            m_path = cells?.GetExactPathToCell(targetCell);
+            if (string.IsNullOrEmpty(m_path))
+                m_path = cells?.GetApproachPathToCell(targetCell);
             if (string.IsNullOrEmpty(m_path))
                 return false;
 
             var movementPath = Pathfinding.IsValidPath(context.Fight, context.Fighter, context.Fighter.Cell.Id, m_path);
-            if (movementPath == null || movementPath.MovementLength <= 0 || movementPath.MovementLength > context.Fighter.MP)
+            if (!IsUsablePath(context, movementPath, targetCell))
                 return false;
 
             m_startCell = context.Fighter.Cell.Id;
@@ -83,15 +81,31 @@ namespace Game.Fight.AI.Actions
                 || context.Fight == null
                 || context.Fighter.Cell == null
                 || string.IsNullOrEmpty(m_path)
-                || m_startCell != context.Fighter.Cell.Id)
+                || m_startCell != context.Fighter.Cell.Id
+                || m_decision?.CellId == null)
                 return false;
 
             var movementPath = Pathfinding.IsValidPath(context.Fight, context.Fighter, context.Fighter.Cell.Id, m_path);
-            if (movementPath == null || movementPath.MovementLength <= 0 || movementPath.MovementLength > context.Fighter.MP)
+            if (!IsUsablePath(context, movementPath, m_decision.CellId.Value))
                 return false;
 
             m_delay = System.Math.Max(1, (int)System.Math.Ceiling(movementPath.MovementTime) + WorldConfig.FIGHT_AI_MOVE_DELAY);
             return true;
+        }
+
+        private static bool IsUsablePath(AIContext context, MovementPath movementPath, int targetCell)
+        {
+            if (movementPath == null
+                || movementPath.MovementLength <= 0
+                || movementPath.MovementLength > context.Fighter.MP
+                || movementPath.EndCell == context.Fighter.Cell.Id)
+                return false;
+
+            // Vale si llega al objetivo, o si el motor lo trunca en una stop cell (trampa oculta o
+            // casilla pegada a un enemigo): el luchador avanza y la pisa. Un corte en cualquier
+            // otra celda (p. ej. el Pathmaker rindiendose ante un muro) se rechaza para no derivar.
+            return movementPath.EndCell == targetCell
+                || Pathfinding.IsStopCell(context.Fight, context.Fighter.Team, movementPath.EndCell);
         }
     }
 }

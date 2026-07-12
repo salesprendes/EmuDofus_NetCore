@@ -71,6 +71,7 @@ namespace Game.Fight.Effect
                     case EffectEnum.ESTADO_MAS:
                     case EffectEnum.APARIENCIA_CAMBIAR:
                     case EffectEnum.CASTIGO_MAS:
+                    case EffectEnum.CASTIGO_EROSION: // la contrapartida del castigo tampoco se debufea
                         return false;
                 }
 
@@ -81,7 +82,15 @@ namespace Game.Fight.Effect
         public AbstractSpellBuff(CastInfos castInfos, AbstractFighter target, ActiveType activeType, DecrementType decrementType)
         {
             CastInfos = castInfos;
-            Duration = target.Fight.CurrentFighter == target ? castInfos.Duration + 1 : castInfos.Duration;
+            // Duración negativa en los datos ("-1") = dura todo el combate.
+            var baseDuration = castInfos.Duration < 0 ? 1000 : castInfos.Duration;
+            // El +1 solo aplica a buffs que decrementan al FINAL del turno: si se lanzan durante
+            // el propio turno del objetivo, sin él expirarían antes de que vuelva a jugar. Los que
+            // decrementan al inicio ya cuentan el turno correcto (aplicarles +1 duplicaba turnos,
+            // p.ej. TurnPassBuff hacía pasar dos turnos seguidos).
+            Duration = (decrementType == DecrementType.TYPE_ENDTURN && target.Fight.CurrentFighter == target)
+                ? baseDuration + 1
+                : baseDuration;
             Caster = castInfos.Caster;
             Target = target;
 
@@ -132,12 +141,13 @@ namespace Game.Fight.Effect
 
         public virtual FightActionResultEnum ApplyEffect(ref int damageValue, CastInfos damageInfos = null)
         {
-            return Caster.Fight.TryKillFighter(Target, Caster);
+            // El objetivo sigue en el combate; el lanzador puede haberlo abandonado (Fight null).
+            return Target.Fight?.TryKillFighter(Target, Caster) ?? FightActionResultEnum.RESULT_NOTHING;
         }
 
         public virtual FightActionResultEnum RemoveEffect()
         {
-            return Caster.Fight.TryKillFighter(Target, Caster);
+            return Target.Fight?.TryKillFighter(Target, Caster) ?? FightActionResultEnum.RESULT_NOTHING;
         }
 
         public int DecrementDuration()

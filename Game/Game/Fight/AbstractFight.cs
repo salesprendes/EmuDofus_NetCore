@@ -85,326 +85,6 @@ namespace Game.Fight
         END_TAXCOLLECTOR = 5,
     }
 
-    public sealed class FightEndResult : IDisposable
-    {
-        public long FightId
-        {
-            get;
-            private set;
-        }
-
-        public bool CanWinHonor
-        {
-            get;
-            private set;
-        }
-
-        // Duracion del combate en milisegundos, mostrada en el panel de fin de combate.
-        public long Duration
-        {
-            get;
-            set;
-        }
-
-        // Bonus de estrellas del grupo de monstruos (solo PvM); -1 = no enviar.
-        public int StarsBonus
-        {
-            get;
-            set;
-        } = -1;
-
-        public string Message
-        {
-            get
-            {
-                // Primer campo: "<duracion>" o "<duracion>;<estrellas>" si hay bonus de grupo.
-                var message = new StringBuilder("GE");
-                message.Append(Duration);
-                if (StarsBonus >= 0)
-                {
-                    message.Append(';').Append(StarsBonus);
-                }
-                message.Append('|').Append(m_fightId).Append('|').Append(CanWinHonor ? '1' : '0');
-                message.Append(m_message);
-                return message.ToString();
-            }
-        }
-
-        private readonly long m_fightId;
-
-        private StringBuilder m_message;
-
-        private HashSet<long> m_resultFighterIds;
-
-        public FightEndResult(long fightId, bool canWinHonor)
-        {
-            CanWinHonor = canWinHonor;
-            m_fightId = fightId;
-
-            // m_message acumula solo la parte de cada luchador (cada una empieza por '|').
-            // La cabecera (con duracion y estrellas) se construye al leer Message.
-            m_message = new StringBuilder();
-            m_resultFighterIds = new HashSet<long>();
-        }
-
-        public bool HasResult(AbstractFighter fighter)
-        {
-            return fighter != null && m_resultFighterIds.Contains(fighter.Id);
-        }
-
-        public void AddResult(AbstractFighter fighter,
-    FightEndTypeEnum type = FightEndTypeEnum.END_LOSER,
-    bool leave = false,
-    long kamas = 0,
-    long exp = 0,
-    long honour = 0,
-    long dishonour = 0,
-    long guildxp = 0,
-    long mountxp = 0,
-    Dictionary<int, int> items = null)
-        {
-            if (fighter == null)
-            {
-                return;
-            }
-
-            m_resultFighterIds.Add(fighter.Id);
-
-            m_message.Append('|').Append((int)type).Append(';');
-            m_message.Append(fighter.Id).Append(';');
-            m_message.Append(fighter.Name).Append(';');
-            m_message.Append(fighter.Level).Append(';');
-            m_message.Append((fighter.IsFighterDead || leave) ? '1' : '0').Append(';');
-
-            if (CanWinHonor)
-            {
-                switch (fighter.Type)
-                {
-                    case EntityTypeEnum.TYPE_CHARACTER:
-                        CharacterEntity character = (CharacterEntity)fighter;
-                        if (character.AlignmentId != (int)ConquestManager.AlignmentTypeEnum.ALIGNMENT_NEUTRAL)
-                        {
-                            m_message.Append(character.AlignmentExperienceFloorCurrent).Append(';');
-                            m_message.Append(character.Honour).Append(';');
-                            m_message.Append(character.AlignmentExperienceFloorNext).Append(';');
-                            m_message.Append(honour).Append(';');
-                            m_message.Append(character.AlignmentLevel).Append(';');
-                            m_message.Append(character.Dishonour).Append(';');
-                            m_message.Append(dishonour).Append(';');
-                        }
-                        else
-                        {
-                            m_message.Append("0;0;0;0;0;0;0;");
-                        }
-                        if (items != null && items.Count > 0)
-                        {
-                            m_message.Append(string.Join(",", items.Select(itemEntry => itemEntry.Key + "~" + itemEntry.Value))).Append(';');
-                        }
-                        else
-                        {
-                            m_message.Append("").Append(';');
-                        }
-
-                        m_message.Append(kamas > 0 ? kamas.ToString() : "").Append(';');
-                        m_message.Append(character.ExperienceFloorCurrent).Append(';');
-                        m_message.Append(character.Experience).Append(';');
-                        m_message.Append(character.ExperienceFloorNext).Append(';');
-                        m_message.Append(exp);
-                        break;
-
-                    case EntityTypeEnum.TYPE_PRISM:
-                    case EntityTypeEnum.TYPE_MONSTER_FIGHTER:
-                        m_message.Append("0;0;0;0;0;0;0;");
-                        if (items != null && items.Count > 0)
-                        {
-                            m_message.Append(string.Join(",", items.Select(itemEntry => itemEntry.Key + "~" + itemEntry.Value))).Append(';');
-                        }
-                        else
-                        {
-                            m_message.Append("").Append(';');
-                        }
-
-                        m_message.Append(kamas > 0 ? kamas.ToString() : "").Append(';');
-                        m_message.Append(0).Append(';');
-                        m_message.Append(0).Append(';');
-                        m_message.Append(0).Append(';');
-                        m_message.Append(0);
-                        break;
-                }
-            }
-            else
-            {
-                switch (fighter.Type)
-                {
-                    case EntityTypeEnum.TYPE_CHARACTER:
-                        var character = (CharacterEntity)fighter;
-                        m_message.Append(character.ExperienceFloorCurrent).Append(';');
-                        m_message.Append(character.Experience).Append(';');
-                        m_message.Append(character.ExperienceFloorNext).Append(';');
-                        m_message.Append(exp).Append(';');
-                        m_message.Append(guildxp).Append(';');
-                        m_message.Append(mountxp).Append(';');
-                        break;
-
-                    case EntityTypeEnum.TYPE_TAX_COLLECTOR:
-                        var taxCollector = (TaxCollectorEntity)fighter;
-                        m_message.Append(taxCollector.Level).Append(';');
-                        m_message.Append("").Append(';');
-                        m_message.Append("").Append(';');
-                        m_message.Append("").Append(';');
-                        m_message.Append(guildxp).Append(';');
-                        m_message.Append("").Append(';');
-                        break;
-
-                    default:
-                        m_message.Append(";;;;;;");
-                        break;
-                }
-
-                if (items != null && items.Count > 0)
-                {
-                    m_message.Append(string.Join(",", items.Select(itemEntry => itemEntry.Key + "~" + itemEntry.Value))).Append(';');
-                }
-                else
-                {
-                    m_message.Append("").Append(';');
-                }
-
-                m_message.Append(kamas > 0 ? kamas.ToString() : "");
-            }
-        }
-
-        public void Dispose()
-        {
-            m_message.Clear();
-            m_message = null;
-            m_resultFighterIds.Clear();
-            m_resultFighterIds = null;
-        }
-    }
-
-    public sealed class FightCell : IDisposable
-    {
-        public int Id
-        {
-            get;
-            private set;
-        }
-
-        public bool Walkable
-        {
-            get;
-            private set;
-        }
-
-        public bool LineOfSight
-        {
-            get;
-            private set;
-        }
-
-        public int GroundLevel
-        {
-            get;
-            private set;
-        }
-
-        public PriorityQueue<IFightObstacle> FightObjects
-        {
-            get;
-            private set;
-        }
-
-        public bool CanWalk
-        {
-            get
-            {
-                return Walkable && FightObjects.All(obj => obj.CanGoThrough);
-            }
-        }
-
-        public bool CanPutObject
-        {
-            get
-            {
-                return Walkable && FightObjects.Where(obj => obj.Cell.Id == Id).All(obj => obj.CanStack);
-            }
-        }
-
-        public FightCell(int id, bool walkable, bool los, int groundLevel = 7)
-        {
-            Id = id;
-            Walkable = walkable;
-            LineOfSight = los;
-            GroundLevel = groundLevel;
-            FightObjects = new PriorityQueue<IFightObstacle>();
-        }
-
-        public bool HasObject(FightObstacleTypeEnum type)
-        {
-            return FightObjects.Any(obj => obj.ObstacleType == type);
-        }
-
-        public FightActionResultEnum AddObject(IFightObstacle fightObject)
-        {
-            FightObjects.Add(fightObject);
-
-            if (fightObject.ObstacleType == FightObstacleTypeEnum.TYPE_FIGHTER)
-            {
-                var fighter = (AbstractFighter)fightObject;
-
-                for (int i = FightObjects.Count - 1; i > -1; i--)
-                {
-                    var activableObject = FightObjects[i] as AbstractActivableObject;
-                    if (activableObject != null)
-                    {
-                        if (activableObject.ActivationType == ActiveType.ACTIVE_ENDMOVE)
-                        {
-                            if (!fighter.IsFighterDead)
-                            {
-                                activableObject.LoadTargets(fighter);
-                                activableObject.Activate(fighter);
-                            }
-                        }
-                    }
-                }
-            }
-
-            return FightActionResultEnum.RESULT_NOTHING;
-        }
-
-        public FightActionResultEnum RemoveObject(IFightObstacle obstacle)
-        {
-            FightObjects?.Remove(obstacle);
-
-            return FightActionResultEnum.RESULT_NOTHING;
-        }
-
-        public FightActionResultEnum BeginTurn(AbstractFighter fighter)
-        {
-            for (int i = FightObjects.Count - 1; i > -1; i--)
-            {
-                var activableObject = FightObjects[i] as AbstractActivableObject;
-                if (activableObject != null)
-                {
-                    if (activableObject.ActivationType == ActiveType.ACTIVE_BEGINTURN)
-                    {
-                        activableObject.LoadTargets(fighter);
-                        activableObject.Activate(fighter);
-                    }
-                }
-            }
-
-            return FightActionResultEnum.RESULT_NOTHING;
-        }
-
-        public void Dispose()
-        {
-            FightObjects.Clear();
-            FightObjects = null;
-        }
-    }
-
     public abstract class AbstractFight : MessageDispatcher, IMovementHandler, IDisposable
     {
         public FightTypeEnum Type
@@ -431,6 +111,10 @@ namespace Game.Fight
             get;
             set;
         }
+
+        // El combate esta cerrandose (fase final) o ya terminado: en este estado no se aceptan
+        // acciones (mover, lanzar, arma...) y se responde con BASIC_NO_OPERATION.
+        public bool IsFightEnding => LoopState == FightLoopStateEnum.STATE_WAIT_END || LoopState == FightLoopStateEnum.STATE_ENDED;
 
         public FightLoopStateEnum NextLoopState
         {
@@ -625,7 +309,9 @@ namespace Game.Fight
 
         public string FightPlaces => Team0.Places + "|" + Team1.Places;
 
-        private bool IsAllReady => Fighters.OfType<CharacterEntity>().All(fighter => fighter.TurnReady || fighter.IsFighterDead);
+        // Un desconectado nunca envía "listo": sin excluirlo, cada transición de turno agotaba
+        // el timeout de sincronización (5 s) hasta expulsarlo.
+        private bool IsAllReady => Fighters.OfType<CharacterEntity>().All(fighter => fighter.TurnReady || fighter.IsFighterDead || fighter.IsDisconnected);
 
 
         private bool IsAllReadyToStart
@@ -813,7 +499,7 @@ namespace Game.Fight
         {
             AddMessage(() =>
             {
-                if (LoopState == FightLoopStateEnum.STATE_WAIT_END || LoopState == FightLoopStateEnum.STATE_ENDED)
+                if (IsFightEnding)
                 {
                     return;
                 }
@@ -829,7 +515,7 @@ namespace Game.Fight
         {
             AddMessage(() =>
                     {
-                        if (LoopState == FightLoopStateEnum.STATE_WAIT_END || LoopState == FightLoopStateEnum.STATE_ENDED)
+                        if (IsFightEnding)
                         {
                             character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                             return;
@@ -858,7 +544,7 @@ namespace Game.Fight
         {
             AddMessage(() =>
                 {
-                    if (LoopState == FightLoopStateEnum.STATE_WAIT_END || LoopState == FightLoopStateEnum.STATE_ENDED)
+                    if (IsFightEnding)
                     {
                         character.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                         return;
@@ -957,7 +643,7 @@ namespace Game.Fight
         {
             AddMessage(() =>
             {
-                if (LoopState == FightLoopStateEnum.STATE_WAIT_END || LoopState == FightLoopStateEnum.STATE_ENDED)
+                if (IsFightEnding)
                 {
                     return;
                 }
@@ -1019,7 +705,9 @@ namespace Game.Fight
                 fighter.OnDeath(killer);
                 killer.OnKill(fighter);
 
-
+                // En 1.29 los glifos/trampas desaparecen al morir su lanzador: si no, seguirían
+                // activándose para siempre con un caster cuyos managers ya fueron destruidos (NRE).
+                RemoveActivableObjects(fighter);
 
                 if (!quit)
                 {
@@ -1038,6 +726,7 @@ namespace Game.Fight
                     Dispatch(WorldMessage.FIGHT_TURN_LIST(TurnProcessor.FighterOrder));
                 }
 
+                // Pausa del bucle tras una muerte
                 if (State != FightStateEnum.STATE_PLACEMENT)
                 {
                     NextLoopTimeout = CurrentLoopTimeout + 1300;
@@ -1222,10 +911,9 @@ namespace Game.Fight
                 }
                 else
                 {
-                    if (m_activableObjects.ContainsKey(CurrentFighter))
-                    {
-                        m_activableObjects[CurrentFighter].RemoveAll(fightObject => fightObject.ObstacleType == FightObstacleTypeEnum.TYPE_GLYPH);
-                    }
+                    // El que abandona pierde sus glifos: hay que retirarlos de la celda (Remove),
+                    // no solo de la lista, o seguirían activándose con un caster ya liberado.
+                    RemoveActivableObjects(CurrentFighter, FightObstacleTypeEnum.TYPE_GLYPH);
                 }
 
                 CachedBuffer = true;
@@ -1379,13 +1067,13 @@ namespace Game.Fight
                             if (CurrentAction != null && !CurrentAction.IsFinished)
                             {
                                 CurrentFighter.StopAction(CurrentAction.Type);
-
-                                if (CurrentSubAction != null)
-                                {
-                                    LoopState = FightLoopStateEnum.STATE_WAIT_SUBACTION;
-                                    Logger.Debug("FightBase::Update esperando a que termine una subaccion.");
-                                    break;
-                                }
+                            }
+                            
+                            if (CurrentSubAction != null)
+                            {
+                                LoopState = FightLoopStateEnum.STATE_WAIT_SUBACTION;
+                                Logger.Debug("FightBase::Update esperando a que termine una subaccion.");
+                                break;
                             }
 
                             if (m_processingTargets.Count > 0 && LoopState != FightLoopStateEnum.STATE_WAIT_END)
@@ -1618,6 +1306,16 @@ namespace Game.Fight
                 return FightSpellLaunchResultEnum.RESULT_WRONG_TARGET;
             }
 
+            // Una sola trampa por celda: si el hechizo coloca una trampa y la celda ya tiene una
+            // (propia o enemiga oculta), el lanzamiento se rechaza AQUI, antes de gastar PA (el
+            // efecto tambien lo rechazaba, pero en silencio y con los PA ya consumidos).
+            if (spellLevel.Effects != null
+                && spellLevel.Effects.Any(effect => effect.TypeEnum == EffectEnum.COMBATE_COLOCAR_TRAMPA)
+                && GetCell(castCell).HasObject(FightObstacleTypeEnum.TYPE_TRAP))
+            {
+                return FightSpellLaunchResultEnum.RESULT_WRONG_TARGET;
+            }
+
             if (spellLevel.InLine && !Pathfinding.InLine(Map, cellId, castCell))
             {
                 return FightSpellLaunchResultEnum.RESULT_NEED_MOVE;
@@ -1682,6 +1380,14 @@ namespace Game.Fight
                 return false;
             }
 
+            // Mismas guardas que el lanzamiento de hechizo: un muerto (murió en su propio turno
+            // por trampa/veneno) o debilitado no puede atacar en la ventana previa al fin de turno.
+            if (fighter.IsFighterDead || fighter.StateManager == null || fighter.StateManager.HasState(FighterStateEnum.STATE_WEAKENED))
+            {
+                Logger.Debug($"Fight::CanUseWeapon el luchador no puede actuar (muerto/debilitado): {fighter.Name}");
+                return false;
+            }
+
             if (GetCell(cellId) == null)
             {
                 Logger.Debug($"Fight::CanUseWeapon la celda de lanzamiento es nula: {fighter.Name}");
@@ -1703,16 +1409,20 @@ namespace Game.Fight
             }
 
             var distance = Pathfinding.GoalDistance(Map, fighter.Cell.Id, cellId);
-            var poMax = template.POMax + fighter.Statistics.GetTotal(EffectEnum.STAT_MAS_ALCANCE);
 
-            if (poMax - template.POMin < 1)
-            {
-                poMax = template.POMin;
-            }
-
-            if (distance > poMax || distance < template.POMin)
+            // En 1.29 las armas tienen alcance FIJO: el +alcance (STAT_MAS_ALCANCE) no aplica
+            // (el cliente devuelve canBoostRange=false para armas), así que no se suma.
+            if (distance > template.POMax || distance < template.POMin)
             {
                 Logger.Debug($"Fight::CanUseWeapon la celda objetivo esta fuera de alcance: {fighter.Name}");
+                return false;
+            }
+
+            // Las armas requieren línea de visión (como el hechizo con LOS): sin esto, un arco o
+            // varita podría golpear a través de muros con un cliente modificado.
+            if (!Pathfinding.CheckView(this, fighter.Cell.Id, cellId))
+            {
+                Logger.Debug($"Fight::CanUseWeapon sin linea de vision al objetivo: {fighter.Name}");
                 return false;
             }
 
@@ -1723,7 +1433,7 @@ namespace Game.Fight
         {
             AddMessage(() =>
                 {
-                    if (LoopState == FightLoopStateEnum.STATE_WAIT_END || LoopState == FightLoopStateEnum.STATE_ENDED)
+                    if (IsFightEnding)
                     {
                         fighter.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                         return;
@@ -1766,23 +1476,13 @@ namespace Game.Fight
 
                     fighter.UsedAP += weaponTemplate.APCost;
 
+                    // Atacar con arma (daga, bastón, arco...) revela por completo al Sram invisible.
+                    if (fighter.StateManager != null && fighter.StateManager.HasState(FighterStateEnum.STATE_STEALTH))
+                        fighter.BuffManager.RemoveStealth();
+
                     Dispatch(WorldMessage.FIGHT_ACTION_START(CurrentFighter.Id));
 
-                    var failure = false;
-                    if (weaponTemplate.CFRate != 0)
-                    {
-                        var criticalFailureRate = weaponTemplate.CFRate - fighter.Statistics.GetTotal(EffectEnum.STAT_MAS_FALLO_CRITICO);
-
-                        if (criticalFailureRate < 2)
-                        {
-                            criticalFailureRate = 2;
-                        }
-
-                        if (Util.Next(0, criticalFailureRate) == 0)
-                        {
-                            failure = true;
-                        }
-                    }
+                    var failure = fighter.RollCriticalFailure(weaponTemplate.CFRate);
 
                     if (failure)
                     {
@@ -1796,23 +1496,7 @@ namespace Game.Fight
                         return;
                     }
 
-                    var criticalHit = false;
-                    if (weaponTemplate.CSRate != 0)
-                    {
-                        var criticalHitRate = weaponTemplate.CSRate - fighter.Statistics.GetTotal(EffectEnum.STAT_MAS_DANO_CRITICO);
-
-                        fighter.CalculCriticalHitRate(ref criticalHitRate);
-
-                        if (criticalHitRate < 2)
-                        {
-                            criticalHitRate = 2;
-                        }
-
-                        if (Util.Next(0, criticalHitRate) == 0)
-                        {
-                            criticalHit = true;
-                        }
-                    }
+                    var criticalHit = fighter.RollCriticalHit(weaponTemplate.CSRate);
 
                     if (criticalHit)
                     {
@@ -1848,7 +1532,7 @@ namespace Game.Fight
 
                     fighter.UseWeapon(cellId, actionTime, () =>
                     {
-                        if (LoopState == FightLoopStateEnum.STATE_WAIT_END || LoopState == FightLoopStateEnum.STATE_ENDED)
+                        if (IsFightEnding)
                         {
                             fighter.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                             return;
@@ -1910,6 +1594,41 @@ namespace Game.Fight
                 });
         }
 
+        /// <summary>
+        /// Un hechizo REVELA al Sram invisible si es un ataque DIRECTO: tiene algún efecto de daño
+        /// instantáneo (duración 0). Los venenos (daño con duración), trampas/glifos y utilitarios
+        /// (Miedo, boosts, invocaciones) NO revelan: solo señalan la casilla.
+        /// </summary>
+        private static bool SpellRevealsStealth(SpellLevel spellLevel)
+        {
+            if (spellLevel?.Effects == null)
+                return false;
+
+            foreach (var effect in spellLevel.Effects)
+            {
+                if (effect != null && effect.Duration == 0 && CastInfos.IsDamageEffect(effect.TypeEnum))
+                    return true;
+            }
+
+            return false;
+        }
+        
+        public void SignalStealthPosition(AbstractFighter fighter)
+        {
+            if (fighter?.Cell == null)
+                return;
+
+            // Reemplaza cualquier marcador anterior del mismo luchador.
+            fighter.ClearStealthSignal();
+
+            // El propio cliente pone la bandera (flag.swf) en la celda y escribe "X ha señalado
+            // la posición Y" en el chat al recibir Gf (Game::onFlag).
+            Dispatch(WorldMessage.FIGHT_CELL_FLAG(fighter.Id, fighter.Cell.Id));
+
+            fighter.StealthSignalCell = fighter.Cell.Id;
+            fighter.LastKnownStealthCell = fighter.Cell.Id;
+        }
+
         public void TryLaunchSpell(AbstractFighter fighter, int spellId, int castCellId, int actionTime = 5000)
         {
             if (fighter == null)
@@ -1919,7 +1638,7 @@ namespace Game.Fight
 
             AddMessage(() =>
             {
-                if (LoopState == FightLoopStateEnum.STATE_WAIT_END || LoopState == FightLoopStateEnum.STATE_ENDED)
+                if (IsFightEnding)
                 {
                     fighter.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                     return;
@@ -1998,59 +1717,37 @@ namespace Game.Fight
 
                 fighter.UsedAP += spellLevel.APCost;
 
+                // Invisibilidad del Sram: un ataque directo lo revela por completo; cualquier otro
+                // hechizo (trampa, veneno, Miedo, boost, invocación) solo señala su casilla actual.
+                if (fighter.StateManager != null && fighter.StateManager.HasState(FighterStateEnum.STATE_STEALTH))
+                {
+                    if (SpellRevealsStealth(spellLevel))
+                        fighter.BuffManager.RemoveStealth();
+                    else
+                        SignalStealthPosition(fighter);
+                }
+
                 base.Dispatch(WorldMessage.FIGHT_ACTION_START(CurrentFighter.Id));
 
-                var isEchec = false;
-                if (spellLevel.ECSRate != 0)
+                if (fighter.RollCriticalFailure(spellLevel.ECSRate))
                 {
-                    var echecRate = spellLevel.ECSRate - fighter.Statistics.GetTotal(EffectEnum.STAT_MAS_FALLO_CRITICO);
+                    CachedBuffer = true;
+                    Dispatch(WorldMessage.GAME_ACTION(GameActionTypeEnum.FIGHT_CRITICAL_FAILURE, fighter.Id, spellId.ToString()));
+                    Dispatch(WorldMessage.GAME_ACTION(GameActionTypeEnum.FIGHT_PA_LOST, fighter.Id, fighter.Id + ",-" + spellLevel.APCost));
+                    Dispatch(WorldMessage.FIGHT_ACTION_FINISHED(CurrentFighter.Id));
+                    CachedBuffer = false;
 
-                    if (echecRate < 2)
+                    if (spellLevel.IsECSEndTurn == 1)
                     {
-                        echecRate = 2;
+                        CurrentFighter.TurnPass = true;
                     }
-
-                    if (Util.Next(0, echecRate) == 0)
-                    {
-                        isEchec = true;
-                    }
-
-                    if (isEchec)
-                    {
-                        CachedBuffer = true;
-                        Dispatch(WorldMessage.GAME_ACTION(GameActionTypeEnum.FIGHT_CRITICAL_FAILURE, fighter.Id, spellId.ToString()));
-                        Dispatch(WorldMessage.GAME_ACTION(GameActionTypeEnum.FIGHT_PA_LOST, fighter.Id, fighter.Id + ",-" + spellLevel.APCost));
-                        Dispatch(WorldMessage.FIGHT_ACTION_FINISHED(CurrentFighter.Id));
-                        CachedBuffer = false;
-
-                        if (spellLevel.IsECSEndTurn == 1)
-                        {
-                            CurrentFighter.TurnPass = true;
-                        }
-                        return;
-                    }
+                    return;
                 }
 
                 var target = GetFighterOnCell(castCellId);
                 fighter.SpellManager.Actualize(spellLevel, spellId, target?.Id ?? 0);
 
-                var isCritic = false;
-                if (spellLevel.CSRate != 0 && spellLevel.CriticalEffects.Count > 0)
-                {
-                    var criticalHitRate = spellLevel.CSRate - fighter.Statistics.GetTotal(EffectEnum.STAT_MAS_DANO_CRITICO);
-
-                    fighter.CalculCriticalHitRate(ref criticalHitRate);
-
-                    if (criticalHitRate < 2)
-                    {
-                        criticalHitRate = 2;
-                    }
-
-                    if (Util.Next(0, criticalHitRate) == 0)
-                    {
-                        isCritic = true;
-                    }
-                }
+                var isCritic = spellLevel.CriticalEffects.Count > 0 && fighter.RollCriticalHit(spellLevel.CSRate);
 
                 if (isCritic)
                 {
@@ -2061,58 +1758,64 @@ namespace Game.Fight
                 var targetLists = new Dictionary<SpellEffect, List<AbstractFighter>>();
                 var effectIndex = 0;
 
+                // Las celdas de cada zona se calculan una única vez aunque varios efectos
+                // compartan el mismo par (forma, tamaño).
+                var zoneCellsCache = new Dictionary<string, List<int>>();
+
                 foreach (var effect in effects)
                 {
                     targetLists.Add(effect, new List<AbstractFighter>());
 
-                    var targetType = spellLevel.Template.Targets != null ? spellLevel.Template.Targets.Count > effectIndex ? spellLevel.Template.Targets[effectIndex] : -1 : -1;
+                    // Zona y máscara PROPIAS de cada efecto (como el cliente): un hechizo puede
+                    // golpear en área con un efecto y aplicar otro solo al objetivo puntual.
+                    var targetType = spellLevel.GetEffectTarget(effectIndex, isCritic);
+                    var effectZone = spellLevel.GetEffectZone(effectIndex, isCritic);
+
+                    if (!zoneCellsCache.TryGetValue(effectZone, out var zoneCells))
+                    {
+                        zoneCells = CellZone.GetCells(Map, castCellId, fighter.Cell.Id, effectZone).ToList();
+                        zoneCellsCache[effectZone] = zoneCells;
+                    }
 
                     if (effect.TypeEnum != EffectEnum.COMBATE_COLOCAR_GLIFO && effect.TypeEnum != EffectEnum.COMBATE_COLOCAR_TRAMPA)
                     {
-                        foreach (var currentCellId in CellZone.GetCells(Map, castCellId, fighter.Cell.Id, spellLevel.RangeType))
+                        if (targetType != -1 && ((targetType >> 5) & 1) == 1)
                         {
-                            var fightCell = GetCell(currentCellId);
-                            if (fightCell != null)
+                            // Bit 5 = el efecto solo afecta al lanzador: se añade directamente,
+                            // aunque la zona no contenga ningún luchador (antes se perdía).
+                            targetLists[effect].Add(fighter);
+                        }
+                        else
+                        {
+                            foreach (var currentCellId in zoneCells)
                             {
+                                var fightCell = GetCell(currentCellId);
+                                if (fightCell == null)
+                                    continue;
+
                                 foreach (var fighterObject in fightCell.FightObjects.OfType<AbstractFighter>())
                                 {
                                     if (targetType != -1)
                                     {
-
-                                        if (((((targetType >> 5) & 1) == 1) && (fighter.Id != fighterObject.Id)))
-                                        {
-                                            if (!targetLists[effect].Contains(fighter))
-                                            {
-                                                targetLists[effect].Add(fighter);
-                                            }
-
-                                            continue;
-                                        }
-
-
                                         if (((targetType & 1) == 1) && fighter.Team == fighterObject.Team)
                                         {
                                             continue;
                                         }
-
 
                                         if ((((targetType >> 1) & 1) == 1) && fighter.Id == fighterObject.Id)
                                         {
                                             continue;
                                         }
 
-
                                         if ((((targetType >> 2) & 1) == 1) && fighter.Team != fighterObject.Team)
                                         {
                                             continue;
                                         }
 
-
                                         if (((((targetType >> 3) & 1) == 1) && (fighterObject.Invocator == null)))
                                         {
                                             continue;
                                         }
-
 
                                         if (((((targetType >> 4) & 1) == 1) && (fighterObject.Invocator != null)))
                                         {
@@ -2137,25 +1840,46 @@ namespace Game.Fight
 
                 fighter.LaunchSpell(castCellId, spellId, spellLevel.Level, template.Sprite.ToString(), template.SpriteInfos, actionTime, () =>
                 {
-                    if (LoopState == FightLoopStateEnum.STATE_WAIT_END || LoopState == FightLoopStateEnum.STATE_ENDED)
+                    if (IsFightEnding)
                     {
                         fighter.Dispatch(WorldMessage.BASIC_NO_OPERATION());
                         return;
                     }
 
-                    var actualChance = 0;
+                    // Grupos de probabilidad: los efectos consecutivos con Chance > 0 comparten
+                    // UNA tirada y se aplica exactamente aquel cuyo rango acumulado contiene la
+                    // tirada (Ruleta, Siega...). Tirar por efecto sesgaba las probabilidades y el
+                    // residuo negativo corrompía los grupos siguientes.
+                    int? groupRoll = null;
+                    var groupAccumulated = 0;
+                    var applyIndex = -1;
 
                     foreach (var effect in effects)
                     {
+                        applyIndex++;
+
                         if (effect.Chance > 0)
                         {
-                            if (Util.Next(0, 100) > (effect.Chance + actualChance))
+                            groupRoll ??= Util.Next(0, 100);
+
+                            var lowerBound = groupAccumulated;
+                            groupAccumulated += effect.Chance;
+
+                            if (groupRoll.Value < lowerBound || groupRoll.Value >= groupAccumulated)
                             {
-                                actualChance += effect.Chance;
                                 continue;
                             }
-                            actualChance -= 100;
                         }
+                        else
+                        {
+                            // Efecto sin probabilidad: cierra el grupo anterior.
+                            groupRoll = null;
+                            groupAccumulated = 0;
+                        }
+
+                        // Zona PROPIA del efecto (trampas/glifos la usan para su área y
+                        // Percepción para su radio de revelado).
+                        var appliedZone = spellLevel.GetEffectZone(applyIndex, isCritic);
 
                         targetLists[effect].RemoveAll(affectedTarget => affectedTarget.IsFighterDead);
 
@@ -2172,7 +1896,7 @@ namespace Game.Fight
                                                     effect.Duration,
                                                     fighter,
                                                     null,
-                                                    spellLevel.RangeType,
+                                                    appliedZone,
                                                     0,
                                                     spellLevel.Level,
                                                     isMelee);
@@ -2194,7 +1918,7 @@ namespace Game.Fight
                                                     effect.Duration,
                                                     fighter,
                                                     effectTarget,
-                                                    spellLevel.RangeType,
+                                                    appliedZone,
                                                     effectTarget.Cell.Id,
                                                     spellLevel.Level,
                                                     isMelee);
@@ -2357,6 +2081,27 @@ namespace Game.Fight
             m_activableObjects[caster].Add(obj);
         }
 
+        // Retira de la celda (y de la lista del lanzador) los objetos activables indicados, o
+        // todos si no se especifica tipo. Se usa cuando el lanzador muere o abandona el combate.
+        private void RemoveActivableObjects(AbstractFighter caster, FightObstacleTypeEnum? type = null)
+        {
+            if (caster == null || m_activableObjects == null || !m_activableObjects.TryGetValue(caster, out var objects))
+                return;
+
+            for (int i = objects.Count - 1; i >= 0; i--)
+            {
+                var obj = objects[i];
+                if (type.HasValue && obj.ObstacleType != type.Value)
+                    continue;
+
+                obj.Remove();
+                objects.RemoveAt(i);
+            }
+
+            if (objects.Count == 0)
+                m_activableObjects.Remove(caster);
+        }
+
         public bool CanAbortMovement => false;
 
         public void Move(AbstractEntity entity, int cellId, string path)
@@ -2498,9 +2243,7 @@ namespace Game.Fight
             if (fighter.Type == EntityTypeEnum.TYPE_CHARACTER)
             {
                 fighter.CachedBuffer = true;
-                fighter.Dispatch(fighter.IsSpectating
-                    ? WorldMessage.FIGHT_JOIN_SUCCESS((int)FightStateEnum.STATE_FIGHTING, false, false, true, 0, (int)Type)
-                    : WorldMessage.FIGHT_JOIN_SUCCESS((int)State, CancelButton, true, false, StartTime - UpdateTime, (int)Type));
+                fighter.Dispatch(fighter.IsSpectating ? WorldMessage.FIGHT_JOIN_SUCCESS((int)FightStateEnum.STATE_FIGHTING, false, false, true, 0, (int)Type) : WorldMessage.FIGHT_JOIN_SUCCESS((int)State, CancelButton, true, false, StartTime - UpdateTime, (int)Type));
                 fighter.Dispatch(WorldMessage.GAME_MAP_INFORMATIONS(OperatorEnum.OPERATOR_ADD, AliveFighters.ToArray()));
 
                 switch (State)
@@ -2578,11 +2321,8 @@ namespace Game.Fight
 
 
         public abstract bool CanJoin(CharacterEntity character);
-
         public abstract FightActionResultEnum FightQuit(CharacterEntity character, bool kick = false);
-
         public abstract void SerializeAs_FightList(StringBuilder message);
-
         public abstract void SerializeAs_FightFlag(StringBuilder message);
     }
 }

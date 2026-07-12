@@ -30,7 +30,8 @@ namespace Game.Exchange
         public override void Leave(bool success = false)
         {
             base.Leave(success);
-            Character.GuildMember.FarmTaxCollector(TaxCollector);
+            // El jugador puede haber sido expulsado del gremio con el intercambio abierto.
+            Character.GuildMember?.FarmTaxCollector(TaxCollector);
         }
 
         public override long MoveKamas(AbstractEntity actor, long quantity)

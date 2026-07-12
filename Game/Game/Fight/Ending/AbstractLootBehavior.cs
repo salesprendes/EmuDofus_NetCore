@@ -72,16 +72,16 @@ namespace Game.Fight.Ending
                         }
                         else
                         {
+                            // Subir hasta el invocador raíz: la condición del while original
+                            // (fighter.Invocator, constante) era un bucle infinito que congelaba
+                            // el hilo de la subárea. El abono de kamas va una sola vez, no por ítem.
+                            var invocator = fighter.Invocator;
+                            while (invocator?.Invocator != null)
+                                invocator = invocator.Invocator;
+
                             foreach (var item in itemWon)
-                            {
-                                var invocator = fighter.Invocator;
-
-                                while (fighter.Invocator != null)
-                                    invocator = fighter.Invocator;
-
                                 invocator?.Inventory?.AddItem(item);
-                                invocator?.Inventory?.AddKamas(kamasWon);
-                            }
+                            invocator?.Inventory?.AddKamas(kamasWon);
                         }
                         break;
 

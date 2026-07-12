@@ -11,7 +11,10 @@ namespace Protocolo.Framework.Network
 
         private int m_disconnectState;
         private int m_sendLoopState;
+        private long m_pendingSendBytes;
         private readonly ConcurrentQueue<byte[]> m_pendingSends;
+
+        protected virtual long MaxPendingSendBytes => 4L * 1024 * 1024;
 
         protected AbstractTcpClient()
         {
@@ -71,14 +74,35 @@ namespace Protocolo.Framework.Network
             ClearPendingSends();
         }
 
-        internal void EnqueueSend(byte[] data)
+        internal bool TryEnqueueSend(byte[] data)
         {
+            if (IsDisconnecting)
+                return false;
+
+            var pendingBytes = Interlocked.Add(ref m_pendingSendBytes, data.Length);
+            if (pendingBytes > MaxPendingSendBytes || IsDisconnecting)
+            {
+                Interlocked.Add(ref m_pendingSendBytes, -data.Length);
+                return false;
+            }
+
             m_pendingSends.Enqueue(data);
+            if (IsDisconnecting)
+            {
+                ClearPendingSends();
+                return false;
+            }
+
+            return true;
         }
 
         internal bool TryDequeueSend(out byte[] data)
         {
-            return m_pendingSends.TryDequeue(out data);
+            if (!m_pendingSends.TryDequeue(out data))
+                return false;
+
+            Interlocked.Add(ref m_pendingSendBytes, -data.Length);
+            return true;
         }
 
         internal bool HasPendingSend => !m_pendingSends.IsEmpty;
@@ -93,6 +117,10 @@ namespace Protocolo.Framework.Network
             Interlocked.Exchange(ref m_sendLoopState, 0);
         }
 
-        private void ClearPendingSends() => m_pendingSends.Clear();
+        private void ClearPendingSends()
+        {
+            while (m_pendingSends.TryDequeue(out var data))
+                Interlocked.Add(ref m_pendingSendBytes, -data.Length);
+        }
     }
 }

@@ -37,6 +37,15 @@ namespace Protocolo.RPC.Service
             Send(message.Data);
         }
 
+        protected override void OnConnecting()
+        {
+            // Descartar el framing a medio leer de la sesión anterior: si la conexión cayó
+            // en mitad de un mensaje, los restos desincronizarían la nueva sesión.
+            m_messageId = -1;
+            m_messageLength = -1;
+            m_messageData.Clear();
+        }
+
         protected override void OnBytesRead(byte[] buffer, int offset, int length)
         {
             m_messageData.WriteBytes(buffer, offset, length);

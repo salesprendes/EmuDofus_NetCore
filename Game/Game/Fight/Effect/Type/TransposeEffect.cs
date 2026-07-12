@@ -1,9 +1,6 @@
+using Game.Action;
+using Game.Network;
 using Game.Spell;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.Fight.Effect.Type
 {
@@ -11,7 +8,7 @@ namespace Game.Fight.Effect.Type
     {
         public override FightActionResultEnum ApplyEffect(CastInfos castInfos)
         {
-            if (castInfos.Target == null)
+            if (castInfos.Target == null || castInfos.Caster == null)
                 return FightActionResultEnum.RESULT_NOTHING;
 
             if (castInfos.SpellId == 445)
@@ -25,19 +22,26 @@ namespace Game.Fight.Effect.Type
                     return FightActionResultEnum.RESULT_NOTHING;
             }
 
-            var targetTeleport = new CastInfos(EffectEnum.MOVIMIENTO_TELETRANSPORTAR, castInfos.SpellId, castInfos.Caster.Cell.Id, 0, 0, 0, 0, 0, castInfos.Target, null);
-            var casterTeleport = new CastInfos(EffectEnum.MOVIMIENTO_TELETRANSPORTAR, castInfos.SpellId, castInfos.Target.Cell.Id, 0, 0, 0, 0, 0, castInfos.Caster, null);
+            var casterCell = castInfos.Caster.Cell;
+            var targetCell = castInfos.Target.Cell;
+
+            // Validar ANTES de vaciar celdas: la transposición es un intercambio directo, no un
+            // teletransporte. Con el flujo anterior (dos ApplyTeleport, que abortan si el luchador
+            // está enraizado/gravedad/muerto) uno podía quedarse con Cell == null para siempre
+            // y lanzar NRE cada inicio de turno.
+            if (casterCell == null || targetCell == null || castInfos.Caster.IsFighterDead || castInfos.Target.IsFighterDead)
+                return FightActionResultEnum.RESULT_NOTHING;
 
             castInfos.Caster.SetCell(null);
             castInfos.Target.SetCell(null);
 
-            if (TeleportEffect.ApplyTeleport(targetTeleport) == FightActionResultEnum.RESULT_END)
+            castInfos.Fight.Dispatch(WorldMessage.GAME_ACTION(GameActionTypeEnum.MAP_TELEPORT, castInfos.Caster.Id, castInfos.Caster.Id + "," + targetCell.Id));
+            castInfos.Fight.Dispatch(WorldMessage.GAME_ACTION(GameActionTypeEnum.MAP_TELEPORT, castInfos.Target.Id, castInfos.Target.Id + "," + casterCell.Id));
+
+            if (castInfos.Caster.SetCell(targetCell) == FightActionResultEnum.RESULT_END)
                 return FightActionResultEnum.RESULT_END;
 
-            if (TeleportEffect.ApplyTeleport(casterTeleport) == FightActionResultEnum.RESULT_END)
-                return FightActionResultEnum.RESULT_END;
-
-            return FightActionResultEnum.RESULT_NOTHING;
+            return castInfos.Target.SetCell(casterCell);
         }
     }
 }

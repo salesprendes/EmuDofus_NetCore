@@ -18,13 +18,29 @@ namespace Protocolo.Framework.Database
 
         private static readonly ConcurrentDictionary<RuntimeTypeHandle, List<PropertyInfo>> KeyProperties = new ConcurrentDictionary<RuntimeTypeHandle, List<PropertyInfo>>();
         private static readonly ConcurrentDictionary<RuntimeTypeHandle, List<PropertyInfo>> TypeProperties = new ConcurrentDictionary<RuntimeTypeHandle, List<PropertyInfo>>();
-        private static readonly ConcurrentDictionary<RuntimeTypeHandle, string> GetQueries = new ConcurrentDictionary<RuntimeTypeHandle, string>();
         private static readonly ConcurrentDictionary<RuntimeTypeHandle, string> TypeTableName = new ConcurrentDictionary<RuntimeTypeHandle, string>();
+        private static readonly ConcurrentDictionary<RuntimeTypeHandle, EntityMetadata> EntityMetadataCache = new ConcurrentDictionary<RuntimeTypeHandle, EntityMetadata>();
         private static readonly PropertyInfo[] NoKeyProperties = Array.Empty<PropertyInfo>();
 
-        private static readonly Dictionary<string, ISqlAdapter> AdapterDictionary = new Dictionary<string, ISqlAdapter>
+        private sealed class EntityMetadata
         {
-            { "sqlconnection",    new SqlServerAdapter() },
+            internal string TableName;
+            internal List<PropertyInfo> AllProperties;
+            internal List<PropertyInfo> KeyProperties;
+            internal List<PropertyInfo> NonKeyProperties;
+            internal string AllColumns;
+            internal string AllParameters;
+            internal string NonKeyColumns;
+            internal string NonKeyParameters;
+            internal string UpdateSql;
+            internal string DeleteSql;
+            internal string GetSql;
+        }
+
+        private static readonly ISqlAdapter DefaultAdapter = new SqlServerAdapter();
+        private static readonly Dictionary<string, ISqlAdapter> AdapterDictionary = new Dictionary<string, ISqlAdapter>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "sqlconnection",    DefaultAdapter },
             { "npgsqlconnection", new PostgresAdapter()  }
         };
 
@@ -83,31 +99,27 @@ namespace Protocolo.Framework.Database
 
         private static List<PropertyInfo> KeyPropertiesCache(Type type)
         {
-            if (KeyProperties.TryGetValue(type.TypeHandle, out var pi))
-                return pi;
-
-            var allProperties = TypePropertiesCache(type);
-            var keyProperties = allProperties.Where(p => p.GetCustomAttributes(true).Any(a => a is KeyAttribute)).ToList();
-
-            if (keyProperties.Count == 0)
+            return KeyProperties.GetOrAdd(type.TypeHandle, _ =>
             {
-                var idProp = allProperties.FirstOrDefault(p => p.Name.Equals("id", StringComparison.OrdinalIgnoreCase));
-                if (idProp != null) keyProperties.Add(idProp);
-            }
+                var allProperties = TypePropertiesCache(type);
+                var keyProperties = allProperties.Where(property => property.IsDefined(typeof(KeyAttribute), true)).ToList();
 
-            KeyProperties[type.TypeHandle] = keyProperties;
-            return keyProperties;
+                if (keyProperties.Count == 0)
+                {
+                    var idProp = allProperties.FirstOrDefault(p => p.Name.Equals("id", StringComparison.OrdinalIgnoreCase));
+                    if (idProp != null)
+                        keyProperties.Add(idProp);
+                }
+
+                return keyProperties;
+            });
         }
 
         private static List<PropertyInfo> TypePropertiesCache(Type type)
         {
-            if (TypeProperties.TryGetValue(type.TypeHandle, out var pis))
-                return pis;
-
-
-            var properties = type.GetProperties().Where(IsWriteable).ToList();
-            TypeProperties[type.TypeHandle] = properties;
-            return properties;
+            return TypeProperties.GetOrAdd(
+                type.TypeHandle,
+                _ => type.GetProperties().Where(IsWriteable).ToList());
         }
 
         private static string QuoteIdentifier(string identifier) => "`" + identifier.Replace("`", "``") + "`";
@@ -127,6 +139,34 @@ namespace Protocolo.Framework.Database
             return $"delete from {tableName} where {where}";
         }
 
+        private static EntityMetadata GetEntityMetadata(Type type)
+        {
+            return EntityMetadataCache.GetOrAdd(type.TypeHandle, _ =>
+            {
+                var allProperties = TypePropertiesCache(type);
+                var keyProperties = KeyPropertiesCache(type);
+                var nonKeyProperties = allProperties.Except(keyProperties).ToList();
+                var tableName = GetTableName(type);
+
+                return new EntityMetadata
+                {
+                    TableName = tableName,
+                    AllProperties = allProperties,
+                    KeyProperties = keyProperties,
+                    NonKeyProperties = nonKeyProperties,
+                    AllColumns = BuildColumnList(allProperties),
+                    AllParameters = BuildParameterList(allProperties),
+                    NonKeyColumns = BuildColumnList(nonKeyProperties),
+                    NonKeyParameters = BuildParameterList(nonKeyProperties),
+                    UpdateSql = keyProperties.Count == 0 || nonKeyProperties.Count == 0 ? null : BuildUpdateSql(tableName, nonKeyProperties, keyProperties),
+                    DeleteSql = keyProperties.Count == 0 ? null : BuildDeleteSql(tableName, keyProperties),
+                    GetSql = keyProperties.Count == 1
+                        ? $"select {BuildColumnList(allProperties)} from {tableName} where {QuoteIdentifier(keyProperties[0].Name)} = @id"
+                        : null
+                };
+            });
+        }
+
         public static bool IsWriteable(PropertyInfo pi)
         {
             var attributes = pi.GetCustomAttributes(typeof(WriteAttribute), false);
@@ -138,24 +178,11 @@ namespace Protocolo.Framework.Database
         public static T Get<T>(this IDbConnection connection, dynamic id, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             var type = typeof(T);
+            var metadata = GetEntityMetadata(type);
+            if (metadata.KeyProperties.Count != 1)
+                throw new DataException("Get<T> only supports an entity with a single [Key] property");
 
-            if (!GetQueries.TryGetValue(type.TypeHandle, out string sql))
-            {
-                var keys = KeyPropertiesCache(type);
-                if (keys.Count > 1)
-                    throw new DataException("Get<T> only supports an entity with a single [Key] property");
-                if (keys.Count == 0)
-                    throw new DataException("Get<T> only supports an entity with a [Key] property");
-
-                var onlyKey = keys[0];
-                var name = GetTableName(type);
-
-                var allProperties = TypePropertiesCache(type);
-                var columnList = BuildColumnList(allProperties);
-
-                sql = $"select {columnList} from {name} where {QuoteIdentifier(onlyKey.Name)} = @id";
-                GetQueries[type.TypeHandle] = sql;
-            }
+            var sql = metadata.GetSql;
 
             var dynParms = new DynamicParameters();
             dynParms.Add("@id", id);
@@ -169,7 +196,7 @@ namespace Protocolo.Framework.Database
                     return null;
 
                 obj = ProxyGenerator.GetInterfaceProxy<T>();
-                foreach (var property in TypePropertiesCache(type))
+                foreach (var property in metadata.AllProperties)
                 {
                     if (res.TryGetValue(property.Name, out var val))
                         property.SetValue(obj, val, null);
@@ -185,27 +212,37 @@ namespace Protocolo.Framework.Database
         }
 
 
-        public static void SetTableName(Type type, string name) => TypeTableName[type.TypeHandle] = name;
+        public static void SetTableName(Type type, string name)
+        {
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("Table name is required.", nameof(name));
+
+            TypeTableName[type.TypeHandle] = name;
+            EntityMetadataCache.TryRemove(type.TypeHandle, out _);
+        }
 
         public static string GetTableName(Type type)
         {
-            if (!TypeTableName.TryGetValue(type.TypeHandle, out string name))
-            {
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
 
+            return TypeTableName.GetOrAdd(type.TypeHandle, _ =>
+            {
                 string baseName = type.Name;
                 if (type.IsInterface && baseName.StartsWith("I") && baseName.Length > 1)
                     baseName = baseName.AsSpan(1).ToString();
 
-                name = Pluralizer.Pluralize(baseName);
+                var name = Pluralizer.Pluralize(baseName);
 
                 var tableattr = type.GetCustomAttributes(false).Where(attr => attr.GetType().Name == "TableAttribute").SingleOrDefault() as dynamic;
 
                 if (tableattr != null)
                     name = tableattr.Name;
 
-                TypeTableName[type.TypeHandle] = name;
-            }
-            return name;
+                return name;
+            });
         }
 
 
@@ -216,51 +253,47 @@ namespace Protocolo.Framework.Database
                                             IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             var type = typeof(T);
-            var name = GetTableName(type);
-            var allProps = TypePropertiesCache(type);
-            var columns = BuildColumnList(allProps);
-            var parameters = BuildParameterList(allProps);
+            var metadata = GetEntityMetadata(type);
             var adapter = GetFormatter(connection);
-            foreach (var entity in entities)
-                adapter.Insert(connection, transaction, commandTimeout, name, columns, parameters, NoKeyProperties, entity);
+            if (adapter is SqlServerAdapter batchAdapter)
+                batchAdapter.InsertMany(connection, transaction, commandTimeout, metadata.TableName, metadata.AllColumns, metadata.AllParameters, entities);
+            else
+                foreach (var entity in entities)
+                    adapter.Insert(connection, transaction, commandTimeout, metadata.TableName, metadata.AllColumns, metadata.AllParameters, NoKeyProperties, entity);
         }
 
         public static long InsertWithKey<T>(this IDbConnection connection, T entityToInsert,
                                             IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             var type = typeof(T);
-            var name = GetTableName(type);
-            var allProps = TypePropertiesCache(type);
+            var metadata = GetEntityMetadata(type);
             var adapter = GetFormatter(connection);
 
-            return adapter.Insert(connection, transaction, commandTimeout, name, BuildColumnList(allProps), BuildParameterList(allProps), NoKeyProperties, entityToInsert);
+            return adapter.Insert(connection, transaction, commandTimeout, metadata.TableName, metadata.AllColumns, metadata.AllParameters, NoKeyProperties, entityToInsert);
         }
 
         public static long Insert<T>(this IDbConnection connection, T entityToInsert,
                                      IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             var type = typeof(T);
-            var name = GetTableName(type);
-            var keyProps = KeyPropertiesCache(type);
-            var nonKeyProps = TypePropertiesCache(type).Except(keyProps).ToList();
+            var metadata = GetEntityMetadata(type);
             var adapter = GetFormatter(connection);
 
-            return adapter.Insert(connection, transaction, commandTimeout, name, BuildColumnList(nonKeyProps), BuildParameterList(nonKeyProps), keyProps, entityToInsert);
+            return adapter.Insert(connection, transaction, commandTimeout, metadata.TableName, metadata.NonKeyColumns, metadata.NonKeyParameters, metadata.KeyProperties, entityToInsert);
         }
 
         public static void Insert<T>(this IDbConnection connection, IEnumerable<T> entities,
                                      IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             var type = typeof(T);
-            var name = GetTableName(type);
-            var keyProps = KeyPropertiesCache(type);
-            var nonKeyProps = TypePropertiesCache(type).Except(keyProps).ToList();
-            var columns = BuildColumnList(nonKeyProps);
-            var parameters = BuildParameterList(nonKeyProps);
+            var metadata = GetEntityMetadata(type);
             var adapter = GetFormatter(connection);
 
-            foreach (var entity in entities)
-                adapter.Insert(connection, transaction, commandTimeout, name, columns, parameters, keyProps, entity);
+            if (adapter is SqlServerAdapter batchAdapter)
+                batchAdapter.InsertMany(connection, transaction, commandTimeout, metadata.TableName, metadata.NonKeyColumns, metadata.NonKeyParameters, entities);
+            else
+                foreach (var entity in entities)
+                    adapter.Insert(connection, transaction, commandTimeout, metadata.TableName, metadata.NonKeyColumns, metadata.NonKeyParameters, metadata.KeyProperties, entity);
         }
 
 
@@ -271,15 +304,14 @@ namespace Protocolo.Framework.Database
                                     IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             var type = typeof(T);
-            var keyProps = KeyPropertiesCache(type);
-            if (!keyProps.Any())
+            var metadata = GetEntityMetadata(type);
+            if (metadata.KeyProperties.Count == 0)
                 throw new ArgumentException("Entity must have at least one [Key] property");
 
-            var nonIdProps = TypePropertiesCache(type).Except(keyProps).ToList();
-            if (!nonIdProps.Any()) return 0;
+            if (metadata.NonKeyProperties.Count == 0)
+                return 0;
 
-            var sql = BuildUpdateSql(GetTableName(type), nonIdProps, keyProps);
-            return connection.ExecuteQuery(sql, entitiesToUpdate, commandTimeout: commandTimeout, transaction: transaction);
+            return connection.ExecuteQuery(metadata.UpdateSql, entitiesToUpdate, commandTimeout: commandTimeout, transaction: transaction);
         }
 
         public static int UpdateTransactional<T>(this IDbConnection connection, IDbCommand cmd,
@@ -287,14 +319,14 @@ namespace Protocolo.Framework.Database
                                           IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             var type = typeof(T);
-            var keyProps = KeyPropertiesCache(type);
-            if (!keyProps.Any())
+            var metadata = GetEntityMetadata(type);
+            if (metadata.KeyProperties.Count == 0)
                 throw new ArgumentException("Entity must have at least one [Key] property");
 
-            var nonIdProps = TypePropertiesCache(type).Except(keyProps).ToList();
-            var sql = BuildUpdateSql(GetTableName(type), nonIdProps, keyProps);
+            if (metadata.NonKeyProperties.Count == 0)
+                return 0;
 
-            return connection.ExecuteQueryMultiple(cmd, sql, entitiesToUpdate, commandTimeout: commandTimeout, transaction: transaction);
+            return connection.ExecuteQueryMultiple(cmd, metadata.UpdateSql, entitiesToUpdate, commandTimeout: commandTimeout, transaction: transaction);
         }
 
         public static bool Update<T>(this IDbConnection connection, T entityToUpdate,
@@ -305,14 +337,14 @@ namespace Protocolo.Framework.Database
                 return false;
 
             var type = typeof(T);
-            var keyProps = KeyPropertiesCache(type);
-            if (!keyProps.Any())
+            var metadata = GetEntityMetadata(type);
+            if (metadata.KeyProperties.Count == 0)
                 throw new ArgumentException("Entity must have at least one [Key] property");
 
-            var nonIdProps = TypePropertiesCache(type).Except(keyProps).ToList();
-            var sql = BuildUpdateSql(GetTableName(type), nonIdProps, keyProps);
+            if (metadata.NonKeyProperties.Count == 0)
+                return false;
 
-            return connection.ExecuteQuery(sql, entityToUpdate, commandTimeout: commandTimeout, transaction: transaction) > 0;
+            return connection.ExecuteQuery(metadata.UpdateSql, entityToUpdate, commandTimeout: commandTimeout, transaction: transaction) > 0;
         }
 
 
@@ -326,28 +358,26 @@ namespace Protocolo.Framework.Database
                 throw new ArgumentException("Cannot Delete null Object", nameof(entityToDelete));
 
             var type = typeof(T);
-            var keyProps = KeyPropertiesCache(type);
-            if (!keyProps.Any())
+            var metadata = GetEntityMetadata(type);
+            if (metadata.KeyProperties.Count == 0)
                 throw new ArgumentException("Entity must have at least one [Key] property");
 
-            var sql = BuildDeleteSql(GetTableName(type), keyProps);
-            return connection.ExecuteQuery(sql, entityToDelete, transaction: transaction, commandTimeout: commandTimeout) > 0;
+            return connection.ExecuteQuery(metadata.DeleteSql, entityToDelete, transaction: transaction, commandTimeout: commandTimeout) > 0;
         }
 
         public static void Delete<T>(this IDbConnection connection, IEnumerable<T> entities,
                              IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             var list = entities as IList<T> ?? entities.ToList();
-            if (!list.Any()) return;
+            if (list.Count == 0)
+                return;
 
             var type = typeof(T);
-            var keyProps = KeyPropertiesCache(type);
-            if (!keyProps.Any())
+            var metadata = GetEntityMetadata(type);
+            if (metadata.KeyProperties.Count == 0)
                 throw new ArgumentException("Entity must have at least one [Key] property");
 
-            var sql = BuildDeleteSql(GetTableName(type), keyProps);
-            foreach (var entity in list)
-                connection.ExecuteQuery(sql, entity, transaction: transaction, commandTimeout: commandTimeout);
+            connection.ExecuteQuery(metadata.DeleteSql, list, transaction: transaction, commandTimeout: commandTimeout);
         }
 
 
@@ -356,8 +386,8 @@ namespace Protocolo.Framework.Database
 
         public static ISqlAdapter GetFormatter(IDbConnection connection)
         {
-            string name = connection.GetType().Name.ToLower();
-            return AdapterDictionary.TryGetValue(name, out var adapter) ? adapter : new SqlServerAdapter();
+            string name = connection.GetType().Name;
+            return AdapterDictionary.TryGetValue(name, out var adapter) ? adapter : DefaultAdapter;
         }
 
 
@@ -534,13 +564,36 @@ namespace Protocolo.Framework.Database
 
     public class SqlServerAdapter : ISqlAdapter
     {
+        private readonly ConcurrentDictionary<InsertCommandKey, string> m_insertCommands = new ConcurrentDictionary<InsertCommandKey, string>();
+
+        private readonly record struct InsertCommandKey(string TableName, string ColumnList, string ParameterList);
+
         public int Insert(IDbConnection connection, IDbTransaction transaction, int? commandTimeout,
                           string tableName, string columnList, string parameterList,
                           IEnumerable<PropertyInfo> keyProperties, object entityToInsert)
         {
-            string cmd = $"insert into {tableName} ({columnList}) values ({parameterList})";
+            var commandKey = new InsertCommandKey(tableName, columnList, parameterList);
+            var cmd = m_insertCommands.GetOrAdd(
+                commandKey,
+                static key => $"insert into {key.TableName} ({key.ColumnList}) values ({key.ParameterList})");
             connection.Execute(cmd, entityToInsert, transaction: transaction, commandTimeout: commandTimeout);
             return 1;
+        }
+
+        public int InsertMany<T>(
+            IDbConnection connection,
+            IDbTransaction transaction,
+            int? commandTimeout,
+            string tableName,
+            string columnList,
+            string parameterList,
+            IEnumerable<T> entities)
+        {
+            var commandKey = new InsertCommandKey(tableName, columnList, parameterList);
+            var commandText = m_insertCommands.GetOrAdd(
+                commandKey,
+                static key => $"insert into {key.TableName} ({key.ColumnList}) values ({key.ParameterList})");
+            return connection.ExecuteQuery(commandText, entities, transaction, commandTimeout);
         }
     }
 

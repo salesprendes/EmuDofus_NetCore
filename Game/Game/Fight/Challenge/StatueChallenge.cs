@@ -1,24 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Game.Fight.Challenge
 {
     public sealed class StatueChallenge : AbstractChallenge
     {
         private int m_cellId;
 
-        public StatueChallenge()
-    : base(ChallengeTypeEnum.STATUE)
+        public StatueChallenge() : base(ChallengeTypeEnum.STATUE)
         {
             BasicDropBonus = 25;
             BasicXpBonus = 25;
 
             TeamDropBonus = 55;
             TeamXpBonus = 55;
-
         }
 
         public override void BeginTurn(AbstractFighter fighter)

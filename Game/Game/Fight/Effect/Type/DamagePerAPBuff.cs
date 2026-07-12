@@ -17,10 +17,13 @@ namespace Game.Fight.Effect.Type
         public override FightActionResultEnum ApplyEffect(ref int damageValue, CastInfos damageInfos = null)
         {
             var usedAp = Target.UsedAP;
-            if (usedAp < 1)
+            if (usedAp < 1 || CastInfos.Value1 <= 0)
                 return FightActionResultEnum.RESULT_NOTHING;
 
+            // Daño de fin de turno: se marca como veneno para que NO revele invisibilidad ni
+            // dispare armaduras/renvoi como un ataque directo.
             damageInfos = new CastInfos(EffectEnum.DANO_NEUTRAL, -1, -1, -1, -1, -1, -1, -1, CastInfos.Caster, CastInfos.Target);
+            damageInfos.IsPoison = true;
             var damageJet = (usedAp / CastInfos.Value1) * CastInfos.Value2;
 
             return DamageEffect.ApplyDamages(damageInfos, CastInfos.Target, ref damageJet);

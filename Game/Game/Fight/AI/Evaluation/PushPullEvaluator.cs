@@ -88,11 +88,13 @@ namespace Game.Fight.AI.Evaluation
             var current = targetCell;
             for (var i = 0; i < length; i++)
             {
-                var next = Pathfinding.NextCell(map, current, direction);
-                var cell = context.Fight.GetCell(next);
+                // Paso validado como en el empuje real: el borde del mapa cuenta como choque.
+                var cell = Pathfinding.TryGetCellInDirection(map, current, direction, 1, out var next)
+                    ? context.Fight.GetCell(next)
+                    : null;
 
                 if (cell == null || !cell.CanWalk)
-                    return length - i;   // choca con muro/luchador: casillas restantes
+                    return length - i;   // choca con muro/borde/luchador: casillas restantes
 
                 if (cell.HasObject(FightObstacleTypeEnum.TYPE_TRAP))
                     return 0;            // cae sobre una trampa: sin danio por choque

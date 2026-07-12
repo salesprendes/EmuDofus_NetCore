@@ -929,15 +929,14 @@ namespace Game.Entity
                 if (DisconnectedTurnLeft <= 0)
                 {
                     Fight.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.ERROR, InformationEnum.ERROR_FIGHTER_KICKED_DUE_TO_DISCONNECTION, Name));
-                    if (Fight.FightQuit(this) == FightActionResultEnum.RESULT_END)
-                    {
-                        return FightActionResultEnum.RESULT_END;
-                    }
+
+                    // FightQuit expulsa al personaje (EndFight libera SpellManager/BuffManager):
+                    // hay que devolver aquí, no seguir a base.EndTurn(), que desreferenciaría
+                    // esos managers ya nulos (NRE en cada kick por desconexión).
+                    return Fight.FightQuit(this);
                 }
-                else
-                {
-                    Fight.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, InformationEnum.INFO_FIGHT_DISCONNECT_TURN_REMAIN, Name, DisconnectedTurnLeft));
-                }
+
+                Fight.Dispatch(WorldMessage.INFORMATION_MESSAGE(InformationTypeEnum.INFO, InformationEnum.INFO_FIGHT_DISCONNECT_TURN_REMAIN, Name, DisconnectedTurnLeft));
             }
             return base.EndTurn();
         }
@@ -1305,6 +1304,7 @@ namespace Game.Entity
 
         public void RefreshPersonalShopTaxe()
         {
+            MerchantTaxe = 0;
             foreach (var item in PersonalShop.Items)
             {
                 MerchantTaxe += item.MerchantPrice * item.Quantity;

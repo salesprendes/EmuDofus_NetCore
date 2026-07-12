@@ -30,7 +30,7 @@ namespace Protocolo.Framework.Database
             }
             catch (MySqlException ex)
             {
-                Logger.Error($"Error fatal al cargar la base de datos: cadenaConexion={connectionString} mensaje={ex}");
+                Logger.Error($"Error fatal al cargar la base de datos: {ex}");
             }
         }
 

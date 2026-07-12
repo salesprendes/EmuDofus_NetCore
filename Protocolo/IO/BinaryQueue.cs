@@ -45,6 +45,7 @@ namespace Protocolo.Framework.IO
         {
             if (destination == null)
                 throw new ArgumentNullException(nameof(destination));
+                
             if (destinationOffset < 0 || count < 0 || destinationOffset > destination.Length - count)
                 throw new ArgumentOutOfRangeException(nameof(destinationOffset));
 
@@ -212,6 +213,7 @@ namespace Protocolo.Framework.IO
         {
             if (count < 0)
                 throw new ArgumentOutOfRangeException(nameof(count));
+
             if (Count < count)
                 throw new EndOfStreamException("BinaryQueue::ReadBytes end of stream.");
         }
@@ -233,6 +235,7 @@ namespace Protocolo.Framework.IO
 
             var newSize = m_buffer.Length;
             var required = Count + count;
+
             if (required < 0 || required > Array.MaxLength)
                 throw new OutOfMemoryException("BinaryQueue capacity limit exceeded.");
 

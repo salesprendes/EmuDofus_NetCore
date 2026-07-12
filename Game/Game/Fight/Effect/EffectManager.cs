@@ -125,6 +125,7 @@ namespace Game.Fight.Effect
 
 
                 { EffectEnum.CASTIGO_MAS, new PunishmentEffect() },
+                { EffectEnum.CASTIGO_EROSION, new MaxLifeErosionEffect() },
 
 
                 { EffectEnum.MOVIMIENTO_EMPUJAR, new PushEffect() },
@@ -180,6 +181,14 @@ namespace Game.Fight.Effect
 
                 { EffectEnum.COMBATE_COLOCAR_GLIFO, new ActivableObjectEffect() },
                 { EffectEnum.COMBATE_COLOCAR_TRAMPA, new ActivableObjectEffect() },
+                { EffectEnum.LANZAR_HECHIZO, new SubSpellEffect() },
+                { EffectEnum.NINGUN_EFECTO, new NullEffect() },
+                { EffectEnum.CARACTERISTICA_MAS_FUERZA, new CharacteristicBoostEffect() },
+                { EffectEnum.CARACTERISTICA_MAS_SUERTE, new CharacteristicBoostEffect() },
+                { EffectEnum.CARACTERISTICA_MAS_AGILIDAD, new CharacteristicBoostEffect() },
+                { EffectEnum.CARACTERISTICA_MAS_VITALIDAD, new CharacteristicBoostEffect() },
+                { EffectEnum.CARACTERISTICA_MAS_INTELIGENCIA, new CharacteristicBoostEffect() },
+                { EffectEnum.CARACTERISTICA_MAS_SABIDURIA, new CharacteristicBoostEffect() },
                 { EffectEnum.COMBATE_COLOCAR_GLIFO_BIS, new ActivableObjectEffect() },
 
 

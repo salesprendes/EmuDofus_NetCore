@@ -6,8 +6,6 @@ using Game.Network;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.Fight
 {
@@ -91,9 +89,7 @@ namespace Game.Fight
             get;
         }
 
-        // Lanzador del objeto (glifo/trampa). Permite a la IA distinguir los hostiles de los propios.
         public AbstractFighter Caster => m_caster;
-
         protected AbstractFight m_fight;
         protected AbstractFighter m_caster;
         protected SpellTemplate m_actionSpell;
@@ -121,11 +117,14 @@ namespace Game.Fight
             CanStack = canStack;
             Color = castInfos.Value3;
             Targets = new List<AbstractFighter>();
-            Length = Pathfinding.GetDirection(castInfos.RangeType[1]);
             AffectedCells = new List<FightCell>();
             Duration = duration;
             ActionId = actionId;
             Hide = hide;
+
+
+            var zonePair = !string.IsNullOrEmpty(castInfos.RangeType) && castInfos.RangeType.Length >= 2 ? castInfos.RangeType.Substring(0, 2) : "Pa";
+            Length = Math.Max(0, Pathfinding.GetDirection(zonePair[1]));
 
             foreach (var effect in m_actionEffect.Effects)
             {
@@ -136,7 +135,7 @@ namespace Game.Fight
             }
 
 
-            foreach (var cellId in CellZone.GetCircleCells(fight.Map, cell, Length))
+            foreach (var cellId in CellZone.GetCells(fight.Map, cell, cell, zonePair).Distinct())
             {
                 var fightCell = m_fight.GetCell(cellId);
                 if (fightCell != null)
@@ -175,27 +174,17 @@ namespace Game.Fight
             m_fight.CurrentProcessingFighter = activator;
             m_fight.Dispatch(WorldMessage.GAME_ACTION(ActionId, activator.Id, m_spellId + "," + Cell.Id + "," + m_actionSpell.Sprite + "," + m_actionEffect.Level + ",1," + m_caster.Id));
 
+            // Pausa para que se vea la animacion de la trampa antes de que lleguen sus efectos.
+            if (ObstacleType == FightObstacleTypeEnum.TYPE_TRAP)
+                m_fight.SetSubAction(() => FightActionResultEnum.RESULT_NOTHING, 300);
+
             foreach (var target in Targets)
             {
                 if (!target.IsFighterDead)
                 {
                     foreach (var effect in m_actionEffect.Effects)
                     {
-                        m_fight.AddProcessingTarget(new CastInfos(
-                                            effect.TypeEnum,
-                                            m_spellId,
-                                            Cell.Id,
-                                            effect.Value1,
-                                            effect.Value2,
-                                            effect.Value3,
-                                            effect.Chance,
-                                            effect.Duration,
-                                            m_caster,
-                                            target,
-                                            "",
-                                            target.Cell.Id,
-                                            isTrap: ObstacleType == FightObstacleTypeEnum.TYPE_TRAP)
-                                         );
+                        m_fight.AddProcessingTarget(new CastInfos(effect.TypeEnum, m_spellId, Cell.Id, effect.Value1, effect.Value2, effect.Value3, effect.Chance, effect.Duration, m_caster, target, "", target.Cell.Id, isTrap: ObstacleType == FightObstacleTypeEnum.TYPE_TRAP));
                     }
                 }
             }

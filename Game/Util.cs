@@ -11,9 +11,11 @@ namespace Game
     {
         public static readonly string HASH = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_";
         private static ReadOnlySpan<char> Base36Chars => "0123456789abcdefghijklmnopqrstuvwxyz";
-        private static readonly FastRandom Random = new FastRandom();
         private static readonly Dictionary<char, int> s_hashIndex = HASH.Select((c, i) => (c, i)).ToDictionary(x => x.c, x => x.i);
-        public static int Next(int min, int max) => Random.Next(min, max);
+        // FastRandom no es seguro para hilos: se usa la instancia [ThreadStatic] Shared para que cada
+        // hilo (procesador de subareas, servidor de juego, login...) tenga su propio estado y no se
+        // corrompa el generador por accesos concurrentes.
+        public static int Next(int min, int max) => FastRandom.Shared.Next(min, max);
         public static int NextJet(int min, int max) => ++max <= min ? min : Next(min, max);
         public static string CellToChar(int cellId) => string.Create(2, cellId, static (destination, id) => CellToChar(id, destination));
         public static void CellToChar(int cellId, Span<char> destination) => (destination[0], destination[1]) = (HASH[cellId / 64], HASH[cellId % 64]);
